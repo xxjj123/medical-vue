@@ -1,0 +1,17 @@
+diff --git a/dist/vue.esm.js b/dist/vue.esm.js
+index cff45cd4e1a025ce2bd6117bba86dd12f74ca971..28a80639a378e6014a1430d7f0626121b1607ed3 100644
+--- a/dist/vue.esm.js
++++ b/dist/vue.esm.js
+@@ -7268,6 +7268,12 @@ function normalizeDirectives(dirs, vm) {
+         // $flow-disable-line
+         return res;
+     }
++    // 如果vm为null或其他Falsy值则直接返回
++    // 这是用于修复: 功能资源管理点击银海软件查看drawer然后关闭时的控制台报错
++    // Error in nextTick: "TypeError: Cannot read properties of undefined (reading '_setupState')"
++    if (!vm) {
++        return res;
++    }
+     var i, dir;
+     for (i = 0; i < dirs.length; i++) {
+         dir = dirs[i];

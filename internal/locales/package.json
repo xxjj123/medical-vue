@@ -1,0 +1,24 @@
+{
+  "name": "@yh/cli-internal-precompiled-locales",
+  "version": "0.0.0",
+  "scripts": {
+    "prepare": "tsup --config tsup.wrapper.config.js"
+  },
+  "dependencies": {
+    "vue-i18n": "^8.28.2"
+  },
+  "devDependencies": {
+    "tsup": "^6.7.0"
+  },
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    },
+    "./mixins": {
+      "import": "./src/mixins.ts"
+    },
+    "./dist/*": "./dist/*",
+    "./support-list": "./src/support-list.ts"
+  }
+}

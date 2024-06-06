@@ -1,0 +1,13 @@
+diff --git a/dist/chunk-XR5T4LZ3.mjs b/dist/chunk-XR5T4LZ3.mjs
+index ad37974d35067fbf6e3656b214bbb10c1a67b576..9dc6d872f3479a772622a6c9ba5daae534fe9111 100644
+--- a/dist/chunk-XR5T4LZ3.mjs
++++ b/dist/chunk-XR5T4LZ3.mjs
+@@ -304,7 +304,7 @@ async function transformComponent(code, transformer2, s, ctx, sfcPath) {
+     const component = await ctx.findComponent(name, "component", [sfcPath]);
+     if (component) {
+       const varName = `__unplugin_components_${no}`;
+-      s.prepend(`${stringifyComponentImport(__spreadProps(__spreadValues({}, component), { as: varName }), ctx)};
++      s.append(`\n${stringifyComponentImport(__spreadProps(__spreadValues({}, component), { as: varName }), ctx)};
+ `);
+       no += 1;
+       replace(varName);

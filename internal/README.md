@@ -1,0 +1,4 @@
+- internal/css是用于生成开发时期的预配置主题的模块
+- locales是国际化支持的模块
+- mockjs是mock服务
+- theme是换肤的代码

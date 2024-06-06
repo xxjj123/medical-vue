@@ -1,0 +1,23 @@
+{
+  "name": "@yh/vite-plugin-file-replacer",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git01.yinhaiyun.com:JY19MEYF001/ta404-ui-cli.git"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.2"
+  },
+  "private": true
+}

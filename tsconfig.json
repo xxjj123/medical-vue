@@ -1,0 +1,56 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "strict": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "skipLibCheck": true,
+    "noEmit": true,
+    "verbatimModuleSyntax": true,
+    "allowJs": true,
+    "checkJs": false,
+    "baseUrl": "./",
+    "paths": {
+      "@common/*": [
+        "cli/common/src/*"
+      ],
+      "@projectCommon/*": [
+        "cli/projectCommon/src/*"
+      ],
+      "faceConfig": [
+        "faceConfig"
+      ]
+    },
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@yh/cli-internal-types"
+    ]
+  },
+  "include": [
+    "src/**/*.js",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.jsx",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+  ],
+  "vueCompilerOptions": {
+    "target": 2.7,
+    "extensions": [
+      ".vue"
+    ]
+  },
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}

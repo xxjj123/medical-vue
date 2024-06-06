@@ -1,0 +1,93 @@
+/**
+这里书写需要覆盖框架组件的样式
+注意:需要添加!important不然不能覆盖
+例如:
+我要修改 button的背景颜色
+.ant-btn-primary{background-color:red !important;}
+*/
+
+/**
+演示文档时，将faceConfig.js中的defaultTheme设置为'example'，同时放开以下代码
+.ant-btn.ant-btn-default:hover {
+  color: @text-color;
+  border-color: @primary-color;
+  background: #daeafb;
+}
+.ant-select-dropdown-menu-item-selected.ant-select-dropdown-menu-item-active {
+  color: #fff;
+  background: @primary-color;
+}*/
+/* 解决ie下搜索框字体居右 */
+.search-box {
+  text-align: left;
+}
+// 框架modal的宽度/高度 适配规范
+.modal-specs{
+  >.ant-modal{
+    >.ant-modal-content{
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      >.ant-modal-body{
+        overflow: auto;
+        flex: 1;
+        height: 100%;
+        position: relative;
+      }
+    }
+  }
+  &.modal-large{
+    >.ant-modal{
+      height:90%;
+      width: 80% !important;
+    }
+  }
+  &.modal-medium{
+    >.ant-modal{
+      height:70%;
+      width: 50% !important;
+    }
+  }
+  &.modal-small{
+    >.ant-modal{
+      height:320px;
+      //width: 520px;
+    }
+  }
+
+}
+// 框架组合搜索框高度
+.group-tool-search{
+  padding:8px 0px;
+  display: flex;
+  justify-content: center;
+  // 在border-layout里面有内边距就减去默认的内边距
+  &-small{
+    padding:2px 0px;
+    display: flex;
+    justify-content: center;
+  }
+}
+.group-tool-bar{
+  padding:8px 0px;
+  >span{
+    vertical-align: middle;
+  }
+  >.ant-checkbox-wrapper{
+    vertical-align: middle;
+  }
+  >.ant-btn{
+    vertical-align: middle;
+  }
+}
+.group-tool-breadcrumb{
+  padding:6px 0px;
+  display: flex;
+  align-items: center;
+}
+// 分隔条样式
+.ant-divider-horizontal{
+ height:0.5px
+}
+
+
