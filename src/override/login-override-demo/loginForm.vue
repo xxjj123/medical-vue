@@ -7,6 +7,7 @@
         }
       "
       layout="vertical"
+      class="cus_form"
     >
       <ta-form-item
         field-decorator-id="username"
@@ -18,11 +19,13 @@
         }"
       >
         <ta-input
+          class="cus_input"
           :placeholder="$t('login.userName')"
           @blur="checkUser"
           @pressEnter="gotoDeal($event, 'password')"
         >
-          <ta-icon slot="prefix" type="user" />
+          <!-- <ta-icon slot="prefix" type="user" /> -->
+          <i slot="prefix" class="ico_user"></i>
         </ta-input>
       </ta-form-item>
       <ta-form-item
@@ -32,6 +35,7 @@
         }"
       >
         <ta-input
+          class="cus_input"
           :placeholder="$t('login.password')"
           type="password"
           style="width: 70%"
@@ -40,7 +44,8 @@
             gotoDeal($event, simpleCheckCodeState ? 'checkCode' : 'sbbtn')
           "
         >
-          <ta-icon slot="prefix" type="lock" />
+          <!-- <ta-icon slot="prefix" type="lock" /> -->
+          <i slot="prefix" class="ico_lock"></i>
         </ta-input>
         <ta-button
           tabindex="-1"
@@ -85,7 +90,13 @@
         :img-size="{ width: '330px', height: '155px' }"
         @success="success"
       />
-      <ta-button id="sbbtn" type="primary" block @click="useVerify">
+      <ta-button
+        class="cus_button"
+        id="sbbtn"
+        type="primary"
+        block
+        @click="useVerify"
+      >
         {{ $t("login.login") }}
       </ta-button>
       <div style="text-align: right; padding: 5px 0px">
@@ -345,3 +356,58 @@ export default {
   },
 };
 </script>
+
+
+<style lang="less" scoped>
+@base_font-size: 18px;
+.func__iconDef(@pic,@width:20px,@height:20px) {
+  width: @width;
+  height: @height;
+  background-image: url(@pic);
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.cus_form {
+  /deep/.ant-btn {
+    &.ant-btn-link {
+      font-size: @base_font-size;
+    }
+  }
+
+  .link-type {
+    font-size: @base_font-size;
+  }
+}
+.cus_input {
+  &.ant-input-affix-wrapper {
+    /deep/ .ant-input {
+      height: 62px !important;
+      background-color: transparent;
+      border-radius: 8px;
+      border-color: #3b5367;
+      font-size: 18px;
+      &:not(:first-child) {
+        padding-left: 44px !important;
+      }
+    }
+  }
+
+  .ico_user {
+    .func__iconDef("./assets/img/user.png");
+  }
+
+  .ico_lock {
+    // .func__iconDef();
+    .func__iconDef("./assets/img/lock.png",20px,23px);
+  }
+}
+
+.cus_button {
+  height: 57px;
+  font-size: 22px;
+  border-radius: 8px;
+  font-weight: 500;
+  margin-top: 20px;
+}
+</style>

@@ -250,7 +250,8 @@ const _default: ViteCommonConfig = {
         // 各个可以覆盖的模块,直接指定其所在的路径
         // 如果使用node_modules下的实现则不需要/开头
         // 这个实现可以使用任何可渲染出页面的文件,如.vue/.js/.jsx/.ts/.tsx等
-        login: '@yh/cli-pages-login/src/login.vue',
+        login: '/src/override/login-override-demo/login.vue',
+        // login: '@yh/cli-pages-login/src/login.vue',
         // login: '/src/override/login-override-demo/login.vue',
         // login: '/src/override/login-override-demo/login-js.js',
         // login: '/src/override/login-override-demo/login-jsx.jsx',
