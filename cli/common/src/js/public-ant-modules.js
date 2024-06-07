@@ -10,6 +10,12 @@ import {
   makeI18n
 } from '@yh/cli-internal-precompiled-locales';
 
+
+import PopoverEx from '@yh/ta404-ui/es/popover-ex';
+import '@yh/ta404-ui/es/popover-ex/style';
+Vue.use(PopoverEx);
+
+
 import store from '../store';
 import taMixins from './mixins/mixins.js';
 import './util/authority';
