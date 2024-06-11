@@ -15,6 +15,31 @@ import PopoverEx from '@yh/ta404-ui/es/popover-ex';
 import '@yh/ta404-ui/es/popover-ex/style';
 Vue.use(PopoverEx);
 
+import FormModel from '@yh/ta404-ui/es/form-model';
+import '@yh/ta404-ui/es/form-model/style';
+Vue.use(FormModel);
+
+import Select from '@yh/ta404-ui/es/select';
+import '@yh/ta404-ui/es/select/style';
+Vue.use(Select);
+
+import DatePicker from '@yh/ta404-ui/es/date-picker';
+import '@yh/ta404-ui/es/date-picker/style';
+Vue.use(DatePicker);
+
+import BigTable from '@yh/ta404-ui/es/big-table';
+import '@yh/ta404-ui/es/big-table/style';
+Vue.use(BigTable);
+
+import Divider from '@yh/ta404-ui/es/divider';
+import '@yh/ta404-ui/es/divider/style';
+Vue.use(Divider);
+
+import Pagination from '@yh/ta404-ui/es/pagination';
+import '@yh/ta404-ui/es/pagination/style';
+Vue.use(Pagination);
+
+
 
 import store from '../store';
 import taMixins from './mixins/mixins.js';
