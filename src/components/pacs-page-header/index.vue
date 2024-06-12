@@ -138,7 +138,7 @@ body {
   .cus_poper {
     /deep/ .el-popover {
       &.el-popper {
-        background-color: @input-bg !important;
+        background-color: @input-bg;
       }
     }
   }

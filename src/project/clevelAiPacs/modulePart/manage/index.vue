@@ -65,10 +65,10 @@
           </ta-col>
           <ta-col>
             <div class="btn_ctrl flex justify-start">
-              <ta-button
+              <ta-button type="solid" :ghost="true"
                 ><i class="ico_star"></i><span>我的收藏</span></ta-button
               >
-              <ta-button
+              <ta-button type="solid" :ghost="true"
                 ><i class="ico_upd"></i><span>上传文件</span></ta-button
               >
             </div>
@@ -513,7 +513,7 @@ export default {
 .page_full {
   width: 100%;
   height: 100vh;
-
+  background-color: @theme_backBg;
   .headerTop {
     z-index: 2;
     position: fixed;
@@ -522,6 +522,7 @@ export default {
     width: 100vw;
   }
   .contentMain {
+    background-color: @theme_backBg;
     height: calc(100% - 81px);
     min-width: 1080px;
   }
