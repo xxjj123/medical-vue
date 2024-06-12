@@ -21,14 +21,16 @@
 .search-box {
   text-align: left;
 }
+
 // 框架modal的宽度/高度 适配规范
-.modal-specs{
-  >.ant-modal{
-    >.ant-modal-content{
+.modal-specs {
+  >.ant-modal {
+    >.ant-modal-content {
       height: 100%;
       display: flex;
       flex-direction: column;
-      >.ant-modal-body{
+
+      >.ant-modal-body {
         overflow: auto;
         flex: 1;
         height: 100%;
@@ -36,58 +38,69 @@
       }
     }
   }
-  &.modal-large{
-    >.ant-modal{
-      height:90%;
+
+  &.modal-large {
+    >.ant-modal {
+      height: 90%;
       width: 80% !important;
     }
   }
-  &.modal-medium{
-    >.ant-modal{
-      height:70%;
+
+  &.modal-medium {
+    >.ant-modal {
+      height: 70%;
       width: 50% !important;
     }
   }
-  &.modal-small{
-    >.ant-modal{
-      height:320px;
+
+  &.modal-small {
+    >.ant-modal {
+      height: 320px;
       //width: 520px;
     }
   }
 
 }
+
 // 框架组合搜索框高度
-.group-tool-search{
-  padding:8px 0px;
+.group-tool-search {
+  padding: 8px 0px;
   display: flex;
   justify-content: center;
+
   // 在border-layout里面有内边距就减去默认的内边距
-  &-small{
-    padding:2px 0px;
+  &-small {
+    padding: 2px 0px;
     display: flex;
     justify-content: center;
   }
 }
-.group-tool-bar{
-  padding:8px 0px;
-  >span{
+
+.group-tool-bar {
+  padding: 8px 0px;
+
+  >span {
     vertical-align: middle;
   }
-  >.ant-checkbox-wrapper{
+
+  >.ant-checkbox-wrapper {
     vertical-align: middle;
   }
-  >.ant-btn{
+
+  >.ant-btn {
     vertical-align: middle;
   }
 }
-.group-tool-breadcrumb{
-  padding:6px 0px;
+
+.group-tool-breadcrumb {
+  padding: 6px 0px;
   display: flex;
   align-items: center;
 }
+
 // 分隔条样式
-.ant-divider-horizontal{
- height:0.5px
+.ant-divider-horizontal {
+  height: 0.5px
 }
 
-
+@import "./index.less";

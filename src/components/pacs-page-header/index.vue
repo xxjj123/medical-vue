@@ -9,9 +9,13 @@
         </div>
       </div>
       <div>
-        <div class="group_btns flex items-center justify-start" v-popover:mypop>
-          <div class="keyborard_icon mr-[41px] hover:cursor-pointer"></div>
+        <div class="group_btns flex items-center justify-start">
           <div
+            class="keyborard_icon mr-[41px] hover:cursor-pointer"
+            @click="handle_keyborard_banner"
+          ></div>
+          <div
+            v-popover:mypop
             @click="toggleRotation"
             class="userGrps flex items-center justify-start hover:cursor-pointer"
           >
@@ -60,6 +64,7 @@ export default {
     };
   },
   methods: {
+    handle_keyborard_banner() {},
     toggleRotation() {
       this.rotated = !this.rotated;
     },

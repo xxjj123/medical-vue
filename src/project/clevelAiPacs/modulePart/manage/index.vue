@@ -19,11 +19,14 @@
                 />
               </ta-form-model-item>
               <ta-form-model-item>
-                <ta-range-picker
-                  @change="onChange"
-                  :value="form.rangeDate"
-                  :allow-one="true"
-                />
+                <div class="custom_pickerDeepBlue">
+                  <ta-range-picker
+                    @change="onChange"
+                    :value="form.rangeDate"
+                    :allow-one="true"
+                    :getCalendarContainer="(trigger) => trigger.parentElement"
+                  />
+                </div>
               </ta-form-model-item>
               <ta-form-model-item label="患者信息">
                 <ta-input-group compact>
@@ -585,4 +588,10 @@ export default {
     min-height: 200px; /* 适配笔记本屏幕的列表框最小高度 */
   }
 }
+
+// .custom_pickerDeepBlue {
+//   /deep/.ant-calendar-picker-container {
+//     color: @primary-color !important;
+//   }
+// }
 </style>
