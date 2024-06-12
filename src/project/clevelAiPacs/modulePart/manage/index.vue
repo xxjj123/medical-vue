@@ -91,6 +91,7 @@
           height="auto"
           auto-resize
           :data="tableData"
+          highlight-hover-row
           border="inner"
         >
           <ta-big-table-column field="is-collect" title="#" width="60">
@@ -126,15 +127,16 @@
             <template #default="{ row }">
               <ta-row type="flex" justify="space-around">
                 <ta-col :span="18">
-                  <a> 查看结果 </a>
+                  <a class="alink"> 查看结果 </a>
                   <ta-divider type="vertical" />
-                  <a> 重新分析 </a>
+                  <a class="alink"> 重新分析 </a>
                   <ta-divider type="vertical" />
-                  <a> 取消收藏 </a>
+                  <a class="alink"> 取消收藏 </a>
                 </ta-col>
                 <ta-col>
                   <ta-icon
                     type="close-circle"
+                    :style="{ color: '#959b9b' }"
                     theme="filled"
                     class="hover:cursor-pointer"
                     @click="handle_delRow(row)"
@@ -159,6 +161,7 @@
         <ta-big-table
           ref="xTable_anaRes"
           height="auto"
+          highlight-hover-row
           auto-resize
           :data="tableData_anaRes"
           border="inner"
@@ -594,4 +597,9 @@ export default {
 //     color: @primary-color !important;
 //   }
 // }
+
+.tableBox,
+.analysis_result_listbox {
+  margin: 0 41px;
+}
 </style>
