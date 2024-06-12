@@ -68,10 +68,16 @@
           </ta-col>
           <ta-col>
             <div class="btn_ctrl flex justify-start">
-              <ta-button type="solid" :ghost="true"
+              <ta-button
+                class="aghost__border-grey-1"
+                type="solid"
+                :ghost="true"
                 ><i class="ico_star"></i><span>我的收藏</span></ta-button
               >
-              <ta-button type="solid" :ghost="true"
+              <ta-button
+                class="aghost__border-grey-1"
+                type="solid"
+                :ghost="true"
                 ><i class="ico_upd"></i><span>上传文件</span></ta-button
               >
             </div>
