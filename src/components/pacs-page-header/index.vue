@@ -4,7 +4,7 @@
       <div class="flex">
         <div class="icon_mainLg"></div>
         <div class="pl-[13px] lg_infoName">
-          <div class="h1">银海医疗</div>
+          <div class="h1">医学影像辅助诊断系统</div>
           <div class="h2">Yinhai Medical</div>
         </div>
       </div>

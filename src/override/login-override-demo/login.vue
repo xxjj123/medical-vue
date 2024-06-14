@@ -3,7 +3,7 @@
     <div id="index" ref="appRef">
       <header class="page_top_sider">
         <div class="mid_title">
-          <span>智慧医疗医学诊断影像系统</span>
+          <span>医学影像辅助诊断系统</span>
         </div>
       </header>
       <div class="bg">

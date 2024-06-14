@@ -40,6 +40,12 @@ import '@yh/ta404-ui/es/pagination/style';
 Vue.use(Pagination);
 
 
+import Drawer from '@yh/ta404-ui/es/drawer';
+import '@yh/ta404-ui/es/drawer/style';
+Vue.use(Drawer);
+
+
+
 
 import store from '../store';
 import taMixins from './mixins/mixins.js';

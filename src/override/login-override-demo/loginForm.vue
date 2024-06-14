@@ -387,6 +387,7 @@ export default {
       border-radius: 8px;
       border-color: #3b5367;
       font-size: 18px;
+      color: #fff;
       &:not(:first-child) {
         padding-left: 44px !important;
       }
