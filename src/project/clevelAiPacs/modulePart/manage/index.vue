@@ -230,6 +230,36 @@
           </ta-big-table-column>
           <ta-big-table-column field="ctrlDoctor" title="操作医师">
           </ta-big-table-column>
+          <ta-big-table-column
+            fixed="right"
+            field="operate"
+            title="操作"
+            width="320"
+          >
+            <template #default="{ row, rowIndex }">
+              <ta-row type="flex" justify="space-around">
+                <ta-col :span="18">
+                  <a class="alink"> 查看结果 </a>
+                  <ta-divider type="vertical" />
+                  <a class="alink"> 重新分析 </a>
+                  <ta-divider type="vertical" />
+                  <a class="alink" @click="handle_star_subTable(row, rowIndex)">
+                    <template v-if="row.collect === 1"> 取消收藏 </template>
+                    <template v-else> 添加收藏 </template>
+                  </a>
+                </ta-col>
+                <ta-col>
+                  <ta-icon
+                    type="close-circle"
+                    :style="{ color: '#959b9b' }"
+                    theme="filled"
+                    class="hover:cursor-pointer"
+                    @click="handle_delRow_subTable(row, rowIndex)"
+                  />
+                </ta-col>
+              </ta-row>
+            </template>
+          </ta-big-table-column>
         </ta-big-table>
       </div>
     </div>
@@ -571,6 +601,24 @@ export default {
         maskClosable:true,
         onOk:()=>{
             this.$delete(this.tableData,rowIndex);
+            this.$message.success("删除成功");
+        }
+
+      })
+
+    },
+     handle_delRow_subTable(row,rowIndex){
+      console.log("this",this);
+      this.$confirm({
+        // icon:(<ta-icon type="info-circle" />),
+        // icon:(<i>12312</i>),
+        iconType:"info-circle",
+        title: '确定删除该数据吗?',
+        // 如果需要弹窗显示的仅为一个字符串文本，则可以直接传入字符串
+        content: '确定要将骨折病变检出结果恢复至初始状态吗？',
+        maskClosable:true,
+        onOk:()=>{
+            this.$delete(this.tableData_anaRes,rowIndex);
             this.$message.success("删除成功");
         }
 
