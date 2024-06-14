@@ -61,7 +61,7 @@
                 </ta-select>
               </ta-form-model-item>
               <ta-form-model-item>
-                <ta-button type="primary">查询</ta-button>
+                <ta-button type="primary" class="mr-[8px]">查询</ta-button>
                 <ta-button>重置</ta-button>
               </ta-form-model-item>
             </ta-form-model>
@@ -69,17 +69,18 @@
           <ta-col>
             <div class="btn_ctrl flex justify-start">
               <ta-button
-                class="aghost__border-grey-1"
+                class="aghost__border-grey-1 flex items-center mr-[12px]"
                 type="solid"
                 :ghost="true"
-                ><i class="ico_star"></i><span>我的收藏</span></ta-button
+                ><i class="ico_star mr-[5px]"></i
+                ><span>我的收藏</span></ta-button
               >
               <ta-button
-                class="aghost__border-grey-1"
+                class="aghost__border-grey-1 flex items-center"
                 type="solid"
                 :ghost="true"
-                @click="handle_openfiledraw"
-                ><i class="ico_upd"></i><span>上传文件</span></ta-button
+                ><i class="ico_upd mr-[5px]"></i
+                ><span>上传文件</span></ta-button
               >
             </div>
           </ta-col>
