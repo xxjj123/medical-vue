@@ -53,18 +53,33 @@
         </div>
       </div>
     </ta-popover>
+
+    <!-- ext 键盘配置 -->
+    <pacsKeyborardCtrl :visible.sync="pacsKbCtrl_visible"></pacsKeyborardCtrl>
   </div>
 </template>
 <script lang='javascript'>
+import pacsKeyborardCtrl from "@/components/pacs-keyborard-ctrl/index.vue";
 export default {
   name: "pacs-page-header",
+  components: {
+    pacsKeyborardCtrl,
+  },
   data() {
     return {
       rotated: true,
+      pacsKbCtrl_visible: false,
     };
   },
+  watch: {
+    pacsKbCtrl_visible(val) {
+      console.log("wathc-,val,__pacsKbCtrl_visible", val);
+    },
+  },
   methods: {
-    handle_keyborard_banner() {},
+    handle_keyborard_banner() {
+      this.pacsKbCtrl_visible = true;
+    },
     toggleRotation() {
       this.rotated = !this.rotated;
     },

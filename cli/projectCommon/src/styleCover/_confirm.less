@@ -1,3 +1,11 @@
+.func_bgCover() {
+  background-repeat: no-repeat;
+  background-size: 100%;
+  background-position: 0 0;
+}
+
+
+
 body {
   .ant-modal {
     .ant-modal-content {
@@ -37,4 +45,76 @@ body {
       }
     }
   }
+
+  /*  ta-modal ---start */
+  .ant-modal {
+    &.custom_modal_box {
+
+      background: rgba(2, 31, 31, 0.85);
+      box-shadow: inset 0px 0px 20px 12px rgba(24, 151, 151, 0.35);
+      border-radius: 8px;
+      border: 1px solid @primary-color;
+      backdrop-filter: blur(6px);
+
+      .ant-modal-header {
+        background-color: transparent;
+
+        &:after {
+          content: "";
+          display: block;
+          width: 99%;
+          height: 1px;
+          border-bottom: 1px solid rgba(0, 175, 176, 0.35);
+          ;
+          margin: 20px auto 0;
+        }
+
+        .ant-modal-title {
+          font-family: PingFangSC, PingFang SC;
+          font-weight: 500;
+          font-size: 20px;
+          color: #B1F7F7;
+        }
+      }
+
+      .ant-modal-content {
+        background-color: transparent;
+        // backdrop-filter: blur(6px);
+        border: none;
+
+        // overflow: hidden;
+        .ant-modal-close-x {
+          i {
+            background-image: url(@/assets/images/manage/btn/close.png);
+            width: 24px;
+            height: 24px;
+            .func_bgCover();
+            position: relative;
+            bottom: 6px;
+            border-radius: 50%;
+
+            svg {
+              visibility: hidden;
+            }
+          }
+
+        }
+      }
+
+      .ant-modal-footer {
+        background-color: transparent;
+      }
+
+
+    }
+
+
+
+
+
+
+
+  }
+
+  /*  ta-modal ---end */
 }

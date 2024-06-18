@@ -79,6 +79,7 @@
                 class="aghost__border-grey-1 flex items-center"
                 type="solid"
                 :ghost="true"
+                @click="handle_openfiledraw"
                 ><i class="ico_upd mr-[5px]"></i
                 ><span>上传文件</span></ta-button
               >
@@ -329,12 +330,24 @@
     </ta-drawer>
   </div>
 </template>
-<script lang='jsx'>
+<script lang='javascript'>
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
-import Vue from 'vue';
+import Vue from "vue";
+// import {
+//   Icon
+// } from '@yh/ta404-ui';
+
 import {
-  Icon
-} from '@yh/ta404-ui';
+  startDiagnose,
+  getExaminationList,
+  uploadExamination,
+  isExit,
+} from "@/api";
+import { v4 as uuidv4 } from "uuid";
+// import dicomParser from "dicom-parser/dist/dicomParser.min";
+// import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoaderNoWebWorkers.bundle.min";
+// import cornerstone from "cornerstone-core";
+import JSZip from "jszip";
 
 export default {
   name: "manageDicom",
@@ -344,57 +357,55 @@ export default {
   data() {
     const tableColumns = [
       {
-        title:'#',
-        field:'is-collect',
-        width:50
-
+        title: "#",
+        field: "is-collect",
+        width: 50,
       },
       {
-        title:'检查号',
-        field:'qid',
-        customRender:{
-          default:({row,},h)=>{
-            console.log("row, h",row,h);
-            console.log("-this.$createElement",this.$createElement);
+        title: "检查号",
+        field: "qid",
+        customRender: {
+          default: ({ row }, h) => {
+            console.log("row, h", row, h);
+            console.log("-this.$createElement", this.$createElement);
             // return '-'
-             return h('span', {}, `${row.qid}来了老弟`);
-          }
-        }
-
-      }
+            return h("span", {}, `${row.qid}来了老弟`);
+          },
+        },
+      },
     ];
     return {
-      tableData_upload_anaRes:[
+      tableData_upload_anaRes: [
         {
-          xid:"20210407000133",
-          hzid:"16187278",
-          xlid:"1.2.840.113619.2.289.3.168430441.447.1617294423.131.3",
-          xlms:"1.25mm CHEST",
-          scsj:"2024-06-14 11:52:02",
-          state:"1",
-          mathtype:"1",
-        }
+          xid: "20210407000133",
+          hzid: "16187278",
+          xlid: "1.2.840.113619.2.289.3.168430441.447.1617294423.131.3",
+          xlms: "1.25mm CHEST",
+          scsj: "2024-06-14 11:52:02",
+          state: "1",
+          mathtype: "1",
+        },
       ],
-      fileDraw:{
-        title:"dicom文件上传",
-        headerHeight:"65px",
-        visible:false,
-        onClose:()=>{
+      fileDraw: {
+        title: "dicom文件上传",
+        headerHeight: "65px",
+        visible: false,
+        onClose: () => {
           console.log("onClose");
           this.fileDraw.visible = false;
         },
-        width:'100vw',
-        headerStyle:{
-          background:'#1F1F1F',
-          color:'#fff'
+        width: "100vw",
+        headerStyle: {
+          background: "#1F1F1F",
+          color: "#fff",
         },
-        bodyStyle:{
-          background:'#1F1F1F',
-          color:'#fff'
+        bodyStyle: {
+          background: "#1F1F1F",
+          color: "#fff",
         },
-        wrapStyle:{
+        wrapStyle: {
           // width:'100vw'
-        }
+        },
       },
       form: {
         fieldA: "",
@@ -535,31 +546,95 @@ export default {
       tableColumns,
       tableData: [],
 
-
-      starOn_style:{
-        color:`#F5A623`,
+      starOn_style: {
+        color: `#F5A623`,
       },
 
-      tableData_anaRes:[],
+      tableData_anaRes: [],
       pageSize: 20,
-      current:4,
+      current: 4,
       pageSizeInput: 12,
-
     };
   },
-  watch:{
-      pageSize(val) {
-          console.log('pageSize',val);
-      },
-      current(val) {
-          console.log('current',val);
-      }
+  watch: {
+    pageSize(val) {
+      console.log("pageSize", val);
+    },
+    current(val) {
+      console.log("current", val);
+    },
   },
   methods: {
-    onShowSizeChange(current, pageSize) {
-                console.log(current, pageSize);
+    extractDicomData(dataSet) {
+      let examID = dataSet.string("x0020000d");
+      if (examID !== "") {
+        let lastIndex = examID.lastIndexOf(".");
+        examID = examID.substring(lastIndex + 1);
+      }
+
+      let age = dataSet.string("x00101010");
+      const regex = /0([^Y]*)Y/;
+      const match = regex.exec(age);
+      if (match && match[1]) {
+        age = match[1];
+      }
+      return {
+        examinationID: examID,
+        studyInstanceUID: dataSet.string("x0020000d"),
+        StudyDescription: dataSet.string("x00081030"),
+        hospitalId: dataSet.string("x00081010"),
+        modality: dataSet.string("x00080060"),
+        accessionNumber: dataSet.string("x00080050"),
+        patientID: dataSet.string("x00100020"),
+        patientName: dataSet.string("x00100010"),
+        patientAge: age,
+        studyDate: dataSet.string("x00080020"),
+        studyDescription: dataSet.string("x00081030"),
+        seriesNumber: dataSet.string("x00200011"),
+        applyId: uuidv4(),
+      };
     },
-    handle_openfiledraw(){
+
+    async createFormData(files, dicomData) {
+      const zip = new JSZip();
+
+      // 检查文件列表是否为空
+      if (files && files.length > 0) {
+        // 将所有文件添加到 zip 中
+        files.forEach((file) => {
+          const filename = file.name;
+          const fileData = file instanceof Blob ? file : new Blob([file]);
+          zip.file(filename, fileData);
+        });
+      }
+
+      console.time("zip");
+      // 生成 zip 文件
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      console.timeEnd("zip");
+      // 创建 FormData 对象
+      const formData = new FormData();
+      formData.append("files", zipBlob, "files.zip");
+
+      // 添加 DICOM 数据和其他参数到 FormData 对象
+      Object.entries(dicomData).forEach(([key, value]) => {
+        if (value) formData.append(key, value);
+      });
+
+      formData.append("examinedName", "胸部平扫");
+      formData.append(
+        "callbackUrl",
+        "http://admin.itsea.com.cn:56808/api/examinations/aiResult"
+        // ' http://5c24d9.natappfree.cc/api/examinations/aiResult' //不能用这个，修改状态接收不到了
+      );
+
+      return formData;
+    },
+
+    onShowSizeChange(current, pageSize) {
+      console.log(current, pageSize);
+    },
+    handle_openfiledraw() {
       this.fileDraw.visible = true;
     },
     handleChange_jstime(value) {
@@ -577,169 +652,172 @@ export default {
     onChange(date, dateString) {
       console.log(date, dateString);
     },
-    handle_star(row,rowIndex){
+    handle_star(row, rowIndex) {
       // row.collect = 1;
       const { collect } = this.tableData[rowIndex];
-      if(collect === 1){
-        this.$set(this.tableData[rowIndex],"collect",0);
-        this.$message.success('取消收藏成功');
-      }else{
-        this.$set(this.tableData[rowIndex],"collect",1);
-        this.$message.success('收藏成功');
+      if (collect === 1) {
+        this.$set(this.tableData[rowIndex], "collect", 0);
+        this.$message.success("取消收藏成功");
+      } else {
+        this.$set(this.tableData[rowIndex], "collect", 1);
+        this.$message.success("收藏成功");
       }
-      console.log("row",row,rowIndex);
-      console.log("this.tableData[rowIndex]=",this.tableData[rowIndex]);
+      console.log("row", row, rowIndex);
+      console.log("this.tableData[rowIndex]=", this.tableData[rowIndex]);
     },
-    handle_delRow(row,rowIndex){
-      console.log("this",this);
+    handle_delRow(row, rowIndex) {
+      console.log("this", this);
       this.$confirm({
         // icon:(<ta-icon type="info-circle" />),
         // icon:(<i>12312</i>),
-        iconType:"info-circle",
-        title: '确定删除该数据吗?',
+        iconType: "info-circle",
+        title: "确定删除该数据吗?",
         // 如果需要弹窗显示的仅为一个字符串文本，则可以直接传入字符串
-        content: '确定要将骨折病变检出结果恢复至初始状态吗？',
-        maskClosable:true,
-        onOk:()=>{
-            this.$delete(this.tableData,rowIndex);
-            this.$message.success("删除成功");
-        }
-
-      })
-
+        content: "确定要将骨折病变检出结果恢复至初始状态吗？",
+        maskClosable: true,
+        onOk: () => {
+          this.$delete(this.tableData, rowIndex);
+          this.$message.success("删除成功");
+        },
+      });
     },
-     handle_delRow_subTable(row,rowIndex){
-      console.log("this",this);
+    handle_delRow_subTable(row, rowIndex) {
+      console.log("this", this);
       this.$confirm({
         // icon:(<ta-icon type="info-circle" />),
         // icon:(<i>12312</i>),
-        iconType:"info-circle",
-        title: '确定删除该数据吗?',
+        iconType: "info-circle",
+        title: "确定删除该数据吗?",
         // 如果需要弹窗显示的仅为一个字符串文本，则可以直接传入字符串
-        content: '确定要将骨折病变检出结果恢复至初始状态吗？',
-        maskClosable:true,
-        onOk:()=>{
-            this.$delete(this.tableData_anaRes,rowIndex);
-            this.$message.success("删除成功");
-        }
-
-      })
-
+        content: "确定要将骨折病变检出结果恢复至初始状态吗？",
+        maskClosable: true,
+        onOk: () => {
+          this.$delete(this.tableData_anaRes, rowIndex);
+          this.$message.success("删除成功");
+        },
+      });
     },
-     handle_star_subTable(row,rowIndex){
+    handle_star_subTable(row, rowIndex) {
       // row.collect = 1;
       const { collect } = this.tableData_anaRes[rowIndex];
-      if(collect === 1){
-        this.$set(this.tableData_anaRes[rowIndex],"collect",0);
-        this.$message.success('取消收藏成功');
-      }else{
-        this.$set(this.tableData_anaRes[rowIndex],"collect",1);
-        this.$message.success('收藏成功');
+      if (collect === 1) {
+        this.$set(this.tableData_anaRes[rowIndex], "collect", 0);
+        this.$message.success("取消收藏成功");
+      } else {
+        this.$set(this.tableData_anaRes[rowIndex], "collect", 1);
+        this.$message.success("收藏成功");
       }
-      console.log("row",row,rowIndex);
-      console.log("this.tableData[rowIndex]=",this.tableData_anaRes[rowIndex]);
+      console.log("row", row, rowIndex);
+      console.log("this.tableData[rowIndex]=", this.tableData_anaRes[rowIndex]);
     },
     userPageParams() {
-      return {}
+      return {};
     },
   },
-  created(){
-    this.tableData =  [
-       {
-          qid: "DJ109090910212", //检查号
-          hzId: "4123122111", //患者ID
-          hzName: "李文豪", //患者姓名
-          age: "62", //年龄
-          qcTime: "2024.04.01 11:28", //检查时间
-          qcRemark: "Chest", //检查描述
-          seqNo: "01", //序列数
-          mathType: "胸肺CT", //算法类型
-        },
-        {
-          qid: "DJ109090910212", //检查号
-          hzId: "4123122111", //患者ID
-          hzName: "李文豪", //患者姓名
-          age: "62", //年龄
-          qcTime: "2024.04.01 11:28", //检查时间
-          qcRemark: "Chest", //检查描述
-          seqNo: "01", //序列数
-          mathType: "胸肺CT", //算法类型
-        },
-        {
-          qid: "DJ109090910212", //检查号
-          hzId: "4123122111", //患者ID
-          hzName: "李文豪", //患者姓名
-          age: "62", //年龄
-          qcTime: "2024.04.01 11:28", //检查时间
-          qcRemark: "Chest", //检查描述
-          seqNo: "01", //序列数
-          mathType: "胸肺CT", //算法类型
-        },
-        {
-          qid: "DJ109090910212", //检查号
-          hzId: "4123122111", //患者ID
-          hzName: "李文豪", //患者姓名
-          age: "62", //年龄
-          qcTime: "2024.04.01 11:28", //检查时间
-          qcRemark: "Chest", //检查描述
-          seqNo: "01", //序列数
-          mathType: "胸肺CT", //算法类型
-        },
-        {
-          qid: "DJ109090910212", //检查号
-          hzId: "4123122111", //患者ID
-          hzName: "李文豪", //患者姓名
-          age: "62", //年龄
-          qcTime: "2024.04.01 11:28", //检查时间
-          qcRemark: "Chest", //检查描述
-          seqNo: "01", //序列数
-          mathType: "胸肺CT", //算法类型
-        },
-        {
-          qid: "DJ109090910212", //检查号
-          hzId: "4123122111", //患者ID
-          hzName: "李文豪", //患者姓名
-          age: "62", //年龄
-          qcTime: "2024.04.01 11:28", //检查时间
-          qcRemark: "Chest", //检查描述
-          seqNo: "01", //序列数
-          mathType: "胸肺CT", //算法类型
-        },
+  created() {
+    this.tableData = [
+      {
+        qid: "DJ109090910212", //检查号
+        hzId: "4123122111", //患者ID
+        hzName: "李文豪", //患者姓名
+        age: "62", //年龄
+        qcTime: "2024.04.01 11:28", //检查时间
+        qcRemark: "Chest", //检查描述
+        seqNo: "01", //序列数
+        mathType: "胸肺CT", //算法类型
+      },
+      {
+        qid: "DJ109090910212", //检查号
+        hzId: "4123122111", //患者ID
+        hzName: "李文豪", //患者姓名
+        age: "62", //年龄
+        qcTime: "2024.04.01 11:28", //检查时间
+        qcRemark: "Chest", //检查描述
+        seqNo: "01", //序列数
+        mathType: "胸肺CT", //算法类型
+      },
+      {
+        qid: "DJ109090910212", //检查号
+        hzId: "4123122111", //患者ID
+        hzName: "李文豪", //患者姓名
+        age: "62", //年龄
+        qcTime: "2024.04.01 11:28", //检查时间
+        qcRemark: "Chest", //检查描述
+        seqNo: "01", //序列数
+        mathType: "胸肺CT", //算法类型
+      },
+      {
+        qid: "DJ109090910212", //检查号
+        hzId: "4123122111", //患者ID
+        hzName: "李文豪", //患者姓名
+        age: "62", //年龄
+        qcTime: "2024.04.01 11:28", //检查时间
+        qcRemark: "Chest", //检查描述
+        seqNo: "01", //序列数
+        mathType: "胸肺CT", //算法类型
+      },
+      {
+        qid: "DJ109090910212", //检查号
+        hzId: "4123122111", //患者ID
+        hzName: "李文豪", //患者姓名
+        age: "62", //年龄
+        qcTime: "2024.04.01 11:28", //检查时间
+        qcRemark: "Chest", //检查描述
+        seqNo: "01", //序列数
+        mathType: "胸肺CT", //算法类型
+      },
+      {
+        qid: "DJ109090910212", //检查号
+        hzId: "4123122111", //患者ID
+        hzName: "李文豪", //患者姓名
+        age: "62", //年龄
+        qcTime: "2024.04.01 11:28", //检查时间
+        qcRemark: "Chest", //检查描述
+        seqNo: "01", //序列数
+        mathType: "胸肺CT", //算法类型
+      },
     ];
 
     this.tableData_anaRes = [
       {
-          xid: "4", //序列号
-          desc: "1.25mm lung", //序列描述
-          picNo: "209",  //图形数量
-          mathType: "胸肺CT", //算法类型
-          compactState:"1",//计算状态 1：计算成功 2：失算失败 3：计算取消
-          ctrlState:"1",//操作状态 1：超时 2：撤回 3:待审核 4：通过
-          ctrlDoctor:"华佗",
-        },
-         {
-          xid: "5", //序列号
-          desc: "1.25mm lung", //序列描述
-          picNo: "209",  //图形数量
-          mathType: "胸肺CT", //算法类型
-          compactState:"1",//计算状态 1：计算成功 2：失算失败 3：计算取消
-          ctrlState:"1",//操作状态 1：超时 2：撤回 3:待审核 4：通过
-          ctrlDoctor:"华佗",
-        },
-         {
-          xid: "6", //序列号
-          desc: "1.25mm lung", //序列描述
-          picNo: "209",  //图形数量
-          mathType: "胸肺CT", //算法类型
-          compactState:"1",//计算状态 1：计算成功 2：失算失败 3：计算取消
-          ctrlState:"1",//操作状态 1：超时 2：撤回 3:待审核 4：通过
-          ctrlDoctor:"华佗",
-        },
-    ]
+        xid: "4", //序列号
+        desc: "1.25mm lung", //序列描述
+        picNo: "209", //图形数量
+        mathType: "胸肺CT", //算法类型
+        compactState: "1", //计算状态 1：计算成功 2：失算失败 3：计算取消
+        ctrlState: "1", //操作状态 1：超时 2：撤回 3:待审核 4：通过
+        ctrlDoctor: "华佗",
+      },
+      {
+        xid: "5", //序列号
+        desc: "1.25mm lung", //序列描述
+        picNo: "209", //图形数量
+        mathType: "胸肺CT", //算法类型
+        compactState: "1", //计算状态 1：计算成功 2：失算失败 3：计算取消
+        ctrlState: "1", //操作状态 1：超时 2：撤回 3:待审核 4：通过
+        ctrlDoctor: "华佗",
+      },
+      {
+        xid: "6", //序列号
+        desc: "1.25mm lung", //序列描述
+        picNo: "209", //图形数量
+        mathType: "胸肺CT", //算法类型
+        compactState: "1", //计算状态 1：计算成功 2：失算失败 3：计算取消
+        ctrlState: "1", //操作状态 1：超时 2：撤回 3:待审核 4：通过
+        ctrlDoctor: "华佗",
+      },
+    ];
   },
-     mounted() {
-      this.$refs.gridPager.loadData((data) => {})
-    },
+  created() {
+    const userId = "0";
+    getExaminationList(userId).then((res) => {
+      console.log("res.data=", res.data);
+      this.tableData = res.data;
+    });
+  },
+  mounted() {
+    this.$refs.gridPager.loadData((data) => {});
+  },
 };
 </script>
 <style lang='less' scoped>

@@ -1,6 +1,6 @@
 import historyPage from 'virtual:historyPage';
-import { version } from './package.json';
-import { version as uiVersion } from '@yh/ta404-ui/package.json';
+import {version} from './package.json';
+import {version as uiVersion} from '@yh/ta404-ui/package.json';
 
 const isEnvTrue = (env: string) => {
   return env.toUpperCase() === 'TRUE';
