@@ -1,6 +1,6 @@
 import autoprefixer from 'autoprefixer';
-import type { CSSOptions } from 'vite';
-import { getEnv } from './utils';
+import type {CSSOptions} from 'vite';
+import {getEnv} from './utils';
 
 export async function css(): Promise<CSSOptions> {
   // @ts-expect-error 忽略这个类型错误

@@ -8,7 +8,12 @@ const {
 } = apiOps;
 
 import axios from 'axios'
-
+/**
+ * TODO::这份文件的接口，先迎合-文佳搭建的spring-boot去返回，后续后端迁移至404后台写法，需改写~
+ * ps：目前是从catch中才能捕获到值，先这么处理~
+ * @param formData
+ * @returns
+ */
 
 // 诊断分析
 export const startDiagnose = (formData) => {
@@ -36,14 +41,23 @@ export const getDiagnoseResult = (applyId) =>
 
 // 获取诊断列表
 
-export const getExaminationList = (userId) =>
-  Base.submit(null, {
-    url: api2 + urlJson['get-examination-list'],
-    method: 'get',
-    urlParam: {
-      userId: userId
-    }
+export const getExaminationList = (userId) => {
+  return new Promise((resolve, reject) => {
+    Base.submit(null, {
+      url: api2 + urlJson['get-examination-list'],
+      method: 'get',
+      urlParam: {
+        userId: userId
+      }
+    })
+      .then(data => {
+        console.log("list0000000000000000", data);
+      }).catch(error => {
+        console.log("err=================000000", error);
+        resolve(error.data);
+      })
   })
+}
 // axios.get(api2 + urlJson['get-examination-list'], {
 //   params: {
 //     applyId: applyId

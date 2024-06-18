@@ -103,7 +103,12 @@
           highlight-hover-row
           border="inner"
         >
-          <ta-big-table-column field="is-collect" title="#" width="60">
+          <ta-big-table-column
+            field="is-collect"
+            title="#"
+            width="60"
+            fixed="left"
+          >
             <template #default="{ row, rowIndex }">
               <div
                 class="hover:cursor-pointer"
@@ -119,20 +124,44 @@
               </div>
             </template>
           </ta-big-table-column>
-          <ta-big-table-column field="qid" title="检查号">
+          <ta-big-table-column
+            field="examinationId"
+            title="检查号"
+            width="150"
+            fixed="left"
+          >
           </ta-big-table-column>
-          <ta-big-table-column field="hzId" title="患者ID">
+          <ta-big-table-column
+            field="patientId"
+            title="患者ID"
+            width="120"
+            fixed="left"
+          >
           </ta-big-table-column>
-          <ta-big-table-column field="hzName" title="患者姓名">
+          <ta-big-table-column
+            field="patientName"
+            title="患者姓名"
+            width="130"
+            fixed="left"
+          >
           </ta-big-table-column>
-          <ta-big-table-column field="age" title="年龄"> </ta-big-table-column>
-          <ta-big-table-column field="qcTime" title="检查时间">
+          <ta-big-table-column field="age" title="年龄" width="70">
           </ta-big-table-column>
-          <ta-big-table-column field="qcRemark" title="检查描述">
+          <ta-big-table-column
+            field="examinationTime"
+            title="检查时间"
+            width="180"
+          >
           </ta-big-table-column>
-          <ta-big-table-column field="seqNo" title="序列数">
+          <ta-big-table-column
+            field="examinationDescription"
+            title="检查描述"
+            min-width="150"
+          >
           </ta-big-table-column>
-          <ta-big-table-column field="mathType" title="算法类型">
+          <ta-big-table-column field="seriesCount" title="序列数" width="130">
+          </ta-big-table-column>
+          <ta-big-table-column field="mathType" title="算法类型" width="140">
           </ta-big-table-column>
 
           <ta-big-table-column
@@ -811,8 +840,14 @@ export default {
   created() {
     const userId = "0";
     getExaminationList(userId).then((res) => {
-      console.log("res.data=", res.data);
-      this.tableData = res.data;
+      console.log("res.data=", res);
+      this.tableData = res;
+      // const result = res.data;
+      // const { code } = result;
+      // if (code === 1 || code === 2) {
+      //   console.log("result.data=", result.data);
+      //   this.tableData = result.data;
+      // }
     });
   },
   mounted() {
