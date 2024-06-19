@@ -2,62 +2,79 @@
 <html lang="zh">
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="%VITE_PUBLIC_PATH%favicon.png" rel="shortcut icon" />
-    <meta charset="utf-8">
-    <title>%VITE_HTML_TITLE_CLEVEL_AI_PACS%</title>
-    <script src="/src/project/clevelAiPacs/clevelAiPacs.js" type="module"></script>
-    <script src="/src/assets/js/libs/tailwind/tailwindcss_3.4.4.js" type="module"></script>
-    <!-- 尝试自定义你的配置 -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        clifford: '#da373d',
-                    }
-                }
-            }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="%VITE_PUBLIC_PATH%favicon.png" rel="shortcut icon" />
+  <meta charset="utf-8">
+  <title>%VITE_HTML_TITLE_CLEVEL_AI_PACS%</title>
+  <!-- <script type="module" src="/src/assets/js/libs/jquery.min.js"></script> -->
+  <script src="/src/project/clevelAiPacs/clevelAiPacs.js" type="module"></script>
+  <script src="/src/assets/js/libs/tailwind/tailwindcss_3.4.4.js" type="module"></script>
+
+  <!-- <script src="/src/assets/js/libs/cornerstone/cornerstone.js" type="module"></script> -->
+  <!-- <script src="/src/assets/js/libs/cornerstone/cornerstoneWADOImageLoaderNoWebWorkers.bundle.min.js" type="module"> -->
+  <!-- 尝试自定义你的配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            clifford: '#da373d',
+          }
         }
-    </script>
-    <!-- 尝试添加一些自定义 CSS -->
-    <style type="text/tailwindcss">
-        @layer utilities {
+      }
+    }
+
+  </script>
+  <!-- 尝试添加一些自定义 CSS -->
+  <style type="text/tailwindcss">
+    @layer utilities {
           .content-auto {
             content-visibility: auto;
           }
         }
       </style>
-    <script type="text/javascript">
-        function setRootFontSize() {
-            // 获取屏幕宽度
-            var screenWidth = window.innerWidth;
+  <script type="text/javascript">
+    function setRootFontSize() {
+      // 获取屏幕宽度
+      var screenWidth = window.innerWidth;
 
-            // 根据屏幕宽度计算字体大小
-            var baseFontSize = screenWidth / 1920 * 16; // 假设最大屏幕宽度为 1920px，字体大小为 16px
+      // 根据屏幕宽度计算字体大小
+      var baseFontSize = screenWidth / 1920 * 16; // 假设最大屏幕宽度为 1920px，字体大小为 16px
 
-            // 设置根元素的字体大小
-            document.documentElement.style.fontSize = baseFontSize + 'px';
-        }
-    </script>
+      // 设置根元素的字体大小
+      document.documentElement.style.fontSize = baseFontSize + 'px';
+    }
+
+  </script>
 </head>
 
 <body>
-    <div id="app" class="fit">
-        <router-view></router-view>
-    </div>
+  <div id="app" class="fit">
+    <router-view></router-view>
+  </div>
 
-    <script type="text/javascript">
-        // 页面加载时设置根元素字体大小
-        window.onload = function () {
-            setRootFontSize();
-        };
+  <script type="text/javascript">
+    // 页面加载时设置根元素字体大小
+    window.onload = function () {
+      setRootFontSize();
+    };
 
-        // 窗口大小变化时重新设置根元素字体大小
-        window.onresize = function () {
-            setRootFontSize();
-        };
-    </script>
+    // 窗口大小变化时重新设置根元素字体大小
+    window.onresize = function () {
+      setRootFontSize();
+    };
+
+  </script>
+
+  <!-- <script src="/src/assets/js/libs/dicom/dicomParser.min.js"></script> -->
+  <script src="libs/dicom/dicomParser.min.js"></script>
+  <!-- <script src="https://unpkg.com/dicom-parser@1.8.21/dist/dicomParser.min.js"></script> -->
+
+  <script src="libs/cornerstone/cornerstone.min.js"></script>
+  <script src="libs/cornerstone/cornerstoneMath.min.js"></script>
+  <script src="libs/cornerstone/cornerstoneTools.min.js"></script>
+
+
 </body>
 
 </html>

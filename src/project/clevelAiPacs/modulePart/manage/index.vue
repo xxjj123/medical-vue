@@ -173,7 +173,9 @@
             <template #default="{ row, rowIndex }">
               <ta-row type="flex" justify="space-around">
                 <ta-col :span="18">
-                  <a class="alink"> 查看结果 </a>
+                  <a class="alink" @click="handleEdit(rowIndex, row)">
+                    查看结果
+                  </a>
                   <ta-divider type="vertical" />
                   <a class="alink"> 重新分析 </a>
                   <ta-divider type="vertical" />
@@ -361,10 +363,6 @@
 </template>
 <script lang='javascript'>
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
-import Vue from "vue";
-// import {
-//   Icon
-// } from '@yh/ta404-ui';
 
 import {
   startDiagnose,
@@ -373,11 +371,13 @@ import {
   isExit,
 } from "@/api";
 import { v4 as uuidv4 } from "uuid";
-// import dicomParser from "dicom-parser/dist/dicomParser.min";
+// import dicomParser from "dicom-parser/dist/dicomParser.js";
 // import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoaderNoWebWorkers.bundle.min";
 // import cornerstone from "cornerstone-core";
+// import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoader.min.js";
+import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoaderNoWebWorkers.bundle.min";
 import JSZip from "jszip";
-
+// import cornerstone from "cornerstone-core/dist/cornerstone";
 export default {
   name: "manageDicom",
   components: {
@@ -594,6 +594,14 @@ export default {
     },
   },
   methods: {
+    handleEdit(index, row) {
+      this.$router.push({
+        path: "diagnose",
+        query: {
+          applyId: row.applyId,
+        },
+      });
+    },
     extractDicomData(dataSet) {
       let examID = dataSet.string("x0020000d");
       if (examID !== "") {
@@ -848,6 +856,15 @@ export default {
       //   console.log("result.data=", result.data);
       //   this.tableData = result.data;
       // }
+    });
+    this.$nextTick(() => {
+      setTimeout(() => {
+        console.log("dicomParser===", dicomParser);
+        console.log("cornerstone==", cornerstone);
+        cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+        cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+        console.log("cornerstoneWADOImageLoader==", cornerstoneWADOImageLoader);
+      }, 5000);
     });
   },
   mounted() {
