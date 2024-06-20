@@ -73,6 +73,18 @@ export default {
 
   },
   mutations: {
+    //更新viewsData的某个对象
+    put_jsonOb_viewsData(state, payload) {
+      const {
+        index,
+        newData
+      } = payload;
+
+      Object.assign(state.viewsData[index], newData);
+    },
+    SET_HELLOVIEWS(state, container) {
+      state.helloViews = container;
+    },
     INIT_3D_VIEW(state, container) {
       // 根据Pinia中的Init3DView方法逻辑更新state
     },

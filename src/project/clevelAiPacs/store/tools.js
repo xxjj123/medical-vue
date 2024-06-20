@@ -1,3 +1,4 @@
+import Vue from 'vue';
 export default {
   namespaced: true,
   state: {
@@ -138,6 +139,36 @@ export default {
         obj.interactor.render();
       });
     },
+    /*start--- test action */
+    actRun({
+      dispatch,
+      commit,
+      getters,
+    }, payload) {
+      console.log("dispatch=", dispatch);
+      console.log("commit=", commit);
+      console.log("getters=", getters.getmod_viewsStore);
+      console.log("payload=", payload);
+    },
+
+    updateActRun({
+      commit,
+      state,
+      rootState
+    }, value) {
+      console.log("~:commit=", commit);
+      console.log("~:state=", state);
+      console.log("~:value=", value);
+      console.log("~:rootState=", rootState);
+
+      // rootState.viewsStore.view3D = {
+      //   a: 1
+      // };
+
+
+    },
+    /*end--- test action */
+
     UpdateColorWindow({
       commit,
       state
@@ -316,6 +347,13 @@ export default {
     },
   },
   getters: {
-
+    combinedState(state, getters, rootState) {
+      console.log("rootState==", rootState);
+      // viewsStore
+      return "combinedState"
+    },
+    getmod_viewsStore(state, getters, rootState) {
+      return rootState.viewsStore;
+    }
   }
 }
