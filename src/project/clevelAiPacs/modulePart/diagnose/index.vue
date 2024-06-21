@@ -1,10 +1,26 @@
 <template>
-  <div class="diagnose_page">
+  <div class="diagnose_page flex flex-col">
     <!-- diagnose_page -->
     <PacsPageHeader :bread="true"></PacsPageHeader>
+    <div class="main">
+      <div class="pacs_container">
+        <div class="toolBar">
+          <vskToolbar></vskToolbar>
+        </div>
+        <div class="pic_views pic_layout">
+          <div class="side viewbox"></div>
+          <div class="side viewbox"></div>
+          <div class="side viewbox"></div>
+          <div class="side viewbox"></div>
+        </div>
+        <div class="menu_data"></div>
+      </div>
+    </div>
   </div>
 </template>
 <script lang='javascript'>
+import vskToolbar from "@/picComps/visualTool/tool-bar/index.vue";
+
 import {
   mapState,
   mapMutations,
@@ -33,6 +49,7 @@ export default {
     // fracResult,
     // noduleResult,
     // pneumoniaResult,
+    vskToolbar,
   },
   computed: {
     // 测试 ------ 使用方法时，指定一下模块即可
@@ -181,5 +198,67 @@ export default {
 <style lang='less' scoped>
 .diagnose_page {
   background-color: @theme_backBg;
+  width: 100vw;
+  height: 100vh;
+}
+
+.main {
+  flex-grow: 1;
+  height: calc(100% - 80px);
+  overflow: hidden;
+}
+
+.pacs_container {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 85px calc(100% - 505px) 420px;
+  grid-template-rows: 100%;
+  background: rgba(104, 102, 102, 0.774);
+}
+
+.toolBar {
+  // width: 22%;
+  max-width: 85px;
+  height: 100%;
+  background-color: @theme_backBg;
+  padding: 49px 27px 0 27px;
+}
+.pic_views {
+  @media screen and (orientation: landscape) {
+    grid-template-columns: 66.66% 33.34%;
+  }
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: 50% 50%;
+  position: relative;
+  user-select: none;
+  background-color: rgba(161, 148, 148, 0.192);
+}
+
+.pic_layout {
+  & > div {
+    &:nth-child(1) {
+      grid-area: ~"1/1/2/2";
+      visibility: hidden;
+    }
+
+    @media screen and (orientation: landscape) {
+      &:nth-child(2) {
+        grid-area: ~"1/1/3/2";
+      }
+
+      &:nth-child(3) {
+        grid-area: ~"1/2/2/3";
+      }
+    }
+  }
+  .side {
+    background: rgb(0, 0, 0);
+    height: 100%;
+    border: 1px solid rgb(14, 17, 23);
+  }
 }
 </style>
