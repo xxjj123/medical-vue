@@ -13,11 +13,20 @@
         </slot>
       </template>
       <template v-else>
-        <div class="breadMenu flex justify-start">
-          <div class="left_arrow"></div>
-          <div class="back_page"></div>
-          <div class="fgf">&frasl;</div>
-          <div class="cur_page"></div>
+        <div class="breadMenu flex justify-start items-center">
+          <div
+            class="left_arrow hover:cursor-pointer mr-[13px]"
+            @click="back()"
+          ></div>
+          <div class="back_page hover:cursor-pointer" @click="back()">
+            {{ breadItem.prevName }}
+          </div>
+          <div class="fgf hover:cursor-default ml-[10px] mr-[10px]">
+            &frasl;
+          </div>
+          <div class="cur_page hover:cursor-default">
+            {{ breadItem.curName }}
+          </div>
         </div>
       </template>
       <div>
@@ -87,6 +96,10 @@ export default {
     return {
       rotated: true,
       pacsKbCtrl_visible: false,
+      breadItem: {
+        prevName: "",
+        curName: "",
+      },
     };
   },
 
@@ -96,6 +109,18 @@ export default {
     },
   },
   methods: {
+    back() {
+      const previousRouteString = localStorage.getItem("previousRoute");
+      console.log("previousRouteString***", previousRouteString);
+      // const { path, query } = previousRouteString;
+      // this.$router.push({
+      //   path: path,
+      //   query: {
+      //     ...query,
+      //   },
+      // });
+      this.$router.go(-1);
+    },
     handle_keyborard_banner() {
       this.pacsKbCtrl_visible = true;
     },
@@ -110,14 +135,23 @@ export default {
       location.href = "login.html";
       localStorage.removeItem("previousRoute");
     },
+    init_BreadInfo() {
+      const previousRouteString = localStorage.getItem("previousRoute");
+      if (previousRouteString) {
+        const previousRoute = JSON.parse(previousRouteString);
+        console.log("上一个路由信息:", previousRoute);
+
+        this.breadItem.prevName = previousRoute.meta?.name
+          ? previousRoute.meta?.name
+          : "列表";
+        this.breadItem.curName = this.$route.meta?.name;
+      }
+    },
   },
   created() {
     console.log("$route-------------", this.$route);
-    const previousRouteString = localStorage.getItem("previousRoute");
-    if (previousRouteString) {
-      const previousRoute = JSON.parse(previousRouteString);
-      console.log("上一个路由信息:", previousRoute);
-    }
+
+    this.init_BreadInfo();
   },
 };
 </script>
@@ -195,12 +229,18 @@ body {
 
 .breadMenu {
   .left_arrow {
+    .func_bgCover();
+    background-image: url(./assets/img/back.png);
+    width: 8px;
+    height: 13px;
   }
 
   .back_page {
+    color: rgba(255, 255, 255, 0.65);
   }
 
   .fgf {
+    color: rgba(255, 255, 255, 0.65);
   }
 
   .cur_page {
