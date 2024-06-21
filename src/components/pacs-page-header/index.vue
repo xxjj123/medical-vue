@@ -1,13 +1,25 @@
 <template>
   <div class="pacs_page_header_wrapper pl-[21px] pr-[39px] pt-[19px] pb-[21px]">
     <div class="flex justify-between">
-      <div class="flex">
-        <div class="icon_mainLg"></div>
-        <div class="pl-[13px] lg_infoName">
-          <div class="h1">医学影像辅助诊断系统</div>
-          <div class="h2">Yinhai Medical</div>
+      <template v-if="!bread">
+        <slot name="trademark">
+          <div class="flex">
+            <div class="icon_mainLg"></div>
+            <div class="pl-[13px] lg_infoName">
+              <div class="h1">医学影像辅助诊断系统</div>
+              <div class="h2">Yinhai Medical</div>
+            </div>
+          </div>
+        </slot>
+      </template>
+      <template v-else>
+        <div class="breadMenu flex justify-start">
+          <div class="left_arrow"></div>
+          <div class="back_page"></div>
+          <div class="fgf">&frasl;</div>
+          <div class="cur_page"></div>
         </div>
-      </div>
+      </template>
       <div>
         <div class="group_btns flex items-center justify-start">
           <div
@@ -62,6 +74,12 @@
 import pacsKeyborardCtrl from "@/components/pacs-keyborard-ctrl/index.vue";
 export default {
   name: "pacs-page-header",
+  props: {
+    bread: {
+      type: Boolean,
+      default: false,
+    },
+  },
   components: {
     pacsKeyborardCtrl,
   },
@@ -71,6 +89,7 @@ export default {
       pacsKbCtrl_visible: false,
     };
   },
+
   watch: {
     pacsKbCtrl_visible(val) {
       console.log("wathc-,val,__pacsKbCtrl_visible", val);
@@ -87,17 +106,27 @@ export default {
       this.rotated = true;
     },
     gotoOut() {
-      this.$router.go(-1);
+      // this.$router.go(-1);
+      location.href = "login.html";
+      localStorage.removeItem("previousRoute");
     },
+  },
+  created() {
+    console.log("$route-------------", this.$route);
+    const previousRouteString = localStorage.getItem("previousRoute");
+    if (previousRouteString) {
+      const previousRoute = JSON.parse(previousRouteString);
+      console.log("上一个路由信息:", previousRoute);
+    }
   },
 };
 </script>
 <style lang='less' scoped>
-.func_bgCover() {
-  background-repeat: no-repeat;
-  background-size: 100%;
-  background-position: 0 0;
-}
+// .func_bgCover() {
+//   background-repeat: no-repeat;
+//   background-size: 100%;
+//   background-position: 0 0;
+// }
 
 .pacs_page_header_wrapper {
   height: 80px;
@@ -161,6 +190,20 @@ body {
         background-color: @input-bg;
       }
     }
+  }
+}
+
+.breadMenu {
+  .left_arrow {
+  }
+
+  .back_page {
+  }
+
+  .fgf {
+  }
+
+  .cur_page {
   }
 }
 </style>

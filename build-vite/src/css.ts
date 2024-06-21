@@ -20,6 +20,7 @@ export async function css(): Promise<CSSOptions> {
         math: 'always',
         additionalData: `
         @import "@yh/ta404-ui/es/style/mixins/index.less";
+        @import "cli/projectCommon/src/styleCover/mixins/func.less";
         `,
         modifyVars: {
           // 在less文件中提供当前项目的public-path变量

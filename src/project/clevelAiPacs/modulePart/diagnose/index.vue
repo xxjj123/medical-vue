@@ -1,62 +1,7 @@
 <template>
   <div class="diagnose_page">
     <!-- diagnose_page -->
-    <div class="flex flex-col h-vh relative">
-      <Header>
-        <toolBar
-          class="col-span-3"
-          @ChangeTheme="ChangeTheme"
-          @ChangeSubshow="ChangeSubshow"
-          ref="toolBarRef"
-        />
-      </Header>
-      <div class="absolute">
-        <!-- <input ref="Fileinput" type="file" multiple @change="handleFile" /> -->
-      </div>
-      <div class="flex-1 flex bg-titleblue">
-        <!-- mpr视图 -->
-        <div class="h-full">
-          <ViewBoard :theme="viewTheme" :showsub="showsub" ref="ViewBoardRef" />
-        </div>
-        <!-- 分析结果 -->
-        <div class="w-110 flex flex-col">
-          <div class="h-13 lh-13 w-full bg-sky-950 text-white text-3 px-5 flex">
-            <div>admin</div>
-            <div class="ml-auto flex">
-              <div class="mr-8">收藏</div>
-              <div>重置结果</div>
-            </div>
-          </div>
-          <div class="px-3">
-            <!-- <el-menu
-              class="!h-10 !bg-transparent !border-0 !w-full"
-              :default-active="menuResult[0].des"
-              mode="horizontal"
-              :ellipsis="false"
-              @select="SelectDiagnose"
-            >
-              <template v-for="(item, index) in menuResult">
-                <el-menu-item
-                  class="!text-white !hover:bg-transparent !focus:bg-transparent"
-                  :index="item.des"
-                  :key="index"
-                  ><span
-                    v-if="activeDiagnose && activeDiagnose.data"
-                    :style="{ color: item.data.hasLesion ? 'blue' : 'white' }"
-                    >。</span
-                  >{{ item.title }}</el-menu-item
-                >
-              </template>
-            </el-menu> -->
-          </div>
-          <component
-            v-if="activeDiagnose && activeDiagnose.data"
-            :is="activeDiagnose.comp"
-            :data="activeDiagnose.data"
-          />
-        </div>
-      </div>
-    </div>
+    <PacsPageHeader :bread="true"></PacsPageHeader>
   </div>
 </template>
 <script lang='javascript'>
@@ -68,25 +13,26 @@ import {
   createNamespacedHelpers,
 } from "vuex";
 
-import ViewBoard from "@/project/clevelAiPacs/modulePart/diagnose/view/index.vue";
-import toolBar from "@/picComps/home/dataresult/toolBar.vue";
-import calciumResult from "@/picComps/home/dataresult/calciumResult.vue";
-import fracResult from "@/picComps/home/dataresult/fracResult.vue";
-import noduleResult from "@/picComps/home/dataresult/noduleResult.vue";
-import pneumoniaResult from "@/picComps/home/dataresult/pneumoniaResult.vue";
+// import ViewBoard from "@/project/clevelAiPacs/modulePart/diagnose/view/index.vue";
+// import toolBar from "@/picComps/home/dataresult/toolBar.vue";
+// import calciumResult from "@/picComps/home/dataresult/calciumResult.vue";
+// import fracResult from "@/picComps/home/dataresult/fracResult.vue";
+// import noduleResult from "@/picComps/home/dataresult/noduleResult.vue";
+// import pneumoniaResult from "@/picComps/home/dataresult/pneumoniaResult.vue";
 
 import { getExaminationDetail, getFile } from "@/api";
 import JSZip from "jszip";
-
+import PacsPageHeader from "@/components/pacs-page-header/index.vue";
 export default {
   name: "diagnose",
   components: {
-    ViewBoard,
-    toolBar,
-    calciumResult,
-    fracResult,
-    noduleResult,
-    pneumoniaResult,
+    PacsPageHeader,
+    // ViewBoard,
+    // toolBar,
+    // calciumResult,
+    // fracResult,
+    // noduleResult,
+    // pneumoniaResult,
   },
   computed: {
     // 测试 ------ 使用方法时，指定一下模块即可
@@ -210,6 +156,8 @@ export default {
 
       this.updateActRun({ q: 123123 });
     }, 5000);
+
+    console.log("this.$router", this.$router);
   },
   mounted() {
     this.$nextTick(() => {
