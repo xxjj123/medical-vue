@@ -237,13 +237,16 @@ body {
 
   .back_page {
     color: rgba(255, 255, 255, 0.65);
+    font-size: 14px;
   }
 
   .fgf {
     color: rgba(255, 255, 255, 0.65);
+    font-size: 14px;
   }
 
   .cur_page {
+    font-size: 16px;
   }
 }
 </style>
