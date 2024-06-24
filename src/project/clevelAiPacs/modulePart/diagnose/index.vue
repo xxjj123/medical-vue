@@ -17,7 +17,9 @@
           <div class="side viewbox"></div>
           <div class="side viewbox"></div>
         </div>
-        <div class="menu_data"></div>
+        <div class="menu_data">
+          <menudataBar></menudataBar>
+        </div>
       </div>
     </div>
   </div>
@@ -25,6 +27,8 @@
 <script lang='javascript'>
 import vskToolbar from "@/picComps/visualTool/tool-bar/index.vue";
 import filmBar from "@/picComps/visualTool/film-bar/index.vue";
+import menudataBar from "@/picComps/visualTool/menudata-bar/index.vue";
+
 import {
   mapState,
   mapMutations,
@@ -55,6 +59,7 @@ export default {
     // pneumoniaResult,
     vskToolbar,
     filmBar,
+    menudataBar,
   },
   computed: {
     // 测试 ------ 使用方法时，指定一下模块即可
