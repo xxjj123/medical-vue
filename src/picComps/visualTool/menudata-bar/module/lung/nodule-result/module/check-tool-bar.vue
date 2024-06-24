@@ -1,7 +1,7 @@
 <template>
   <div class="nodule-result_check-tool-bar">
     <div class="row flex justify-between">
-      <div class="btn_grp">
+      <div class="btn_grp flex">
         <div class="btn_custom on">当前检查</div>
         <div class="btn_custom">量化随访</div>
       </div>
@@ -33,10 +33,17 @@ export default {
     width: auto;
     min-height: 28px;
     height: auto;
-    // .hex-to-rgba(#00afb0, 0.15);
-    // background-color: @rgba;
+    padding: 4px 7px;
+    margin-right: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    /* .hex-to-rgba(#00afb0, 0.15);;
+    background-color: @rgba; */
     .background-opacity(@color, @opacity);
+    color: @primary-color;
     &.on {
+      color: @input-color;
+      background: @primary-color;
     }
   }
 }
