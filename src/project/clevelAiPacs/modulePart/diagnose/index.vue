@@ -1,7 +1,11 @@
 <template>
   <div class="diagnose_page flex flex-col">
     <!-- diagnose_page -->
-    <PacsPageHeader :bread="true"></PacsPageHeader>
+    <PacsPageHeader :bread="true" :filmModeBtn="true">
+      <template slot="filmModeCtrl">
+        <filmBar></filmBar>
+      </template>
+    </PacsPageHeader>
     <div class="main">
       <div class="pacs_container">
         <div class="toolBar">
@@ -20,7 +24,7 @@
 </template>
 <script lang='javascript'>
 import vskToolbar from "@/picComps/visualTool/tool-bar/index.vue";
-
+import filmBar from "@/picComps/visualTool/film-bar/index.vue";
 import {
   mapState,
   mapMutations,
@@ -50,6 +54,7 @@ export default {
     // noduleResult,
     // pneumoniaResult,
     vskToolbar,
+    filmBar,
   },
   computed: {
     // 测试 ------ 使用方法时，指定一下模块即可

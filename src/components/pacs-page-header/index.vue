@@ -1,6 +1,6 @@
 <template>
   <div class="pacs_page_header_wrapper pl-[21px] pr-[39px] pt-[19px] pb-[21px]">
-    <div class="flex justify-between">
+    <div class="flex justify-between relative">
       <template v-if="!bread">
         <slot name="trademark">
           <div class="flex">
@@ -29,6 +29,12 @@
           </div>
         </div>
       </template>
+      <div class="absolute inset-0 m-auto w-1/3">
+        <!-- 片子视窗模式切换按钮 -->
+        <template v-if="filmModeBtn">
+          <slot name="filmModeCtrl"> </slot>
+        </template>
+      </div>
       <div>
         <div class="group_btns flex items-center justify-start">
           <div
@@ -85,6 +91,11 @@ export default {
   name: "pacs-page-header",
   props: {
     bread: {
+      type: Boolean,
+      default: false,
+    },
+    // 片子模式切换按钮
+    filmModeBtn: {
       type: Boolean,
       default: false,
     },
