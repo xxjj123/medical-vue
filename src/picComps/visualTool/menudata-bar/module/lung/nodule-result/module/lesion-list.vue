@@ -25,6 +25,25 @@
       </div>
     </div>
 
+    <div class="table_container">
+      <ta-big-table
+        :size="tableConfig.size"
+        highlight-hover-row
+        :columns="tableConfig.tableColumns"
+        :data="tableConfig.tableData"
+        @checkbox-all="selectAllEvent"
+        @checkbox-change="selectChangeEvent"
+        :checkbox-config="{
+          trigger: 'row',
+        }"
+      >
+      </ta-big-table>
+    </div>
+
+    <div class="analytic_semantic_description">
+      <anaSemanticDesBlock :title="anaSecDesConf.title"></anaSemanticDesBlock>
+    </div>
+
     <!-- ext -->
     <ta-popover
       ref="mypop"
@@ -100,11 +119,66 @@
   </div>
 </template>
 <script lang='javascript'>
+import anaSemanticDesBlock from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/index.vue";
 // 病变列表
 export default {
   name: "lesion-list",
+  components: {
+    anaSemanticDesBlock,
+  },
   data() {
     return {
+      anaSecDesConf: {
+        title: "影像所见",
+      },
+      tableConfig: {
+        size: "small",
+        tableData: [
+          {
+            risk: "1",
+            volume: "41",
+            lobe: "lobe_left_top",
+          },
+          {
+            risk: "2",
+            volume: "41",
+            lobe: "lobe_left_top",
+          },
+          {
+            risk: "3",
+            volume: "41",
+            lobe: "lobe_left_top",
+          },
+          {
+            risk: "4",
+            volume: "41",
+            lobe: "lobe_left_top",
+          },
+        ],
+        tableColumns: [
+          {
+            type: {
+              type: "checkbox",
+            },
+            width: "60",
+          },
+          {
+            field: "risk",
+            title: "risk",
+            width: "60",
+          },
+          {
+            field: "volume",
+            title: "volume",
+            width: "110",
+          },
+          {
+            field: "lobe",
+            title: "lobe",
+            width: "160",
+          },
+        ],
+      },
       majorAxis: {
         // indeterminate: false,
         onCheckAllChange: ({ ev }) => {
@@ -255,6 +329,12 @@ export default {
     };
   },
   methods: {
+    selectAllEvent(ev) {
+      console.log("selectAllEvent___", ev);
+    },
+    selectChangeEvent(ev) {
+      console.log("selectChangeEvent___", ev);
+    },
     afterLeaveEvents() {},
     onCheckAllChange({ e, index }) {
       let isChecked = e.target.checked;
