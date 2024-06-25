@@ -16,8 +16,27 @@
             <!-- <ta-menu-divider /> -->
           </ta-menu>
         </ta-dropdown>
+        <ta-dropdown :trigger="['click']">
+          <a href="javascript:;" v-popover:mypop>
+            {{ sort_condition.tumorType_select.showValue }}
+            <ta-icon type="down" />
+          </a>
+        </ta-dropdown>
       </div>
     </div>
+
+    <!-- ext -->
+    <ta-popover
+      ref="mypop"
+      @after-leave="afterLeaveEvents"
+      :visible-arrow="true"
+      :offset="1"
+      :appendToBody="true"
+      :placement="`bottom`"
+      class="cus_poper"
+    >
+      <div slot="content" class="boxBtn_extSelect">1</div>
+    </ta-popover>
   </div>
 </template>
 <script lang='javascript'>
@@ -146,6 +165,7 @@ export default {
     };
   },
   methods: {
+    afterLeaveEvents() {},
     handleMenuClick(e) {
       console.log("click:handleMenuClick:", e);
       const { key } = e;
@@ -161,4 +181,13 @@ export default {
 };
 </script>
 <style lang='less' scoped>
+body {
+  // .cus_poper {
+  .el-popover {
+    &.el-popper {
+      background-color: @input-bg;
+    }
+  }
+  // }
+}
 </style>

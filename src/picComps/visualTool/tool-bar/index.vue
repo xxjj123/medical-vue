@@ -214,15 +214,29 @@ export default {
   }
 }
 
-body {
-  .cus_poper {
-    /deep/ .el-popover {
-      &.el-popper {
-        background-color: @input-bg;
-      }
-    }
-  }
-}
+// body {
+//   .cus_poper {
+//     /deep/ .el-popover {
+//       &.el-popper {
+//         background-color: @input-bg;
+//         border-color: @input-bg;
+//         &[x-placement^="right"] {
+//           .popper__arrow {
+//             border-bottom-color: @input-bg !important;
+//             border-right-color: @input-bg !important;
+//           }
+//         }
+
+//         .popper__arrow {
+//           &:after {
+//             border-bottom-color: @input-bg !important;
+//             border-right-color: @input-bg !important;
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
 
 .boxBtn_extSelect {
 }
