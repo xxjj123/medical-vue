@@ -6,7 +6,8 @@
         <div class="btn_custom">量化随访</div>
       </div>
       <div class="state_box">
-        <ta-tag color="cyan">随访等待计算</ta-tag>
+        <!-- <ta-tag color="cyan">随访等待计算</ta-tag> -->
+        <ta-button type="link">无量化随访</ta-button>
       </div>
     </div>
   </div>
@@ -41,9 +42,18 @@ export default {
     background-color: @rgba; */
     .background-opacity(@color, @opacity);
     color: @primary-color;
+
+    // pointer-events: none;
+    &:hover {
+      cursor: not-allowed;
+    }
+
     &.on {
       color: @input-color;
       background: @primary-color;
+      &:hover {
+        cursor: pointer;
+      }
     }
   }
 }
