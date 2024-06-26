@@ -221,6 +221,9 @@ export default {
       state
     }, file) {
       try {
+        debugger
+        console.log("file", file);
+        console.log("readImageDicomFileSeries=", readImageDicomFileSeries);
         const res = await readImageDicomFileSeries({
           inputImages: file
         });
@@ -292,8 +295,10 @@ export default {
       commit,
       dispatch
     }, file) {
+      debugger
       try {
         const image = await dispatch('readDicomFileSeries', file);
+        console.log("image========readFile", image);
         dispatch('init3DView', someContainer); // someContainer需要根据实际情况传入
         dispatch('initCoronalView', someContainer);
         dispatch('initAxialView', someContainer);

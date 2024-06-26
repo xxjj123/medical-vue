@@ -44,7 +44,7 @@ import {
 // import noduleResult from "@/picComps/home/dataresult/noduleResult.vue";
 // import pneumoniaResult from "@/picComps/home/dataresult/pneumoniaResult.vue";
 
-import { getExaminationDetail, getFile } from "@/api";
+import { readBlobAsArrayBuffer, getExaminationDetail, getFile } from "@/api";
 import JSZip from "jszip";
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
 export default {
@@ -86,7 +86,7 @@ export default {
     ...mapActions("toolsStore", ["actRun", "updateActRun"]),
     ...mapMutations("viewsStore", ["SET_HELLOVIEWS"]),
     // 正规业务start
-    ...mapActions("viewsStore", ["ReadFile"]),
+    ...mapActions("viewsStore", ["readFile"]),
 
     // 本页面方法
 
@@ -106,69 +106,77 @@ export default {
       });
     },
     Diagnose(applyId) {
-      return new Promise((resolve, reject) => {
-        getExaminationDetail(applyId)
-          .then((res) => {
-            if (res.msg === "success") {
-              let data = res.data;
-
-              this.menuResult.forEach((item) => {
-                item.data = data[item.des];
-              });
-              // Set the first available diagnosis as activeDiagnose
-              const firstValidDiagnosis = this.menuResult.find(
-                (item) => item.data
-              );
-              if (firstValidDiagnosis) {
-                this.activeDiagnose = firstValidDiagnosis;
-              }
-
-              resolve(res); // Success: resolve result
-            } else {
-              reject(res.message);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            reject(err); // Error: reject with error
-          });
-      });
-    },
-    loadFile(applyId) {
-      console.time("unzip");
-      return new Promise((resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
+        const data = await getExaminationDetail(applyId);
+        console.log("row==getExaminationDetail", data);
         try {
-          getFile(applyId).then((res) => {
-            const fileList = [];
-            const zip = new JSZip();
-            const blob = res.data;
-            const zipContent = zip.loadAsync(blob);
-
-            const filePromises = [];
-
-            zipContent.forEach((relativePath, zipEntry) => {
-              if (!zipEntry.dir) {
-                const filePromise = zipEntry.async("blob").then((fileData) => {
-                  const blob = new Blob([fileData], {
-                    type: zipEntry._data ? zipEntry._data.mimeType : "",
-                  }); // Create Blob object
-                  const file = new File([blob], relativePath); // Create File object
-                  fileList.push(file);
-                });
-                filePromises.push(filePromise);
-              }
-            });
-
-            Promise.all(filePromises).then(() => {
-              console.timeEnd("unzip");
-              resolve(fileList);
-            });
+          this.menuResult.forEach((item) => {
+            item.data = data[item.des];
           });
-        } catch (err) {
-          console.error(err);
-          reject(err);
+          // Set the first available diagnosis as activeDiagnose
+          const firstValidDiagnosis = this.menuResult.find((item) => item.data);
+          if (firstValidDiagnosis) {
+            this.activeDiagnose = firstValidDiagnosis;
+          }
+          resolve(data); // Success: resolve result
+        } catch (error) {
+          reject(error);
         }
       });
+    },
+    async loadFile(applyId) {
+      console.time("unzip");
+      // return new Promise((resolve, reject) => {
+      try {
+        const res = await getFile(applyId);
+        console.log("res----fetch", res);
+        // debugger;
+        const fileList = [];
+        const zip = new JSZip();
+        const blob = res.data;
+
+        // 将 Blob 转换为 ArrayBuffer
+        const arrayBuffer = await readBlobAsArrayBuffer(blob);
+
+        const zipContent = await zip.loadAsync(arrayBuffer);
+        // const zipContent = zip.loadAsync(blob);
+
+        const filePromises = [];
+        console.log("zipContent==", zipContent);
+        zipContent.forEach((relativePath, zipEntry) => {
+          // console.log("relativePath, zipEntry===", relativePath, zipEntry);
+          if (!zipEntry.dir) {
+            const filePromise = zipEntry.async("blob").then((fileData) => {
+              const blob = new Blob([fileData], {
+                type: zipEntry._data ? zipEntry._data.mimeType : "",
+              }); // Create Blob object
+              const file = new File([blob], relativePath); // Create File object
+              fileList.push(file);
+            });
+            filePromises.push(filePromise);
+          }
+        });
+
+        // console.log("filePromises=", filePromises);
+        // return Promise.all(filePromises)
+        //   .finally(() => {
+        //     // console.timeEnd("unzip");
+        //     console.log("fileList=", fileList);
+        //     return Promise.resolve(fileList);
+        //   })
+        //   .catch((err) => {
+        //     console.error("filePromises===err", err);
+        //     return Promise.reject(err);
+        //   });
+        await Promise.all(filePromises);
+        console.timeEnd("unzip");
+        return fileList;
+      } catch (err) {
+        console.error(err);
+        // return Promise.reject(err);
+        throw err;
+      }
+      // });
     },
   },
   created() {
@@ -185,14 +193,17 @@ export default {
     }, 5000);
 
     console.log("this.$router", this.$router);
-  },
-  mounted() {
+
     this.$nextTick(() => {
       const { applyId } = this.$route.query;
-
-      Promise.all([this.loadFile(applyId), this.Diagnose(applyId)])
+      // , this.Diagnose(applyId)
+      // console.log("Diagnose==",Diagnose);
+      // this.Diagnose(applyId);
+      Promise.all([this.Diagnose(applyId), this.loadFile(applyId)])
         .then((res) => {
-          this.ReadFile(res[0]);
+          console.log("最终=", res);
+          // debugger;
+          this.readFile(res[1]);
         })
         .catch((err) => {
           console.log(err);
@@ -203,6 +214,7 @@ export default {
         });
     });
   },
+  mounted() {},
 };
 </script>
 <style lang='less' scoped>

@@ -50,6 +50,8 @@ Vue.use(Slider);
 
 // 自定义组件
 
+import taAll from '@yh/ta-utils';
+console.log("taAll==", taAll)
 
 
 import store from '../store';
