@@ -44,6 +44,10 @@ import Drawer from '@yh/ta404-ui/es/drawer';
 import '@yh/ta404-ui/es/drawer/style';
 Vue.use(Drawer);
 
+import Slider from '@yh/ta404-ui/es/slider';
+import '@yh/ta404-ui/es/slider/style';
+Vue.use(Slider);
+
 // 自定义组件
 
 

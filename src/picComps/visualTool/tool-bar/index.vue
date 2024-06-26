@@ -137,7 +137,43 @@
       :placement="`right`"
       class="cus_poper ctkw_pop"
     >
-      <div slot="content" class="boxBtn_extSelect"></div>
+      <div slot="content" class="boxBtn_extSelect">
+        <div class="title">窗体宽位</div>
+        <div class="rowWin flex items-center">
+          <div class="name">窗宽</div>
+          <div class="silder">
+            <ta-slider :min="1" :max="4096" v-model="view_window.win_w" />
+          </div>
+          <div class="ipt">
+            <ta-input-number
+              :min="1"
+              :max="4096"
+              style="marginleft: 16px; width: 100px"
+              amountPre="HU"
+              :asAmount="true"
+              :alignRight="true"
+              v-model="view_window.win_w"
+            />
+          </div>
+        </div>
+        <div class="rowWin flex items-center">
+          <div class="name">窗位</div>
+          <div class="silder">
+            <ta-slider :min="1" :max="3071" v-model="view_window.win_holder" />
+          </div>
+          <div class="ipt">
+            <ta-input-number
+              :min="1"
+              :max="3071"
+              style="marginleft: 16px; width: 100px"
+              amountPre="HU"
+              :asAmount="true"
+              :alignRight="true"
+              v-model="view_window.win_holder"
+            />
+          </div>
+        </div>
+      </div>
     </ta-popover>
 
     <ta-popover
@@ -166,6 +202,8 @@ export default {
       current: null,
       mypop: "mypop1",
       view_window: {
+        win_w: "1",
+        win_holder: "1",
         current: 0,
         list: [
           {
@@ -324,6 +362,22 @@ export default {
     .txt {
       font-size: 14px;
     }
+  }
+}
+
+/deep/.ctkw_pop {
+  .title {
+    font-size: 16px;
+  }
+}
+
+.rowWin {
+  .name {
+    margin-right: 10px;
+  }
+  .silder {
+    width: 133px;
+    margin-right: 5px;
   }
 }
 </style>
