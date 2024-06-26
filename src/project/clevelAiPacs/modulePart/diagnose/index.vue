@@ -232,7 +232,7 @@ export default {
   max-width: 85px;
   height: 100%;
   background-color: @theme_backBg;
-  padding: 49px 27px 0 27px;
+  padding: 49px 16px 0 22px;
 }
 .pic_views {
   @media screen and (orientation: landscape) {
