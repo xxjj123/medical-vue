@@ -4,10 +4,13 @@
     <div class="menuTopBox flex justify-between">
       <div class="sub_title">--</div>
       <div class="sub_tool flex items-center">
-        <div class="flex hover:cursor-pointer justify-start items-center">
+        <div
+          @click="handle_shouchang"
+          class="flex hover:cursor-pointer justify-start items-center"
+        >
           <div class="icon ico_shouchang flex items-center">
             <ta-icon
-              v-if="menuTopTool.collect === 1"
+              v-if="menuTopTool.collect === true"
               :style="starOn_style"
               type="star"
               theme="filled"
@@ -65,13 +68,20 @@ export default {
   data() {
     return {
       menuTopTool: {
-        collect: 0,
+        collect: false,
+      },
+      starOn_style: {
+        color: `rgb(245, 166, 35)`,
       },
     };
   },
   methods: {
     callback(key) {
       console.log(key);
+    },
+    handle_shouchang() {
+      this.menuTopTool.collect = !this.menuTopTool.collect;
+      this.$emit("cb-sc", this.menuTopTool.collect);
     },
   },
 };

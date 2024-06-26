@@ -1,5 +1,5 @@
 <template>
-  <div class="nodule_lesion-list">
+  <div class="nodule_lesion-list" tabindex="0">
     <div class="table_bar flex justify-between">
       <div class="tit">病变列表</div>
       <div class="btn_grp flex">
@@ -13,7 +13,6 @@
               :key="`${index}_${item.value}`"
               >{{ item.label }}</ta-menu-item
             >
-            <!-- <ta-menu-divider /> -->
           </ta-menu>
         </ta-dropdown>
         <ta-dropdown :trigger="['click']">
@@ -29,6 +28,7 @@
       <ta-big-table
         :size="tableConfig.size"
         highlight-hover-row
+        height="200"
         :columns="tableConfig.tableColumns"
         :data="tableConfig.tableData"
         @checkbox-all="selectAllEvent"
@@ -41,7 +41,35 @@
     </div>
 
     <div class="analytic_semantic_description">
-      <anaSemanticDesBlock :title="anaSecDesConf.title"></anaSemanticDesBlock>
+      <anaSemanticDesBlock
+        :bookItems.sync="anaSecDesConf.bookItems"
+        :title="anaSecDesConf.title"
+      >
+        <filmInputState
+          slot="searchBar"
+          v-model="filmIpt_curItem"
+          :typec="`dropdown`"
+          :selectCurIdx="`0`"
+          :optionNum="`1`"
+          @cb-click="handle_filmIptClick"
+        ></filmInputState>
+      </anaSemanticDesBlock>
+    </div>
+
+    <div class="analytic_semantic_description">
+      <anaSemanticDesBlock
+        :bookItems.sync="anaSecDesConf_1.bookItems"
+        :title="anaSecDesConf_1.title"
+      >
+        <filmInputState
+          slot="searchBar"
+          v-model="filmIpt_curItem_1"
+          :typec="`dropdown`"
+          :selectCurIdx="`1`"
+          :optionNum="`2`"
+          @cb-click="handle_filmIptClick"
+        ></filmInputState>
+      </anaSemanticDesBlock>
     </div>
 
     <!-- ext -->
@@ -120,16 +148,51 @@
 </template>
 <script lang='javascript'>
 import anaSemanticDesBlock from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/index.vue";
+import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
 // 病变列表
 export default {
   name: "lesion-list",
   components: {
     anaSemanticDesBlock,
+    filmInputState,
+  },
+  watch: {
+    filmIpt_curItem: {
+      handler(nVal, oVal) {
+        console.log("watch-----filmIpt_curItem", nVal, oVal);
+      },
+      immediate: true,
+    },
+    "anaSecDesConf.bookItems": {
+      handler(nVal, oVal) {
+        console.log("watch-------anaSecDesConf.bookItems", nVal, oVal);
+      },
+      immediate: true,
+    },
   },
   data() {
     return {
+      filmIpt_curItem: null,
+      filmIpt_curItem_1: null,
       anaSecDesConf: {
         title: "影像所见",
+        bookItems: [
+          `右肺上叶前段【39/259】见混合性结节，大小约13.8mmx8.3mm，体积约649.3mm³，平均CT值约-277.6HU`,
+          `左肺上叶前段【63/259】见磨玻璃性结节，大小约4.6mmx2.4mm，体积约28.9mm³，平均CT值约-702.2HU。`,
+          `左肺上叶前段【78/259】见磨玻璃性结节，大小约6.3mmx2.8mm，体积约49.6mm³，平均CT值约-529.3HU。`,
+          `右肺上叶前段【78/259】见磨玻璃性结节，大小约4.9mmx3.7mm，体积约51.0mm³，平均CT值约-634.0HU。`,
+        ],
+      },
+      anaSecDesConf_1: {
+        title: "影像诊断",
+        bookItems: [
+          `右肺上叶后段见肿块, 约3.0mmx1.6mm。`,
+          `右肺中叶外侧段见肿块, 约7.1mmx2.8mm。`,
+          `右肺下叶外基底段见肿块, 约4.5mmx2.3mm。`,
+          `左肺上叶尖后段见肿块, 约4.5mmx2.4mm。`,
+          `右肺上叶后段、右肺上叶前段、右肺中叶外侧段、右肺中叶内侧段、左肺上叶前段多发结节。`,
+          `右肺上叶后段、右肺上叶前段、右肺中叶外侧段、右肺中叶内侧段、左肺上叶前段多发结节。`,
+        ],
       },
       tableConfig: {
         size: "small",
@@ -146,6 +209,36 @@ export default {
           },
           {
             risk: "3",
+            volume: "41",
+            lobe: "lobe_left_top",
+          },
+          {
+            risk: "4",
+            volume: "41",
+            lobe: "lobe_left_top",
+          },
+          {
+            risk: "4",
+            volume: "41",
+            lobe: "lobe_left_top",
+          },
+          {
+            risk: "4",
+            volume: "41",
+            lobe: "lobe_left_top",
+          },
+          {
+            risk: "4",
+            volume: "41",
+            lobe: "lobe_left_top",
+          },
+          {
+            risk: "4",
+            volume: "41",
+            lobe: "lobe_left_top",
+          },
+          {
+            risk: "4",
             volume: "41",
             lobe: "lobe_left_top",
           },
@@ -329,6 +422,14 @@ export default {
     };
   },
   methods: {
+    handle_filmIptClick(ev) {
+      console.log(
+        "handle_filmIptClick___",
+        ev,
+        "filmIpt_curItem",
+        this.filmIpt_curItem
+      );
+    },
     selectAllEvent(ev) {
       console.log("selectAllEvent___", ev);
     },
@@ -450,6 +551,21 @@ export default {
       this.sort_condition.type_select.showValue = row.label;
     },
   },
+  created() {
+    this.$nextTick(() => {
+      document
+        .querySelector(".nodule_lesion-list")
+        .addEventListener("mouseover", function () {
+          this.style.overflow = "auto"; // 获得焦点时显示滚动条
+        });
+
+      document
+        .querySelector(".nodule_lesion-list")
+        .addEventListener("mouseout", function () {
+          this.style.overflow = "hidden"; // 失去焦点时隐藏滚动条
+        });
+    });
+  },
 };
 </script>
 <style lang='less' scoped>
@@ -476,6 +592,36 @@ body {
         display: inline-block;
       }
     }
+  }
+}
+.table_container {
+  // box-sizing: border-box;
+  // margin-right: -20px; /* 预留滚动条宽度 */
+  // padding-right: 20px; /* 预留滚动条宽度 */
+  // resize: both;
+  // width: calc(400px - 2%);
+  &:before {
+    content: "";
+    display: block;
+    height: 0;
+    width: 20px; /* 预留滚动条宽度 */
+  }
+}
+.nodule_lesion-list {
+  height: calc(100vh - 239px);
+  transition: overflow 0.8s; /* 可选，为了动画效果 */
+  margin-right: -20px; /* 预留滚动条宽度 */
+  padding-right: 20px; /* 预留滚动条宽度 */
+  box-sizing: border-box;
+  overflow-anchor: none; /* 或其他值，如 'auto' */
+  resize: both; /* 或 'horizontal', 'vertical' */
+  // overflow: auto;
+
+  &:before {
+    content: "";
+    display: block;
+    height: 0;
+    width: 20px; /* 预留滚动条宽度 */
   }
 }
 </style>
