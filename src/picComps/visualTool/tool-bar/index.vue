@@ -1,7 +1,20 @@
 <template>
   <div class="vsk-tool-bar flex flex-col">
     <!-- 视窗调整 -->
-    <div class="boxBtn tzg_icon flex justify-start items-center">
+    <div
+      :class="[
+        'boxBtn flex justify-start items-center',
+        {
+          lggjst_icon: view_window?.curInput === 'lggjst',
+        },
+        {
+          mpr_icon: view_window?.curInput === 'mpr',
+        },
+        {
+          ys_icon: view_window?.curInput === 'ys',
+        },
+      ]"
+    >
       <div
         class="pic mr-[5px] hover:cursor-pointer"
         v-tooltip="{ title: '视窗调整', visible: true }"
@@ -333,6 +346,7 @@ export default {
       current: null,
       mypop: "mypop1",
       view_window: {
+        curInput: "lggjst",
         win_w: "1",
         win_holder: "1",
         current: 0,
@@ -394,6 +408,9 @@ export default {
     },
     handle_view_window_row(idx) {
       this.view_window.current = idx;
+      const { current } = this.view_window;
+      const row = this.view_window.list[current];
+      this.view_window.curInput = row.icon;
     },
     handle_openTzg(curNo) {
       this.mypop = "mypop";
@@ -428,10 +445,27 @@ export default {
       .func_bgCover();
     }
   }
-  &.tzg_icon {
+
+  &.lggjst_icon {
     > .pic {
       &:after {
-        background-image: url(./assets/img/3d-lgt.png);
+        .lggjst();
+      }
+    }
+  }
+
+  &.mpr_icon {
+    > .pic {
+      &:after {
+        .mpr();
+      }
+    }
+  }
+
+  &.ys_icon {
+    > .pic {
+      &:after {
+        .ys();
       }
     }
   }
@@ -499,6 +533,24 @@ export default {
     padding: 5px 10px;
   }
 }
+/* func-----------start-----------视窗切换按钮 */
+.lggjst() {
+  & {
+    background-image: url(./assets/img/lgt-ts.png);
+  }
+}
+.mpr() {
+  & {
+    background-image: url(./assets/img/3d-lgt.png);
+  }
+}
+.ys() {
+  & {
+    background-image: url(./assets/img/targetPic.png);
+  }
+}
+/* func-----------end-----------视窗切换按钮 */
+
 .group_tools {
   .h_row {
     padding: 4px 5px;
@@ -513,13 +565,16 @@ export default {
       width: 15px;
       height: 14px;
       &.lggjst {
-        background-image: url(./assets/img/lgt-ts.png);
+        // background-image: url(./assets/img/lgt-ts.png);
+        .lggjst();
       }
       &.mpr {
-        background-image: url(./assets/img/3d-lgt.png);
+        // background-image: url(./assets/img/3d-lgt.png);
+        .mpr();
       }
       &.ys {
-        background-image: url(./assets/img/targetPic.png);
+        // background-image: url(./assets/img/targetPic.png);
+        .ys();
       }
     }
 
