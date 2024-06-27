@@ -4,7 +4,8 @@ import {
 } from './options';
 const {
   api,
-  api2
+  api2,
+  api3,
 } = apiOps;
 
 import axios from 'axios'
@@ -63,7 +64,29 @@ export const getExaminationList = (userId) => {
 //     applyId: applyId
 //   }
 // })
+// 6129 keya demo 测试
+export const getExaDetail_keya = () => {
+  // Authorization:
+  // eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtY3dfYW5hbHlzZXIiLCJqd3RDbGFpbSI6eyJ1c2VySWQiOjI1LCJhY2NvdW50IjoibWN3IiwibmFtZSI6Im1jdyIsInJvbGUiOiJhbmFseXNlciIsImFjY291bnRMb2dJZCI6NzMxfSwiaWF0IjoxNzE3NjY0NTY2LCJleHAiOjE3MTc2NjQ1NjZ9.9-wbOmQHTur1oxxOUC9TTbIRX55KJBOz157bLcoHi7uqMNcA-hKzPSh0XuMjUta_XOgPXa6zuggseVRyTH6SrA
+  return Base.submit(null, {
+    headers: {
+      Authorization: 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtY3dfYW5hbHlzZXIiLCJqd3RDbGFpbSI6eyJ1c2VySWQiOjI1LCJhY2NvdW50IjoibWN3IiwibmFtZSI6Im1jdyIsInJvbGUiOiJhbmFseXNlciIsImFjY291bnRMb2dJZCI6NzMxfSwiaWF0IjoxNzE3NjY0NTY2LCJleHAiOjE3MTc2NjQ1NjZ9.9-wbOmQHTur1oxxOUC9TTbIRX55KJBOz157bLcoHi7uqMNcA-hKzPSh0XuMjUta_XOgPXa6zuggseVRyTH6SrA',
+    },
+    url: api3 + urlJson['keyaDemo_download_6129'],
+    method: 'GET',
+    // urlParam: {
+    //   applyId: applyId
+    // }
 
+  }).then(res => {
+    console.log("keyayyy--res", res);
+
+    return Promise.resolve(res.data);
+  }).catch(err => {
+    console.log("keyayyy--err", err);
+    return Promise.resolve(err?.data);
+  })
+}
 
 //获取诊断细节
 // TODO: 不是404数据结构-异常特殊处理下，会进入catch，等后端重写后，重新接入。
@@ -227,8 +250,8 @@ export const getFile = (applyId) => {
       })
       .catch(function (error) {
         // 处理错误的逻辑
-        console.log("处理错误的逻辑", err);
-        reject(err);
+        console.log("处理错误的逻辑", error);
+        reject(error);
 
       });
   })

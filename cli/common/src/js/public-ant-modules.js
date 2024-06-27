@@ -1,6 +1,14 @@
 import faceConfig from 'faceConfig';
 import Vue from 'vue';
 import Router from 'vue-router';
+
+import TaUtils from '@yh/ta-utils'
+Vue.prototype.TaUtils = {
+  ...TaUtils,
+}
+// 挂载到window上
+window.TaUtils = Vue.prototype.TaUtils
+
 // 引入按需加载的基础组件
 import './modules/baseModule';
 // 如果要引入旧版本的所有utils(包括TaUtils和Base),则需要引入下面的polyfill

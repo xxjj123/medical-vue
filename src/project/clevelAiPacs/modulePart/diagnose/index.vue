@@ -44,7 +44,12 @@ import {
 // import noduleResult from "@/picComps/home/dataresult/noduleResult.vue";
 // import pneumoniaResult from "@/picComps/home/dataresult/pneumoniaResult.vue";
 
-import { readBlobAsArrayBuffer, getExaminationDetail, getFile } from "@/api";
+import {
+  getExaDetail_keya,
+  readBlobAsArrayBuffer,
+  getExaminationDetail,
+  getFile,
+} from "@/api";
 import JSZip from "jszip";
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
 export default {
@@ -107,7 +112,10 @@ export default {
     },
     Diagnose(applyId) {
       return new Promise(async (resolve, reject) => {
-        const data = await getExaminationDetail(applyId);
+        const data = await getExaDetail_keya();
+        console.log("data==,data  keya", data);
+
+        /*     const data = await getExaminationDetail(applyId);
         console.log("row==getExaminationDetail", data);
         try {
           this.menuResult.forEach((item) => {
@@ -121,7 +129,7 @@ export default {
           resolve(data); // Success: resolve result
         } catch (error) {
           reject(error);
-        }
+        } */
       });
     },
     async loadFile(applyId) {
@@ -198,7 +206,7 @@ export default {
       const { applyId } = this.$route.query;
       // , this.Diagnose(applyId)
       // console.log("Diagnose==",Diagnose);
-      // this.Diagnose(applyId);
+      this.Diagnose(applyId);
       Promise.all([this.Diagnose(applyId), this.loadFile(applyId)])
         .then((res) => {
           console.log("最终=", res);

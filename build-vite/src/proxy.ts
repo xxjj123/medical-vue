@@ -29,6 +29,11 @@ export function buildProxy() {
       changeOrigin: true,
       rewrite: (path: string) => path.replace(/^\/ta404\/api\//, '')
     },
+    ['^/ta404/api3/']: {
+      target: 'https://demo.deepinsight.deepvessel.net/api/',
+      changeOrigin: true,
+      rewrite: (path: string) => path.replace(/^\/ta404\/api3\//, '')
+    },
     [proxyName]: {
       target:
         getEnv('RUN_ENV') === 'mock' ? 'http://localhost:36742/' : getEnv('VITE_BACKEND_PATH'),

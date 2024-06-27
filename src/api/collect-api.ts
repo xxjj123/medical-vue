@@ -5,5 +5,6 @@ export default {
   'get-examination-detail': '/examinations/getdetail',
   'upload-examination': '/examinations/upload',
   'get-file': '/examinations/download',
-  'is-exit': '/examinations/isexit'
+  'is-exit': '/examinations/isexit',
+  'keyaDemo_download_6129': '/object/download/6129'
 }

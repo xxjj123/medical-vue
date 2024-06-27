@@ -227,6 +227,7 @@ export default {
         const res = await readImageDicomFileSeries({
           inputImages: file
         });
+        console.log("res", res);
         const {
           outputImage
         } = res;
