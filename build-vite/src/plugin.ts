@@ -1,24 +1,24 @@
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { viteCommonjs } from '@yh/vite-plugin-commonjs';
-import VirtualHtml, { historyApiFallbackPlugin } from 'vite-plugin-virtual-html';
+import {viteCommonjs} from '@yh/vite-plugin-commonjs';
+import VirtualHtml, {historyApiFallbackPlugin} from 'vite-plugin-virtual-html';
 import vue from '@vitejs/plugin-vue2';
 import jsx from '@vitejs/plugin-vue2-jsx';
 import Inspect from 'vite-plugin-inspect';
-import { visualizer } from 'rollup-plugin-visualizer';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
+import {visualizer} from 'rollup-plugin-visualizer';
+import {viteStaticCopy} from 'vite-plugin-static-copy';
 import legacy from '@vitejs/plugin-legacy';
 import virtualModule from 'vite-plugin-virtual-modules';
 import viteCommonConfig from '../../viteCommonConfig';
 import themePreprocessorPlugin from '@zougt/vite-plugin-theme-preprocessor';
-import { uiVite } from '@yh/vite-plugin-cli-importer';
+import {uiVite} from '@yh/vite-plugin-cli-importer';
 import unplugin from 'unplugin-vue-components/vite';
 import cliComponentsOverride from './unplugin-resolver/cli-components.override';
-import { getEnv, isEnvTrue } from './utils';
+import {getEnv, isEnvTrue} from './utils';
 import StringReplace from 'vite-plugin-string-replace';
-import { getAllPages, getInjectCode } from '../mpa/pages.js';
+import {getAllPages, getInjectCode} from '../mpa/pages.js';
 import ReplaceName from './replace-name';
-import { copyModulePublic } from './copyModulePublic';
+import {copyModulePublic} from './copyModulePublic';
 import FileReplace from '../../internal/replace-files/src';
 
 const fsp = fs.promises;
@@ -39,7 +39,7 @@ function resolvePresetThemePath(file?: string) {
  *   virtualThemes: 给页面显示使用的对象,存储了主题名与primary-color的对应
  */
 async function readPresetThemePrimaryColor() {
-  const { includeStyles } = viteCommonConfig;
+  const {includeStyles} = viteCommonConfig;
   const presetThemes = await fsp.readdir(resolvePresetThemePath());
   const multipleScopeVars: Array<{
     scopeName: string;
@@ -78,19 +78,19 @@ async function readPresetThemePrimaryColor() {
  * @param ignoreHtmlPlugin
  */
 async function basePlugins(_mode: string, ignoreHtmlPlugin: boolean = false) {
-  const { copyResources, html, cli } = viteCommonConfig;
+  const {copyResources, html, cli} = viteCommonConfig;
   const targets = [...copyResources, ...copyModulePublic()].map((resource) => {
     return {
       src: resource.from,
       dest: resource.to,
     };
   });
-  const { historyPage } = cli;
+  const {historyPage} = cli;
   const historyPageInjectIntoFaceConfig = historyPage.map((hp) => {
     return `${hp}.html`;
   });
 
-  const { multipleScopeVars, virtualThemes } = await readPresetThemePrimaryColor();
+  const {multipleScopeVars, virtualThemes} = await readPresetThemePrimaryColor();
   const useLessFile = getEnv('VITE_PERF_LOAD_LESS');
   const useSingleCss = useLessFile === 'single';
   const useOldModules = isEnvTrue('USE_OLD_MODULES_SUPPORT');
@@ -204,7 +204,7 @@ async function basePlugins(_mode: string, ignoreHtmlPlugin: boolean = false) {
             moduleValue: `
           import { updateColorWeak, } from '@yh/cli-internal-dynamic-theme';
           import { createWebStorage, } from '@yh/ta-utils';
-          
+
           if(import.meta.env.VITE_ENABLE_DARK_MODE.toUpperCase() === 'TRUE'){
             import('/internal/theme/dark/dark-mode.less');
             const darkModeStorage = createWebStorage(import.meta.env.VITE_THEME_STORAGE_KEY, { isLocal: true, });
@@ -295,7 +295,7 @@ async function basePlugins(_mode: string, ignoreHtmlPlugin: boolean = false) {
  * 开发时的插件
  */
 function devPlugins(_mode: string) {
-  const { historyPage } = viteCommonConfig.cli;
+  const {historyPage} = viteCommonConfig.cli;
   const rewrites = historyPage.map((hp) => {
     return {
       from: new RegExp(`${hp}/.*`),
@@ -307,7 +307,7 @@ function devPlugins(_mode: string) {
       include: (viteCommonConfig.commonjs.include as Array<string>).map((k) =>
         k.replaceAll('**', ''),
       ),
-      exclude: ['core-js'],
+      exclude: ['core-js', '@itk-wasm/dicom', 'itk-wasm', 'itk'],
     }),
     // 查看vite各个插件对于每个文件是如何加载/处理,对于调试代码有一定的作用
     Inspect(),

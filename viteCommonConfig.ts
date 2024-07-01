@@ -168,6 +168,14 @@ const _default: ViteCommonConfig = {
       'virtual:historyPage',
       'virtual:darkMode',
       'virtual:elderly',
+      '@itk-wasm/dicom',
+      'itk-wasm',
+      'itk',
+      '@kitware/vtk.js',
+      'cornerstone',
+      'cornerstone-core',
+      'cornerstone-wado-image-loader',
+      '@cornerstonejs/dicom-image-loader'
     ],
   },
   html: [

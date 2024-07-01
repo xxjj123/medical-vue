@@ -4,6 +4,9 @@
     <PacsPageHeader :bread="true" :filmModeBtn="true">
       <template slot="filmModeCtrl">
         <filmBar></filmBar>
+        <div class="fixFileMuil">
+          <input ref="Fileinput" type="file" multiple @change="handleFile" />
+        </div>
       </template>
     </PacsPageHeader>
     <div class="main">
@@ -49,7 +52,14 @@ import {
   readBlobAsArrayBuffer,
   getExaminationDetail,
   getFile,
+  getDiagnoseResult,
 } from "@/api";
+
+import { readImageDicomFileSeries } from "@itk-wasm/dicom";
+// import * as itkWasm1 from "@itk-wasm/dicom";
+// import { readImageDicomFileSeries } from "itk-wasm";
+import * as itkWasm from "itk-wasm";
+
 import JSZip from "jszip";
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
 export default {
@@ -68,7 +78,7 @@ export default {
   },
   computed: {
     // 测试 ------ 使用方法时，指定一下模块即可
-    ...mapState("viewsStore", ["helloViews"]),
+    ...mapState("viewsStore", ["helloViews", "imageData"]),
     ...mapState("toolsStore", ["helloTools"]),
     ...mapGetters("toolsStore", ["combinedState"]),
   },
@@ -93,6 +103,57 @@ export default {
     // 正规业务start
     ...mapActions("viewsStore", ["readFile"]),
 
+    async handleFile(e) {
+      // const loading = ElLoading.service({
+      //   lock: true,
+      //   text: 'Loading',
+      //   background: 'rgba(0, 0, 0, 0.7)'
+      // })]l
+      console.log("handleFilehandleFile", e);
+      // console.log("itkWasm==", itkWasm);
+
+      const files = Array.from(e.target.files);
+      // const { readImageDicomFileSeries } = itkWasm;
+      console.log("readImageDicomFileSeries", readImageDicomFileSeries);
+
+      // const { image, webWorkerPool } = readImageDicomFileSeries(files, {
+      //   componentType: itkWasm.UInt8, // 设置组件类型
+      //   pixelType: itkWasm.RGB, // 设置像素类型
+      //   singleSortedSeries: true, // 如果文件是单个排序好的系列，设置为 true
+      // });
+
+      // // // 处理图像数据...
+      // console.log("处理图像数据=", image);
+
+      // // 当不再需要 worker 时，清理资源
+      // webWorkerPool.terminateWorkers();
+
+      // console.log("itkWasm==", itkWasm);
+      // console.log("itkWasm1==", itkWasm1);
+      // itkWasm.copyImage(null);
+
+      // await viewsStore.ReadFile(files);
+      // await this.readFile(files);
+      debugger;
+
+      readImageDicomFileSeries({
+        inputImages: files,
+      })
+        .then((res) => {
+          debugger;
+          console.log("aaaaa", res);
+          const { outputImage } = res;
+          return outputImage;
+        })
+        .catch((err) => {
+          console.error("Error reading DICOM file series:", err.message);
+          throw err;
+        });
+
+      // const applyId = "83299b46-8d18-4e41-88eb-cab1afa67523";
+      // await this.Diagnose(applyId);
+      // loading.close()
+    },
     // 本页面方法
 
     ChangeTheme(theme) {
@@ -112,9 +173,26 @@ export default {
     },
     Diagnose(applyId) {
       return new Promise(async (resolve, reject) => {
-        const data = await getExaDetail_keya();
-        console.log("data==,data  keya", data);
+        getDiagnoseResult(applyId)
+          .then((res) => {
+            if (res.message === "success") {
+              let data = res.data.result;
+              console.log(data);
+              /**
+               * TODO:更新面板数据
+               */
 
+              resolve(res); // Success: resolve result
+            } else {
+              reject(res.message);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            reject(err); // Error: reject with error
+          });
+        // const data = await getExaDetail_keya();
+        // console.log("data==,data  keya", data);
         /*     const data = await getExaminationDetail(applyId);
         console.log("row==getExaminationDetail", data);
         try {
@@ -201,7 +279,7 @@ export default {
     }, 5000);
 
     console.log("this.$router", this.$router);
-
+    /*
     this.$nextTick(() => {
       const { applyId } = this.$route.query;
       // , this.Diagnose(applyId)
@@ -220,7 +298,7 @@ export default {
         .finally(() => {
           loading.close();
         });
-    });
+    }); */
   },
   mounted() {},
 };
@@ -290,5 +368,11 @@ export default {
     height: 100%;
     border: 1px solid rgb(14, 17, 23);
   }
+}
+
+.fixFileMuil {
+  position: fixed;
+  top: 0;
+  left: 50%;
 }
 </style>

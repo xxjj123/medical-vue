@@ -1,9 +1,13 @@
 import Vue from 'vue'
 
 import '@kitware/vtk.js/Rendering/Profiles/All'
+// import {
+//   readImageDicomFileSeries
+// } from '@itk-wasm/dicom'
 import {
   readImageDicomFileSeries
-} from '@itk-wasm/dicom'
+} from '@itk-wasm/dicom';
+import * as dicomW from '@itk-wasm/dicom';
 import vtkITKHelper from '@kitware/vtk.js/Common/DataModel/ITKHelper'
 import vtkOrientationMarkerWidget from '@kitware/vtk.js/Interaction/Widgets/OrientationMarkerWidget'
 import vtkAnnotatedCubeActor from '@kitware/vtk.js/Rendering/Core/AnnotatedCubeActor'
@@ -108,8 +112,13 @@ export default {
     // 为Axial和Sagittal添加类似的mutations
     // ...
     SET_IMAGE_DATA(state, image) {
-      Vue.set(state, 'imageData', image);
-      state.imageData = image;
+      // 使用 Object.assign 将 image 对象的属性复制到 state.imageData
+      Object.assign(state.imageData, image);
+
+      // 这可以通过先删除原对象，然后创建一个新的对象来实现
+      Vue.set(state, 'imageData', {
+        ...state.imageData
+      });
     },
     INIT_MPR_VIEW(state, {
       container,
@@ -216,27 +225,34 @@ export default {
     // ...
     // ...（之前定义的actions）
 
-    async readDicomFileSeries({
+    readDicomFileSeries({
       commit,
       state
     }, file) {
-      try {
-        debugger
-        console.log("file", file);
-        console.log("readImageDicomFileSeries=", readImageDicomFileSeries);
-        const res = await readImageDicomFileSeries({
-          inputImages: file
-        });
-        console.log("res", res);
-        const {
-          outputImage
-        } = res;
-        const image = vtkITKHelper.convertItkToVtkImage(outputImage);
-        commit('SET_IMAGE_DATA', image);
-        // 其他逻辑...
-      } catch (err) {
-        console.error('Error reading DICOM file series:', err);
-      }
+      debugger
+      console.log("file", file);
+      console.log("dicomW==", dicomW);
+      // console.log("readImageDicomFileSeries=", readImageDicomFileSeries);
+      return readImageDicomFileSeries({
+        inputImages: file,
+        // singleSortedSeries: true,
+      })
+
+      // .then((res) => {
+      //   debugger;
+      //   const {
+      //     outputImage
+      //   } = res
+      //   const image = vtkITKHelper.convertItkToVtkImage(outputImage)
+      //   // Object.assign(imageData, image)
+      //   console.log("image-----------", image);
+      //   // commit('SET_IMAGE_DATA', image);
+      //   return image;
+      // })
+      // .catch((err) => {
+      //   console.error('Error reading DICOM file series:', err)
+      //   throw err
+      // });
     },
     // 其他actions...
     async initMprView({
@@ -269,8 +285,13 @@ export default {
       state
     }, file) {
       try {
-        const image = await this.readDicomFileSeries(file);
-        commit('SET_IMAGE_DATA', image);
+        // const image = await this.readDicomFileSeries(file);
+        this.readDicomFileSeries(file).then(res => {
+          console.log("res---readDicomFileSeries", res);
+        }).catch(err => {
+          throw new Error(err);
+        });
+        // commit('SET_IMAGE_DATA', image);
         // 调用其他必要的actions来初始化视图
         commit('INIT_VIEWS'); // 假设我们有一个初始化所有视图的mutation
       } catch (err) {
@@ -296,14 +317,20 @@ export default {
       commit,
       dispatch
     }, file) {
-      debugger
+      // debugger
       try {
-        const image = await dispatch('readDicomFileSeries', file);
-        console.log("image========readFile", image);
-        dispatch('init3DView', someContainer); // someContainer需要根据实际情况传入
-        dispatch('initCoronalView', someContainer);
-        dispatch('initAxialView', someContainer);
-        dispatch('initSagittalView', someContainer);
+        // const image = await dispatch('readDicomFileSeries', file);
+        dispatch('readDicomFileSeries', file).then(res => {
+          console.log("re---", res);
+        }).catch(err => {
+          console.error("eeeeee", err);
+          throw err
+        });
+        // console.log("image========readFile", image);
+        // dispatch('init3DView', image); // someContainer需要根据实际情况传入
+        // dispatch('initCoronalView', image);
+        // dispatch('initAxialView', image);
+        // dispatch('initSagittalView', image);
       } catch (err) {
         console.error('Error processing DICOM file series:', err);
       }

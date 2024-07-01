@@ -276,6 +276,7 @@ import {
   toggleButtonState,
   suffix_name,
 } from "./assets/js/buttonNameType";
+import * as dicom from "@itk-wasm/dicom";
 let btnStateGrp = {
   [`${ButtonNames.Ckcw}${suffix_name}`]: false,
   [`${ButtonNames.Mdtyms}${suffix_name}`]: false,
@@ -314,6 +315,7 @@ export default {
   },
   created() {
     console.log("===this.ckcw_on==", this.ckcw_on, ButtonNames.Ckcw);
+    console.log("dicomdicomdicomdicomdicomdicomdicom", dicom);
   },
   data() {
     return {
