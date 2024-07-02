@@ -37,6 +37,7 @@ import vtkPlane from '@kitware/vtk.js/Common/DataModel/Plane'
 
 
 
+
 const VIEW_TYPES = {
   CORONAL: 1,
   AXIAL: 2,
@@ -60,6 +61,41 @@ function createClippingPlanesFromIJK(ijk1, ijk2, indexToWorld) {
   // 返回裁剪平面数组
 }
 
+
+const getAnnotatedCube = () => {
+  const cube = vtkAnnotatedCubeActor.newInstance()
+  cube.setDefaultStyle({
+    text: 'F', // 通用前面文字
+    fontStyle: 'bold',
+    fontFamily: 'Arial',
+    fontColor: 'black',
+    fontSizeScale: (res) => res / 2.2,
+    faceRotation: 0,
+    edgeThickness: 0.05,
+    edgeColor: 'black',
+    resolution: 400
+  })
+  // 设置每个面的标签，确保其与标准医学方向一致
+  cube.setXPlusFaceProperty({
+    text: 'L'
+  }) // 左（Left）
+  cube.setXMinusFaceProperty({
+    text: 'R'
+  }) // 右（Right）
+  cube.setYPlusFaceProperty({
+    text: 'A'
+  }) // 前（Anterior）
+  cube.setYMinusFaceProperty({
+    text: 'P'
+  }) // 后（Posterior）
+  cube.setZPlusFaceProperty({
+    text: 'S'
+  }) // 上（Superior）
+  cube.setZMinusFaceProperty({
+    text: 'I'
+  }) // 下（Inferior）
+  return cube
+}
 
 export default {
   namespaced: true,
@@ -95,6 +131,59 @@ export default {
 
   },
   mutations: {
+    // 更新 Coronal 的 spacing
+    UPDATE_CORONAL_SPACING(state, payload) {
+      state.Coronal.spacing = payload;
+    },
+    // 更新 Coronal 的 thickness
+    UPDATE_CORONAL_THICKNESS(state, payload) {
+      state.Coronal.thickness = payload;
+    },
+    // 更新 Axial 的 spacing
+    UPDATE_AXIAL_SPACING(state, payload) {
+      state.Axial.spacing = payload;
+    },
+    // 更新 Axial 的 thickness
+    UPDATE_AXIAL_THICKNESS(state, payload) {
+      state.Axial.thickness = payload;
+    },
+    // 更新 Sagittal 的 spacing
+    UPDATE_SAGITTAL_SPACING(state, payload) {
+      state.Sagittal.spacing = payload;
+    },
+    // 更新 Sagittal 的 thickness
+    UPDATE_SAGITTAL_THICKNESS(state, payload) {
+      state.Sagittal.thickness = payload;
+    },
+    UPDATE_MPR_VIEW(state, payload) {
+      // debugger
+      const {
+        viewName,
+        viewType,
+        mode,
+        renderWindow,
+        renderer,
+        interactor,
+        widgetManager,
+        reslice,
+        resliceMapper,
+        resliceActor
+      } = payload;
+      const view = {
+        viewName,
+        viewType,
+        viewMode: mode,
+        renderWindow,
+        renderer,
+        interactor,
+        widgetManager,
+        reslice,
+        resliceMapper,
+        resliceActor
+      };
+      state.viewMprViews.push(view);
+
+    },
     //更新viewsData的某个对象
     put_jsonOb_viewsData(state, payload) {
       const {
@@ -107,18 +196,67 @@ export default {
     SET_HELLOVIEWS(state, container) {
       state.helloViews = container;
     },
-    INIT_3D_VIEW(state, container) {
-      // 根据Pinia中的Init3DView方法逻辑更新state
+    INIT_3D_VIEW(state, payload) {
+      const {
+        fullw
+      } = payload;
+      // 使用Vue.set来确保新属性是响应式的
+      Vue.set(state.view3D, 'renderWindow', fullw.getRenderWindow());
+      Vue.set(state.view3D, 'renderer', fullw.getRenderer());
+
+      const oriencube = getAnnotatedCube();
+      const orientationWidget = vtkOrientationMarkerWidget.newInstance({
+        actor: oriencube,
+        interactor: state.view3D.renderWindow.getInteractor()
+      });
+      orientationWidget.setEnabled(true);
+      orientationWidget.setViewportCorner(
+        vtkOrientationMarkerWidget.Corners.BOTTOM_LEFT
+      );
+      orientationWidget.setViewportSize(0.1);
+      orientationWidget.setMinPixelSize(80);
+      orientationWidget.setMaxPixelSize(100);
+
+      const camera = state.view3D.renderer.getActiveCamera();
+      camera.setPosition(0, -1, 0);
+      camera.setFocalPoint(0, 0, 0);
+      camera.setViewUp(0, 0, 1);
+      camera.zoom(1.5);
+
+      // 将orientationWidget添加到state.view3D中
+      Vue.set(state.view3D, 'orientationWidget', orientationWidget);
     },
-    INIT_CORONAL_VIEW(state, container) {
-      // 根据Pinia中的InitCoronalView方法逻辑更新state
+
+
+    UPDATE_VIEW(state, payload) {
+      const {
+        viewType,
+        data
+      } = payload;
+      // debugger;
+      switch (viewType) {
+        case VIEW_TYPES.CORONAL: {
+          state.Coronal = data;
+        }
+        break;
+      case VIEW_TYPES.AXIAL: {
+        state.Axial = data;
+      }
+      break;
+      case VIEW_TYPES.SAGITTAL: {
+        state.Sagittal = data;
+      }
+      break;
+      }
+
+      // 更新viewsData数组
+      state.viewsData = [
+        state.Coronal,
+        state.Axial,
+        state.Sagittal
+      ].filter(view => Object.keys(view).length > 0);
     },
-    INIT_AXIAL_VIEW(state, container) {
-      // 根据Pinia中的InitAxialView方法逻辑更新state
-    },
-    INIT_SAGITTAL_VIEW(state, container) {
-      // 根据Pinia中的InitSagittalView方法逻辑更新state
-    },
+
     // 其他mutations...
     // 例如，设置Coronal视图的间距和厚度
     SET_CORONAL_SPACING(state, spacing) {
@@ -152,19 +290,6 @@ export default {
       // 例如，初始化Axial, Sagittal, Coronal视图
     },
 
-
-    /*   SET_WINDOW_LEVEL(state, {
-        ww,
-        wl
-      }) {
-        // 更新window width和level
-        // 这里需要根据实际的state结构来设置
-      }, */
-
-    // 可能需要的其他mutations，例如设置窗口级别、裁剪平面等
-    /* SET_WINDOW_LEVEL(state, windowLevel) {
-      state.windowLevel = windowLevel;
-    }, */
     SET_CLIPPING_PLANES(state, clippingPlanes) {
       state.clippingPlanes = clippingPlanes;
     },
@@ -204,44 +329,90 @@ export default {
 
   },
   actions: {
+    async initViewAction({
+      commit,
+      dispatch
+    }, payload) {
+      const {
+        container,
+        viewName,
+        viewType,
+        slicingMode
+      } = payload;
+      const view = {
+        viewName: viewName,
+        viewColor: VIEW_COLORS.BACKGROUND,
+        viewType: viewType
+      };
+
+      // 假设InitMprView是一个返回Promise的异步方法
+      // const data = await InitMprView(container, view, slicingMode);
+      const data = await dispatch('InitMprView', {
+        container,
+        view,
+        slicingMode
+      })
+      console.log("data===initViewAction=MPR", data);
+      // 提交mutation来更新状态
+      commit('UPDATE_VIEW', {
+        viewType,
+        data
+      });
+    },
     async init3DView({
       commit
     }, container) {
+      const fullw = vtkFullScreenRenderWindow.newInstance({
+        container: container,
+        background: VIEW_COLORS.BACKGROUND
+      })
+
+
+
+
       // 调用mutation更新state
-      commit('INIT_3D_VIEW', container);
+      commit('INIT_3D_VIEW', {
+        fullw
+      });
     },
     async initCoronalView({
-      commit
+      commit,
+      dispatch
     }, container) {
-      // 调用mutation更新state
-      commit('INIT_CORONAL_VIEW', container);
+      //更新冠状面数据源
+      await dispatch('initViewAction', {
+        container,
+        viewName: VIEW_NAMES.CORONAL,
+        viewType: VIEW_TYPES.CORONAL,
+        slicingMode: vtkImageMapper.SlicingMode.I
+      })
+
     },
     async initAxialView({
-      commit
+      commit,
+      dispatch
     }, container) {
-      // 调用mutation更新state
-      commit('INIT_AXIAL_VIEW', container);
+      // 更新轴数据
+      await dispatch('initViewAction', {
+        container,
+        viewName: VIEW_NAMES.AXIAL,
+        viewType: VIEW_TYPES.AXIAL,
+        slicingMode: vtkImageMapper.SlicingMode.K
+      })
     },
     async initSagittalView({
-      commit
-    }, container) {
-      // 调用mutation更新state
-      commit('INIT_SAGITTAL_VIEW', container);
-    },
-    // 其他actions..
-    // 例如，一个action来初始化Coronal视图
-    initCoronalView({
       commit,
-      state
+      dispatch
     }, container) {
-      // 执行初始化逻辑，然后提交mutations更新state
-      commit('SET_CORONAL_SPACING', someSpacingValue);
-      commit('SET_CORONAL_THICKNESS', someThicknessValue);
-      // 其他初始化逻辑...
+      // 更新矢状面数据
+      await dispatch('initViewAction', {
+        container,
+        viewName: VIEW_NAMES.SAGITTAL,
+        viewName: VIEW_TYPES.SAGITTAL,
+        slicingMode: vtkImageMapper.SlicingMode.J
+      })
+
     },
-    // 为Axial和Sagittal添加类似的actions
-    // ...
-    // ...（之前定义的actions）
 
     readDicomFileSeries({
       commit,
@@ -271,50 +442,222 @@ export default {
         });
     },
     // 其他actions...
-    async initMprView({
-      commit
-    }, {
-      container,
-      viewName,
-      viewType,
-      slicingMode
-    }) {
-      try {
-        const view = {
-          viewName,
-          viewType,
-          // 其他属性...
-        };
-        commit('INIT_MPR_VIEW', {
-          container,
-          view,
-          mode: slicingMode
-        });
-        // 其他逻辑...
-      } catch (error) {
-        console.error('Error initializing MPR view:', error);
-      }
-    },
-
-    async getSlice({
+    async InitMprView({
       commit,
-      state
-    }, file) {
-      try {
-        // const image = await this.readDicomFileSeries(file);
-        this.readDicomFileSeries(file).then(res => {
-          console.log("res---readDicomFileSeries", res);
-        }).catch(err => {
-          throw new Error(err);
-        });
-        // commit('SET_IMAGE_DATA', image);
-        // 调用其他必要的actions来初始化视图
-        commit('INIT_VIEWS'); // 假设我们有一个初始化所有视图的mutation
-      } catch (err) {
-        console.error('Error processing DICOM file series:', err);
+      rootState
+    }, payload) {
+      const {
+        toolsStore
+      } = rootState;
+      const {
+        container,
+        view,
+        slicingMode: mode,
+      } = payload;
+      // debugger;
+      const grw = vtkGenericRenderWindow.newInstance();
+      grw.setContainer(container);
+      grw.resize();
+
+      const obj = {
+        viewName: view.viewName,
+        viewType: view.viewType,
+        viewMode: mode,
+        renderWindow: grw.getRenderWindow(),
+        renderer: grw.getRenderer(),
+        interactor: grw.getInteractor(),
+        widgetManager: vtkWidgetManager.newInstance(),
+        orientationWidget: null
       }
+
+
+      // const renderer = grw.getRenderer();
+      // const renderWindow = grw.getRenderWindow();
+      // const interactor = grw.getInteractor();
+      // const widgetManager = vtkWidgetManager.newInstance();
+
+      obj.renderer.getActiveCamera().setParallelProjection(true);
+      obj.renderer.setBackground(...view.viewColor);
+      obj.renderWindow.addRenderer(obj.renderer);
+      obj.renderWindow.setInteractor(obj.interactor);
+      obj.interactor.initialize();
+      obj.interactor.bindEvents(container);
+
+      const interactorstyle = vtkInteractorStyleImage.newInstance();
+      obj.interactor.setInteractorStyle(interactorstyle);
+
+      obj.widgetManager.setRenderer(obj.renderer);
+
+      console.log("widgetManager", obj.widgetManager)
+      console.log("rootState==", rootState, "toolsStore", toolsStore);
+      console.log("toolsStore.widget", toolsStore.widget)
+      console.log(xyzToViewType[view.viewType]);
+
+      obj.widgetInstance = obj.widgetManager.addWidget(
+        toolsStore.widget,
+        xyzToViewType[view.viewType]
+      );
+      console.log("widgetInstance=", obj.widgetInstance);
+      obj.widgetManager.enablePicking();
+
+      obj.reslice = vtkImageReslice.newInstance();
+      obj.resliceMapper = vtkImageMapper.newInstance();
+      obj.resliceMapper.setInputConnection(obj.reslice.getOutputPort());
+      obj.resliceActor = vtkImageSlice.newInstance();
+      obj.resliceActor.setMapper(obj.resliceMapper);
+      console.log("UPDATE_MPR_VIEW---obj", obj);
+      commit('UPDATE_MPR_VIEW', {
+        ...obj,
+        viewName: view.viewName,
+        viewType: view.viewType,
+        mode: mode,
+      });
+
+      // 返回视图数据
+      return {
+        Ww: '',
+        Wl: '',
+        hu: '',
+        sliceIndex: '',
+        dimensions: ''
+      };
     },
 
+    async getSlice(store, payload) {
+      console.log("store==getSlice", store);
+      const {
+        commit,
+        state,
+        dispatch
+      } = store;
+      const
+        image = payload;
+      const dimensions = image.getDimensions();
+      const spacing = image.getSpacing();
+      debugger;
+
+      // 更新 Coronal、Axial、Sagittal 的 spacing 和 thickness
+      commit('UPDATE_CORONAL_SPACING', spacing[0]);
+      commit('UPDATE_CORONAL_THICKNESS', spacing[0]);
+      commit('UPDATE_AXIAL_SPACING', spacing[2]);
+      commit('UPDATE_AXIAL_THICKNESS', spacing[2]);
+      commit('UPDATE_SAGITTAL_SPACING', spacing[1]);
+      commit('UPDATE_SAGITTAL_THICKNESS', spacing[1]);
+
+      // 设置 toolsStore.widget 的 image
+      dispatch('toolsStore/setImage', image, {
+        root: true
+      });
+      debugger;
+
+      // 设置 picker
+      const picker = vtkPicker.newInstance();
+
+      // 遍历 viewMprViews 对象并更新状态
+      state.viewMprViews.forEach((obj, index) => {
+        // 更新 obj.dimensions
+        obj.dimensions = image.getDimensions()[obj.viewMode];
+        state.viewsData[index].value.dimensions = image.getDimensions()[obj.viewMode];
+
+        // 更新 obj.reslice
+        obj.reslice.setInputData(image);
+
+        // 添加 obj.resliceActor 到 renderer
+        obj.renderer.addActor(obj.resliceActor);
+
+        // 处理 coronalPlane 的 reversedNormal
+        if (obj.viewType === 1) {
+          const coronalPlane = toolsStore.widget.getWidgetState().getPlanes()[xyzToViewType[obj.viewType]];
+          const reversedNormal = coronalPlane['normal'].map((n) => -n);
+          toolsStore.widget.getWidgetState().getPlanes()[xyzToViewType[obj.viewType]]['normal'] = reversedNormal;
+        }
+
+        // 更新 interactor 的 interstyle
+        const interstyle = obj.interactor.getInteractorStyle();
+        interstyle.startCameraPose();
+
+        // 绑定交互事件
+        obj.interactor.onLeftButtonPress((event) =>
+          handleLeftButtonPress(event, obj, picker, toolsStore)
+        );
+
+        obj.interactor.onLeftButtonRelease(() => handleMouseUp(obj));
+
+        obj.interactor.onMouseMove((event) =>
+          handleMouseMove(event, obj, picker, toolsStore, image, state.viewsData, index)
+        );
+
+        obj.interactor.onEndMouseWheel(() => {
+          handleendMouseWheel();
+        });
+
+        // 更新 viewMprViews 的 interactor 事件
+        state.viewMprViews.forEach((v, index2) => {
+          v.widgetInstance.onStartInteractionEvent(() => {
+            toolsStore.updateReslice({
+              obj,
+              objindex: index2,
+              viewType: obj.viewType,
+              reslice: obj.reslice,
+              actor: obj.resliceActor,
+              renderer: obj.renderer,
+              resetFocalPoint: false,
+              computeFocalPointOffset: true
+            });
+          });
+
+          v.widgetInstance.onInteractionEvent((interactionMethodName) => {
+            const canUpdateFocalPoint =
+              interactionMethodName === InteractionMethodsName.RotateLine;
+            const activeViewType = toolsStore.widget
+              .getWidgetState()
+              .getActiveViewType();
+            const computeFocalPointOffset =
+              activeViewType === obj.viewType || !canUpdateFocalPoint;
+            toolsStore.updateReslice({
+              obj,
+              objindex: index2,
+              viewType: obj.viewType,
+              reslice: obj.reslice,
+              actor: obj.resliceActor,
+              renderer: obj.renderer,
+              resetFocalPoint: false,
+              computeFocalPointOffset
+            });
+
+          });
+        });
+
+        // 更新 viewMprViews 的 interactor 事件
+        toolsStore.updateReslice({
+          obj,
+          objindex: index,
+          viewType: obj.viewType,
+          reslice: obj.reslice,
+          actor: obj.resliceActor,
+          renderer: obj.renderer,
+          resetFocalPoint: true,
+          computeFocalPointOffset: true
+        });
+      });
+
+      // 初始化十字线
+      initCrossHair();
+
+      // 更新 widgetState 的 rotation 状态
+      toolsStore.widget
+        .getWidgetState()
+        .getStatesWithLabel('rotation')
+        .forEach((handle) => handle.setVisible(false));
+
+      // 初始化窗口
+      InitWindow(1500, -500);
+
+      // 更新 viewMprViews 的 interactor 事件
+      state.viewMprViews.forEach((v, objindex) => {
+        toolsStore.GetImagePage(v, objindex);
+      });
+    },
 
     async initWindow({
       commit
@@ -335,15 +678,15 @@ export default {
     }, file) {
       // debugger
       try {
-        const image = await dispatch('readDicomFileSeries', file);
-        // dispatch('readDicomFileSeries', file).then(res => {
-        //   console.log("re---", res);
-        // }).catch(err => {
-        //   console.error("eeeeee", err);
-        //   throw err
-        // });
-        console.log("image========readFile", image);
-        dispatch('init3DView', image); // someContainer需要根据实际情况传入
+        // const image = await dispatch('readDicomFileSeries', file);
+        // console.log("image========readFile", image);
+        dispatch('readDicomFileSeries', file).then((image) => {
+          // dispatch('init3DView', image); // 3d
+          dispatch('getSlice', image);
+
+        });
+
+
         // dispatch('initCoronalView', image);
         // dispatch('initAxialView', image);
         // dispatch('initSagittalView', image);
@@ -364,6 +707,7 @@ export default {
         commit('SET_IMAGE_DATA', vtkImage);
         // 处理完图像数据后，可能需要初始化视图或执行其他操作
         // 例如：this.initViews();
+        console.log("vtkImage----", vtkImage, vtkImage.toJSON());
       } catch (error) {
         console.error('Error processing DICOM files:', error);
       }

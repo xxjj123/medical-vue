@@ -79,7 +79,12 @@ export default {
   },
   computed: {
     // 测试 ------ 使用方法时，指定一下模块即可
-    ...mapState("viewsStore", ["helloViews", "imageData"]),
+    ...mapState("viewsStore", [
+      "helloViews",
+      "imageData",
+      "view3D",
+      "viewMprViews",
+    ]),
     ...mapState("toolsStore", ["helloTools"]),
     ...mapGetters("toolsStore", ["combinedState"]),
   },
@@ -114,14 +119,14 @@ export default {
 
       const files = Array.from(e.target.files);
 
-      // await viewsStore.ReadFile(files);
+      await this.readFile(files);
       // await
-      await this.processDicomFiles(files);
+      /* await this.processDicomFiles(files);
       console.log("processDFile==imageData", this.imageData);
       console.log(
         "processDFile==imageData:getDimensions",
         this.imageData.getDimensions()
-      );
+      ); */
 
       // const applyId = "83299b46-8d18-4e41-88eb-cab1afa67523";
       // await this.Diagnose(applyId);

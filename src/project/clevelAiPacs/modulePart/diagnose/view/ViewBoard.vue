@@ -70,10 +70,11 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
-      this.init3DView(this.refs.View3DRef);
-      this.initCoronalView(this.refs.ViewCoronalRef);
-      this.initAxialView(this.refs.ViewAxialRef);
-      this.initSagittalView(this.refs.ViewSagittalRef);
+      console.log("this.$refs.View3DRef=", this.$refs.View3DRef);
+      this.init3DView(this.$refs.View3DRef);
+      this.initCoronalView(this.$refs.ViewCoronalRef);
+      this.initAxialView(this.$refs.ViewAxialRef);
+      this.initSagittalView(this.$refs.ViewSagittalRef);
       window.addEventListener("resize", this.handleResize);
     });
   },

@@ -1,10 +1,31 @@
 import Vue from 'vue';
+import vtkResliceCursorWidget from '@kitware/vtk.js/Widgets/Widgets3D/ResliceCursorWidget'
+import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper'
+import {
+  xyzToViewType
+} from '@kitware/vtk.js/Widgets/Widgets3D/ResliceCursorWidget/Constants'
+import vtkCubeSource from '@kitware/vtk.js/Filters/Sources/CubeSource'
+import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper'
+import vtkActor from '@kitware/vtk.js/Rendering/Core/Actor'
+import vtkProperty from '@kitware/vtk.js/Rendering/Core/Property'
+import {
+  SlabTypes
+} from '@kitware/vtk.js/Rendering/Core/ImageResliceMapper/Constants'
+
+import {
+  vec3,
+  quat,
+  mat4
+} from 'gl-matrix'
+import vtkPlane from '@kitware/vtk.js/Common/DataModel/Plane'
+
+
 export default {
   namespaced: true,
   state: {
     helloTools: "helloTools",
 
-    widget: null,
+    widget: vtkResliceCursorWidget.newInstance(),
     crosshair: 'lazy',
     intermode: 'crosshair',
     cubes: {
@@ -45,6 +66,13 @@ export default {
 
   },
   actions: {
+    setImage({
+      commit,
+      state
+    }, image) {
+      debugger
+      state.widget.setImage(image)
+    },
     // 异步操作或需要提交mutation的方法
     updateReslice({
       commit,
