@@ -14,11 +14,14 @@
         <div class="toolBar">
           <vskToolbar></vskToolbar>
         </div>
-        <div class="pic_views pic_layout">
+        <!-- <div class="pic_views pic_layout">
           <div class="side viewbox"></div>
           <div class="side viewbox"></div>
           <div class="side viewbox"></div>
           <div class="side viewbox"></div>
+        </div> -->
+        <div>
+          <ViewBoard></ViewBoard>
         </div>
         <div class="menu_data">
           <menudataBar></menudataBar>
@@ -31,6 +34,8 @@
 import vskToolbar from "@/picComps/visualTool/tool-bar/index.vue";
 import filmBar from "@/picComps/visualTool/film-bar/index.vue";
 import menudataBar from "@/picComps/visualTool/menudata-bar/index.vue";
+
+import ViewBoard from "./view/ViewBoard.vue";
 
 import {
   mapState,
@@ -55,11 +60,6 @@ import {
   getDiagnoseResult,
 } from "@/api";
 
-import { readImageDicomFileSeries } from "@itk-wasm/dicom";
-// import * as itkWasm1 from "@itk-wasm/dicom";
-// import { readImageDicomFileSeries } from "itk-wasm";
-import * as itkWasm from "itk-wasm";
-
 import JSZip from "jszip";
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
 export default {
@@ -75,6 +75,7 @@ export default {
     vskToolbar,
     filmBar,
     menudataBar,
+    ViewBoard,
   },
   computed: {
     // 测试 ------ 使用方法时，指定一下模块即可
@@ -101,7 +102,7 @@ export default {
     ...mapActions("toolsStore", ["actRun", "updateActRun"]),
     ...mapMutations("viewsStore", ["SET_HELLOVIEWS"]),
     // 正规业务start
-    ...mapActions("viewsStore", ["readFile"]),
+    ...mapActions("viewsStore", ["readFile", "processDicomFiles"]),
 
     async handleFile(e) {
       // const loading = ElLoading.service({
@@ -110,45 +111,17 @@ export default {
       //   background: 'rgba(0, 0, 0, 0.7)'
       // })]l
       console.log("handleFilehandleFile", e);
-      // console.log("itkWasm==", itkWasm);
 
       const files = Array.from(e.target.files);
-      // const { readImageDicomFileSeries } = itkWasm;
-      console.log("readImageDicomFileSeries", readImageDicomFileSeries);
-
-      // const { image, webWorkerPool } = readImageDicomFileSeries(files, {
-      //   componentType: itkWasm.UInt8, // 设置组件类型
-      //   pixelType: itkWasm.RGB, // 设置像素类型
-      //   singleSortedSeries: true, // 如果文件是单个排序好的系列，设置为 true
-      // });
-
-      // // // 处理图像数据...
-      // console.log("处理图像数据=", image);
-
-      // // 当不再需要 worker 时，清理资源
-      // webWorkerPool.terminateWorkers();
-
-      // console.log("itkWasm==", itkWasm);
-      // console.log("itkWasm1==", itkWasm1);
-      // itkWasm.copyImage(null);
 
       // await viewsStore.ReadFile(files);
-      // await this.readFile(files);
-      debugger;
-
-      readImageDicomFileSeries({
-        inputImages: files,
-      })
-        .then((res) => {
-          debugger;
-          console.log("aaaaa", res);
-          const { outputImage } = res;
-          return outputImage;
-        })
-        .catch((err) => {
-          console.error("Error reading DICOM file series:", err.message);
-          throw err;
-        });
+      // await
+      await this.processDicomFiles(files);
+      console.log("processDFile==imageData", this.imageData);
+      console.log(
+        "processDFile==imageData:getDimensions",
+        this.imageData.getDimensions()
+      );
 
       // const applyId = "83299b46-8d18-4e41-88eb-cab1afa67523";
       // await this.Diagnose(applyId);
@@ -331,43 +304,6 @@ export default {
   height: 100%;
   background-color: @theme_backBg;
   padding: 49px 16px 0 22px;
-}
-.pic_views {
-  @media screen and (orientation: landscape) {
-    grid-template-columns: 66.66% 33.34%;
-  }
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-columns: 50% 50%;
-  grid-template-rows: 50% 50%;
-  position: relative;
-  user-select: none;
-  background-color: rgba(161, 148, 148, 0.192);
-}
-
-.pic_layout {
-  & > div {
-    &:nth-child(1) {
-      grid-area: ~"1/1/2/2";
-      visibility: hidden;
-    }
-
-    @media screen and (orientation: landscape) {
-      &:nth-child(2) {
-        grid-area: ~"1/1/3/2";
-      }
-
-      &:nth-child(3) {
-        grid-area: ~"1/2/2/3";
-      }
-    }
-  }
-  .side {
-    background: rgb(0, 0, 0);
-    height: 100%;
-    border: 1px solid rgb(14, 17, 23);
-  }
 }
 
 .fixFileMuil {

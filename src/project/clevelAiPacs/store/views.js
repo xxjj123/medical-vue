@@ -36,6 +36,24 @@ import {
 import vtkPlane from '@kitware/vtk.js/Common/DataModel/Plane'
 
 
+
+const VIEW_TYPES = {
+  CORONAL: 1,
+  AXIAL: 2,
+  SAGITTAL: 0
+}
+
+const VIEW_NAMES = {
+  CORONAL: 'coronal',
+  AXIAL: 'axial',
+  SAGITTAL: 'sagittal'
+}
+
+const VIEW_COLORS = {
+  BACKGROUND: [0, 0, 0]
+}
+
+
 // 你可能需要添加一个辅助函数来创建裁剪平面
 function createClippingPlanesFromIJK(ijk1, ijk2, indexToWorld) {
   // 根据ijk坐标和indexToWorld转换创建裁剪平面
@@ -228,31 +246,29 @@ export default {
     readDicomFileSeries({
       commit,
       state
-    }, file) {
-      debugger
-      console.log("file", file);
+    }, files) {
+      // debugger
+      console.log("files", files);
       console.log("dicomW==", dicomW);
       // console.log("readImageDicomFileSeries=", readImageDicomFileSeries);
       return readImageDicomFileSeries({
-        inputImages: file,
-        // singleSortedSeries: true,
-      })
-
-      // .then((res) => {
-      //   debugger;
-      //   const {
-      //     outputImage
-      //   } = res
-      //   const image = vtkITKHelper.convertItkToVtkImage(outputImage)
-      //   // Object.assign(imageData, image)
-      //   console.log("image-----------", image);
-      //   // commit('SET_IMAGE_DATA', image);
-      //   return image;
-      // })
-      // .catch((err) => {
-      //   console.error('Error reading DICOM file series:', err)
-      //   throw err
-      // });
+          inputImages: files,
+          // singleSortedSeries: true,
+        }).then((res) => {
+          // debugger;
+          const {
+            outputImage
+          } = res
+          const image = vtkITKHelper.convertItkToVtkImage(outputImage)
+          // Object.assign(imageData, image)
+          console.log("image-----------", image);
+          commit('SET_IMAGE_DATA', image);
+          return image;
+        })
+        .catch((err) => {
+          console.error('Error reading DICOM file series:', err)
+          throw err
+        });
     },
     // 其他actions...
     async initMprView({
@@ -319,15 +335,15 @@ export default {
     }, file) {
       // debugger
       try {
-        // const image = await dispatch('readDicomFileSeries', file);
-        dispatch('readDicomFileSeries', file).then(res => {
-          console.log("re---", res);
-        }).catch(err => {
-          console.error("eeeeee", err);
-          throw err
-        });
-        // console.log("image========readFile", image);
-        // dispatch('init3DView', image); // someContainer需要根据实际情况传入
+        const image = await dispatch('readDicomFileSeries', file);
+        // dispatch('readDicomFileSeries', file).then(res => {
+        //   console.log("re---", res);
+        // }).catch(err => {
+        //   console.error("eeeeee", err);
+        //   throw err
+        // });
+        console.log("image========readFile", image);
+        dispatch('init3DView', image); // someContainer需要根据实际情况传入
         // dispatch('initCoronalView', image);
         // dispatch('initAxialView', image);
         // dispatch('initSagittalView', image);
