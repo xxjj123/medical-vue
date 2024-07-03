@@ -78,6 +78,7 @@ export default {
       commit,
       state
     }, interactionContext) {
+      console.log("interactionContext---", interactionContext, "state", state, "state.widget.get", state.widget.get());
       const {
         obj,
         viewType,
@@ -86,8 +87,10 @@ export default {
         renderer
       } = interactionContext;
 
+      const wgtPlanes = state.widget.getWidgetState().getPlanes()[xyzToViewType[viewType]]; //new add
+      console.log("wgtPlanes==", wgtPlanes);
       // 假设widget是state中的一部分，并且有一个updateReslicePlane方法
-      const modified = state.widget.updateReslicePlane(reslice, viewType);
+      const modified = state.widget.updateReslicePlane(reslice, xyzToViewType[viewType]);
 
       if (modified) {
         // 更新actor的用户矩阵
@@ -103,7 +106,7 @@ export default {
         // 更新相机点
         state.widget.updateCameraPoints(
           renderer,
-          viewType,
+          xyzToViewType[viewType],
           interactionContext.resetFocalPoint,
           interactionContext.computeFocalPointOffset
         );
@@ -143,8 +146,14 @@ export default {
     },
     CrossHair({
       commit,
-      state
+      state,
+      rootState,
+      dispatch
     }) {
+      const {
+        viewsStore
+      } = rootState;
+      const v_state = viewsStore.state;
       // 改变交互模式为十字线
       commit('SET_INTERMODE', 'crosshair');
       // 显示十字线
@@ -152,12 +161,12 @@ export default {
       // 隐藏widget
       commit('SET_WIDGET_VISIBILITY', false);
       // 更新reslice和相机点
-      state.viewsStore.viewMprViews.forEach((obj, objindex) => {
+      v_state.viewMprViews.forEach((obj, objindex) => {
         // 调用updateReslice action
         commit('updateReslice', {
           obj,
           objindex,
-          viewType: xyzToViewType[obj.viewType],
+          viewType: obj.viewType,
           reslice: obj.reslice,
           actor: obj.resliceActor,
           renderer: obj.renderer,
@@ -199,11 +208,29 @@ export default {
 
     UpdateColorWindow({
       commit,
-      state
+      state,
+      rootState,
+      dispatch
     }, value) {
-      state.viewsStore.viewMprViews.forEach((obj, objindex) => {
-        const viewData = state.viewsStore.viewsData[objindex];
-        viewData.Ww = value; // 假设Ww是视图数据的一部分
+      const {
+        viewsStore
+      } = rootState;
+      const v_state = viewsStore.state;
+      // state.viewsStore
+      v_state.viewMprViews.forEach((obj, objindex) => {
+        // const viewData = v_state.viewsData[objindex];
+        // viewData.Ww = value; // 假设Ww是视图数据的一部分
+
+        dispatch('viewsStore/updateViewData', {
+          objindex, // 你要更新的对象在 viewsData 中的索引
+          attributes: { // 要设置的属性值
+            Ww: value,
+            // 更多的属性可以添加到这里
+          }
+        }, {
+          root: true
+        });
+
         obj.resliceActor.getProperty().setColorWindow(value);
         obj.interactor.render();
       });
@@ -211,19 +238,44 @@ export default {
 
     UpdateColorLevel({
       commit,
-      state
+      state,
+      rootState,
+      dispatch
     }, value) {
-      state.viewsStore.viewMprViews.forEach((obj, objindex) => {
-        const viewData = state.viewsStore.viewsData[objindex];
-        viewData.Wl = value; // 假设Wl是视图数据的一部分
+      const {
+        viewsStore
+      } = rootState;
+      const v_state = viewsStore.state;
+      // state.viewsStore.
+      v_state.viewMprViews.forEach((obj, objindex) => {
+        // const viewData = state.viewsStore.viewsData[objindex];
+        // viewData.Wl = value; // 假设Wl是视图数据的一部分
+        dispatch('viewsStore/updateViewData', {
+          objindex, // 你要更新的对象在 viewsData 中的索引
+          attributes: { // 要设置的属性值
+            Wl: value,
+            // 更多的属性可以添加到这里
+          }
+        }, {
+          root: true
+        });
+
         obj.resliceActor.getProperty().setColorLevel(value);
         obj.interactor.render();
       });
     },
     ChangeSlabMode({
-      state
+      commit,
+      state,
+      rootState,
+      dispatch
     }, mode) {
-      state.viewsStore.viewMprViews.forEach(obj => {
+      const {
+        viewsStore
+      } = rootState;
+      const v_state = viewsStore.state;
+
+      v_state.viewMprViews.forEach(obj => {
         if (mode === 'min') {
           obj.reslice.setSlabMode(SlabTypes.MIN);
           obj.reslice.setSlabNumberOfSlices(25); // 例子中的值
@@ -237,9 +289,16 @@ export default {
     },
     ChangeImagePage({
       commit,
-      state
+      state,
+      rootState,
+      dispatch
     }, ijk) {
-      const imageData = state.viewsStore.imageData;
+      const {
+        viewsStore
+      } = rootState;
+      const v_state = viewsStore.state;
+
+      const imageData = v_state.imageData;
       const {
         origin,
         spacing,
@@ -252,11 +311,11 @@ export default {
 
       state.widget.setCenter(newCenter);
 
-      state.viewsStore.viewMprViews.forEach((obj, objindex) => {
+      v_state.viewMprViews.forEach((obj, objindex) => {
         commit('updateReslice', {
           obj,
           objindex,
-          viewType: xyzToViewType[obj.viewType],
+          viewType: obj.viewType,
           reslice: obj.reslice,
           actor: obj.resliceActor,
           renderer: obj.renderer,
@@ -269,11 +328,18 @@ export default {
 
     GetImagePage({
       commit,
-      state
+      state,
+      rootState,
+      dispatch
     }, obj) {
+      const {
+        viewsStore
+      } = rootState;
+      const v_state = viewsStore.state;
+
       const widgetState = state.widget.getWidgetState();
       const center = widgetState.getCenter(); // 获取当前的中心点
-      const ijkCoords = state.viewsStore.imageData.worldToIndex(center); // 将世界坐标转换为图像坐标
+      const ijkCoords = v_state.imageData.worldToIndex(center); // 将世界坐标转换为图像坐标
       const ijk = ijkCoords.map(coord => Math.round(coord));
 
       const dirProj = widgetState.getPlanes()[xyzToViewType[obj.viewType]].normal;
@@ -286,10 +352,10 @@ export default {
 
       // 根据视图模式设置sliceIndex
       if (obj.viewMode === vtkImageMapper.SlicingMode.K) {
-        state.viewsStore.viewsData[obj.objindex].sliceIndex =
-          state.viewsStore.imageData.getDimensions()[0] - sliceIndex;
+        v_state.viewsData[obj.objindex].sliceIndex =
+          v_state.imageData.getDimensions()[0] - sliceIndex;
       } else {
-        state.viewsStore.viewsData[obj.objindex].sliceIndex = sliceIndex;
+        v_state.viewsData[obj.objindex].sliceIndex = sliceIndex;
       }
 
       // 可以提交一个mutation来更新state，如果需要的话
@@ -298,15 +364,26 @@ export default {
     // 其他actions...
     AddCube({
       commit,
-      state
+      state,
+      rootState,
+      dispatch
     }, {
       size,
       position
     }) {
       const {
-        viewsStore,
+        viewsStore
+      } = rootState;
+      const v_state = viewsStore.state;
+
+      // const {
+      //   viewsStore,
+      //   widget
+      // } = state;
+      const {
         widget
       } = state;
+
       const {
         origin,
         spacing,
