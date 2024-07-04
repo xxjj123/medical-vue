@@ -124,7 +124,10 @@ export default {
   background-color: rgba(255, 255, 255, 0.242);
 }
 .view-item {
-  height: 320px;
+  // height: 320px;
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 
 .pic_layout_3d {
