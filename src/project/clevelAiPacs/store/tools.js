@@ -212,29 +212,32 @@ export default {
       rootState,
       dispatch
     }, value) {
-      const {
-        viewsStore
-      } = rootState;
-      const v_state = viewsStore;
+      // const {
+      //   viewsStore
+      // } = rootState;
+      // const v_state = viewsStore;
       debugger;
+      dispatch('viewsStore/UpdateColorWindow_self', value, {
+        root: true
+      })
       // state.viewsStore
-      v_state.viewMprViews.forEach((obj, objindex) => {
-        // const viewData = v_state.viewsData[objindex];
-        // viewData.Ww = value; // 假设Ww是视图数据的一部分
+      /*  v_state.viewMprViews.forEach((obj, objindex) => {
+         // const viewData = v_state.viewsData[objindex];
+         // viewData.Ww = value; // 假设Ww是视图数据的一部分
 
-        dispatch('viewsStore/updateViewData', {
-          objindex, // 你要更新的对象在 viewsData 中的索引
-          attributes: { // 要设置的属性值
-            Ww: value,
-            // 更多的属性可以添加到这里
-          }
-        }, {
-          root: true
-        });
+         dispatch('viewsStore/updateViewData', {
+           objindex, // 你要更新的对象在 viewsData 中的索引
+           attributes: { // 要设置的属性值
+             Ww: value,
+             // 更多的属性可以添加到这里
+           }
+         }, {
+           root: true
+         });
 
-        obj.resliceActor.getProperty().setColorWindow(value);
-        obj.interactor.render();
-      });
+         obj.resliceActor.getProperty().setColorWindow(value);
+         obj.interactor.render();
+       }); */
     },
 
     UpdateColorLevel({
@@ -243,27 +246,31 @@ export default {
       rootState,
       dispatch
     }, value) {
-      const {
-        viewsStore
-      } = rootState;
-      const v_state = viewsStore;
-      // state.viewsStore.
-      v_state.viewMprViews.forEach((obj, objindex) => {
-        // const viewData = state.viewsStore.viewsData[objindex];
-        // viewData.Wl = value; // 假设Wl是视图数据的一部分
-        dispatch('viewsStore/updateViewData', {
-          objindex, // 你要更新的对象在 viewsData 中的索引
-          attributes: { // 要设置的属性值
-            Wl: value,
-            // 更多的属性可以添加到这里
-          }
-        }, {
-          root: true
-        });
+      debugger
+      dispatch('viewsStore/UpdateColorLevel_self', value, {
+        root: true
+      })
+      /*     const {
+            viewsStore
+          } = rootState;
+          const v_state = viewsStore;
+          // state.viewsStore.
+          v_state.viewMprViews.forEach((obj, objindex) => {
+            // const viewData = state.viewsStore.viewsData[objindex];
+            // viewData.Wl = value; // 假设Wl是视图数据的一部分
+            dispatch('viewsStore/updateViewData', {
+              objindex, // 你要更新的对象在 viewsData 中的索引
+              attributes: { // 要设置的属性值
+                Wl: value,
+                // 更多的属性可以添加到这里
+              }
+            }, {
+              root: true
+            });
 
-        obj.resliceActor.getProperty().setColorLevel(value);
-        obj.interactor.render();
-      });
+            obj.resliceActor.getProperty().setColorLevel(value);
+            obj.interactor.render();
+          }); */
     },
     ChangeSlabMode({
       commit,
@@ -356,7 +363,7 @@ export default {
       });
 
       // 根据视图模式设置sliceIndex
-      if (obj.viewMode === vtkImageMapper.SlicingMode.K) {
+      if (v.viewMode === vtkImageMapper.SlicingMode.K) {
 
         // v_state.viewsData[obj.objindex].sliceIndex =
         //   v_state.imageData.getDimensions()[0] - sliceIndex;

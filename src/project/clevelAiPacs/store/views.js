@@ -342,7 +342,13 @@ const handleLeftButtonPress = ({
         })
 
         v.interactor.render();
-        toolsStore.GetImagePage(v, objindex);
+        dispatch('toolsStore/GetImagePage', {
+          v,
+          objindex
+        }, {
+          root: true
+        })
+
       });
     } else {
       console.log('No point picked.');
@@ -395,6 +401,7 @@ export default {
         attributes
       } = payload;
       const viewData = state.viewsData[objindex];
+      debugger
       if (viewData) {
         // 遍历要设置的属性值
         for (const key in attributes) {
@@ -624,10 +631,73 @@ export default {
 
   },
   actions: {
+    async UpdateColorWindow_self({
+      commit,
+      state,
+      rootState,
+      dispatch
+    }, value) {
+      state.viewMprViews.forEach((obj, objindex) => {
+        // const viewData = state.viewsStore.viewsData[objindex];
+        // viewData.Wl = value; // 假设Wl是视图数据的一部分
+        /*  dispatch('updateViewData', {
+           objindex, // 你要更新的对象在 viewsData 中的索引
+           attributes: { // 要设置的属性值
+             Ww: value,
+             // 更多的属性可以添加到这里
+           }
+         }); */
+
+        // obj.resliceActor.getProperty().setColorLevel(value);
+        // obj.interactor.render();
+      });
+      console.log(value, "vvvvvvvvvvvvvvvvvvvvvvvv");
+      const {
+        ww,
+      } = value
+      console.log(state.viewMprViews[0].resliceActor.getProperty().get())
+      state.viewMprViews[0].resliceActor.getProperty().setColorWindow(ww);
+      state.viewMprViews[0].renderWindow.render();
+      state.viewMprViews[1].resliceActor.getProperty().setColorWindow(ww);
+      state.viewMprViews[1].renderWindow.render();
+      state.viewMprViews[2].resliceActor.getProperty().setColorWindow(ww);
+      state.viewMprViews[2].renderWindow.render();
+    },
+    async UpdateColorLevel_self({
+      commit,
+      state,
+      rootState,
+      dispatch
+    }, value) {
+      state.viewMprViews.forEach((obj, objindex) => {
+        // const viewData = state.viewsStore.viewsData[objindex];
+        // viewData.Wl = value; // 假设Wl是视图数据的一部分
+        // dispatch('updateViewData', {
+        //   objindex, // 你要更新的对象在 viewsData 中的索引
+        //   attributes: { // 要设置的属性值
+        //     Wl: value,
+        //     // 更多的属性可以添加到这里
+        //   }
+        // });
+
+        // obj.resliceActor.getProperty().setColorLevel(value);
+        // obj.interactor.render();
+      });
+      const {
+        wl
+      } = value;
+      state.viewMprViews[0].resliceActor.getProperty().setColorLevel(wl);
+      state.viewMprViews[0].interactor.render();
+      state.viewMprViews[1].resliceActor.getProperty().setColorLevel(wl);
+      state.viewMprViews[1].interactor.render();
+      state.viewMprViews[2].resliceActor.getProperty().setColorLevel(wl);
+      state.viewMprViews[2].interactor.render();
+    },
     async updateViewData({
       commit
     }, payload) {
       commit('UPDATE_VIEW_DATA', payload);
+      // 这个有问题，设置会导致黑屏
     },
     async initViewAction({
       commit,
@@ -1002,6 +1072,8 @@ export default {
         ww: 1500,
         wl: -500
       });
+
+      console.log("store--store-store", store);
 
       // 更新 viewMprViews 的 interactor 事件
       state.viewMprViews.forEach((v, objindex) => {
