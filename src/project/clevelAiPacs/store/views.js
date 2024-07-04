@@ -115,11 +115,12 @@ const InitWindow = ({
   }, {
     root: true
   })
-  dispatch('toolsStore/UpdateColorLevel', {
-    wl
-  }, {
-    root: true
-  })
+  // dispatch('toolsStore/UpdateColorLevel', {
+  //   wl
+  // }, {
+  //   root: true
+  // })
+
   // toolsStore.UpdateColorWindow(ww)
   // toolsStore.UpdateColorLevel(wl)
 }
@@ -397,7 +398,7 @@ export default {
       if (viewData) {
         // 遍历要设置的属性值
         for (const key in attributes) {
-          viewData[key] = attributes[key];
+          Vue.set(viewData, key, attributes[key]);
         }
       }
     },
@@ -1035,7 +1036,7 @@ export default {
         // const image = await dispatch('readDicomFileSeries', file);
         // console.log("image========readFile", image);
         dispatch('readDicomFileSeries', file).then((image) => {
-          dispatch('init3DView', image); // 3d
+          // dispatch('init3DView', image); // 3d
           dispatch('getSlice', image);
 
         });

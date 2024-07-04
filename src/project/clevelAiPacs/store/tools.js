@@ -153,7 +153,7 @@ export default {
       const {
         viewsStore
       } = rootState;
-      const v_state = viewsStore.state;
+      const v_state = viewsStore;
       // 改变交互模式为十字线
       commit('SET_INTERMODE', 'crosshair');
       // 显示十字线
@@ -215,7 +215,8 @@ export default {
       const {
         viewsStore
       } = rootState;
-      const v_state = viewsStore.state;
+      const v_state = viewsStore;
+      debugger;
       // state.viewsStore
       v_state.viewMprViews.forEach((obj, objindex) => {
         // const viewData = v_state.viewsData[objindex];
@@ -245,7 +246,7 @@ export default {
       const {
         viewsStore
       } = rootState;
-      const v_state = viewsStore.state;
+      const v_state = viewsStore;
       // state.viewsStore.
       v_state.viewMprViews.forEach((obj, objindex) => {
         // const viewData = state.viewsStore.viewsData[objindex];
@@ -273,7 +274,7 @@ export default {
       const {
         viewsStore
       } = rootState;
-      const v_state = viewsStore.state;
+      const v_state = viewsStore;
 
       v_state.viewMprViews.forEach(obj => {
         if (mode === 'min') {
@@ -296,7 +297,7 @@ export default {
       const {
         viewsStore
       } = rootState;
-      const v_state = viewsStore.state;
+      const v_state = viewsStore;
 
       const imageData = v_state.imageData;
       const {
@@ -333,16 +334,20 @@ export default {
       dispatch
     }, obj) {
       const {
+        v,
+        objindex
+      } = obj;
+      const {
         viewsStore
       } = rootState;
-      const v_state = viewsStore.state;
+      const v_state = viewsStore;
 
       const widgetState = state.widget.getWidgetState();
       const center = widgetState.getCenter(); // 获取当前的中心点
       const ijkCoords = v_state.imageData.worldToIndex(center); // 将世界坐标转换为图像坐标
       const ijk = ijkCoords.map(coord => Math.round(coord));
 
-      const dirProj = widgetState.getPlanes()[xyzToViewType[obj.viewType]].normal;
+      const dirProj = widgetState.getPlanes()[xyzToViewType[v.viewType]].normal;
       let sliceIndex = 0;
       dirProj.forEach((item, index) => {
         if (item !== 0) {
@@ -352,10 +357,34 @@ export default {
 
       // 根据视图模式设置sliceIndex
       if (obj.viewMode === vtkImageMapper.SlicingMode.K) {
-        v_state.viewsData[obj.objindex].sliceIndex =
-          v_state.imageData.getDimensions()[0] - sliceIndex;
+
+        // v_state.viewsData[obj.objindex].sliceIndex =
+        //   v_state.imageData.getDimensions()[0] - sliceIndex;
+
+
+        dispatch('viewsStore/updateViewData', {
+          objindex, // 你要更新的对象在 viewsData 中的索引
+          attributes: { // 要设置的属性值
+            sliceIndex: v_state.imageData.getDimensions()[0] - sliceIndex,
+            // 更多的属性可以添加到这里
+          }
+        }, {
+          root: true
+        });
+
       } else {
-        v_state.viewsData[obj.objindex].sliceIndex = sliceIndex;
+        // v_state.viewsData[obj.objindex].sliceIndex = sliceIndex;
+
+
+        dispatch('viewsStore/updateViewData', {
+          objindex, // 你要更新的对象在 viewsData 中的索引
+          attributes: { // 要设置的属性值
+            sliceIndex
+            // 更多的属性可以添加到这里
+          }
+        }, {
+          root: true
+        });
       }
 
       // 可以提交一个mutation来更新state，如果需要的话

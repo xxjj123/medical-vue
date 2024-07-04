@@ -71,7 +71,7 @@ export default {
   mounted() {
     this.$nextTick(() => {
       console.log("this.$refs.View3DRef=", this.$refs.View3DRef);
-      this.init3DView(this.$refs.View3DRef);
+      // this.init3DView(this.$refs.View3DRef);
       this.initCoronalView(this.$refs.ViewCoronalRef);
       this.initAxialView(this.$refs.ViewAxialRef);
       this.initSagittalView(this.$refs.ViewSagittalRef);
