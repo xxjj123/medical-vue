@@ -70,7 +70,7 @@ export default {
       commit,
       state
     }, image) {
-      debugger
+      // debugger
       state.widget.setImage(image)
     },
     // 异步操作或需要提交mutation的方法
@@ -216,7 +216,7 @@ export default {
       //   viewsStore
       // } = rootState;
       // const v_state = viewsStore;
-      debugger;
+      // debugger;
       dispatch('viewsStore/UpdateColorWindow_self', value, {
         root: true
       })
@@ -246,7 +246,7 @@ export default {
       rootState,
       dispatch
     }, value) {
-      debugger
+      // debugger
       dispatch('viewsStore/UpdateColorLevel_self', value, {
         root: true
       })

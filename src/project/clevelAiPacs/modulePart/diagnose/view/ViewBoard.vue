@@ -1,6 +1,12 @@
 <template>
   <div class="ViewBoard_panel">
-    <div class="pic_views pic_layout">
+    <div
+      :class="[
+        'pic_views',
+        { pic_layout_3d: layout === '1' },
+        { pic_layout: layout === '2' },
+      ]"
+    >
       <div class="side viewbox view-3d">
         <div
           class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue"
@@ -54,8 +60,13 @@ export default {
   components: {
     subScript,
   },
+  computed: {
+    ...mapState("viewsStore", ["viewMprViews"]),
+  },
   data() {
-    return {};
+    return {
+      layout: "1", //1:肋骨高级图布局（pic_layout_3d） 2:mpr布局（pic_layout）
+    };
   },
   methods: {
     // ...mapMutations("viewsStore", ["SET_HELLOVIEWS"]),
@@ -66,16 +77,23 @@ export default {
       "initSagittalView",
     ]),
 
-    handleResize() {},
+    resizeViews() {
+      this.viewMprViews.forEach((view) => {
+        const container = view.grw.getContainer();
+        const { width, height } = container.getBoundingClientRect();
+        view.grw.resize(width, height);
+        view.renderWindow.render();
+      });
+    },
   },
   mounted() {
     this.$nextTick(() => {
       console.log("this.$refs.View3DRef=", this.$refs.View3DRef);
-      // this.init3DView(this.$refs.View3DRef);
+      this.init3DView(this.$refs.View3DRef);
       this.initCoronalView(this.$refs.ViewCoronalRef);
       this.initAxialView(this.$refs.ViewAxialRef);
       this.initSagittalView(this.$refs.ViewSagittalRef);
-      window.addEventListener("resize", this.handleResize);
+      window.addEventListener("resize", this.resizeViews);
     });
   },
   unmounted() {
@@ -100,6 +118,23 @@ export default {
   position: relative;
   user-select: none;
   background-color: rgba(161, 148, 148, 0.192);
+}
+
+.viewbox {
+  background-color: rgba(255, 255, 255, 0.242);
+}
+.view-item {
+  height: 320px;
+}
+
+.pic_layout_3d {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: 50% 50%;
+  position: relative;
+  user-select: none;
 }
 
 .pic_layout {

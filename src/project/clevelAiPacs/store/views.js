@@ -359,6 +359,44 @@ const handleLeftButtonPress = ({
   }
 };
 
+// actions.js 更新边缘渐变
+const updateEdgeGradient = (store, {
+  renderWindow,
+  actor
+}) => {
+  const {
+    commit,
+    state,
+    rootState,
+    dispatch
+  } = store;
+  const {
+    imageData
+  } = state;
+  // const volumeMapper = vtkVolumeMapper.newInstance()
+  // volumeMapper.setInputData(imageData)
+
+  // const volume = vtkVolume.newInstance()
+  // volume.setMapper(volumeMapper)
+
+  const dataRange = imageData.getPointData().getScalars().getRange()
+  const lookupTable = vtkColorTransferFunction.newInstance()
+  lookupTable.addRGBPoint(dataRange[0], 0.0, 0.0, 0.0)
+  lookupTable.addRGBPoint((dataRange[0] + dataRange[1]) / 2, 1.0, 1.0, 1.0)
+  lookupTable.addRGBPoint(dataRange[1], 1.0, 1.0, 1.0)
+
+  const piecewiseFunction = vtkPiecewiseFunction.newInstance()
+  piecewiseFunction.addPoint(-600, 0.0)
+  piecewiseFunction.addPoint(300, 0.0)
+  piecewiseFunction.addPoint(800, 1)
+  piecewiseFunction.addPoint(2000, 1)
+  actor.getProperty().setRGBTransferFunction(0, lookupTable)
+  actor.getProperty().setScalarOpacity(0, piecewiseFunction)
+
+  renderWindow.render()
+}
+
+
 export default {
   namespaced: true,
   state: {
@@ -401,7 +439,7 @@ export default {
         attributes
       } = payload;
       const viewData = state.viewsData[objindex];
-      debugger
+      // debugger
       if (viewData) {
         // 遍历要设置的属性值
         for (const key in attributes) {
@@ -497,6 +535,7 @@ export default {
       const {
         fullw
       } = payload;
+      // debugger;
       const renderWindow = fullw.getRenderWindow();
       const renderer = fullw.getRenderer();
       // 使用Vue.set来确保新属性是响应式的
@@ -637,31 +676,33 @@ export default {
       rootState,
       dispatch
     }, value) {
-      state.viewMprViews.forEach((obj, objindex) => {
-        // const viewData = state.viewsStore.viewsData[objindex];
-        // viewData.Wl = value; // 假设Wl是视图数据的一部分
-        /*  dispatch('updateViewData', {
-           objindex, // 你要更新的对象在 viewsData 中的索引
-           attributes: { // 要设置的属性值
-             Ww: value,
-             // 更多的属性可以添加到这里
-           }
-         }); */
-
-        // obj.resliceActor.getProperty().setColorLevel(value);
-        // obj.interactor.render();
-      });
-      console.log(value, "vvvvvvvvvvvvvvvvvvvvvvvv");
       const {
         ww,
       } = value
-      console.log(state.viewMprViews[0].resliceActor.getProperty().get())
-      state.viewMprViews[0].resliceActor.getProperty().setColorWindow(ww);
-      state.viewMprViews[0].renderWindow.render();
-      state.viewMprViews[1].resliceActor.getProperty().setColorWindow(ww);
-      state.viewMprViews[1].renderWindow.render();
-      state.viewMprViews[2].resliceActor.getProperty().setColorWindow(ww);
-      state.viewMprViews[2].renderWindow.render();
+
+      state.viewMprViews.forEach((obj, objindex) => {
+        // const viewData = state.viewsStore.viewsData[objindex];
+        // viewData.Wl = value; // 假设Wl是视图数据的一部分
+        //  dispatch('updateViewData', {
+        //    objindex, // 你要更新的对象在 viewsData 中的索引
+        //    attributes: { // 要设置的属性值
+        //      Ww: ww,
+        //      // 更多的属性可以添加到这里
+        //    }
+        //  });
+
+        obj.resliceActor.getProperty().setColorWindow(ww);
+        obj.interactor.render();
+      });
+      console.log(value, "vvvvvvvvvvvvvvvvvvvvvvvv");
+
+      // console.log(state.viewMprViews[0].resliceActor.getProperty().get())
+      // state.viewMprViews[0].resliceActor.getProperty().setColorWindow(ww);
+      // state.viewMprViews[0].renderWindow.render();
+      // state.viewMprViews[1].resliceActor.getProperty().setColorWindow(ww);
+      // state.viewMprViews[1].renderWindow.render();
+      // state.viewMprViews[2].resliceActor.getProperty().setColorWindow(ww);
+      // state.viewMprViews[2].renderWindow.render();
     },
     async UpdateColorLevel_self({
       commit,
@@ -669,6 +710,10 @@ export default {
       rootState,
       dispatch
     }, value) {
+      const {
+        wl
+      } = value;
+
       state.viewMprViews.forEach((obj, objindex) => {
         // const viewData = state.viewsStore.viewsData[objindex];
         // viewData.Wl = value; // 假设Wl是视图数据的一部分
@@ -680,18 +725,16 @@ export default {
         //   }
         // });
 
-        // obj.resliceActor.getProperty().setColorLevel(value);
-        // obj.interactor.render();
+        obj.resliceActor.getProperty().setColorLevel(wl);
+        obj.interactor.render();
       });
-      const {
-        wl
-      } = value;
-      state.viewMprViews[0].resliceActor.getProperty().setColorLevel(wl);
-      state.viewMprViews[0].interactor.render();
-      state.viewMprViews[1].resliceActor.getProperty().setColorLevel(wl);
-      state.viewMprViews[1].interactor.render();
-      state.viewMprViews[2].resliceActor.getProperty().setColorLevel(wl);
-      state.viewMprViews[2].interactor.render();
+
+      // state.viewMprViews[0].resliceActor.getProperty().setColorLevel(wl);
+      // state.viewMprViews[0].interactor.render();
+      // state.viewMprViews[1].resliceActor.getProperty().setColorLevel(wl);
+      // state.viewMprViews[1].interactor.render();
+      // state.viewMprViews[2].resliceActor.getProperty().setColorLevel(wl);
+      // state.viewMprViews[2].interactor.render();
     },
     async updateViewData({
       commit
@@ -737,6 +780,8 @@ export default {
         background: VIEW_COLORS.BACKGROUND
       })
 
+      console.log("fullw___", fullw);
+      // debugger;
 
 
 
@@ -899,6 +944,49 @@ export default {
         sliceIndex: '',
         dimensions: ''
       };
+    },
+
+    async get3DView(store, payload) {
+      const {
+        commit,
+        state,
+        rootState,
+        dispatch
+      } = store;
+      // const {
+      //   imageData
+      // } = payload;
+      //this into payload is image func obj;
+      const {
+        view3D,
+        imageData
+      } = state;
+
+      console.log("get3DView---imageData", imageData);
+
+      view3D.renderer.removeAllViewProps()
+      const mapper = vtkVolumeMapper.newInstance()
+      mapper.setInputData(imageData)
+
+      const actor = vtkVolume.newInstance()
+      actor.setMapper(mapper)
+      const sampleDistance =
+        0.7 *
+        Math.sqrt(
+          imageData
+          .getSpacing()
+          .map((v) => v * v)
+          .reduce((a, b) => a + b, 0)
+        )
+      mapper.setSampleDistance(sampleDistance)
+      view3D.mapper = mapper
+      view3D.renderer.addActor(actor)
+      view3D.renderer.resetCamera()
+
+      updateEdgeGradient(store, {
+        renderWindow: view3D.renderWindow,
+        actor
+      })
     },
 
     async getSlice(store, payload) {
@@ -1108,7 +1196,8 @@ export default {
         // const image = await dispatch('readDicomFileSeries', file);
         // console.log("image========readFile", image);
         dispatch('readDicomFileSeries', file).then((image) => {
-          // dispatch('init3DView', image); // 3d
+          console.log("get3DView-before-image", image);
+          dispatch('get3DView', image); // 3d
           dispatch('getSlice', image);
 
         });
@@ -1155,30 +1244,6 @@ export default {
     },
 
 
-    // 更新边缘渐变
-    async updateEdgeGradient({
-      state,
-      commit
-    }) {
-      // 假设state中包含必要的renderWindow和actor
-      const {
-        renderWindow,
-        actor
-      } = state.view3D;
-      // 根据Pinia中的逻辑更新边缘渐变
-      // 这里需要根据实际逻辑来设置颜色转换函数和不透明度函数
-      const dataRange = state.imageData.getPointData().getScalars().getRange();
-      const lookupTable = vtkColorTransferFunction.newInstance();
-      lookupTable.addRGBPoint(dataRange[0], 0.0, 0.0, 0.0);
-      lookupTable.addRGBPoint((dataRange[0] + dataRange[1]) / 2, 1.0, 1.0, 1.0);
-      lookupTable.addRGBPoint(dataRange[1], 1.0, 1.0, 1.0);
-
-      const piecewiseFunction = vtkPiecewiseFunction.newInstance();
-      // 设置不透明度函数的点
-      actor.getProperty().setRGBTransferFunction(0, lookupTable);
-      actor.getProperty().setScalarOpacity(0, piecewiseFunction);
-      renderWindow.render();
-    },
 
     // 应用裁剪平面
     async applyClipping({
