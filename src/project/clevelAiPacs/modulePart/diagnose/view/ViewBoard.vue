@@ -45,13 +45,9 @@
 <script lang='javascript'>
 import subScript from "@/picComps/home/subScript/subScript.vue";
 
-import {
-  mapState,
-  mapMutations,
-  mapActions,
-  mapGetters,
-  createNamespacedHelpers,
-} from "vuex";
+import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
+
+import { LayoutIcons } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
 export default {
   name: "ViewBoard",
@@ -70,6 +66,36 @@ export default {
   },
   computed: {
     ...mapState("viewsStore", ["viewMprViews"]),
+    ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
+    localSlice_CT_pic_layout: {
+      get() {
+        return this.slice_CT_pic_layout; // 从 Vuex 状态获取值
+      },
+      set(value) {
+        this.setSlice_CT_pic_layout(value); // 调用 mutation 更新 Vuex 状态
+      },
+    },
+  },
+  watch: {
+    localSlice_CT_pic_layout: {
+      handler(nVal, oVal) {
+        console.log("watch___localSlice_CT_pic_layout:", nVal, oVal);
+        switch (nVal) {
+          case LayoutIcons.LGGJST:
+            this.layout = "1";
+            break;
+          case LayoutIcons.MPR:
+            this.layout = "2";
+            break;
+          case LayoutIcons.YS:
+            this.layout = "3";
+            break;
+          default:
+            return void 0;
+        }
+      },
+      immediate: true,
+    },
   },
   data() {
     return {
@@ -77,10 +103,11 @@ export default {
       Coronal: null, //冠状的
       Sagittal: null, //矢状的
 
-      layout: "2", //1:肋骨高级图布局（pic_layout_3d） 2:mpr布局（pic_layout）3:原图（pic_layout_original）
+      layout: "1", //1:肋骨高级图布局（pic_layout_3d） 2:mpr布局（pic_layout）3:原图（pic_layout_original）
     };
   },
   methods: {
+    ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
     // ...mapMutations("viewsStore", ["SET_HELLOVIEWS"]),
     ...mapActions("viewsStore", [
       "init3DView",

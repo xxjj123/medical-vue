@@ -14,3 +14,11 @@ export const toggleButtonState = (name: string, state: {[key: string]: boolean})
   // debugger
   state[`${name}${suffix_name}`] = !state[`${name}${suffix_name}`];
 };
+
+
+// 布局类型 - 视窗
+export enum LayoutIcons {
+  LGGJST = 'lggjst',
+  MPR = 'mpr',
+  YS = 'ys'
+}

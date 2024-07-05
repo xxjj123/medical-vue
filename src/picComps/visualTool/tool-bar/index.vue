@@ -1,20 +1,7 @@
 <template>
   <div class="vsk-tool-bar flex flex-col">
     <!-- 视窗调整 -->
-    <div
-      :class="[
-        'boxBtn flex justify-start items-center',
-        {
-          lggjst_icon: view_window?.curInput === 'lggjst',
-        },
-        {
-          mpr_icon: view_window?.curInput === 'mpr',
-        },
-        {
-          ys_icon: view_window?.curInput === 'ys',
-        },
-      ]"
-    >
+    <div :class="getClassName">
       <div
         class="pic mr-[5px] hover:cursor-pointer"
         v-tooltip="{ title: '视窗调整', visible: true }"
@@ -275,6 +262,7 @@ import {
   ButtonNames,
   toggleButtonState,
   suffix_name,
+  LayoutIcons,
 } from "./assets/js/buttonNameType";
 import * as dicom from "@itk-wasm/dicom";
 let btnStateGrp = {
@@ -285,6 +273,9 @@ let btnStateGrp = {
   [`${ButtonNames.Szckx}${suffix_name}`]: false,
   [`${ButtonNames.Pyms}${suffix_name}`]: false,
 };
+
+import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
+
 export default {
   name: "vsk-tool-bar",
   components: {},
@@ -311,6 +302,23 @@ export default {
         }
       },
       immediate: true,
+    },
+  },
+  computed: {
+    ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
+    // view-layout布局
+    getClassName() {
+      const classList = ["boxBtn flex justify-start items-center"];
+      if (this.view_window?.curInput === LayoutIcons.LGGJST) {
+        classList.push(`${LayoutIcons.LGGJST}_icon`);
+      }
+      if (this.view_window?.curInput === LayoutIcons.MPR) {
+        classList.push(`${LayoutIcons.MPR}_icon`);
+      }
+      if (this.view_window?.curInput === LayoutIcons.YS) {
+        classList.push(`${LayoutIcons.YS}_icon`);
+      }
+      return classList;
     },
   },
   created() {
@@ -348,7 +356,7 @@ export default {
       current: null,
       mypop: "mypop1",
       view_window: {
-        curInput: "lggjst",
+        curInput: LayoutIcons.LGGJST,
         win_w: "1",
         win_holder: "1",
         current: 0,
@@ -370,6 +378,7 @@ export default {
     };
   },
   methods: {
+    ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
     handle_iconbtn(name) {
       // debugger;
       switch (name) {
@@ -413,6 +422,14 @@ export default {
       const { current } = this.view_window;
       const row = this.view_window.list[current];
       this.view_window.curInput = row.icon;
+
+      // if (row.icon === "lggjst") {
+      //   this.SET_SLICE_CT_PIC_LAYOUT(row.icon);
+      // } else if (row.icon === "MPR") {
+      //   this.SET_SLICE_CT_PIC_LAYOUT(row.icon);
+      // } else if (row.icon === "ys") {
+      //   }
+      this.SET_SLICE_CT_PIC_LAYOUT(row.icon);
     },
     handle_openTzg(curNo) {
       this.mypop = "mypop";
