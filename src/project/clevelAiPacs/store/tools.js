@@ -144,6 +144,26 @@ export default {
       // 显示widget
       commit('SET_WIDGET_VISIBILITY', true);
     },
+    toggleUpdateCrossHair({
+      commit,
+      state,
+      rootState,
+      dispatch
+    }, payload) {
+      console.log("toggleUpdateCrossHair", payload);
+      // 十字线初始的交互不做更改
+      if (payload) {
+        // 显示十字线
+        commit('SET_CROSSHAIR', 'visible');
+        // 显示widget
+        commit('SET_WIDGET_VISIBILITY', true);
+      } else {
+        // 隐藏十字线
+        commit('SET_CROSSHAIR', 'hidden');
+        // 显示widget
+        commit('SET_WIDGET_VISIBILITY', false);
+      }
+    },
     CrossHair({
       commit,
       state,
