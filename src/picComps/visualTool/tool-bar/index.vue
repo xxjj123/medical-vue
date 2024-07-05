@@ -180,7 +180,13 @@
         <div class="rowWin flex items-center">
           <div class="name">窗宽</div>
           <div class="silder">
-            <ta-slider :min="1" :max="4096" v-model="view_window.win_w" />
+            <ta-slider
+              :min="1"
+              :max="4096"
+              v-model="view_window.win_w"
+              @change="view_window.winW.onChange"
+              @afterChange="view_window.winW.onAfterChange"
+            />
           </div>
           <div class="ipt">
             <ta-input-number
@@ -197,11 +203,17 @@
         <div class="rowWin flex items-center">
           <div class="name">窗位</div>
           <div class="silder">
-            <ta-slider :min="1" :max="3071" v-model="view_window.win_holder" />
+            <ta-slider
+              :min="-1024"
+              :max="3071"
+              v-model="view_window.win_holder"
+              @change="view_window.winHold.onChange"
+              @afterChange="view_window.winHold.onAfterChange"
+            />
           </div>
           <div class="ipt">
             <ta-input-number
-              :min="1"
+              :min="-1024"
               :max="3071"
               style="marginleft: 16px; width: 100px"
               amountPre="HU"
@@ -359,6 +371,28 @@ export default {
         curInput: LayoutIcons.LGGJST,
         win_w: "1",
         win_holder: "1",
+        winW: {
+          onChange: (value) => {
+            console.log("onChange:", value);
+          },
+          onAfterChange: (value) => {
+            console.log("onChange1:", value);
+            // 灰度
+            this.UpdateColorWindow_self({ ww: value });
+            this.$forceUpdate();
+          },
+        },
+        winHold: {
+          onChange: (value) => {
+            console.log("onChange:", value);
+          },
+          onAfterChange: (value) => {
+            // 亮度
+            console.log("onChange1:", value);
+            this.UpdateColorLevel_self({ wl: value });
+            this.$forceUpdate();
+          },
+        },
         current: 0,
         list: [
           {
@@ -379,6 +413,10 @@ export default {
   },
   methods: {
     ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
+    ...mapActions("viewsStore", [
+      "UpdateColorWindow_self",
+      "UpdateColorLevel_self",
+    ]),
     handle_iconbtn(name) {
       // debugger;
       switch (name) {

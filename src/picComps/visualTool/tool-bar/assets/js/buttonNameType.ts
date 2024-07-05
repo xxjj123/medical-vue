@@ -1,3 +1,4 @@
+// 画布控制工具-通用按键
 export enum ButtonNames {
   Ckcw = "ckcw",
   Mdtyms = "mdtyms",

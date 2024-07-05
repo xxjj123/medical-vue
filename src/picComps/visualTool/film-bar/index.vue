@@ -12,19 +12,50 @@
         ]"
         @click="activate(index)"
       >
-        {{ button }}
+        {{ button.name }}
       </button>
       <div class="background" :style="backgroundStyle"></div>
     </div>
   </div>
 </template>
 <script lang='javascript'>
+import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
+
+//视窗，窗宽窗位
+const winCtrl = {
+  lung: {
+    ww: 1500,
+    wl: -500,
+  },
+  mediastinal: {
+    ww: 300,
+    wl: 50,
+  },
+  bone: {
+    ww: 1500,
+    wl: 300,
+  },
+};
+
 export default {
   name: "film-bar",
   data() {
     return {
       activeIndex: 0,
-      buttons: ["肺窗", "纵隔窗", "骨窗"],
+      buttons: [
+        {
+          name: "肺窗",
+          tag: "lung",
+        },
+        {
+          name: "纵隔窗",
+          tag: "mediastinal",
+        },
+        {
+          name: "骨窗",
+          tag: "bone",
+        },
+      ],
     };
   },
   computed: {
@@ -35,8 +66,19 @@ export default {
     },
   },
   methods: {
+    ...mapActions("viewsStore", [
+      "UpdateColorWindow_self",
+      "UpdateColorLevel_self",
+    ]),
+    changeLevelWinTheme() {
+      const { tag } = this.buttons[this.activeIndex];
+      const { ww, wl } = winCtrl[tag];
+      this.UpdateColorWindow_self({ ww });
+      this.UpdateColorLevel_self({ wl });
+    },
     activate(index) {
       this.activeIndex = index;
+      this.changeLevelWinTheme();
     },
   },
 };
