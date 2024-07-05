@@ -1069,7 +1069,9 @@ export default {
           })
         );
 
-        obj.interactor.onLeftButtonRelease(() => handleMouseUp(store, obj));
+        obj.interactor.onLeftButtonRelease(() => handleMouseUp(store, {
+          obj
+        }));
 
         obj.interactor.onMouseMove((event) =>
           handleMouseMove(store, {

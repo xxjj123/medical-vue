@@ -413,7 +413,10 @@ export default {
   },
   methods: {
     ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
-    ...mapActions("toolsStore", ["toggleUpdateCrossHair"]),
+    ...mapActions("toolsStore", [
+      "toggleUpdateCrossHair",
+      "toggleUpdateStartPan",
+    ]),
     ...mapActions("viewsStore", [
       "UpdateColorWindow_self",
       "UpdateColorLevel_self",
@@ -453,6 +456,8 @@ export default {
         case ButtonNames.Pyms:
           {
             toggleButtonState(ButtonNames.Pyms, this);
+            this.toggleUpdateStartPan(!!this.pyms_on);
+            console.log("// 平移模式=", !!this.pyms_on);
           }
           break;
         default:
@@ -465,12 +470,6 @@ export default {
       const row = this.view_window.list[current];
       this.view_window.curInput = row.icon;
 
-      // if (row.icon === "lggjst") {
-      //   this.SET_SLICE_CT_PIC_LAYOUT(row.icon);
-      // } else if (row.icon === "MPR") {
-      //   this.SET_SLICE_CT_PIC_LAYOUT(row.icon);
-      // } else if (row.icon === "ys") {
-      //   }
       this.SET_SLICE_CT_PIC_LAYOUT(row.icon);
     },
     handle_openTzg(curNo) {

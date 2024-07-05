@@ -134,6 +134,42 @@ export default {
 
       return modified;
     },
+    toggleUpdateStartPan({
+      commit,
+      state,
+      rootState,
+      dispatch
+    }, payload) {
+      const {
+        viewsStore
+      } = rootState;
+      const v_state = viewsStore;
+      console.log("toggleUpdateStartPan", payload);
+      if (payload) {
+        commit('SET_INTERMODE', 'pan');
+        commit('SET_WIDGET_VISIBILITY', false);
+
+      } else {
+        commit('SET_INTERMODE', 'pan-off');
+        commit('SET_WIDGET_VISIBILITY', false);
+
+      }
+      // 更新reslice和相机点
+      v_state.viewMprViews.forEach((obj, objindex) => {
+        // 调用updateReslice action
+        commit('updateReslice', {
+          obj,
+          objindex,
+          viewType: obj.viewType,
+          reslice: obj.reslice,
+          actor: obj.resliceActor,
+          renderer: obj.renderer,
+          resetFocalPoint: true,
+          computeFocalPointOffset: true
+        });
+        obj.interactor.render();
+      });
+    },
     StartPan({
       commit
     }) {
@@ -150,6 +186,10 @@ export default {
       rootState,
       dispatch
     }, payload) {
+      const {
+        viewsStore
+      } = rootState;
+      const v_state = viewsStore;
       console.log("toggleUpdateCrossHair", payload);
       // 十字线初始的交互不做更改
       if (payload) {
@@ -163,7 +203,23 @@ export default {
         // 显示widget
         commit('SET_WIDGET_VISIBILITY', false);
       }
+      // 更新reslice和相机点
+      v_state.viewMprViews.forEach((obj, objindex) => {
+        // 调用updateReslice action
+        commit('updateReslice', {
+          obj,
+          objindex,
+          viewType: obj.viewType,
+          reslice: obj.reslice,
+          actor: obj.resliceActor,
+          renderer: obj.renderer,
+          resetFocalPoint: true,
+          computeFocalPointOffset: true
+        });
+        obj.interactor.render();
+      });
     },
+
     CrossHair({
       commit,
       state,
