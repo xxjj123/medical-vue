@@ -5,6 +5,7 @@
         'pic_views',
         { pic_layout_3d: layout === '1' },
         { pic_layout: layout === '2' },
+        { pic_layout_original: layout === '3' },
       ]"
     >
       <div class="side viewbox view-3d">
@@ -13,7 +14,14 @@
           ref="View3DRef"
         ></div>
       </div>
-      <div class="side viewbox view-axial bg-slate-500">
+      <div
+        :class="[
+          'side viewbox view-axial bg-slate-500',
+          {
+            viewOriginal: layout === '3',
+          },
+        ]"
+      >
         <div class="relative view-item bg-slate-500" ref="ViewAxialRef">
           <subScript v-show="showsub" v-model="Axial" />
         </div>
@@ -65,7 +73,11 @@ export default {
   },
   data() {
     return {
-      layout: "1", //1:肋骨高级图布局（pic_layout_3d） 2:mpr布局（pic_layout）
+      Axial: null, //轴切的 （原图）
+      Coronal: null, //冠状的
+      Sagittal: null, //矢状的
+
+      layout: "2", //1:肋骨高级图布局（pic_layout_3d） 2:mpr布局（pic_layout）3:原图（pic_layout_original）
     };
   },
   methods: {
@@ -138,6 +150,26 @@ export default {
   grid-template-rows: 50% 50%;
   position: relative;
   user-select: none;
+}
+
+.pic_layout_original {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: 50% 50%;
+  position: relative;
+  user-select: none;
+}
+.viewOriginal {
+  background: rgb(0, 0, 0);
+  border: 1px solid rgb(14, 17, 23);
+  top: 0px;
+  left: 0px;
+  z-index: 3;
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
 }
 
 .pic_layout {
