@@ -416,6 +416,7 @@ export default {
     ...mapActions("toolsStore", [
       "toggleUpdateCrossHair",
       "toggleUpdateStartPan",
+      "ChangeSlabMode",
     ]),
     ...mapActions("viewsStore", [
       "UpdateColorWindow_self",
@@ -432,6 +433,8 @@ export default {
         case ButtonNames.Mdtyms:
           {
             toggleButtonState(ButtonNames.Mdtyms, this);
+            // 密度投影
+            console.log();
           }
           break;
         // 其他按钮的逻辑...
