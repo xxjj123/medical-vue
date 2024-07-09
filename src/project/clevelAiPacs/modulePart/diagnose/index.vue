@@ -58,6 +58,7 @@ import {
   getExaminationDetail,
   getFile,
   getDiagnoseResult,
+  getSysDict,
 } from "@/api";
 
 import JSZip from "jszip";
@@ -263,6 +264,15 @@ export default {
     }, 5000);
 
     console.log("this.$router", this.$router);
+
+    getSysDict().then((res) => {
+      const carplay = localStorage.getItem("carplay");
+      if (!carplay) {
+        localStorage.setItem("carplay", JSON.stringify(res));
+      } else {
+        console.log("carplay-已存在");
+      }
+    });
     /*
     this.$nextTick(() => {
       const { applyId } = this.$route.query;

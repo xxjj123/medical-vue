@@ -39,6 +39,23 @@ export const getDiagnoseResult = (applyId) =>
 
 // ===========================================
 
+// 获取-全系统业务相关码表
+export const getSysDict = () => {
+  return new Promise((resolve, reject) => {
+    Base.submit(null, {
+      url: 'http://localhost:5173/dict.json',
+    }).then((dataResult) => {
+      console.log("dataResult", dataResult);
+      if (dataResult.code === 200) {
+        // return dataResult.data;
+        resolve(dataResult.data)
+      }
+    })
+
+  })
+
+}
+
 
 // 获取诊断列表
 
