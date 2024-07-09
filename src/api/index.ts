@@ -9,6 +9,7 @@ const {
 } = apiOps;
 
 import axios from 'axios'
+import Vue from 'vue'
 /**
  * TODO::这份文件的接口，先迎合-文佳搭建的spring-boot去返回，后续后端迁移至404后台写法，需改写~
  * ps：目前是从catch中才能捕获到值，先这么处理~
@@ -28,13 +29,29 @@ export const startDiagnose = (formData) => {
 
 
 // 获取诊断结果
-export const getDiagnoseResult = (applyId) =>
-  Base.submit(null, {
-    url: api + urlJson['get-diagnose-result'],
-    urlParam: {
-      applyId: applyId
-    }
+export const getDiagnoseResult = (applyId) => {
+  return new Promise((resolve, reject) => {
+    Base.submit(null, {
+      method: 'get',
+      url: api + urlJson['get-diagnose-result'],
+      // data: {
+      //   applyId: applyId
+      // },
+      urlParam: {
+        applyId: "83299b46-8d18-4e41-88eb-cab1afa67523",//applyId
+      }
+    }).then(res => {
+      console.log("res", res);
+      Vue.prototype.$message.destroy()
+    })
+      .catch(error => {
+        Vue.prototype.$message.destroy();
+        console.log("err=================000000", error);
+        resolve(error.data);
+      })
   })
+}
+
 
 
 // ===========================================

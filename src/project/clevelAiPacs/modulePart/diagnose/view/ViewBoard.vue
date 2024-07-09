@@ -149,7 +149,6 @@ export default {
       this.initAxialView(this.$refs.ViewAxialRef);
       this.initSagittalView(this.$refs.ViewSagittalRef);
       window.addEventListener("resize", this.resizeViews);
-      window.addEventListener("");
     });
   },
   unmounted() {

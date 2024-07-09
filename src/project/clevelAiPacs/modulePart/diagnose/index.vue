@@ -158,24 +158,25 @@ export default {
     },
     Diagnose(applyId) {
       return new Promise(async (resolve, reject) => {
-        getDiagnoseResult(applyId)
-          .then((res) => {
-            if (res.message === "success") {
-              let data = res.data.result;
-              console.log(data);
-              /**
-               * TODO:更新面板数据
-               */
+        const result = await getDiagnoseResult(applyId);
+        console.log("result-Diagnose", result);
+        // .then((res) => {
+        //   if (res.message === "success") {
+        //     let data = res.data.result;
+        //     console.log(data);
+        //     /**
+        //      * TODO:更新面板数据
+        //      */
 
-              resolve(res); // Success: resolve result
-            } else {
-              reject(res.message);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            reject(err); // Error: reject with error
-          });
+        //     resolve(res); // Success: resolve result
+        //   } else {
+        //     reject(res.message);
+        //   }
+        // })
+        // .catch((err) => {
+        //   console.log(err);
+        //   reject(err); // Error: reject with error
+        // });
         // const data = await getExaDetail_keya();
         // console.log("data==,data  keya", data);
         /*     const data = await getExaminationDetail(applyId);
@@ -272,6 +273,8 @@ export default {
       } else {
         console.log("carplay-已存在");
       }
+      const { applyId } = this.$route.query;
+      this.Diagnose(applyId);
     });
     /*
     this.$nextTick(() => {

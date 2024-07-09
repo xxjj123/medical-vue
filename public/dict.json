@@ -68,6 +68,144 @@
         "name": "NCCN",
         "type": "TYPOLOGY_TYPE",
         "value": "01"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "默认",
+        "type": "LESION_LIST_TYPE",
+        "value": "1"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "按风险",
+        "type": "LESION_LIST_TYPE",
+        "value": "2"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "按IM",
+        "type": "LESION_LIST_TYPE",
+        "value": "3"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "按肺段",
+        "type": "LESION_LIST_TYPE",
+        "value": "4"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "按长径",
+        "type": "LESION_LIST_TYPE",
+        "value": "5"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "按体积",
+        "type": "LESION_LIST_TYPE",
+        "value": "6"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "按类型",
+        "type": "LESION_LIST_TYPE",
+        "value": "7"
+      },
+      {
+        "label": "良恶性",
+        "name": "全部",
+        "type": "LESION_LIST_FILTER_LEX",
+        "value": ""
+      },
+      {
+        "label": "良恶性",
+        "name": "低危",
+        "type": "LESION_LIST_FILTER_LEX",
+        "value": "1"
+      },
+      {
+        "label": "良恶性",
+        "name": "中危",
+        "type": "LESION_LIST_FILTER_LEX",
+        "value": "2"
+      },
+      {
+        "label": "良恶性",
+        "name": "高危",
+        "type": "LESION_LIST_FILTER_LEX",
+        "value": "3"
+      },
+      {
+        "label": "类型",
+        "name": "全部",
+        "type": "LESION_LIST_FILTER_NODULETYPE",
+        "value": ""
+      },
+      {
+        "label": "类型",
+        "name": "肿块",
+        "type": "LESION_LIST_FILTER_NODULETYPE",
+        "value": "1"
+      },
+      {
+        "label": "类型",
+        "name": "混合",
+        "type": "LESION_LIST_FILTER_NODULETYPE",
+        "value": "2"
+      },
+      {
+        "label": "类型",
+        "name": "磨玻璃",
+        "type": "LESION_LIST_FILTER_NODULETYPE",
+        "value": "3"
+      },
+      {
+        "label": "类型",
+        "name": "实性",
+        "type": "LESION_LIST_FILTER_NODULETYPE",
+        "value": "4"
+      },
+      {
+        "label": "类型",
+        "name": "钙化",
+        "type": "LESION_LIST_FILTER_NODULETYPE",
+        "value": "5"
+      },
+      {
+        "label": "长径",
+        "name": "全部",
+        "type": "LESION_LIST_FILTER_MAJOR_AXIS",
+        "value": ""
+      },
+      {
+        "label": "长径",
+        "name": "0-3mm",
+        "type": "LESION_LIST_FILTER_MAJOR_AXIS",
+        "value": [0, 3]
+      },
+      {
+        "label": "长径",
+        "name": "3-5mm",
+        "type": "LESION_LIST_FILTER_MAJOR_AXIS",
+        "value": [3, 5]
+      },
+      {
+        "label": "长径",
+        "name": "5-8mm",
+        "type": "LESION_LIST_FILTER_MAJOR_AXIS",
+        "value": [5, 8]
+      },
+      {
+        "label": "长径",
+        "name": ">8mm",
+        "type": "LESION_LIST_FILTER_MAJOR_AXIS",
+        "value": [">", 8]
+      },
+      {
+        "label": "长径",
+        "name": "自定义",
+        "type": "LESION_LIST_FILTER_MAJOR_AXIS",
+        "value": ["", ""]
       }
     ],
     "scanSite": {
