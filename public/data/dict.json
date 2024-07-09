@@ -2,6 +2,74 @@
   "code": 200,
   "requestId": "ca0f6c7c-9239-4046-8415-579e7a1edd94",
   "data": {
+    "sysInfoOther": [{
+        "label": "病理位置风险度",
+        "name": "安全",
+        "type": "POSITION_RISK_DEGREE",
+        "value": "0"
+      },
+      {
+        "label": "病理位置风险度",
+        "name": "低危",
+        "type": "POSITION_RISK_DEGREE",
+        "value": "1"
+      },
+      {
+        "label": "病理位置风险度",
+        "name": "中危",
+        "type": "POSITION_RISK_DEGREE",
+        "value": "2"
+      },
+      {
+        "label": "病理位置风险度",
+        "name": "高危",
+        "type": "POSITION_RISK_DEGREE",
+        "value": "3"
+      },
+
+      {
+        "label": "所见结果文本排序",
+        "name": "按层数排序",
+        "type": "IMAGE_VIEW_SORT",
+        "value": "01"
+      },
+      {
+        "label": "所见结果文本排序",
+        "name": "按肺段分类",
+        "type": "IMAGE_VIEW_SORT",
+        "value": "02"
+      },
+      {
+        "label": "所见结果文本排序",
+        "name": "按类型分类",
+        "type": "IMAGE_VIEW_SORT",
+        "value": "03"
+      },
+      {
+        "label": "所见结果文本排序",
+        "name": "结构化描述",
+        "type": "IMAGE_VIEW_SORT",
+        "value": "04"
+      },
+      {
+        "label": "所见结果文本排序",
+        "name": "结节汇总",
+        "type": "IMAGE_VIEW_SORT",
+        "value": "05"
+      },
+      {
+        "label": "诊断类型",
+        "name": "无",
+        "type": "TYPOLOGY_TYPE",
+        "value": -1
+      },
+      {
+        "label": "诊断类型",
+        "name": "NCCN",
+        "type": "TYPOLOGY_TYPE",
+        "value": "01"
+      }
+    ],
     "scanSite": {
       "lung": {
         "noduleType": [{
