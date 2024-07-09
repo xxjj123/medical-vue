@@ -269,7 +269,7 @@
     </ta-popover>
   </div>
 </template>
-<script lang='javascript'>
+<script lang="javascript">
 import {
   ButtonNames,
   toggleButtonState,
@@ -486,7 +486,7 @@ export default {
   },
 };
 </script>
-<style lang='less' scoped>
+<style lang="less" scoped>
 .base_icon_size() {
   width: 18px;
   height: 18px;

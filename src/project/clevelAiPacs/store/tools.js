@@ -1,24 +1,15 @@
-import Vue from 'vue';
-import vtkResliceCursorWidget from '@kitware/vtk.js/Widgets/Widgets3D/ResliceCursorWidget'
-import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper'
-import {
-  xyzToViewType
-} from '@kitware/vtk.js/Widgets/Widgets3D/ResliceCursorWidget/Constants'
-import vtkCubeSource from '@kitware/vtk.js/Filters/Sources/CubeSource'
-import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper'
-import vtkActor from '@kitware/vtk.js/Rendering/Core/Actor'
-import vtkProperty from '@kitware/vtk.js/Rendering/Core/Property'
-import {
-  SlabTypes
-} from '@kitware/vtk.js/Rendering/Core/ImageResliceMapper/Constants'
+import Vue from "vue";
+import vtkResliceCursorWidget from "@kitware/vtk.js/Widgets/Widgets3D/ResliceCursorWidget";
+import vtkImageMapper from "@kitware/vtk.js/Rendering/Core/ImageMapper";
+import { xyzToViewType } from "@kitware/vtk.js/Widgets/Widgets3D/ResliceCursorWidget/Constants";
+import vtkCubeSource from "@kitware/vtk.js/Filters/Sources/CubeSource";
+import vtkMapper from "@kitware/vtk.js/Rendering/Core/Mapper";
+import vtkActor from "@kitware/vtk.js/Rendering/Core/Actor";
+import vtkProperty from "@kitware/vtk.js/Rendering/Core/Property";
+import { SlabTypes } from "@kitware/vtk.js/Rendering/Core/ImageResliceMapper/Constants";
 
-import {
-  vec3,
-  quat,
-  mat4
-} from 'gl-matrix'
-import vtkPlane from '@kitware/vtk.js/Common/DataModel/Plane'
-
+import { vec3, quat, mat4 } from "gl-matrix";
+import vtkPlane from "@kitware/vtk.js/Common/DataModel/Plane";
 
 export default {
   namespaced: true,
@@ -26,12 +17,12 @@ export default {
     helloTools: "helloTools",
 
     widget: vtkResliceCursorWidget.newInstance(),
-    crosshair: 'lazy',
-    intermode: 'crosshair',
+    crosshair: "lazy",
+    intermode: "crosshair",
     cubes: {
       value: [],
-      positions: new Set()
-    }
+      positions: new Set(),
+    },
   },
   mutations: {
     // 同步更新state的方法
@@ -63,101 +54,127 @@ export default {
       state.windowLevel = defaultWindowLevel;
       // 重置其他相关状态...
     },
-
   },
   actions: {
-    setImage({
-      commit,
-      state
-    }, image) {
+    setImage({ commit, state }, image) {
       // debugger
-      state.widget.setImage(image)
+      state.widget.setImage(image);
     },
     // 异步操作或需要提交mutation的方法
-    updateReslice({
-      commit,
-      state
-    }, interactionContext) {
-      console.log("interactionContext---", interactionContext, "state", state, "state.widget.get", state.widget.get());
-      const {
-        obj,
-        viewType,
-        reslice,
-        actor,
-        renderer
-      } = interactionContext;
+    updateReslice({ commit, state }, interactionContext) {
+      console.log(
+        "interactionContext---",
+        interactionContext,
+        "state",
+        state,
+        "state.widget.get",
+        state.widget.get(),
+      );
+      const { obj, viewType, reslice, actor, renderer } = interactionContext;
 
-      const wgtPlanes = state.widget.getWidgetState().getPlanes()[xyzToViewType[viewType]]; //new add
+      const wgtPlanes = state.widget.getWidgetState().getPlanes()[
+        xyzToViewType[viewType]
+      ]; //new add
       console.log("wgtPlanes==", wgtPlanes);
       // 假设widget是state中的一部分，并且有一个updateReslicePlane方法
-      const modified = state.widget.updateReslicePlane(reslice, xyzToViewType[viewType]);
+      const modified = state.widget.updateReslicePlane(
+        reslice,
+        xyzToViewType[viewType],
+      );
 
       if (modified) {
         // 更新actor的用户矩阵
         const resliceAxes = reslice.getResliceAxes();
         actor.setUserMatrix(resliceAxes);
+      }
 
-        // 以下逻辑可能需要根据实际情况调整
-        state.cubes.value.forEach((cube) => {
-          const center = cube.actor.getCenter();
-          console.log(center);
-        });
+      // 更新相机点
+      state.widget.updateCameraPoints(
+        renderer,
+        xyzToViewType[viewType],
+        interactionContext.resetFocalPoint,
+        interactionContext.computeFocalPointOffset,
+      );
 
-        // 更新相机点
-        state.widget.updateCameraPoints(
-          renderer,
-          xyzToViewType[viewType],
-          interactionContext.resetFocalPoint,
-          interactionContext.computeFocalPointOffset
+      // 特定于视图的相机位置调整
+      if (viewType == 1) {
+        const camera = interactionContext.renderer.getActiveCamera();
+
+        const preposition = camera.getPosition();
+        const focalpoint = camera.getFocalPoint();
+        camera.setPosition(
+          preposition[0],
+          focalpoint[1] * 2 - preposition[1],
+          preposition[2],
         );
+      }
 
-        // 特定于视图的相机位置调整
-        if (viewType === xyzToViewType[1]) {
-          const camera = renderer.getActiveCamera();
-          const preposition = camera.getPosition();
-          const focalpoint = camera.getFocalPoint();
-          camera.setPosition(
-            preposition[0],
-            focalpoint[1] * 2 - preposition[1],
-            preposition[2]
-          );
-        }
+      // // 重置相机以更新视图
+      // renderer.resetCamera();
+      // const camera = renderer.getActiveCamera();
+      // camera.zoom(1.3);
 
-        // 重置相机以更新视图
-        renderer.resetCamera();
+      // 渲染交互器
+      // obj.interactor.render();
+
+      if (interactionContext.resetFocalPoint) {
         const camera = renderer.getActiveCamera();
-        camera.zoom(1.3);
+        renderer.resetCamera();
+        const bounds = interactionContext.actor.getBounds();
 
-        // 渲染交互器
-        obj.interactor.render();
+        console.log(interactionContext.renderer);
+        const point1 = interactionContext.renderer.worldToNormalizedDisplay(
+          bounds[0],
+          bounds[2],
+          bounds[4],
+          true,
+        );
+        const point2 = interactionContext.renderer.worldToNormalizedDisplay(
+          bounds[1],
+          bounds[3],
+          bounds[5],
+          true,
+        );
+        console.log(obj);
+        const container = obj.grw.getContainer();
+        const { width: containerWidth, height: containerHeight } =
+          container.getBoundingClientRect();
+        console.log(containerWidth, containerHeight);
+        const scalex = 1 / Math.abs(point1[0] - point2[0]);
+        const scaley = 1 / Math.abs(point1[1] - point2[1]);
+        console.log(scalex, scaley);
+        console.log(
+          Math.abs(point1[0] - point2[0]) * containerWidth,
+          Math.abs(point1[1] - point2[1]) * containerHeight,
+        );
+        let zoomFactor = Math.min(scalex, scaley);
+
+        if (
+          containerWidth * Math.abs(point1[0] - point2[0]) >
+          containerHeight * Math.abs(point1[1] - point2[1])
+        ) {
+          zoomFactor = Math.max(scalex, scaley);
+        }
+        camera.zoom(zoomFactor);
       }
 
       return modified;
     },
-    toggleUpdateStartPan({
-      commit,
-      state,
-      rootState,
-      dispatch
-    }, payload) {
-      const {
-        viewsStore
-      } = rootState;
+    toggleUpdateStartPan({ commit, state, rootState, dispatch }, payload) {
+      const { viewsStore } = rootState;
       const v_state = viewsStore;
       console.log("toggleUpdateStartPan", payload);
       if (payload) {
-        commit('SET_INTERMODE', 'pan');
-        commit('SET_WIDGET_VISIBILITY', false);
-
+        commit("SET_INTERMODE", "pan");
+        commit("SET_WIDGET_VISIBILITY", false);
       } else {
-        commit('SET_INTERMODE', 'pan-off');
-        commit('SET_WIDGET_VISIBILITY', false);
-
+        commit("SET_INTERMODE", "pan-off");
+        commit("SET_WIDGET_VISIBILITY", false);
       }
       // 更新reslice和相机点
       v_state.viewMprViews.forEach((obj, objindex) => {
         // 调用updateReslice action
-        commit('updateReslice', {
+        commit("updateReslice", {
           obj,
           objindex,
           viewType: obj.viewType,
@@ -165,48 +182,39 @@ export default {
           actor: obj.resliceActor,
           renderer: obj.renderer,
           resetFocalPoint: true,
-          computeFocalPointOffset: true
+          computeFocalPointOffset: true,
         });
         obj.interactor.render();
       });
     },
-    StartPan({
-      commit
-    }) {
+    StartPan({ commit }) {
       // 改变交互模式为平移
-      commit('SET_INTERMODE', 'pan');
+      commit("SET_INTERMODE", "pan");
       // 隐藏十字线
-      commit('SET_CROSSHAIR', 'hidden');
+      commit("SET_CROSSHAIR", "hidden");
       // 显示widget
-      commit('SET_WIDGET_VISIBILITY', true);
+      commit("SET_WIDGET_VISIBILITY", true);
     },
-    toggleUpdateCrossHair({
-      commit,
-      state,
-      rootState,
-      dispatch
-    }, payload) {
-      const {
-        viewsStore
-      } = rootState;
+    toggleUpdateCrossHair({ commit, state, rootState, dispatch }, payload) {
+      const { viewsStore } = rootState;
       const v_state = viewsStore;
       console.log("toggleUpdateCrossHair", payload);
       // 十字线初始的交互不做更改
       if (payload) {
         // 显示十字线
-        commit('SET_CROSSHAIR', 'visible');
+        commit("SET_CROSSHAIR", "visible");
         // 显示widget
-        commit('SET_WIDGET_VISIBILITY', true);
+        commit("SET_WIDGET_VISIBILITY", true);
       } else {
         // 隐藏十字线
-        commit('SET_CROSSHAIR', 'hidden');
+        commit("SET_CROSSHAIR", "hidden");
         // 显示widget
-        commit('SET_WIDGET_VISIBILITY', false);
+        commit("SET_WIDGET_VISIBILITY", false);
       }
       // 更新reslice和相机点
       v_state.viewMprViews.forEach((obj, objindex) => {
         // 调用updateReslice action
-        commit('updateReslice', {
+        commit("updateReslice", {
           obj,
           objindex,
           viewType: obj.viewType,
@@ -214,32 +222,25 @@ export default {
           actor: obj.resliceActor,
           renderer: obj.renderer,
           resetFocalPoint: true,
-          computeFocalPointOffset: true
+          computeFocalPointOffset: true,
         });
         obj.interactor.render();
       });
     },
 
-    CrossHair({
-      commit,
-      state,
-      rootState,
-      dispatch
-    }) {
-      const {
-        viewsStore
-      } = rootState;
+    CrossHair({ commit, state, rootState, dispatch }) {
+      const { viewsStore } = rootState;
       const v_state = viewsStore;
       // 改变交互模式为十字线
-      commit('SET_INTERMODE', 'crosshair');
+      commit("SET_INTERMODE", "crosshair");
       // 显示十字线
-      commit('SET_CROSSHAIR', 'visible');
+      commit("SET_CROSSHAIR", "visible");
       // 隐藏widget
-      commit('SET_WIDGET_VISIBILITY', false);
+      commit("SET_WIDGET_VISIBILITY", false);
       // 更新reslice和相机点
       v_state.viewMprViews.forEach((obj, objindex) => {
         // 调用updateReslice action
-        commit('updateReslice', {
+        commit("updateReslice", {
           obj,
           objindex,
           viewType: obj.viewType,
@@ -247,28 +248,20 @@ export default {
           actor: obj.resliceActor,
           renderer: obj.renderer,
           resetFocalPoint: true,
-          computeFocalPointOffset: true
+          computeFocalPointOffset: true,
         });
         obj.interactor.render();
       });
     },
     /*start--- test action */
-    actRun({
-      dispatch,
-      commit,
-      getters,
-    }, payload) {
+    actRun({ dispatch, commit, getters }, payload) {
       console.log("dispatch=", dispatch);
       console.log("commit=", commit);
       console.log("getters=", getters.getmod_viewsStore);
       console.log("payload=", payload);
     },
 
-    updateActRun({
-      commit,
-      state,
-      rootState
-    }, value) {
+    updateActRun({ commit, state, rootState }, value) {
       console.log("~:commit=", commit);
       console.log("~:state=", state);
       console.log("~:value=", value);
@@ -277,25 +270,18 @@ export default {
       // rootState.viewsStore.view3D = {
       //   a: 1
       // };
-
-
     },
     /*end--- test action */
 
-    UpdateColorWindow({
-      commit,
-      state,
-      rootState,
-      dispatch
-    }, value) {
+    UpdateColorWindow({ commit, state, rootState, dispatch }, value) {
       // const {
       //   viewsStore
       // } = rootState;
       // const v_state = viewsStore;
       // debugger;
-      dispatch('viewsStore/UpdateColorWindow_self', value, {
-        root: true
-      })
+      dispatch("viewsStore/UpdateColorWindow_self", value, {
+        root: true,
+      });
       // state.viewsStore
       /*  v_state.viewMprViews.forEach((obj, objindex) => {
          // const viewData = v_state.viewsData[objindex];
@@ -316,16 +302,11 @@ export default {
        }); */
     },
 
-    UpdateColorLevel({
-      commit,
-      state,
-      rootState,
-      dispatch
-    }, value) {
+    UpdateColorLevel({ commit, state, rootState, dispatch }, value) {
       // debugger
-      dispatch('viewsStore/UpdateColorLevel_self', value, {
-        root: true
-      })
+      dispatch("viewsStore/UpdateColorLevel_self", value, {
+        root: true,
+      });
       /*     const {
             viewsStore
           } = rootState;
@@ -348,46 +329,28 @@ export default {
             obj.interactor.render();
           }); */
     },
-    ChangeSlabMode({
-      commit,
-      state,
-      rootState,
-      dispatch
-    }, mode) {
-      const {
-        viewsStore
-      } = rootState;
+    ChangeSlabMode({ commit, state, rootState, dispatch }, mode) {
+      const { viewsStore } = rootState;
       const v_state = viewsStore;
 
-      v_state.viewMprViews.forEach(obj => {
-        if (mode === 'min') {
+      v_state.viewMprViews.forEach((obj) => {
+        if (mode === "min") {
           obj.reslice.setSlabMode(SlabTypes.MIN);
           obj.reslice.setSlabNumberOfSlices(25); // 例子中的值
           obj.reslice.setSlabSliceSpacingFraction(1.0); // 例子中的值
           obj.reslice.setSlabTrapezoidIntegration(true);
-        } else if (mode === 'max') {
+        } else if (mode === "max") {
           obj.reslice.setSlabMode(SlabTypes.MAX);
         }
         obj.interactor.render();
       });
     },
-    ChangeImagePage({
-      commit,
-      state,
-      rootState,
-      dispatch
-    }, ijk) {
-      const {
-        viewsStore
-      } = rootState;
+    ChangeImagePage({ commit, state, rootState, dispatch }, ijk) {
+      const { viewsStore } = rootState;
       const v_state = viewsStore;
 
       const imageData = v_state.imageData;
-      const {
-        origin,
-        spacing,
-        dimensions
-      } = imageData;
+      const { origin, spacing, dimensions } = imageData;
 
       const newCenter = ijk.map((coordinate, index) => {
         return origin[index] + coordinate * spacing[index];
@@ -396,7 +359,7 @@ export default {
       state.widget.setCenter(newCenter);
 
       v_state.viewMprViews.forEach((obj, objindex) => {
-        commit('updateReslice', {
+        commit("updateReslice", {
           obj,
           objindex,
           viewType: obj.viewType,
@@ -404,31 +367,21 @@ export default {
           actor: obj.resliceActor,
           renderer: obj.renderer,
           resetFocalPoint: true,
-          computeFocalPointOffset: true
+          computeFocalPointOffset: true,
         });
         obj.interactor.render();
       });
     },
 
-    GetImagePage({
-      commit,
-      state,
-      rootState,
-      dispatch
-    }, obj) {
-      const {
-        v,
-        objindex
-      } = obj;
-      const {
-        viewsStore
-      } = rootState;
+    GetImagePage({ commit, state, rootState, dispatch }, obj) {
+      const { v, objindex } = obj;
+      const { viewsStore } = rootState;
       const v_state = viewsStore;
 
       const widgetState = state.widget.getWidgetState();
       const center = widgetState.getCenter(); // 获取当前的中心点
       const ijkCoords = v_state.imageData.worldToIndex(center); // 将世界坐标转换为图像坐标
-      const ijk = ijkCoords.map(coord => Math.round(coord));
+      const ijk = ijkCoords.map((coord) => Math.round(coord));
 
       const dirProj = widgetState.getPlanes()[xyzToViewType[v.viewType]].normal;
       let sliceIndex = 0;
@@ -440,76 +393,70 @@ export default {
 
       // 根据视图模式设置sliceIndex
       if (v.viewMode === vtkImageMapper.SlicingMode.K) {
-
         // v_state.viewsData[obj.objindex].sliceIndex =
         //   v_state.imageData.getDimensions()[0] - sliceIndex;
 
-
-        dispatch('viewsStore/updateViewData', {
-          objindex, // 你要更新的对象在 viewsData 中的索引
-          attributes: { // 要设置的属性值
-            sliceIndex: v_state.imageData.getDimensions()[0] - sliceIndex,
-            // 更多的属性可以添加到这里
-          }
-        }, {
-          root: true
-        });
-
+        dispatch(
+          "viewsStore/updateViewData",
+          {
+            objindex, // 你要更新的对象在 viewsData 中的索引
+            attributes: {
+              // 要设置的属性值
+              sliceIndex: v_state.imageData.getDimensions()[0] - sliceIndex,
+              // 更多的属性可以添加到这里
+            },
+          },
+          {
+            root: true,
+          },
+        );
       } else {
         // v_state.viewsData[obj.objindex].sliceIndex = sliceIndex;
 
-
-        dispatch('viewsStore/updateViewData', {
-          objindex, // 你要更新的对象在 viewsData 中的索引
-          attributes: { // 要设置的属性值
-            sliceIndex
-            // 更多的属性可以添加到这里
-          }
-        }, {
-          root: true
-        });
+        dispatch(
+          "viewsStore/updateViewData",
+          {
+            objindex, // 你要更新的对象在 viewsData 中的索引
+            attributes: {
+              // 要设置的属性值
+              sliceIndex,
+              // 更多的属性可以添加到这里
+            },
+          },
+          {
+            root: true,
+          },
+        );
       }
 
       // 可以提交一个mutation来更新state，如果需要的话
       // commit('SET_SLICE_INDEX', { index: sliceIndex, viewType: obj.viewType });
     },
     // 其他actions...
-    AddCube({
-      commit,
-      state,
-      rootState,
-      dispatch
-    }, {
-      size,
-      position
-    }) {
-      const {
-        viewsStore
-      } = rootState;
+    AddCube({ commit, state, rootState, dispatch }, { size, position }) {
+      const { viewsStore } = rootState;
       const v_state = viewsStore.state;
 
       // const {
       //   viewsStore,
       //   widget
       // } = state;
-      const {
-        widget
-      } = state;
+      const { widget } = state;
 
-      const {
-        origin,
-        spacing,
-        dimensions
-      } = viewsStore.imageData;
+      const { origin, spacing, dimensions } = viewsStore.imageData;
 
       const newCenter = position.map((coordinate, index) => {
-        return origin[index] + (coordinate * spacing[index] - dimensions[index] * spacing[index] / 2);
+        return (
+          origin[index] +
+          (coordinate * spacing[index] -
+            (dimensions[index] * spacing[index]) / 2)
+        );
       });
 
       const cubeSource = vtkCubeSource.newInstance({
         xLength: size[0] * spacing[0],
         yLength: size[1] * spacing[1],
-        zLength: size[2] * spacing[2]
+        zLength: size[2] * spacing[2],
       });
       cubeSource.setCenter(...newCenter);
 
@@ -529,7 +476,7 @@ export default {
       viewsStore.view3D.renderWindow.render();
 
       // 确保立方体也出现在MPR视图中
-      viewsStore.viewMprViews.forEach(view => {
+      viewsStore.viewMprViews.forEach((view) => {
         view.renderer.addActor(cubeActor);
         view.renderWindow.render();
       });
@@ -540,25 +487,19 @@ export default {
         state.cubes.positions.add(positionKey);
         state.cubes.value.push({
           actor: cubeActor,
-          position: position
+          position: position,
         });
       }
     },
 
     // 假设我们有一个初始化方法
-    initTools({
-      commit,
-      state
-    }) {
+    initTools({ commit, state }) {
       // 执行初始化逻辑
       // 可能涉及到设置初始状态或执行其他actions
     },
 
     // 假设我们有一个重置方法
-    resetTools({
-      commit,
-      state
-    }) {
+    resetTools({ commit, state }) {
       // 执行重置逻辑
       // 可能涉及到重置state或执行其他actions
     },
@@ -567,10 +508,10 @@ export default {
     combinedState(state, getters, rootState) {
       console.log("rootState==", rootState);
       // viewsStore
-      return "combinedState"
+      return "combinedState";
     },
     getmod_viewsStore(state, getters, rootState) {
       return rootState.viewsStore;
-    }
-  }
-}
+    },
+  },
+};

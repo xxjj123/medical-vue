@@ -42,7 +42,7 @@
     </div>
   </div>
 </template>
-<script lang='javascript'>
+<script lang="javascript">
 import subScript from "@/picComps/home/subScript/subScript.vue";
 
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
@@ -80,9 +80,12 @@ export default {
     localSlice_CT_pic_layout: {
       handler(nVal, oVal) {
         console.log("watch___localSlice_CT_pic_layout:", nVal, oVal);
+        const that = this;
         switch (nVal) {
           case LayoutIcons.LGGJST:
             this.layout = "1";
+            console.log("切换了");
+
             break;
           case LayoutIcons.MPR:
             this.layout = "2";
@@ -93,6 +96,10 @@ export default {
           default:
             return void 0;
         }
+        // 设置一个延时为1000毫秒（1秒）的定时器
+        requestAnimationFrame(function () {
+          that.resizeViews();
+        });
       },
       immediate: true,
     },
@@ -125,6 +132,15 @@ export default {
       });
     },
   },
+  // created() {
+  //   console.log("this.$bus", this.$bus);
+  //   this.$bus.off("ebs_init_resizeView");
+  //   this.$bus.on("ebs_init_resizeView", () => {
+  //     console.log("触发ebs_init_resizeView");
+  //     this.resizeViews();
+  //   });
+  // },
+
   mounted() {
     this.$nextTick(() => {
       console.log("this.$refs.View3DRef=", this.$refs.View3DRef);
@@ -133,14 +149,15 @@ export default {
       this.initAxialView(this.$refs.ViewAxialRef);
       this.initSagittalView(this.$refs.ViewSagittalRef);
       window.addEventListener("resize", this.resizeViews);
+      window.addEventListener("");
     });
   },
   unmounted() {
-    window.removeEventListener("resize", this.handleResize);
+    window.removeEventListener("resize", this.resizeViews);
   },
 };
 </script>
-<style lang='less' scoped>
+<style lang="less" scoped>
 .ViewBoard_panel {
   width: 100%;
   height: 100%;
