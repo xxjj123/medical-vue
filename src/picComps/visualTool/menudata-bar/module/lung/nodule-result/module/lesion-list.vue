@@ -156,6 +156,23 @@ export default {
     anaSemanticDesBlock,
     filmInputState,
   },
+  props: {
+    value: {
+      type: [Object, String, Function],
+      default: () => ({}),
+    },
+  },
+  computed: {
+    menuResult: {
+      get() {
+        return this.value;
+      },
+      set(val) {
+        this.$emit("input", val);
+        return val;
+      },
+    },
+  },
   watch: {
     filmIpt_curItem: {
       handler(nVal, oVal) {
@@ -552,6 +569,7 @@ export default {
     },
   },
   created() {
+    console.log("lesion-list:this.menuResult", this.menuResult);
     this.$nextTick(() => {
       document
         .querySelector(".nodule_lesion-list")

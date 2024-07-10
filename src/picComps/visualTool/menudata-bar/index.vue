@@ -35,19 +35,19 @@
     <ta-tabs defaultActiveKey="1" @change="callback">
       <ta-tab-pane tab="结节" key="1">
         <!-- Content of Tab Pane 1 -->
-        <noduleResult></noduleResult>
+        <noduleResult v-model="menuResult"></noduleResult>
       </ta-tab-pane>
       <ta-tab-pane tab="肺炎" key="2">
         <!-- Content of Tab Pane 2 -->
-        <pneumonia-result></pneumonia-result>
+        <pneumonia-result v-model="menuResult"></pneumonia-result>
       </ta-tab-pane>
       <ta-tab-pane tab="骨折" key="3">
         <!-- Content of Tab Pane 3 -->
-        <fracture-result></fracture-result>
+        <fracture-result v-model="menuResult"></fracture-result>
       </ta-tab-pane>
       <ta-tab-pane tab="钙化积分" key="4">
         <!-- Content of Tab Pane 4 -->
-        <calcium-score-result></calcium-score-result>
+        <calcium-score-result v-model="menuResult"></calcium-score-result>
       </ta-tab-pane>
     </ta-tabs>
   </div>
@@ -64,6 +64,20 @@ export default {
     pneumoniaResult,
     fractureResult,
     calciumScoreResult,
+  },
+  props: {
+    value: Object,
+  },
+  computed: {
+    menuResult: {
+      get() {
+        return this.value;
+      },
+      set(val) {
+        this.$emit("input", val);
+        return val;
+      },
+    },
   },
   data() {
     return {

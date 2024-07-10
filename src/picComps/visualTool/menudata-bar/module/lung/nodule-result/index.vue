@@ -1,7 +1,7 @@
 <template>
   <div class="nodule-result_panel">
     <checkToolBar></checkToolBar>
-    <LesionList></LesionList>
+    <LesionList v-model="menuResult"></LesionList>
   </div>
 </template>
 <script lang='javascript'>
@@ -13,6 +13,20 @@ export default {
   components: {
     checkToolBar,
     LesionList,
+  },
+  props: {
+    value: Object,
+  },
+  computed: {
+    menuResult: {
+      get() {
+        return this.value;
+      },
+      set(val) {
+        this.$emit("input", val);
+        return val;
+      },
+    },
   },
   data() {
     return {};

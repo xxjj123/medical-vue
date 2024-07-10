@@ -5,6 +5,9 @@
 // 肺部-骨折
 export default {
   name: "fracture-result",
+  props: {
+    value: Object,
+  },
   data() {
     return {};
   },

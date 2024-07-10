@@ -5,6 +5,9 @@
 // 肺部-钙化积分
 export default {
   name: "calcium-score-result",
+  props: {
+    value: Object,
+  },
   data() {
     return {};
   },

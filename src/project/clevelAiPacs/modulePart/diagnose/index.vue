@@ -24,7 +24,7 @@
           <ViewBoard></ViewBoard>
         </div>
         <div class="menu_data">
-          <menudataBar></menudataBar>
+          <menudataBar v-model="DiagnoseMenuResult"></menudataBar>
         </div>
       </div>
     </div>
@@ -97,6 +97,7 @@ export default {
   },
   data() {
     return {
+      vskToolbarData: {},
       viewTheme: "",
       showsub: true,
       menuResult: [
@@ -107,6 +108,7 @@ export default {
       ],
       activeDiagnose: null,
       activeIndex: null,
+      DiagnoseMenuResult: {},
     };
   },
   methods: {

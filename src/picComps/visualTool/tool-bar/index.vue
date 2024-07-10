@@ -183,7 +183,7 @@
             <ta-slider
               :min="1"
               :max="4096"
-              v-model="view_window.win_w"
+              :v-model="view_window.win_w"
               @change="view_window.winW.onChange"
               @afterChange="view_window.winW.onAfterChange"
             />
@@ -196,6 +196,7 @@
               amountPre="HU"
               :asAmount="true"
               :alignRight="true"
+              :value="view_window.win_w"
               v-model="view_window.win_w"
             />
           </div>
@@ -206,7 +207,7 @@
             <ta-slider
               :min="-1024"
               :max="3071"
-              v-model="view_window.win_holder"
+              :v-model="view_window.win_holder"
               @change="view_window.winHold.onChange"
               @afterChange="view_window.winHold.onAfterChange"
             />
@@ -219,6 +220,7 @@
               amountPre="HU"
               :asAmount="true"
               :alignRight="true"
+              :value="view_window.win_holder"
               v-model="view_window.win_holder"
             />
           </div>
@@ -369,14 +371,16 @@ export default {
       mypop: "mypop1",
       view_window: {
         curInput: LayoutIcons.LGGJST,
-        win_w: "1",
-        win_holder: "1",
+        win_w: 1, //"1",
+        win_holder: 1, //"1",
         winW: {
           onChange: (value) => {
             console.log("onChange:", value);
+            this.$set(this.view_window, "win_w", value);
           },
           onAfterChange: (value) => {
-            console.log("onChange1:", value);
+            console.log("onChange1:", value, this.view_window);
+            this.$set(this.view_window, "win_w", value);
             // 灰度
             this.UpdateColorWindow_self({ ww: value });
             this.$forceUpdate();
@@ -385,10 +389,12 @@ export default {
         winHold: {
           onChange: (value) => {
             console.log("onChange:", value);
+            this.$set(this.view_window, "win_holder", value);
           },
           onAfterChange: (value) => {
             // 亮度
             console.log("onChange1:", value);
+            this.$set(this.view_window, "win_holder", value);
             this.UpdateColorLevel_self({ wl: value });
             this.$forceUpdate();
           },

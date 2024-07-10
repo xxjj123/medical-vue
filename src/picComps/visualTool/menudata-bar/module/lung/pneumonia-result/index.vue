@@ -5,6 +5,9 @@
 // 肺部-肺炎
 export default {
   name: "pneumonia-result",
+  props: {
+    value: Object,
+  },
   data() {
     return {};
   },
