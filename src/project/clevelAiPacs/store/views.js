@@ -444,6 +444,7 @@ export default {
       Vue.set(state.view3D, "renderWindow", renderWindow);
       Vue.set(state.view3D, "renderer", renderer);
 
+      state.view3D.fullw = fullw;
       const oriencube = getAnnotatedCube();
       const interactor = state.view3D.renderWindow.getInteractor();
       const orientationWidget = vtkOrientationMarkerWidget.newInstance({
