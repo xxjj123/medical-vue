@@ -1,14 +1,22 @@
 import Vue from "vue";
 import vtkResliceCursorWidget from "@kitware/vtk.js/Widgets/Widgets3D/ResliceCursorWidget";
 import vtkImageMapper from "@kitware/vtk.js/Rendering/Core/ImageMapper";
-import { xyzToViewType } from "@kitware/vtk.js/Widgets/Widgets3D/ResliceCursorWidget/Constants";
+import {
+  xyzToViewType
+} from "@kitware/vtk.js/Widgets/Widgets3D/ResliceCursorWidget/Constants";
 import vtkCubeSource from "@kitware/vtk.js/Filters/Sources/CubeSource";
 import vtkMapper from "@kitware/vtk.js/Rendering/Core/Mapper";
 import vtkActor from "@kitware/vtk.js/Rendering/Core/Actor";
 import vtkProperty from "@kitware/vtk.js/Rendering/Core/Property";
-import { SlabTypes } from "@kitware/vtk.js/Rendering/Core/ImageResliceMapper/Constants";
+import {
+  SlabTypes
+} from "@kitware/vtk.js/Rendering/Core/ImageResliceMapper/Constants";
 
-import { vec3, quat, mat4 } from "gl-matrix";
+import {
+  vec3,
+  quat,
+  mat4
+} from "gl-matrix";
 import vtkPlane from "@kitware/vtk.js/Common/DataModel/Plane";
 
 const Direction_Angle = {
@@ -30,7 +38,7 @@ export default {
       value: [],
       positions: new Set(),
     },
-    autoPlayTimer:null
+    autoPlayTimer: null
   },
   mutations: {
     // 同步更新state的方法
@@ -64,12 +72,18 @@ export default {
     },
   },
   actions: {
-    setImage({ commit, state }, image) {
+    setImage({
+      commit,
+      state
+    }, image) {
       // debugger
       state.widget.setImage(image);
     },
     // 异步操作或需要提交mutation的方法
-    updateReslice({ commit, state }, interactionContext) {
+    updateReslice({
+      commit,
+      state
+    }, interactionContext) {
       console.log(
         "interactionContext---",
         interactionContext,
@@ -78,7 +92,13 @@ export default {
         "state.widget.get",
         state.widget.get(),
       );
-      const { obj, viewType, reslice, actor, renderer } = interactionContext;
+      const {
+        obj,
+        viewType,
+        reslice,
+        actor,
+        renderer
+      } = interactionContext;
 
       const wgtPlanes = state.widget.getWidgetState().getPlanes()[
         xyzToViewType[viewType]
@@ -144,8 +164,11 @@ export default {
         );
         console.log(obj);
         const container = obj.grw.getContainer();
-        const { width: containerWidth, height: containerHeight } =
-          container.getBoundingClientRect();
+        const {
+          width: containerWidth,
+          height: containerHeight
+        } =
+        container.getBoundingClientRect();
         console.log(containerWidth, containerHeight);
         const scalex = 1 / Math.abs(point1[0] - point2[0]);
         const scaley = 1 / Math.abs(point1[1] - point2[1]);
@@ -171,7 +194,7 @@ export default {
     },
 
 
-    const AutoPlay = (viewType) => {
+    AutoPlay(viewType) {
       let i
       let j
       let k
@@ -208,8 +231,8 @@ export default {
         clearInterval(autoPlayTimer)
         state.autoPlayTimer = null
       }
-    }
-    ReverseWindow (reversed) {
+    },
+    ReverseWindow(reversed) {
       // 创建颜色传输函数以实现负片效果
       viewsStore.viewMprViews.forEach((obj) => {
         const colorTransferFunction = vtkColorTransferFunction.newInstance()
@@ -226,11 +249,18 @@ export default {
           .setRGBTransferFunction(0, colorTransferFunction)
         obj.interactor.render()
       })
-    }
+    },
 
 
-    toggleUpdateStartPan({ commit, state, rootState, dispatch }, payload) {
-      const { viewsStore } = rootState;
+    toggleUpdateStartPan({
+      commit,
+      state,
+      rootState,
+      dispatch
+    }, payload) {
+      const {
+        viewsStore
+      } = rootState;
       const v_state = viewsStore;
       console.log("toggleUpdateStartPan", payload);
       if (payload) {
@@ -256,7 +286,9 @@ export default {
         obj.interactor.render();
       });
     },
-    StartPan({ commit }) {
+    StartPan({
+      commit
+    }) {
       // 改变交互模式为平移
       commit("SET_INTERMODE", "pan");
       // 隐藏十字线
@@ -264,8 +296,15 @@ export default {
       // 显示widget
       commit("SET_WIDGET_VISIBILITY", true);
     },
-    toggleUpdateCrossHair({ commit, state, rootState, dispatch }, payload) {
-      const { viewsStore } = rootState;
+    toggleUpdateCrossHair({
+      commit,
+      state,
+      rootState,
+      dispatch
+    }, payload) {
+      const {
+        viewsStore
+      } = rootState;
       const v_state = viewsStore;
       console.log("toggleUpdateCrossHair", payload);
       // 十字线初始的交互不做更改
@@ -296,10 +335,19 @@ export default {
         obj.interactor.render();
       });
     },
-    UpdateDirection({})
+    UpdateDirection({}) {
 
-    CrossHair({ commit, state, rootState, dispatch }) {
-      const { viewsStore } = rootState;
+    },
+
+    CrossHair({
+      commit,
+      state,
+      rootState,
+      dispatch
+    }) {
+      const {
+        viewsStore
+      } = rootState;
       const v_state = viewsStore;
       // 改变交互模式为十字线
       commit("SET_INTERMODE", "crosshair");
@@ -324,14 +372,22 @@ export default {
       });
     },
     /*start--- test action */
-    actRun({ dispatch, commit, getters }, payload) {
+    actRun({
+      dispatch,
+      commit,
+      getters
+    }, payload) {
       console.log("dispatch=", dispatch);
       console.log("commit=", commit);
       console.log("getters=", getters.getmod_viewsStore);
       console.log("payload=", payload);
     },
 
-    updateActRun({ commit, state, rootState }, value) {
+    updateActRun({
+      commit,
+      state,
+      rootState
+    }, value) {
       console.log("~:commit=", commit);
       console.log("~:state=", state);
       console.log("~:value=", value);
@@ -343,7 +399,12 @@ export default {
     },
     /*end--- test action */
 
-    UpdateColorWindow({ commit, state, rootState, dispatch }, value) {
+    UpdateColorWindow({
+      commit,
+      state,
+      rootState,
+      dispatch
+    }, value) {
       // const {
       //   viewsStore
       // } = rootState;
@@ -372,7 +433,12 @@ export default {
        }); */
     },
 
-    UpdateColorLevel({ commit, state, rootState, dispatch }, value) {
+    UpdateColorLevel({
+      commit,
+      state,
+      rootState,
+      dispatch
+    }, value) {
       // debugger
       dispatch("viewsStore/UpdateColorLevel_self", value, {
         root: true,
@@ -399,8 +465,15 @@ export default {
             obj.interactor.render();
           }); */
     },
-    ChangeSlabMode({ commit, state, rootState, dispatch }, mode) {
-      const { viewsStore } = rootState;
+    ChangeSlabMode({
+      commit,
+      state,
+      rootState,
+      dispatch
+    }, mode) {
+      const {
+        viewsStore
+      } = rootState;
       const v_state = viewsStore;
 
       v_state.viewMprViews.forEach((obj) => {
@@ -415,12 +488,23 @@ export default {
         obj.interactor.render();
       });
     },
-    ChangeImagePage({ commit, state, rootState, dispatch }, ijk) {
-      const { viewsStore } = rootState;
+    ChangeImagePage({
+      commit,
+      state,
+      rootState,
+      dispatch
+    }, ijk) {
+      const {
+        viewsStore
+      } = rootState;
       const v_state = viewsStore;
 
       const imageData = v_state.imageData;
-      const { origin, spacing, dimensions } = imageData;
+      const {
+        origin,
+        spacing,
+        dimensions
+      } = imageData;
 
       const newCenter = ijk.map((coordinate, index) => {
         return origin[index] + coordinate * spacing[index];
@@ -443,9 +527,19 @@ export default {
       });
     },
 
-    GetImagePage({ commit, state, rootState, dispatch }, obj) {
-      const { v, objindex } = obj;
-      const { viewsStore } = rootState;
+    GetImagePage({
+      commit,
+      state,
+      rootState,
+      dispatch
+    }, obj) {
+      const {
+        v,
+        objindex
+      } = obj;
+      const {
+        viewsStore
+      } = rootState;
       const v_state = viewsStore;
 
       const widgetState = state.widget.getWidgetState();
@@ -467,16 +561,14 @@ export default {
         //   v_state.imageData.getDimensions()[0] - sliceIndex;
 
         dispatch(
-          "viewsStore/updateViewData",
-          {
+          "viewsStore/updateViewData", {
             objindex, // 你要更新的对象在 viewsData 中的索引
             attributes: {
               // 要设置的属性值
               sliceIndex: v_state.imageData.getDimensions()[0] - sliceIndex,
               // 更多的属性可以添加到这里
             },
-          },
-          {
+          }, {
             root: true,
           },
         );
@@ -484,16 +576,14 @@ export default {
         // v_state.viewsData[obj.objindex].sliceIndex = sliceIndex;
 
         dispatch(
-          "viewsStore/updateViewData",
-          {
+          "viewsStore/updateViewData", {
             objindex, // 你要更新的对象在 viewsData 中的索引
             attributes: {
               // 要设置的属性值
               sliceIndex,
               // 更多的属性可以添加到这里
             },
-          },
-          {
+          }, {
             root: true,
           },
         );
@@ -503,17 +593,33 @@ export default {
       // commit('SET_SLICE_INDEX', { index: sliceIndex, viewType: obj.viewType });
     },
     // 其他actions...
-    AddCube({ commit, state, rootState, dispatch }, { size, position }) {
-      const { viewsStore } = rootState;
+    AddCube({
+      commit,
+      state,
+      rootState,
+      dispatch
+    }, {
+      size,
+      position
+    }) {
+      const {
+        viewsStore
+      } = rootState;
       const v_state = viewsStore.state;
 
       // const {
       //   viewsStore,
       //   widget
       // } = state;
-      const { widget } = state;
+      const {
+        widget
+      } = state;
 
-      const { origin, spacing, dimensions } = viewsStore.imageData;
+      const {
+        origin,
+        spacing,
+        dimensions
+      } = viewsStore.imageData;
 
       const newCenter = position.map((coordinate, index) => {
         return (
@@ -563,13 +669,19 @@ export default {
     },
 
     // 假设我们有一个初始化方法
-    initTools({ commit, state }) {
+    initTools({
+      commit,
+      state
+    }) {
       // 执行初始化逻辑
       // 可能涉及到设置初始状态或执行其他actions
     },
 
     // 假设我们有一个重置方法
-    resetTools({ commit, state }) {
+    resetTools({
+      commit,
+      state
+    }) {
       // 执行重置逻辑
       // 可能涉及到重置state或执行其他actions
     },
