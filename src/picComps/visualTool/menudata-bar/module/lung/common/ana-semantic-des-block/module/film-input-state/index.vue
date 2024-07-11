@@ -19,6 +19,13 @@
 </template>
 <script lang='javascript'>
 import { selectOptions1, selectOptions2 } from "./assets/js/select-condition";
+import Vue from "vue";
+const instance = Vue.prototype;
+const init_select = async (type) => {
+  const selectValues = await instance.$api.select_codeTable_type_group(type);
+  console.log("selectValues_", selectValues);
+  return selectValues;
+};
 // 查询条件输入选择组件
 export default {
   name: "film-input-state",
@@ -56,8 +63,10 @@ export default {
     optionList: {
       get() {
         if (this.optionNum === "1") {
+          //所见
           return selectOptions1;
         } else if (this.optionNum == "2") {
+          //诊断
           return selectOptions2;
         }
       },
@@ -72,6 +81,32 @@ export default {
     };
   },
   methods: {
+    async init_api_selectOps() {
+      if (this.optionNum === "1") {
+        //所见
+        const apiOPSData = await init_select("IMAGE_VIEW_SORT");
+        console.log("//所见", apiOPSData);
+        const suojian = this.$ut.serializeDropdownList(apiOPSData);
+        if (apiOPSData) {
+          console.log("suojian==", suojian);
+          return suojian;
+        } else {
+          return selectOptions1;
+        }
+      } else if (this.optionNum == "2") {
+        //诊断
+        const apiOPSData = await init_select("TYPOLOGY_TYPE");
+        console.log("//诊断", apiOPSData);
+        if (apiOPSData) {
+          return apiOPSData;
+        } else {
+          return selectOptions2;
+        }
+      }
+    },
+    async update_optionList() {
+      this.optionList = await this.init_api_selectOps();
+    },
     handleMenuClick(ev) {
       // const ev = {
       //   item,
@@ -99,9 +134,9 @@ export default {
     },
   },
   created() {
-    this.$nextTick(() => {
-      this.initPush_FatherPrevSfc();
-    });
+    this.update_optionList();
+    this.initPush_FatherPrevSfc();
+    this.$nextTick(() => {});
   },
 };
 </script>

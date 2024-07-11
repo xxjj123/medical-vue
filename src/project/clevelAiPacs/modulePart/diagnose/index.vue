@@ -118,6 +118,15 @@ export default {
     // 正规业务start
     ...mapActions("viewsStore", ["readFile", "processDicomFiles"]),
 
+    // 定时更新dict(developer)
+    async setClockUpdateDict() {
+      setInterval(() => {
+        getSysDict().then((res) => {
+          localStorage.setItem("carplay", JSON.stringify(res));
+        });
+      }, 10000);
+    },
+
     async handleFile(e) {
       // const loading = ElLoading.service({
       //   lock: true,
@@ -162,6 +171,7 @@ export default {
       return new Promise(async (resolve, reject) => {
         const result = await getDiagnoseResult(applyId);
         console.log("result-Diagnose", result);
+        this.DiagnoseMenuResult = result;
         // .then((res) => {
         //   if (res.message === "success") {
         //     let data = res.data.result;
@@ -278,6 +288,8 @@ export default {
       const { applyId } = this.$route.query;
       this.Diagnose(applyId);
     });
+
+    this.setClockUpdateDict();
     /*
     this.$nextTick(() => {
       const { applyId } = this.$route.query;

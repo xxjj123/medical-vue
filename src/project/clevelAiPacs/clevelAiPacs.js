@@ -1,4 +1,6 @@
-import { EventBus } from "./event-bus";
+import {
+  EventBus
+} from "./event-bus";
 import {
   Vue,
   store,
@@ -17,6 +19,12 @@ store.registerModule("toolsStore", toolsStore);
 store.registerModule("toolBarStore", toolBarStore);
 import "vue-bus";
 
+
+import * as api from "@/api/center-ut";
+
+import sUtil from "@/assets/js/utils";
+
+
 // 判断登录状态然后确认是否渲染页面
 checkLogin(() => {
   new Vue({
@@ -24,6 +32,9 @@ checkLogin(() => {
     router,
     store,
     beforeCreate() {
+      Vue.prototype.$api = api;
+      window.sUtil = sUtil;
+      Vue.prototype.$ut = sUtil;
       Vue.prototype.$bus = EventBus;
     },
     // render: h => h(app),

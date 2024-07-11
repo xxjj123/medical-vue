@@ -31,6 +31,9 @@ export default {
   data() {
     return {};
   },
+  created() {
+    console.log("menuResult--", this.menuResult);
+  },
 };
 </script>
 <style lang='less' scoped>

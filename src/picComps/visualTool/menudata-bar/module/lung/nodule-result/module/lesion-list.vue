@@ -2,8 +2,11 @@
   <div class="nodule_lesion-list" tabindex="0">
     <div class="table_bar flex justify-between">
       <div class="tit">病变列表</div>
-      <div class="btn_grp flex">
-        <ta-dropdown :trigger="['click']">
+      <div class="btn_grp flex items-center">
+        <ta-dropdown
+          :trigger="['click']"
+          class="flex justify-start items-center"
+        >
           <a href="javascript:;">
             {{ sort_condition.type_select.showValue }} <ta-icon type="down" />
           </a>
@@ -15,7 +18,10 @@
             >
           </ta-menu>
         </ta-dropdown>
-        <ta-dropdown :trigger="['click']">
+        <ta-dropdown
+          :trigger="['click']"
+          class="flex justify-start items-center"
+        >
           <a href="javascript:;" v-popover:mypop>
             {{ sort_condition.tumorType_select.showValue }}
             <ta-icon type="down" />
@@ -157,10 +163,7 @@ export default {
     filmInputState,
   },
   props: {
-    value: {
-      type: [Object, String, Function],
-      default: () => ({}),
-    },
+    value: Object,
   },
   computed: {
     menuResult: {
@@ -439,6 +442,66 @@ export default {
     };
   },
   methods: {
+    async init_lesionPanelSearchBar() {
+      const item = await this.init_select("LESION_LIST_TYPE");
+      const LESION_LIST_TYPE = this.$ut.serializeDropdownList(item);
+      const { type_select, tumorType_select } = this.sort_condition;
+      const { searchPanel } = tumorType_select;
+      const lex = searchPanel[0];
+      const typeAll = searchPanel[1];
+      const longSer = searchPanel[2];
+
+      this.$set(type_select, "list", LESION_LIST_TYPE);
+
+      console.log("this.sort_condition", this.sort_condition);
+      const group = [
+        "LESION_LIST_FILTER_LEX",
+        "LESION_LIST_FILTER_NODULETYPE",
+        "LESION_LIST_FILTER_MAJOR_AXIS",
+      ];
+      // const item1 = await
+      this.init_lesion_filter_Item(group).then((itemRes) => {
+        // console.log("itemRes==", itemRes);
+        // console.log("itemRes=~=", itemRes[group[0]]);
+        const LESION_LIST_FILTER_LEX = this.$ut
+          .serializeDropdownList(itemRes[group[0]])
+          .filter((v) => v.label !== "全部");
+
+        const LESION_LIST_FILTER_NODULETYPE = this.$ut
+          .serializeDropdownList(itemRes[group[1]])
+          .filter((v) => v.label !== "全部");
+
+        const LESION_LIST_FILTER_MAJOR_AXIS = this.$ut
+          .serializeDropdownList(itemRes[group[2]])
+          .filter((v) => v.label !== "全部");
+
+        this.$set(lex, "list", LESION_LIST_FILTER_LEX);
+        this.$set(typeAll, "list", LESION_LIST_FILTER_NODULETYPE);
+        this.$set(longSer, "list", LESION_LIST_FILTER_MAJOR_AXIS);
+      });
+
+      console.log("this.sort_condition-all", this.sort_condition);
+    },
+    async init_lesion_filter_Item(grp) {
+      return new Promise((resolve, reject) => {
+        let igoArray = {};
+        if (!Array.isArray(grp)) {
+          throw new Error("传入的参数grp不是一个数组");
+        } else {
+          grp.forEach(async (v, i) => {
+            const iv = await this.init_select(v);
+            igoArray[v] = iv;
+          });
+          // return igoArray;
+        }
+        resolve(igoArray);
+      });
+    },
+    async init_select(type) {
+      // "LESION_LIST_TYPE"
+      const selectValues = await this.$api.select_codeTable_type_group(type);
+      return selectValues;
+    },
     handle_filmIptClick(ev) {
       console.log(
         "handle_filmIptClick___",
@@ -570,6 +633,8 @@ export default {
   },
   created() {
     console.log("lesion-list:this.menuResult", this.menuResult);
+    // this.init_select_LesionList();
+    this.init_lesionPanelSearchBar();
     this.$nextTick(() => {
       document
         .querySelector(".nodule_lesion-list")
