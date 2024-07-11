@@ -11,6 +11,13 @@ import { SlabTypes } from "@kitware/vtk.js/Rendering/Core/ImageResliceMapper/Con
 import { vec3, quat, mat4 } from "gl-matrix";
 import vtkPlane from "@kitware/vtk.js/Common/DataModel/Plane";
 
+const Direction_Angle = {
+  Top: 0,
+  Bottom: 180,
+  Left: 90,
+  Right: 270,
+};
+
 export default {
   namespaced: true,
   state: {
@@ -23,6 +30,7 @@ export default {
       value: [],
       positions: new Set(),
     },
+    autoPlayTimer:null
   },
   mutations: {
     // 同步更新state的方法
@@ -116,9 +124,8 @@ export default {
 
       // 渲染交互器
       // obj.interactor.render();
-
+      const camera = renderer.getActiveCamera();
       if (interactionContext.resetFocalPoint) {
-        const camera = renderer.getActiveCamera();
         renderer.resetCamera();
         const bounds = interactionContext.actor.getBounds();
 
@@ -157,9 +164,71 @@ export default {
         }
         camera.zoom(zoomFactor);
       }
+      if (viewType === 1) {
 
-      return modified;
+        camera.roll(Direction_Angle.Right);
+      }
     },
+
+
+    const AutoPlay = (viewType) => {
+      let i
+      let j
+      let k
+      let playPanelDimensions
+      viewsStore.viewsData.forEach((view) => {
+        if (view.value.viewType === viewType) {
+          playPanelDimensions = view.value.dimensions
+        }
+        if (view.value.viewType == 1) {
+          j = view.value.sliceIndex
+        } else if (view.value.viewType == 2) {
+          k = view.value.sliceIndex
+        } else if (view.value.viewType == 0) {
+          i = view.value.sliceIndex
+        }
+      })
+      console.log([i, j, k])
+      if (state.autoPlayTimer === null) {
+        state.autoPlayTimer = setInterval(() => {
+          if (viewType === 1) {
+            console.log([i, j++ % playPanelDimensions, k])
+            ChangeImagePage([i, j++ % playPanelDimensions, k])
+          } else if (viewType === 2) {
+            console.log(i, j, k++ % playPanelDimensions)
+            ChangeImagePage([i, j, k++ % playPanelDimensions])
+          } else if (viewType === 0) {
+            console.log(i)
+            i = i++ % playPanelDimensions
+            console.log(i)
+            ChangeImagePage([i++ % playPanelDimensions, j, k])
+          }
+        }, 100) // 每秒打印一次
+      } else {
+        clearInterval(autoPlayTimer)
+        state.autoPlayTimer = null
+      }
+    }
+    ReverseWindow (reversed) {
+      // 创建颜色传输函数以实现负片效果
+      viewsStore.viewMprViews.forEach((obj) => {
+        const colorTransferFunction = vtkColorTransferFunction.newInstance()
+        // 定义关键点，插值映射
+        if (reversed) {
+          colorTransferFunction.addRGBPoint(0, 1, 1, 1) // 白色
+          colorTransferFunction.addRGBPoint(255, 0, 0, 0) // 黑色
+        } else {
+          colorTransferFunction.addRGBPoint(255, 1, 1, 1) // 白色
+          colorTransferFunction.addRGBPoint(0, 0, 0, 0) // 黑色
+        }
+        obj.resliceActor
+          .getProperty()
+          .setRGBTransferFunction(0, colorTransferFunction)
+        obj.interactor.render()
+      })
+    }
+
+
     toggleUpdateStartPan({ commit, state, rootState, dispatch }, payload) {
       const { viewsStore } = rootState;
       const v_state = viewsStore;
@@ -227,6 +296,7 @@ export default {
         obj.interactor.render();
       });
     },
+    UpdateDirection({})
 
     CrossHair({ commit, state, rootState, dispatch }) {
       const { viewsStore } = rootState;
