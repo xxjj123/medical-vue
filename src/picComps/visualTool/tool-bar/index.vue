@@ -260,6 +260,8 @@
               :min="mdtyms_conf.silder.min"
               :max="mdtyms_conf.silder.max"
               v-model="mdtyms_conf.silder.barValue"
+              @change="mdtyms_conf.silder.change"
+              @afterChange="mdtyms_conf.silder.afterChange"
             />
           </div>
           <div>
@@ -343,7 +345,15 @@ export default {
     return {
       mdtyms_conf: {
         onChange: (ev) => {
-          console.log("onChange____", ev);
+          console.log("onChange___mdtyms_conf", ev, this.mdtyms_conf);
+          const { value } = this.mdtyms_conf;
+          let mode = "max";
+          if (value === 1) {
+            mode = "min";
+          } else if (value === 2) {
+            mode = "max";
+          }
+          this.ChangeSlabMode(mode);
         },
         value: 1,
         radioStyle: {
@@ -359,6 +369,12 @@ export default {
           min: 2,
           max: 128,
           barValue: 20,
+          change: (ev) => {
+            console.log("ev---change:mdtyms_conf", ev);
+          },
+          afterChange: (ev) => {
+            console.log("ev---afterchange:mdtyms_conf", ev);
+          },
         },
       },
       // ------------
