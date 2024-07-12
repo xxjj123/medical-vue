@@ -2,12 +2,13 @@ import faceConfig from 'faceConfig';
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import TaUtils from '@yh/ta-utils'
-Vue.prototype.TaUtils = {
-  ...TaUtils,
-}
+/* // import TaUtils from '@yh/ta-utils' //新方式建议异步导入页面使用
+// import rrr from 'utils.esm.ts'
+// Vue.prototype.TaUtils = {
+//   ...TaUtils,
+// }
 // 挂载到window上
-window.TaUtils = Vue.prototype.TaUtils
+// window.TaUtils = Vue.prototype.TaUtils */
 
 // 引入按需加载的基础组件
 import './modules/baseModule';

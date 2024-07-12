@@ -124,6 +124,13 @@ export default {
     ]),
 
     resizeViews() {
+      // const view3d = this.$refs.View3DRef;
+      // const container = view3d.grw.getContainer();
+      // const { width, height } = container.getBoundingClientRect();
+      // view3d.grw.resize(width, height);
+      // view3d.renderWindow.render();
+      // 3d也要resizeView一下
+
       this.viewMprViews.forEach((view) => {
         const container = view.grw.getContainer();
         const { width, height } = container.getBoundingClientRect();

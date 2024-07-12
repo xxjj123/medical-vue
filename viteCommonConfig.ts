@@ -68,10 +68,10 @@ const _default: ViteCommonConfig = {
       // 在生产时期将@yh/ta-utils指向utils.esm.ts
       // 这个文件只包含ESM下的import/export(具名export)
       // 可以在生产环境下使用tree-shaking将未使用的工具代码移除
-      '@yh/ta-utils': {
-        find: /^@yh\/ta-utils$/,
-        replacement: '@yh/cli-internal-common/src/utils.esm.ts',
-      },
+      // '@yh/ta-utils': {
+      //   find: /^@yh\/ta-utils$/,
+      //   replacement: '@yh/cli-internal-common/src/utils.esm.ts',
+      // },
     },
   },
   // 第三方资源复制到生成的dist中
@@ -115,6 +115,7 @@ const _default: ViteCommonConfig = {
     extensions: ['.js', 'cjs', '.vue', '.jsx', '.ts', '.cts', '.tsx'],
   },
   build: {
+    maxMemory: 8192, // 8GB
     // 是否对生成的代码进行tree-shaking优化
     // 设置这个值为false,可能可以解决一部分由于tree-shaking导致的代码丢失等问题
     // 设置为true, 可能可以提升页面性能(通过移除没有使用的代码等操作)
@@ -215,7 +216,7 @@ const _default: ViteCommonConfig = {
     // 注意1: 这里配置的是放置在(/src/project)目录下的模块的html文件
     // 注意2: 这里配置的模块会作为html插件的配置注入一个glob,例如: /src/project/**/demoTest.html
     // 注意3: 如果在(/src/project)目录下,有多个相同名字的html文件,那么你必须在上面的`html`配置中排除其他的文件 或 在`html`配置中分别为每个html文件指定'目录'或'别名',详细查看html配置说明
-    modules: ['demoTest', 'clevelAiPacs'],
+    modules: ['clevelAiPacs'],
     // 这个配置可以用来配置 html 文件相关的内容
     html: {
       // 用于定义 HTML 页面的 title

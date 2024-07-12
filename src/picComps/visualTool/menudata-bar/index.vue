@@ -32,22 +32,28 @@
     </div>
     <!-- 面板顶部操作小按钮 end-->
 
-    <ta-tabs defaultActiveKey="1" @change="callback">
+    <ta-tabs :defaultActiveKey="defaultActiveKey" @change="tab_callback">
       <ta-tab-pane tab="结节" key="1">
         <!-- Content of Tab Pane 1 -->
-        <noduleResult v-model="menuResult"></noduleResult>
+        <noduleResult v-model="menuResult" :cKey="'nodule'"></noduleResult>
       </ta-tab-pane>
       <ta-tab-pane tab="肺炎" key="2">
         <!-- Content of Tab Pane 2 -->
-        <pneumonia-result v-model="menuResult"></pneumonia-result>
+        <pneumonia-result
+          v-model="menuResult"
+          :cKey="'pneumonia'"
+        ></pneumonia-result>
       </ta-tab-pane>
       <ta-tab-pane tab="骨折" key="3">
         <!-- Content of Tab Pane 3 -->
-        <fracture-result v-model="menuResult"></fracture-result>
+        <fracture-result v-model="menuResult" :cKey="'frac'"></fracture-result>
       </ta-tab-pane>
       <ta-tab-pane tab="钙化积分" key="4">
         <!-- Content of Tab Pane 4 -->
-        <calcium-score-result v-model="menuResult"></calcium-score-result>
+        <calcium-score-result
+          v-model="menuResult"
+          :cKey="'calcium'"
+        ></calcium-score-result>
       </ta-tab-pane>
     </ta-tabs>
   </div>
@@ -81,6 +87,8 @@ export default {
   },
   data() {
     return {
+      defaultActiveKey: "1",
+      curSelectActKey: "",
       menuTopTool: {
         collect: false,
       },
@@ -90,8 +98,9 @@ export default {
     };
   },
   methods: {
-    callback(key) {
+    tab_callback(key) {
       console.log(key);
+      this.curSelectActKey = key;
     },
     handle_shouchang() {
       this.menuTopTool.collect = !this.menuTopTool.collect;

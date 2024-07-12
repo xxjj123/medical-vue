@@ -24,7 +24,10 @@
           <ViewBoard></ViewBoard>
         </div>
         <div class="menu_data">
-          <menudataBar v-model="DiagnoseMenuResult"></menudataBar>
+          <menudataBar
+            v-if="menubarShow"
+            v-model="DiagnoseMenuResult"
+          ></menudataBar>
         </div>
       </div>
     </div>
@@ -97,6 +100,7 @@ export default {
   },
   data() {
     return {
+      menubarShow: false,
       vskToolbarData: {},
       viewTheme: "",
       showsub: true,
@@ -172,6 +176,7 @@ export default {
         const result = await getDiagnoseResult(applyId);
         console.log("result-Diagnose", result);
         this.DiagnoseMenuResult = result;
+        this.menubarShow = true;
         // .then((res) => {
         //   if (res.message === "success") {
         //     let data = res.data.result;

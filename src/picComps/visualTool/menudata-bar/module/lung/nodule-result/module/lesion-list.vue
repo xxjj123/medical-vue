@@ -5,7 +5,7 @@
       <div class="btn_grp flex items-center">
         <ta-dropdown
           :trigger="['click']"
-          class="flex justify-start items-center"
+          class="flex justify-start items-center mr-[10px]"
         >
           <a href="javascript:;">
             {{ sort_condition.type_select.showValue }} <ta-icon type="down" />
@@ -42,7 +42,12 @@
         :checkbox-config="{
           trigger: 'row',
         }"
+        :edit-config="{ trigger: 'click' }"
       >
+        <template #risk="{ row }">
+          <span class="ml-[10px]">{{ row.risk }}</span
+          ><br /><span class="levelTag">低危</span></template
+        >
       </ta-big-table>
     </div>
 
@@ -152,9 +157,17 @@
     </ta-popover>
   </div>
 </template>
-<script lang='javascript'>
+<script lang='jsx'>
 import anaSemanticDesBlock from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/index.vue";
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
+// 病理部位标志
+const LESION_PART_SITE = {
+  CALCIUM: "calcium", //钙化
+  FRAC: "frac", //骨折
+  NODULE: "nodule", //结节
+  PNEUMONIA: "pneumonia", //肺炎
+};
+
 // 病变列表
 export default {
   name: "lesion-list",
@@ -164,6 +177,9 @@ export default {
   },
   props: {
     value: Object,
+    cKey: {
+      type: String,
+    },
   },
   computed: {
     menuResult: {
@@ -273,21 +289,32 @@ export default {
             type: {
               type: "checkbox",
             },
-            width: "60",
+            field: "risk",//危险级别
+            title: "全部",
+            width: "65",
+            customRender: {
+              default:"risk"
+              // default: ({ row }) => {
+              //   return (<div>
+              //   {row.risk}
+
+              //   </div>)
+              // },
+            },
           },
-          {
-            field: "risk",
-            title: "risk",
-            width: "60",
-          },
+          // {
+          //   field: "risk1",
+          //   title: "", //IM + 体积 volume mm3
+          //   width: "60",
+          // },
           {
             field: "volume",
-            title: "volume",
-            width: "110",
+            title: "", //ellipsoidAxis major * least mm
+            width: "110"
           },
           {
             field: "lobe",
-            title: "lobe",
+            title: "", //断层扫描/层组 ctMeasures.mean HU
             width: "160",
           },
         ],
@@ -630,11 +657,75 @@ export default {
       console.log("sort_condition.type_select==row", row);
       this.sort_condition.type_select.showValue = row.label;
     },
+    // 应用 customizeJson 和 策略
+    processJsonData(jsonData) {
+      const customData = {
+        IM_VAL: (vm, obj) => {
+          // 根据vm和obj计算IM_VAL的值
+          console.log("vm,obj----IM_VAL",vm, obj);
+          let IM = "";
+          if(obj.points){
+            IM = vm.operation_IM(obj.points, "z", Math.round)
+            console.log("IM------------",IM);
+            return IM
+          }
+          return IM
+        },
+        CHENGJI_VAL: (vm, obj) => {
+          // 根据vm和obj计算CHENGJI_VAL的值
+          console.log("vm,obj----CHENGJI_VAL",vm, obj);
+          let CHENGJI = "";
+          if(obj.ellipsoidAxis){
+            const { major,least } = obj.ellipsoidAxis
+            CHENGJI = `${major} x ${least}`
+          }
+          return CHENGJI
+        }
+      };
+
+      const customizedData = this.$ut.customizeJson(jsonData, customData);
+      console.log(JSON.stringify(customizedData),"customizedData----");
+      // 根据需要使用 customizedData
+      const propertiesToSearch = ["CHENGJI_VAL", "IM_VAL"];
+      const tableData = this.$ut.transformData(jsonData, propertiesToSearch);
+      console.log("tableData__",tableData);
+
+      // const filledData  = this.$ut.fillMissingValues(["CHENGJI_VAL", "IM_VAL"],customizedData)
+      // console.log("filledData==",filledData);
+    },
+    init_tableData() {
+      const item = this.menuResult.result;
+
+      console.log("this.cKey.toUpperCase()", this.cKey.toUpperCase(), item);
+
+      const tableItem = item[LESION_PART_SITE[`${this.cKey.toUpperCase()}`]];
+
+      console.log("tableItem==", tableItem);
+      // 测试---123
+      /* const test277_min =
+        tableItem.volumeDetailList[3].annotation[0].points[0].z;
+      const test277_max =
+        tableItem.volumeDetailList[3].annotation[0].points[1].z;
+
+      const centerValue = Math.round((test277_min + test277_max) / 2);
+      console.log("centerValue==", centerValue);
+      const antArr = tableItem.volumeDetailList[3].annotation[0].points;
+      console.log("antArr", antArr);
+      const test3res = this.$ut.operation_IM(antArr, "z", Math.round);
+      console.log("test3res==", test3res); */
+
+      const jsonData = tableItem.volumeDetailList;
+
+      this.processJsonData(jsonData)
+    },
   },
   created() {
     console.log("lesion-list:this.menuResult", this.menuResult);
     // this.init_select_LesionList();
     this.init_lesionPanelSearchBar();
+
+    // 表格初始化
+    this.init_tableData();
     this.$nextTick(() => {
       document
         .querySelector(".nodule_lesion-list")
