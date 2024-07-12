@@ -43,12 +43,20 @@
               <span slot-scope="{ node, data }" class="custom-tree-node">
                 {{ data.orgName }}
                 <span v-if="data.isAuthority === '0'">
-                  <span style="float: right; color: #ccc; font-size: 12px; cursor: not-allowed"
+                  <span
+                    style="
+                      float: right;
+                      color: #ccc;
+                      font-size: 12px;
+                      cursor: not-allowed;
+                    "
                     >无操作权限</span
                   >
                 </span>
                 <span v-if="data.disabled">
-                  <span style="float: right; color: #ccc; font-size: 12px">该组织已选择</span>
+                  <span style="float: right; color: #ccc; font-size: 12px"
+                    >该组织已选择</span
+                  >
                 </span>
               </span>
             </ta-e-tree>
@@ -79,7 +87,7 @@
 
 <script>
 export default {
-  name: 'orgTree',
+  name: "orgTree",
   props: {
     /** 弹框绑定的组件 */
     // eslint-disable-next-line vue/require-default-prop
@@ -93,16 +101,16 @@ export default {
     },
     name: {
       type: String,
-      default: '组织机构',
+      default: "组织机构",
     },
     baseUrl: {
       type: String,
-      default: 'domain/orguserauth/orgCommonRestService',
+      default: "domain/orguserauth/orgCommonRestService",
     },
     // 单选/多选模式 single/multiple
     selectMode: {
       type: String,
-      default: 'single',
+      default: "single",
     },
     // 自定义节点选择行为函数，入参格式 (checked, treeNode, tree, selectMode)
     customCheckFun: {
@@ -116,16 +124,16 @@ export default {
       expandKeys: [], // 默认展开的树节点
       defaultProps: {
         // 默认树属性
-        children: 'children',
-        label: 'orgName',
-        isLeaf: 'isLeaf',
-        id: 'orgId',
+        children: "children",
+        label: "orgName",
+        isLeaf: "isLeaf",
+        id: "orgId",
       },
       dataSource: [],
       titleMap: null,
       optionConfig: {
-        value: 'orgId',
-        label: 'orgName',
+        value: "orgId",
+        label: "orgName",
       },
       treeDataFlag: true,
       treeData: [],
@@ -141,19 +149,19 @@ export default {
   },
   created() {
     this.titleMap = new Map();
-    this.titleMap.set('orgName', '组织名称');
-    this.titleMap.set('namePath', '组织路径');
+    this.titleMap.set("orgName", "组织名称");
+    this.titleMap.set("namePath", "组织路径");
   },
   methods: {
     cancel() {
-      this.$emit('cancelSelect');
-      this.$emit('update:visible', false);
+      this.$emit("cancelSelect");
+      this.$emit("update:visible", false);
     },
     inputChange(val) {
       if (!val) {
         const data = {
           orgId: null,
-          selfStr: '1',
+          selfStr: "1",
         };
         this.getOrgByAsync(data, (dd) => {
           this.treeData = dd.data.orgTreeData;
@@ -161,10 +169,12 @@ export default {
       }
     },
     setContainer() {
-      return this.getContainerId ? document.getElementById(this.getContainerId) : document.body;
+      return this.getContainerId
+        ? document.getElementById(this.getContainerId)
+        : document.body;
     },
     openModal() {
-      this.$emit('update:visible', true);
+      this.$emit("update:visible", true);
       this.treeDataFlag = true;
     },
     // 过滤节点
@@ -181,14 +191,14 @@ export default {
         const node = mgTree.getCheckedKeys();
         if (checked) {
           // 如果选中则进行提示
-          if (data.isAuthority === '0') {
-            this.$message.warning('您没有该组织的操作权限');
+          if (data.isAuthority === "0") {
+            this.$message.warning("您没有该组织的操作权限");
             mgTree.setChecked(data, false);
             return;
           }
-          if (typeof this.customCheckFun === 'function') {
+          if (typeof this.customCheckFun === "function") {
             this.customCheckFun(checked, treeNode, mgTree, this.selectMode);
-          } else if (this.selectMode === 'single' && node.length >= 2) {
+          } else if (this.selectMode === "single" && node.length >= 2) {
             for (let i = 0; i < node.length; i++) {
               if (node[i] !== data.orgId) {
                 mgTree.setChecked(node[i], false, false);
@@ -202,14 +212,14 @@ export default {
         const node = mgTree.getCheckedKeys();
         if (checked) {
           // 如果选中则进行提示
-          if (data.isAuthority === '0') {
+          if (data.isAuthority === "0") {
             // this.$message.warning('您没有该组织的操作权限')
             // mgTree.setChecked(data, false)
             // return
           }
-          if (typeof this.customCheckFun === 'function') {
+          if (typeof this.customCheckFun === "function") {
             this.customCheckFun(checked, treeNode, mgTree, this.selectMode);
-          } else if (this.selectMode === 'single' && node.length >= 2) {
+          } else if (this.selectMode === "single" && node.length >= 2) {
             for (let i = 0; i < node.length; i++) {
               if (node[i] !== data.orgId) {
                 mgTree.setChecked(node[i], false, false);
@@ -228,16 +238,19 @@ export default {
         checkData = this.$refs.tree1.getCheckedNodes()[0];
       }
       if (node.length < 1) {
-        this.$message.warning('请选择组织', 2.5);
+        this.$message.warning("请选择组织", 2.5);
         return false;
       }
-      if (this.selectMode === 'single' && node.length >= 2) {
-        this.$message.warning('只能选择一个组织,或取消当前选择,再选择其他组织', 2.5);
+      if (this.selectMode === "single" && node.length >= 2) {
+        this.$message.warning(
+          "只能选择一个组织,或取消当前选择,再选择其他组织",
+          2.5
+        );
         return;
       }
-      this.$emit('change', checkData);
-      this.$emit('close', checkData);
-      this.$emit('update:visible', false);
+      this.$emit("change", checkData);
+      this.$emit("close", checkData);
+      this.$emit("update:visible", false);
     },
     handleSearch(value) {
       if (value?.length) {
@@ -247,14 +260,14 @@ export default {
             url: `${this.$props.baseUrl}/queryAllOrgByOrgId`,
             data: {
               param: value,
-              needSearch: value.length ? '1' : '0',
+              needSearch: value.length ? "1" : "0",
             },
           },
           {
             successCallback: (data) => {
               this.dataSource = data.data.orgData;
             },
-          },
+          }
         );
       } else {
         this.treeDataFlag = true;
@@ -273,7 +286,7 @@ export default {
       this.treeDataFlag = false;
       const data = {
         orgId: value,
-        selfStr: '1',
+        selfStr: "1",
       };
       this.getOrgByAsync(data, (dd) => {
         const { orgTreeData } = dd.data;
@@ -290,7 +303,7 @@ export default {
         { url: `${this.$props.baseUrl}/getOrgByAsync`, data },
         {
           successCallback: (d) => callBack(d),
-        },
+        }
       );
     },
   },
@@ -317,11 +330,11 @@ export default {
     cursor: not-allowed;
   }
 }
-.search-tree-e-tree /deep/ .el-tree-node:focus > .el-tree-node__content {
+.search-tree-e-tree ::v-deep .el-tree-node:focus > .el-tree-node__content {
   background: transparent;
 }
 .search-tree-e-tree
-  /deep/
+  ::v-deep
   .el-tree--highlight-current
   .el-tree-node.is-current
   > .el-tree-node__content {

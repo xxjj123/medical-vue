@@ -369,7 +369,7 @@ export default {
   background-size: cover;
 }
 .cus_form {
-  /deep/.ant-btn {
+  ::v-deep.ant-btn {
     &.ant-btn-link {
       font-size: @base_font-size;
     }
@@ -381,7 +381,7 @@ export default {
 }
 .cus_input {
   &.ant-input-affix-wrapper {
-    /deep/ .ant-input {
+    ::v-deep .ant-input {
       height: 62px !important;
       background-color: transparent;
       border-radius: 8px;

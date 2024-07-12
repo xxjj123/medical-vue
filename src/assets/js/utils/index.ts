@@ -115,6 +115,8 @@ export default {
     jsonData.forEach((item) => {
       const tableItem = {}; // 初始化表格项
 
+      debugger;
+
       propertiesToSearch.some((property) => { // 使用some来提前退出循环
         let value = item[property]; // 尝试获取属性值
 
@@ -151,8 +153,8 @@ export default {
         });
       }
     });
-    debugger;
-    console.log("tableItem++++", tableItem);
+
+    // console.log("tableItem++++", tableItem);
 
 
     return tableData;

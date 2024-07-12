@@ -956,7 +956,7 @@ export default {
 }
 
 // .custom_pickerDeepBlue {
-//   /deep/.ant-calendar-picker-container {
+//   ::v-deep.ant-calendar-picker-container {
 //     color: @primary-color !important;
 //   }
 // }
