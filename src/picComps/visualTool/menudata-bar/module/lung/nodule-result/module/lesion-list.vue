@@ -661,15 +661,22 @@ export default {
     processJsonData(jsonData) {
       const customData = {
         IM_VAL: (vm, obj) => {
+          // debugger;
           // 根据vm和obj计算IM_VAL的值
           console.log("vm,obj----IM_VAL",vm, obj);
           let IM = "";
-          if(obj.points){
+          console.log("annotation--",obj);
+          if(obj.points && Array.isArray(obj.points)){
             IM = vm.operation_IM(obj.points, "z", Math.round)
             console.log("IM------------",IM);
-            return IM
+            // return IM
           }
           return IM
+          // else if(!isNaN(obj.annotation[0].IM_VAL)){
+          //   console.log("annotation--111",obj);
+          //   IM = obj.annotation[0].IM_VAL;
+          //   return IM
+          // }
         },
         CHENGJI_VAL: (vm, obj) => {
           // 根据vm和obj计算CHENGJI_VAL的值
@@ -684,11 +691,13 @@ export default {
       };
 
       const customizedData = this.$ut.customizeJson(jsonData, customData);
-      console.log(JSON.stringify(customizedData),"customizedData----");
+      console.log("customizedData----",customizedData);
+      console.log("JSON.stringify(customizedData)---",JSON.stringify(customizedData));
       // 根据需要使用 customizedData
       const propertiesToSearch = ["CHENGJI_VAL", "IM_VAL"];
       const tableData = this.$ut.transformData(customizedData, propertiesToSearch);
       console.log("tableData__",tableData);
+      console.log("tableData__JSON.st",JSON.stringify(tableData));
 
       // const filledData  = this.$ut.fillMissingValues(["CHENGJI_VAL", "IM_VAL"],customizedData)
       // console.log("filledData==",filledData);

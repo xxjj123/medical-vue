@@ -69,32 +69,53 @@ export default {
    * @returns
    */
   customizeJson(data, customData) {
-    const that = this; // 捕获当前的 this 引用
+    // 捕获当前的 this 引用
+    const that = this;
+
+    // 定义递归处理函数
     const process = (arrayOrObject) => {
+      let newData = {};
+      console.log("Array.isArray(arrayOrObject)", Array.isArray(arrayOrObject))
+      // 检查是否为数组
       if (Array.isArray(arrayOrObject)) {
-        // 递归处理数组
-        return arrayOrObject.map(item => process(item));
-      } else if (typeof arrayOrObject === 'object' && arrayOrObject !== null) {
-        // 递归处理对象
-        const newData = {};
+        // 递归处理数组中的每个元素
+        return arrayOrObject.map((item, index) => {
+          console.log("item,index----", "arrayOrObject", arrayOrObject, item, index);
+
+          return process(item)
+        });
+      } else if (typeof arrayOrObject === 'object') {
+        // 检查是否为对象
+        // 递归处理对象的每个属性
+        // const newData = {};
         for (const key in arrayOrObject) {
           newData[key] = process(arrayOrObject[key]);
         }
         // 应用自定义数据
         for (const customKey in customData) {
+          console.log("customKey=", customKey)
+          // 如果newData中已有该属性，则添加下划线前缀备份原属性
           if (newData.hasOwnProperty(customKey)) {
             newData[`_${customKey}`] = newData[customKey];
           }
-          newData[customKey] = customData[customKey](that, newData);
+          // 调用customData中的函数来设置属性值
+          const customValue = customData[customKey](that, newData);
+          // debugger;
+          if (customValue !== undefined && customValue !== "") { //不产生多层数据
+            // if (customValue !== undefined) { //产生多层数据，用于显式查看数据层是否处理，debug用
+            newData[customKey] = customValue;
+          }
         }
         return newData;
+      } else {
+        // 基本数据类型直接返回
+        return arrayOrObject;
       }
-      return arrayOrObject; // 基本数据类型直接返回
     };
-
+    // 开始递归处理
     return process(data);
   },
-  // 辅助函数，用于递归搜索属性值
+  // 辅助函数，用于递归搜索属性值<暂时搁置~待调整>
   searchDeep(obj, property) {
     if (obj.hasOwnProperty(property) && obj[property] !== "") {
       return obj[property];
@@ -113,49 +134,54 @@ export default {
     const tableData = [];
 
     jsonData.forEach((item) => {
-      const tableItem = {}; // 初始化表格项
+      // 初始化表格项
+      // 如果json-Array有多次出现属性值，则最终覆盖之后处理的那个~
+      const tableItem = {};
 
-      debugger;
-
-      propertiesToSearch.some((property) => { // 使用some来提前退出循环
-        let value = item[property]; // 尝试获取属性值
-
-        // 检查值是否存在且不为空字符串
-        if (value !== undefined && value !== "") {
-          tableItem[property] = value; // 赋值到表格项
-          return true; // 存在则退出some循环
+      // 定义一个辅助函数来递归搜索属性
+      const findPropertyValue = (obj, property) => {
+        if (obj.hasOwnProperty(property) && obj[property] !== "") {
+          return obj[property];
         }
-
-        // 如果当前项是数组或对象，则递归搜索
-        if (Array.isArray(item) || (typeof item === 'object' && item !== null)) {
-          for (const key in item) {
-            if (item.hasOwnProperty(key)) {
-              value = this.searchDeep(item[key], property);
-              if (value !== undefined) {
-                tableItem[property] = value;
-                return true; // 找到值则退出some循环
-              }
+        if (Array.isArray(obj)) {
+          for (const subItem of obj) {
+            const value = findPropertyValue(subItem, property);
+            if (value !== undefined) {
+              return value;
+            }
+          }
+        } else if (typeof obj === 'object') {
+          for (const key of Object.keys(obj)) {
+            const value = findPropertyValue(obj[key], property);
+            if (value !== undefined) {
+              return value;
             }
           }
         }
+        return undefined;
+      };
 
-        return false; // 继续检查下一个属性
+      // 遍历propertiesToSearch中的每个属性，并尝试找到它们的值
+      propertiesToSearch.forEach((property) => {
+        const value = findPropertyValue(item, property);
+        if (value !== undefined) {
+          tableItem[property] = value;
+        }
       });
 
-      // 仅当表格项有值时添加到结果数组
-      if (Object.values(tableItem).length > 0) {
+      // 如果找到了属性值，构建表格项并添加到结果数组中
+      if (Object.keys(tableItem).length > 0) {
         tableData.push({
-          ...tableItem, // 展开属性
-          ...item.ctMeasures, // 假设您还想包括ctMeasures中的属性
+          ...item.ctMeasures, // 包括ctMeasures中的属性
           risk: item.riskCode.toString(), // 转换风险代码为字符串
           volume: item.volume.toString(), // 确保体积是字符串格式
-          lobe: item.lobe // 包括叶段信息
+          lobe: item.lobe, // 包括叶段信息
+          lobeSegment: item.lobeSegment,//肺段
+          type: item.type,//结节类型
+          ...tableItem, // 展开找到的属性
         });
       }
     });
-
-    // console.log("tableItem++++", tableItem);
-
 
     return tableData;
   },
