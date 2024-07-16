@@ -47,6 +47,12 @@ export const xhr_uploadDicom = (formData) => {
     }
   })
 }
+/**
+ * studyId
+ *
+ * @param formData
+ * @returns
+ */
 export const xhr_removeFavorite = (formData) => {
   return Base.submit(null, {
     url: Topbase + study + urlJson['removeFavorite'],
@@ -57,6 +63,11 @@ export const xhr_removeFavorite = (formData) => {
 }
 
 // 以下是根据注释补全的函数定义
+/**
+ * studyId
+ * @param formData
+ * @returns
+ */
 export const xhr_deleteStudy = (formData) => {
   return Base.submit(null, {
     url: Topbase + study + urlJson['deleteStudy'],
@@ -65,7 +76,12 @@ export const xhr_deleteStudy = (formData) => {
     }
   });
 };
-
+/**
+ * seriesComputeId
+ *
+ * @param formData
+ * @returns
+ */
 export const xhr_deleteSeries = (formData) => {
   return Base.submit(null, {
     url: Topbase + study + urlJson['deleteSeries'],
@@ -74,7 +90,12 @@ export const xhr_deleteSeries = (formData) => {
     }
   });
 };
-
+/**
+ * studyId
+ *
+ * @param formData
+ * @returns
+ */
 export const xhr_addFavorite = (formData) => {
   return Base.submit(null, {
     url: Topbase + study + urlJson['addFavorite'],
@@ -84,15 +105,42 @@ export const xhr_addFavorite = (formData) => {
   });
 };
 
+
+/**
+ *
+ *  startDate
+ *  endDate
+ * accessionNumber
+ * patientId
+ * patientName
+ * algorithmType
+ * computeStatus
+ * myFavorite
+ * reasonable
+ * pageNumber
+ * pageSize
+ * operationNameAndType
+ * paginationModel
+ *
+ *
+ * @param formData
+ * @returns
+ */
 export const xhr_pageStudies = (formData) => {
   return Base.submit(null, {
+    method: 'get',
     url: Topbase + study + urlJson['pageStudies'],
-    data: {
+    urlParam: {
       ...formData
     }
   });
 };
-
+/**
+ * seriesComputeId
+ *
+ * @param formData
+ * @returns
+ */
 export const xhr_reAnalyse = (formData) => {
   return Base.submit(null, {
     url: Topbase + study + urlJson['reAnalyse'],
@@ -101,19 +149,29 @@ export const xhr_reAnalyse = (formData) => {
     }
   });
 };
-
+/**
+ * file
+ *
+ * @param formData
+ * @returns
+ */
 export const xhr_upload = (formData) => {
   return Base.submit(null, {
-    url: Topbase + urlJson['upload'],
+    url: Topbase + readwriteFsBase + urlJson['upload'],
     data: {
       ...formData
     }
   });
 };
 
+/**
+ *
+ * @param formData
+ * @returns
+ */
 export const xhr_push = (formData) => {
   return Base.submit(null, {
-    url: Topbase + urlJson['push'],
+    url: Topbase + cb + urlJson['push'],
     data: {
       ...formData
     }
