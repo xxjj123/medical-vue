@@ -25,9 +25,15 @@ export function buildProxy() {
       }
     },
     ['^/ta404/api/']: {
-      target: 'http://183.247.165.2:2480/connector/api/',
+      // target: 'http://183.247.165.2:2480/connector/api/',
+      target: 'http://192.168.1.24/connector/api/',
       changeOrigin: true,
       rewrite: (path: string) => path.replace(/^\/ta404\/api\//, '')
+    },
+    ['^/ta404/api5/']: {
+      target: 'http://192.168.1.4:39600/',
+      changeOrigin: true,
+      rewrite: (path: string) => path.replace(/^\/ta404\/api5\//, '')
     },
     ['^/ta404/api3/']: {
       target: 'https://demo.deepinsight.deepvessel.net/api/',

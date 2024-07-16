@@ -43,11 +43,67 @@
           trigger: 'row',
         }"
         :edit-config="{ trigger: 'click' }"
+        @cell-click="handleCellClick"
       >
         <template #risk="{ row }">
           <span class="ml-[10px]">{{ row.risk }}</span
           ><br /><span class="levelTag">低危</span></template
         >
+        <template #volume="{ row }">
+          <div class="h1 im_block">
+            <span class="mr-[5px]">IM</span><span>{{ row.IM_VAL }}</span>
+          </div>
+          <div class="h2 volumn_block">
+            <span class="mr-[5px]">{{ row.volume }}</span
+            ><span>mm³</span>
+          </div>
+        </template>
+        <template #CHENGJI_VAL="{ row }">
+          <div class="h1 cj_block">
+            <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span
+            ><span>前内基底段</span>
+          </div>
+          <div class="h2 cjVal_block">
+            <span>{{ row.CHENGJI_VAL }}</span>
+          </div>
+        </template>
+        <template #mean="{ row }">
+          <div class="h1 mean_block">
+            <span>肿块</span>
+          </div>
+          <div class="h2 meanVal_block">
+            <span>{{ row.mean }}</span
+            ><span>HU</span>
+          </div>
+        </template>
+
+        <!-- edit holder begin-->
+        <template #CHENGJI_ROLE="{ row, column }">
+          <div class="h1 cj_block">
+            <!-- <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span
+            ><span>前内基底段</span> -->
+            <ta-dropdown
+              :trigger="['click']"
+              class="flex justify-start items-center mr-[10px]"
+            >
+              <a href="javascript:;">
+                {{ sort_condition.type_select.showValue }}
+                <ta-icon type="down" />
+              </a>
+              <ta-menu slot="overlay" @click="handleMenuClick">
+                <ta-menu-item
+                  v-for="(item, index) in sort_condition.type_select.list"
+                  :key="`${index}_${item.value}`"
+                  >{{ item.label }}</ta-menu-item
+                >
+              </ta-menu>
+            </ta-dropdown>
+          </div>
+          <div class="h2 cjVal_block">
+            <span>{{ row.CHENGJI_VAL }}</span>
+          </div>
+        </template>
+        <!-- edit holder end-->
       </ta-big-table>
     </div>
 
@@ -310,12 +366,28 @@ export default {
           {
             field: "volume",
             title: "", //ellipsoidAxis major * least mm
-            width: "110"
+            width: "76",
+            customRender:{
+              default:"volume"
+            }
           },
           {
-            field: "lobe",
+            field: "CHENGJI_VAL",//面积
+            title:"",
+            width:"141",
+            editRender: {},
+            customRender:{
+              default:"CHENGJI_VAL",
+              edit:"CHENGJI_ROLE"
+            }
+          },
+          {
+            field: "mean",
             title: "", //断层扫描/层组 ctMeasures.mean HU
-            width: "160",
+            width: "85",
+            customRender:{
+              default:"mean"
+            }
           },
         ],
       },
@@ -469,6 +541,9 @@ export default {
     };
   },
   methods: {
+    handleCellClick({ row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event }){
+      console.log(" row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event ", row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event );
+    },
     async init_lesionPanelSearchBar() {
       const item = await this.init_select("LESION_LIST_TYPE");
       const LESION_LIST_TYPE = this.$ut.serializeDropdownList(item);
@@ -691,16 +766,18 @@ export default {
       };
 
       const customizedData = this.$ut.customizeJson(jsonData, customData);
-      console.log("customizedData----",customizedData);
-      console.log("JSON.stringify(customizedData)---",JSON.stringify(customizedData));
+      // console.log("customizedData----",customizedData);
+      // console.log("JSON.stringify(customizedData)---",JSON.stringify(customizedData));
       // 根据需要使用 customizedData
       const propertiesToSearch = ["CHENGJI_VAL", "IM_VAL"];
       const tableData = this.$ut.transformData(customizedData, propertiesToSearch);
       console.log("tableData__",tableData);
-      console.log("tableData__JSON.st",JSON.stringify(tableData));
+      // console.log("tableData__JSON.st",JSON.stringify(tableData));
 
       // const filledData  = this.$ut.fillMissingValues(["CHENGJI_VAL", "IM_VAL"],customizedData)
       // console.log("filledData==",filledData);
+
+      this.tableConfig.tableData = tableData;
     },
     init_tableData() {
       const item = this.menuResult.result;

@@ -6,10 +6,16 @@ const {
   api,
   api2,
   api3,
+  api5,
 } = apiOps;
+
+
+const {Topbase, study, readwriteFsBase, cb, } = testDevOps;
 
 import axios from 'axios'
 import Vue from 'vue'
+
+
 /**
  * TODO::这份文件的接口，先迎合-文佳搭建的spring-boot去返回，后续后端迁移至404后台写法，需改写~
  * ps：目前是从catch中才能捕获到值，先这么处理~
@@ -26,6 +32,95 @@ export const startDiagnose = (formData) => {
     }
   })
 }
+/* 山哥专属 start*/
+/**
+ * algorithmConfig [{}]
+   dicom zip
+ * @param formData
+ * @returns
+ */
+export const xhr_uploadDicom = (formData) => {
+  return Base.submit(null, {
+    url: Topbase + study + urlJson['uploadDicom'],
+    data: {
+      ...formData
+    }
+  })
+}
+export const xhr_removeFavorite = (formData) => {
+  return Base.submit(null, {
+    url: Topbase + study + urlJson['removeFavorite'],
+    data: {
+      ...formData
+    }
+  })
+}
+
+// 以下是根据注释补全的函数定义
+export const xhr_deleteStudy = (formData) => {
+  return Base.submit(null, {
+    url: Topbase + study + urlJson['deleteStudy'],
+    data: {
+      ...formData
+    }
+  });
+};
+
+export const xhr_deleteSeries = (formData) => {
+  return Base.submit(null, {
+    url: Topbase + study + urlJson['deleteSeries'],
+    data: {
+      ...formData
+    }
+  });
+};
+
+export const xhr_addFavorite = (formData) => {
+  return Base.submit(null, {
+    url: Topbase + study + urlJson['addFavorite'],
+    data: {
+      ...formData
+    }
+  });
+};
+
+export const xhr_pageStudies = (formData) => {
+  return Base.submit(null, {
+    url: Topbase + study + urlJson['pageStudies'],
+    data: {
+      ...formData
+    }
+  });
+};
+
+export const xhr_reAnalyse = (formData) => {
+  return Base.submit(null, {
+    url: Topbase + study + urlJson['reAnalyse'],
+    data: {
+      ...formData
+    }
+  });
+};
+
+export const xhr_upload = (formData) => {
+  return Base.submit(null, {
+    url: Topbase + urlJson['upload'],
+    data: {
+      ...formData
+    }
+  });
+};
+
+export const xhr_push = (formData) => {
+  return Base.submit(null, {
+    url: Topbase + urlJson['push'],
+    data: {
+      ...formData
+    }
+  });
+};
+
+/* 山哥专属 end*/
 
 
 // 获取诊断结果
@@ -62,7 +157,7 @@ export const getSysDict = () => {
     Base.submit(null, {
       url: 'http://localhost:5173/dict.json',
     }).then((dataResult) => {
-      console.log("dataResult", dataResult);
+      console.log("dataResult", dataResult, JSON.stringify(dataResult.data.scanSite));
       if (dataResult.code === 200) {
         // return dataResult.data;
         resolve(dataResult.data)
