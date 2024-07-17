@@ -7,7 +7,7 @@ export const apiOps = {
 
 // 公司测试环境接口基础配置信息，模块划分
 export const testDevOps = {
-  Topbase: `/mids-api`//top base
+  Topbase: `/mids-api`,//top base
   study: `/study`,//mod
   readwriteFsBase: `/fs`,//mod
   cb: `/callback`,//mod

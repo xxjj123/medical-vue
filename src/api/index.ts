@@ -1,6 +1,7 @@
 import urlJson from './collect-api';
 import {
-  apiOps
+  apiOps,
+  testDevOps
 } from './options';
 const {
   api,
@@ -41,7 +42,7 @@ export const startDiagnose = (formData) => {
  */
 export const xhr_uploadDicom = (formData) => {
   return Base.submit(null, {
-    url: Topbase + study + urlJson['uploadDicom'],
+    url: api5 + Topbase + study + urlJson['uploadDicom'],
     data: {
       ...formData
     }
@@ -55,7 +56,7 @@ export const xhr_uploadDicom = (formData) => {
  */
 export const xhr_removeFavorite = (formData) => {
   return Base.submit(null, {
-    url: Topbase + study + urlJson['removeFavorite'],
+    url: api5 + Topbase + study + urlJson['removeFavorite'],
     data: {
       ...formData
     }
@@ -70,7 +71,7 @@ export const xhr_removeFavorite = (formData) => {
  */
 export const xhr_deleteStudy = (formData) => {
   return Base.submit(null, {
-    url: Topbase + study + urlJson['deleteStudy'],
+    url: api5 + Topbase + study + urlJson['deleteStudy'],
     data: {
       ...formData
     }
@@ -84,7 +85,7 @@ export const xhr_deleteStudy = (formData) => {
  */
 export const xhr_deleteSeries = (formData) => {
   return Base.submit(null, {
-    url: Topbase + study + urlJson['deleteSeries'],
+    url: api5 + Topbase + study + urlJson['deleteSeries'],
     data: {
       ...formData
     }
@@ -98,7 +99,7 @@ export const xhr_deleteSeries = (formData) => {
  */
 export const xhr_addFavorite = (formData) => {
   return Base.submit(null, {
-    url: Topbase + study + urlJson['addFavorite'],
+    url: api5 + Topbase + study + urlJson['addFavorite'],
     data: {
       ...formData
     }
@@ -129,7 +130,7 @@ export const xhr_addFavorite = (formData) => {
 export const xhr_pageStudies = (formData) => {
   return Base.submit(null, {
     method: 'get',
-    url: Topbase + study + urlJson['pageStudies'],
+    url: api5 + Topbase + study + urlJson['pageStudies'],
     urlParam: {
       ...formData
     }
@@ -143,7 +144,7 @@ export const xhr_pageStudies = (formData) => {
  */
 export const xhr_reAnalyse = (formData) => {
   return Base.submit(null, {
-    url: Topbase + study + urlJson['reAnalyse'],
+    url: api5 + Topbase + study + urlJson['reAnalyse'],
     data: {
       ...formData
     }
@@ -157,7 +158,7 @@ export const xhr_reAnalyse = (formData) => {
  */
 export const xhr_upload = (formData) => {
   return Base.submit(null, {
-    url: Topbase + readwriteFsBase + urlJson['upload'],
+    url: api5 + Topbase + readwriteFsBase + urlJson['upload'],
     data: {
       ...formData
     }
@@ -171,7 +172,7 @@ export const xhr_upload = (formData) => {
  */
 export const xhr_push = (formData) => {
   return Base.submit(null, {
-    url: Topbase + cb + urlJson['push'],
+    url: api5 + Topbase + cb + urlJson['push'],
     data: {
       ...formData
     }
