@@ -17,6 +17,10 @@ const faceConfig = {
   // basePath: 'http://172.20.22.126:8083/ta404',
   // basePath: 'http://192.168.77.161:8081/ta404',
   // basePath: 'http://localhost:8081/ta404',
+  // 登陆配置
+  loginFormConfig: {
+    sysBaseSortUrl: `${import.meta.env.VITE_LOGIN_SYS_BASE_SORT}/${import.meta.env.VITE_LOGIN_GOTO_PAGE}#/${import.meta.env.VITE_LOGIN_GOTO_ROUTE}?_modulePartId_=${import.meta.env.VITE_LOGIN_GOTO_ROUTE_MPID}`,
+  },
   // 首页数据配置
   indexPageConfig: {
     // menuType 菜单样式（leftTop, left, top, simple, workTable）

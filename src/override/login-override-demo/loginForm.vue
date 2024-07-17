@@ -118,6 +118,7 @@ import {
 import { cryptoAsymmetricFn } from "@yh/ta404-ui/es/utils/js/cryptoFn";
 
 import { mapGetters } from "vuex";
+import faceConfig from "faceConfig";
 
 export default {
   name: "loginForm",
@@ -279,8 +280,9 @@ export default {
             }
             // window.location.href = 'xxx.html?_modulePartId_=xxx';
             //window.location.href = "index.html";
-            window.location.href =
-              "cleverAiPacs.html#/manageDicom?_modulePartId_=59181f21753d49c4b6f0274ee29c203d";
+            // window.location.href =
+            //   "cleverAiPacs.html#/manageDicom?_modulePartId_=59181f21753d49c4b6f0274ee29c203d";
+            window.location.href = faceConfig.loginFormConfig.sysBaseSortUrl;
           },
           failCallback: (data) => {
             this.spinning = false;
