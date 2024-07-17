@@ -278,9 +278,9 @@ export default {
               );
             }
             // window.location.href = 'xxx.html?_modulePartId_=xxx';
-            // window.location.href = "index.html";
+            //window.location.href = "index.html";
             window.location.href =
-              "clevelAiPacs.html#/manageDicom?_modulePartId_=59181f21753d49c4b6f0274ee29c203d";
+              "cleverAiPacs.html#/manageDicom?_modulePartId_=59181f21753d49c4b6f0274ee29c203d";
           },
           failCallback: (data) => {
             this.spinning = false;
