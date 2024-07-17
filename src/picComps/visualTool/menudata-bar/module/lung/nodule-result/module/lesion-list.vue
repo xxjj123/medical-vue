@@ -778,6 +778,18 @@ export default {
       // console.log("filledData==",filledData);
 
       this.tableConfig.tableData = tableData;
+
+
+      // 初始化edit模式小组件的数据源
+      this.$api.query_humen_boot_data().then(item=>{
+        console.log("query_humen_boot_data",item);
+        const noduleType  = this.$api.getPropertyArray(item,'lung.noduleType')
+        const left_lung = this.$api.getPropertyArray(item,'lung.segment.leftLung.segments')
+        const right_lung = this.$api.getPropertyArray(item,'lung.segment.rightLung.segments')
+        console.log("noduleType-",noduleType);
+        console.log("left_lung-",left_lung);
+        console.log("right_lung-",right_lung);
+      })
     },
     init_tableData() {
       const item = this.menuResult.result;

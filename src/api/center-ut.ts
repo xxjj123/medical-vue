@@ -35,7 +35,8 @@ export function query_humen_boot_data() {
   return new Promise((resolve, reject) => {
     try {
       let vuexData = localStorage.getItem('carplay')
-      const humenData = vuexData.scanSite;
+      const humenData = JSON.parse(vuexData).scanSite;
+      // debugger
       if (humenData) {
         resolve(humenData)
       } else {
@@ -75,3 +76,32 @@ export function findObjectByValue(dataSource, path, searchValue) {
   // 过滤出 value 等于 searchValue 的对象
   return currentObject.filter(item => item.value === searchValue);
 }
+
+
+/**
+ * 返回指定属性的array内容
+ * @param dataSource [Property].[Property].[Property] ...
+ * @param path
+ * @returns
+ */
+export function getPropertyArray(dataSource, path) {
+  // 将路径字符串转换为数组
+  const pathArray = path.split('.');
+
+  // 使用 reduce 方法遍历路径数组
+  let currentObject = dataSource;
+  for (const key of pathArray) {
+    // 检查当前对象是否包含路径中的键
+    if (currentObject !== undefined && currentObject !== null && currentObject.hasOwnProperty(key)) {
+      // 更新当前对象为路径中的下一个对象
+      currentObject = currentObject[key];
+    } else {
+      // 如果路径中的键不存在，或者当前对象为 null 或 undefined，则返回空数组
+      return [];
+    }
+  }
+
+  // 如果最终对象不是数组，也返回空数组
+  return Array.isArray(currentObject) ? currentObject : [];
+}
+
