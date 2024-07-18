@@ -63,6 +63,7 @@
               <ta-form-model-item>
                 <ta-button type="primary" class="mr-[8px]">查询</ta-button>
                 <ta-button>重置</ta-button>
+                <ta-button @click="goto_workplatform">跳转</ta-button>
               </ta-form-model-item>
             </ta-form-model>
           </ta-col>
@@ -599,6 +600,14 @@ export default {
     },
   },
   methods: {
+    goto_workplatform() {
+      this.$router.push({
+        path: "diagnose",
+        query: {
+          applyId: "83299b46-8d18-4e41-88eb-cab1afa67523",
+        },
+      });
+    },
     handleEdit(index, row) {
       this.$router.push({
         path: "diagnose",
@@ -865,7 +874,7 @@ export default {
     this.$nextTick(() => {
       setTimeout(() => {
         console.log("dicomParser===", dicomParser);
-        console.log("cornerstone==", cornerstone);
+        // console.log("cornerstone==", cornerstone);
         cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
         cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
         console.log("cornerstoneWADOImageLoader==", cornerstoneWADOImageLoader);
