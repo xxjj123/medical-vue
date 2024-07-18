@@ -216,7 +216,7 @@ export const getSysDict = () => {
     Base.submit(null, {
       url: 'http://localhost:5173/dict.json',
     }).then((dataResult) => {
-      console.log("dataResult", dataResult, JSON.stringify(dataResult.data.scanSite));
+      // console.log("dataResult", dataResult, JSON.stringify(dataResult.data.scanSite));
       if (dataResult.code === 200) {
         // return dataResult.data;
         resolve(dataResult.data)

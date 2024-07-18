@@ -9,12 +9,12 @@ const instance = Vue.prototype;
 export function select_codeTable_type_group(type) { //返回码表固定type值的数组
   return new Promise((resolve, reject) => {
     let vuexData = localStorage.getItem('carplay')
-    console.log("ins---vuexData:", vuexData, type);
+    // console.log("ins---vuexData:", vuexData, type);
     const vData = JSON.parse(vuexData)
     const {sysInfoOther} = vData
     if (sysInfoOther) {
       let group = sysInfoOther.filter((v, k) => {
-        console.log("v----", v, "k---", k);
+        // console.log("v----", v, "k---", k);
 
         return v.type === type
       })
@@ -105,3 +105,24 @@ export function getPropertyArray(dataSource, path) {
   return Array.isArray(currentObject) ? currentObject : [];
 }
 
+/**
+ * 返回肺部 左右 标记
+ * @param attributes
+ * @returns
+ */
+export function getLungSide(input) {
+  // 检查输入是否为字符串
+  if (typeof input !== 'string') {
+    console.warn('Warning: Input must be a string.');
+    return;
+  }
+  // 检查字符串中是否包含 'right' 或 'left'
+  if (input.includes('right')) {
+    return 'right';
+  } else if (input.includes('left')) {
+    return 'left';
+  } else {
+    console.warn('Warning: String does not contain "right" or "left".');
+    return;
+  }
+};
