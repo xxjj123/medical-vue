@@ -375,7 +375,12 @@ import { v4 as uuidv4 } from "uuid";
 // import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoaderNoWebWorkers.bundle.min";
 // import cornerstone from "cornerstone-core";
 // import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoader.min.js";
-import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoaderNoWebWorkers.bundle.min";
+// wasm单独用全局版-生成bug先注释
+// import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoaderNoWebWorkers.bundle.min";
+// import * as cornerstone from "cornerstone-core";
+// import dicomParser from "dicom-parser";
+import cornerstoneWADOImageLoader from "@cornerstonejs/dicom-image-loader";
+
 import JSZip from "jszip";
 // import cornerstone from "cornerstone-core/dist/cornerstone";
 export default {
