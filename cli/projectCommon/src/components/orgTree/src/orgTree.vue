@@ -330,11 +330,11 @@ export default {
     cursor: not-allowed;
   }
 }
-.search-tree-e-tree ::v-deep .el-tree-node:focus > .el-tree-node__content {
+.search-tree-e-tree /deep/ .el-tree-node:focus > .el-tree-node__content {
   background: transparent;
 }
 .search-tree-e-tree
-  ::v-deep
+  /deep/
   .el-tree--highlight-current
   .el-tree-node.is-current
   > .el-tree-node__content {

@@ -33,6 +33,9 @@
     </div>
 
     <div class="table_container">
+      <!-- :checkbox-config="{
+          trigger: 'row',
+        }" -->
       <ta-big-table
         :size="tableConfig.size"
         highlight-hover-row
@@ -41,16 +44,22 @@
         :data="tableConfig.tableData"
         @checkbox-all="selectAllEvent"
         @checkbox-change="selectChangeEvent"
-        :checkbox-config="{
-          trigger: 'row',
-        }"
         :edit-config="{ trigger: 'click' }"
         @cell-click="handleCellClick"
       >
         <template #risk="{ row }">
           <span class="ml-[10px]">{{ row.risk }}</span
-          ><br /><span class="levelTag">低危</span></template
-        >
+          ><br />
+          <div v-if="row.risk == 1">
+            <span class="levelTag">低危</span>
+          </div>
+          <div v-if="row.risk == 2">
+            <span class="levelTag text-green-500">中危</span>
+          </div>
+          <div v-if="row.risk == 3">
+            <span class="levelTag text-red-500">高危</span>
+          </div>
+        </template>
         <template #volume="{ row }">
           <div class="h1 im_block">
             <span class="mr-[5px]">IM</span><span>{{ row.IM_VAL }}</span>
@@ -87,13 +96,14 @@
             <ta-dropdown
               :trigger="['click']"
               class="flex justify-start items-center mr-[10px]"
+              :getPopupContainer="setPopupContainer"
             >
               <a href="javascript:;">
                 {{ lungLobeDropDown.showValue }}
                 <!-- {{ sort_condition.type_select.showValue }} -->
                 <ta-icon type="down" />
               </a>
-              <ta-menu slot="overlay" @click="handleMenuClick">
+              <ta-menu slot="overlay" @click="handleMenuClick_lungList">
                 <template v-if="column.property === 'CHENGJI_VAL'">
                   <template v-for="(item, index) in lungLobeDropDown.list">
                     <template
@@ -135,9 +145,10 @@
             <ta-dropdown
               :trigger="['click']"
               class="flex justify-start items-center mr-[10px]"
+              :getPopupContainer="setPopupContainer"
             >
               <a href="javascript:;">
-                {{ sort_condition.type_select.showValue }}
+                {{ noduleTypeDropDown.showValue }}
                 <ta-icon type="down" />
               </a>
               <ta-menu slot="overlay" @click="handleMenuClick_noduleList">
@@ -706,6 +717,10 @@
       };
     },
     methods: {
+      setPopupContainer(trigger){
+        return trigger.parentElement
+
+      },
       handleCellClick({
         row,
         rowIndex,
@@ -720,6 +735,8 @@
         console.log(
           " row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event ", row,
           rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event);
+        const { property } = column;
+        // if(property === 'CHENGJI_VAL'){
           const { lobe, lobeSegment }  = row;
           const mark = this.$api.getLungSide(lobe);
           if(mark === 'left'){
@@ -736,6 +753,18 @@
               this.lungLobeDropDown.showValue = `右肺 / ${rowSelectItem.name}`
             })
           }
+        // }else if(property === 'mean'){
+          const { type } = row;
+          console.log("type===",type);
+        this.$api.query_humen_boot_data().then(item=>{
+          console.log("item-----",item);
+           const rowSelectItem = this.$api.findObjectByValue(item,'lung.noduleType',type.toString())[0]
+              console.log("rowSelectItem-mean=",rowSelectItem);
+              this.noduleTypeDropDown.showValue = `${rowSelectItem.name}`
+        })
+
+        // }
+
 
           // this.tableData[rowIndex]
       },
@@ -948,7 +977,7 @@
       },
 
       // 应用 customizeJson 和 策略
-      processJsonData(jsonData) {
+      async processJsonData(jsonData) {
         const customData = {
           IM_VAL: (vm, obj) => {
             // debugger;
@@ -1038,7 +1067,17 @@
 
         const jsonData = tableItem.volumeDetailList;
 
-        this.processJsonData(jsonData)
+        this.processJsonData(jsonData).then(()=>{
+          //finding 所见，diagnosis 诊断
+          const { finding,diagnosis } = tableItem;
+          console.log("finding",finding);
+        const arr_find = finding.split("\n")
+        console.log("arr_find",arr_find);
+        const arr_diagnosis = diagnosis.split("\n")
+        this.anaSecDesConf.bookItems = arr_find;
+        this.anaSecDesConf_1.bookItems = arr_diagnosis;
+
+        })
       },
     },
     created() {
@@ -1085,7 +1124,7 @@ body {
   }
 }
 
-::v-deep .ant-checkbox-wrapper {
+/deep/ .ant-checkbox-wrapper {
   &.check_block_area {
     > .ant-checkbox {
       & + span {

@@ -230,7 +230,7 @@ export default {
 }
 body {
   .cus_poper {
-    ::v-deep .el-popover {
+    /deep/ .el-popover {
       &.el-popper {
         background-color: @input-bg;
       }

@@ -113,7 +113,7 @@ export default {
 .menuTopBox {
   padding: 20px;
 
-  ::v-deep .cus_fgx {
+  /deep/ .cus_fgx {
     background: #979797 !important;
   }
 }

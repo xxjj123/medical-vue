@@ -613,7 +613,7 @@ export default {
 
 .boxBtn_extSelect {
 }
-::v-deep.sctz_pop {
+/deep/.sctz_pop {
   > div {
     padding: 5px 10px;
   }
@@ -669,7 +669,7 @@ export default {
   }
 }
 
-::v-deep.ctkw_pop {
+/deep/.ctkw_pop {
   .title {
     font-size: 16px;
   }
@@ -685,7 +685,7 @@ export default {
   }
 }
 
-::v-deep.mdtyms_pop {
+/deep/.mdtyms_pop {
   .title {
     font-size: 16px;
   }
