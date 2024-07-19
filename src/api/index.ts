@@ -42,10 +42,31 @@ export const startDiagnose = (formData) => {
  */
 export const xhr_uploadDicom = (formData) => {
   return Base.submit(null, {
+    method: 'POST',
+    autoQs: false,
+    isFormData: true,
+    // responseType: 'blob',
     url: api5 + Topbase + study + urlJson['uploadDicom'],
     data: {
       ...formData
-    }
+    },
+    transformResponse: [(data) => {
+      console.log("data===transformResponse=", data);
+      return data;
+    }, (data) => {
+      // 解析 Blob 数据并创建 Blob 数组
+      console.log("-----------", data);
+
+      // const blobArray = parseBlobToFiles(data);
+      // return blobArray;
+      return data;
+    }]
+  }).then((response) => {
+    console.log("response", response);
+
+  }).catch(error => {
+    console.log("error", error);
+
   })
 }
 /**

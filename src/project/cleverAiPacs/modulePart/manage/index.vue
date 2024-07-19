@@ -312,16 +312,61 @@
       <div class="custom_panel">
         <div class="custom_title pb-[20px]">上传数据</div>
         <div class="custom_context">
-          <div
+          <!-- <div
             class="upload_box flex flex-col items-center justify-center border border-dashed border-white pt-[50px] pb-[50px]"
+          > -->
+          <div
+            class="upload_box border border-dashed border-white pt-[50px] pb-[50px]"
           >
-            <ta-button type="primary" icon="upload" class="mb-4"
-              >上传数据</ta-button
+            <!-- <ta-upload
+              :file-list="uploadObj.fileList"
+              :before-upload="uploadObj.beforeUpload"
+              :remove="uploadObj.handleRemove"
             >
-            <div class="mid_subTit flex">
+              <ta-button type="primary" icon="upload" class="mb-4"
+                >上传数据</ta-button
+              >
+            </ta-upload> -->
+
+            <ta-upload-dragger
+              name="file"
+              :multiple="false"
+              webkitdirectory
+              directory
+              :showUploadList="false"
+              @change="uploadObj.handleChange"
+              :file-list="uploadObj.fileList"
+              :before-upload="uploadObj.beforeUpload"
+              :remove="uploadObj.handleRemove"
+              style="background: transparent"
+            >
+              <div class="ant-upload-drag-icon">
+                <ta-button type="primary" icon="upload" class="mb-4"
+                  >上传数据</ta-button
+                >
+                <!-- <input
+                  type="file"
+                  webkitdirectory
+                  directory
+                  @change="handleFile"
+                /> -->
+              </div>
+              <div class="ant-upload-text">
+                <div class="mid_subTit text-center">
+                  <div class="mr-[10px]">点击或拖入.dcm文件/文件夹到本区域</div>
+                </div>
+              </div>
+              <div class="ant-upload-hint">
+                <div class="mid_subTit text-center">
+                  <div>文件大小最大5G,最多20个序列</div>
+                </div>
+              </div>
+            </ta-upload-dragger>
+
+            <!-- <div class="mid_subTit flex">
               <div class="mr-[10px]">点击或拖入.dcm文件/文件夹到本区域</div>
               <div>文件大小最大5G,最多20个序列</div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -363,6 +408,7 @@
   </div>
 </template>
 <script lang='javascript'>
+import Vue from "vue";
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
 
 import {
@@ -370,6 +416,7 @@ import {
   getExaminationList,
   uploadExamination,
   isExit,
+  xhr_uploadDicom,
 } from "@/api";
 import { v4 as uuidv4 } from "uuid";
 // import dicomParser from "dicom-parser/dist/dicomParser.js";
@@ -384,6 +431,14 @@ import cornerstoneWADOImageLoader from "@cornerstonejs/dicom-image-loader";
 
 import JSZip from "jszip";
 // import cornerstone from "cornerstone-core/dist/cornerstone";
+
+import { readDicomTags } from "@itk-wasm/dicom";
+import { dicomTagsDescriptions } from "@/assets/js/utils/dicom/codeDesc";
+
+import Upload from "@yh/ta404-ui/es/upload";
+import "@yh/ta404-ui/es/upload/style";
+Vue.use(Upload);
+
 export default {
   name: "manageDicom",
   components: {
@@ -410,6 +465,107 @@ export default {
       },
     ];
     return {
+      uploadObj: {
+        fileList: [],
+        size: 0,
+        handleChange: async (info) => {
+          console.log(
+            "info---",
+            info,
+            "info.fileList.length",
+            info.fileList.length
+          );
+
+          const status = info.file.status;
+
+          if (status !== "uploading") {
+            console.log(info.file, info.fileList);
+          }
+          if (status === "done") {
+            // this.$message.success(
+            //   `${info.file.name} file uploaded successfully.`
+            // );
+            console.log(
+              "info.file, info.fileList==change",
+              info.file,
+              info.fileList,
+              info.fileList.length
+            );
+
+            if (info.fileList.length % 2 === 1) {
+              this.$set(this.uploadObj, "size", info.fileList.length - 1);
+              // this.uploadObj.size = info.fileList.length - 1;
+            } else if (info.fileList.length % 2 === 0) {
+              this.$set(this.uploadObj, "size", info.fileList.length);
+              // this.uploadObj.size = info.fileList.length;
+            }
+            console.log("this.uploadObj==size", this.uploadObj.size);
+            if (this.uploadObj.size === info.fileList.length) {
+              console.log("全部载入", this.uploadObj.size);
+
+              // this.uploadObj.fnUpload(info.file, info.fileList);
+              /**
+               * 1、压缩zip
+               * 2、上传接口
+               */
+            }
+          } else if (status === "error") {
+            this.$message.error(`${info.file.name} file upload failed.`);
+          }
+        },
+        beforeUpload: async (file) => {
+          // console.log("beforeUpload*****", file);
+
+          this.uploadObj.fileList = [...this.uploadObj.fileList, file];
+          // console.log(
+          //   "this.uploadObj.fileList--befire",
+          //   this.uploadObj.fileList
+          // );
+          /**
+           * 前端解析校验逻辑和提起逻辑
+           */
+          if (this.uploadObj.fileList.length === 1) {
+            console.log("第一片载入开始", this.uploadObj.fileList);
+            // tags信息读取
+            const fileOne = this.uploadObj.fileList[0];
+            console.log("fileOne", fileOne);
+            const tags = await readDicomTags(fileOne);
+            this.tags = await readDicomTags(fileOne);
+            console.log("tags____", tags, this.tags.tags);
+            try {
+              const sysDicomTagInfo = this.$ut.convertDicomTags(
+                this.tags,
+                dicomTagsDescriptions
+              );
+              console.log("sysDicomTagInfo=", sysDicomTagInfo);
+            } catch (error) {
+              console.error("Error converting DICOM tags:", error.message);
+            }
+          }
+          // this.uploadObj.fnUpload();
+
+          return;
+          // return false;
+        },
+        handleRemove: (file) => {
+          const index = this.uploadObj.fileList.indexOf(file);
+          const newFileList = this.uploadObj.fileList.slice();
+          newFileList.splice(index, 1);
+          this.uploadObj.fileList = newFileList;
+        },
+        fnUpload: (file, fileList) => {
+          console.log("start----fnUpload file, fileList", file, fileList);
+          const dicom = fileList[0];
+          console.log("dicom=", dicom);
+          // debugger;
+          xhr_uploadDicom({
+            algorithmConfig: `[{}]`,
+            dicom,
+          }).then((item) => {
+            console.log("xhr_uploadDicom___item:", item);
+          });
+        },
+      },
       tableData_upload_anaRes: [
         {
           xid: "20210407000133",
@@ -600,6 +756,9 @@ export default {
     },
   },
   methods: {
+    handleFile(e) {
+      console.log("handleFile__", e);
+    },
     goto_workplatform() {
       this.$router.push({
         path: "diagnose",
@@ -982,5 +1141,11 @@ export default {
 
 .highBox {
   height: calc(100vh - 500px);
+}
+
+.upload_box {
+  /deep/ .ant-upload {
+    background: transparent !important;
+  }
 }
 </style>

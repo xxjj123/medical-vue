@@ -1,5 +1,34 @@
 export default {
   /**
+   * readDicomTags输出格式转换为系统用json
+   * @param dicomData
+   * @returns
+   */
+  convertDicomTags(dicomData, dicomTagsDescriptions) {
+    // debugger
+    // 验证dicomData和dicomData.tags的有效性
+    if (!dicomData || !dicomData.tags || !Array.isArray(dicomData.tags)) {
+      throw new Error("Invalid DICOM data format.");
+    }
+
+    // 遍历dicomData.tags数组
+    return dicomData.tags.map(tag => {
+      if (!Array.isArray(tag) || tag.length !== 2) {
+        throw new Error("Invalid tag format. Each tag should be an array with two elements.");
+      }
+
+      const [code, value] = tag;
+      const description = dicomTagsDescriptions[code]; // 根据code获取描述对象
+
+      // 检查description对象是否存在，如果存在，使用对应的eng和chn值
+      const engName = description ? description.eng : code; // 获取英文名称或使用code
+      const chnContent = description ? description.chn : '无对应中文解释'; // 获取中文名称或默认值
+
+      // 返回结果对象
+      return {code, engName, sortValue: value, chnContent};
+    });
+  },
+  /**
    * @auther fangh
    * 转换世界坐标为画布坐标中心点的IM值
    * @param {*} param0
