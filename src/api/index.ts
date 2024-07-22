@@ -46,10 +46,12 @@ export const xhr_uploadDicom = (formData) => {
     autoQs: false,
     isFormData: true,
     // responseType: 'blob',
-    url: api5 + Topbase + study + urlJson['uploadDicom'],
-    data: {
-      ...formData
-    },
+    // url: api5 + Topbase + study + urlJson['uploadDicom'],
+    url: study + urlJson['uploadDicom'],
+    data: formData,
+    // data: {
+    //   ...formData
+    // },
     transformResponse: [(data) => {
       console.log("data===transformResponse=", data);
       return data;

@@ -309,105 +309,111 @@
       @close="fileDraw.onClose"
       :visible="fileDraw.visible"
     >
-      <div class="custom_panel">
-        <div class="custom_title pb-[20px]">上传数据</div>
-        <div class="custom_context">
-          <!-- <div
-            class="upload_box flex flex-col items-center justify-center border border-dashed border-white pt-[50px] pb-[50px]"
-          > -->
-          <div
-            class="upload_box border border-dashed border-white pt-[50px] pb-[50px]"
-          >
-            <!-- <ta-upload
-              :file-list="uploadObj.fileList"
-              :before-upload="uploadObj.beforeUpload"
-              :remove="uploadObj.handleRemove"
+      <ta-spin :spinning="spinning">
+        <div class="custom_panel">
+          <div class="custom_title pb-[20px]">上传数据</div>
+          <div class="custom_context">
+            <!-- <div
+              class="upload_box flex flex-col items-center justify-center border border-dashed border-white pt-[50px] pb-[50px]"
+            > -->
+            <div
+              class="upload_box border border-dashed border-white pt-[50px] pb-[50px]"
             >
-              <ta-button type="primary" icon="upload" class="mb-4"
-                >上传数据</ta-button
+              <!-- <ta-upload
+                :file-list="uploadObj.fileList"
+                :before-upload="uploadObj.beforeUpload"
+                :remove="uploadObj.handleRemove"
               >
-            </ta-upload> -->
-
-            <ta-upload-dragger
-              name="file"
-              :multiple="false"
-              webkitdirectory
-              directory
-              :showUploadList="false"
-              @change="uploadObj.handleChange"
-              :file-list="uploadObj.fileList"
-              :before-upload="uploadObj.beforeUpload"
-              :remove="uploadObj.handleRemove"
-              style="background: transparent"
-            >
-              <div class="ant-upload-drag-icon">
                 <ta-button type="primary" icon="upload" class="mb-4"
                   >上传数据</ta-button
                 >
-                <!-- <input
-                  type="file"
-                  webkitdirectory
-                  directory
-                  @change="handleFile"
-                /> -->
-              </div>
-              <div class="ant-upload-text">
-                <div class="mid_subTit text-center">
-                  <div class="mr-[10px]">点击或拖入.dcm文件/文件夹到本区域</div>
-                </div>
-              </div>
-              <div class="ant-upload-hint">
-                <div class="mid_subTit text-center">
-                  <div>文件大小最大5G,最多20个序列</div>
-                </div>
-              </div>
-            </ta-upload-dragger>
+              </ta-upload> -->
 
-            <!-- <div class="mid_subTit flex">
-              <div class="mr-[10px]">点击或拖入.dcm文件/文件夹到本区域</div>
-              <div>文件大小最大5G,最多20个序列</div>
-            </div> -->
+              <ta-upload-dragger
+                name="file"
+                :multiple="false"
+                webkitdirectory
+                directory
+                :showUploadList="false"
+                @change="uploadObj.handleChange"
+                :file-list="uploadObj.fileList"
+                :before-upload="uploadObj.beforeUpload"
+                :remove="uploadObj.handleRemove"
+                style="background: transparent"
+              >
+                <div class="ant-upload-drag-icon">
+                  <ta-button type="primary" icon="upload" class="mb-4"
+                    >上传数据</ta-button
+                  >
+                  <!-- <input
+                    type="file"
+                    webkitdirectory
+                    directory
+                    @change="handleFile"
+                  /> -->
+                </div>
+                <div class="ant-upload-text">
+                  <div class="mid_subTit text-center">
+                    <div class="mr-[10px]">
+                      点击或拖入.dcm文件/文件夹到本区域
+                    </div>
+                  </div>
+                </div>
+                <div class="ant-upload-hint">
+                  <div class="mid_subTit text-center">
+                    <div>文件大小最大5G,最多20个序列</div>
+                  </div>
+                </div>
+              </ta-upload-dragger>
+
+              <!-- <div class="mid_subTit flex">
+                <div class="mr-[10px]">点击或拖入.dcm文件/文件夹到本区域</div>
+                <div>文件大小最大5G,最多20个序列</div>
+              </div> -->
+            </div>
           </div>
         </div>
-      </div>
-      <div class="custom_panel">
-        <div class="custom_title pb-[20px] pt-[20px]">数据列表</div>
-        <div class="custom_context highBox">
-          <ta-big-table
-            ref="xTable_upload_anaRes"
-            height="auto"
-            highlight-hover-row
-            auto-resize
-            :data="tableData_upload_anaRes"
-            border="inner"
-          >
-            <ta-big-table-column field="xid" title="检查号">
-            </ta-big-table-column>
-            <ta-big-table-column field="hzid" title="患者ID">
-            </ta-big-table-column>
-            <ta-big-table-column field="xlid" title="序列ID">
-            </ta-big-table-column>
-            <ta-big-table-column field="xlms" title="序列描述">
-            </ta-big-table-column>
-            <ta-big-table-column field="scsj" title="上传时间">
-            </ta-big-table-column>
-            <ta-big-table-column field="state" title="状态">
-              <template #default="{ row }">
-                <ta-tag v-if="row.state === '1'" color="green">上传成功</ta-tag>
-              </template>
-            </ta-big-table-column>
-            <ta-big-table-column field="mathtype" title="算法类型">
-              <template #default="{ row }">
-                <ta-tag v-if="row.mathtype === '1'" color="blue">自动</ta-tag>
-              </template>
-            </ta-big-table-column>
-          </ta-big-table>
+        <div class="custom_panel">
+          <div class="custom_title pb-[20px] pt-[20px]">数据列表</div>
+          <div class="custom_context highBox">
+            <ta-big-table
+              ref="xTable_upload_anaRes"
+              height="auto"
+              highlight-hover-row
+              auto-resize
+              :data="tableData_upload_anaRes"
+              border="inner"
+            >
+              <ta-big-table-column field="Accession_Number" title="检查号">
+              </ta-big-table-column>
+              <ta-big-table-column field="Patient_ID" title="患者ID">
+              </ta-big-table-column>
+              <ta-big-table-column field="Study_Instance_UID" title="序列ID">
+              </ta-big-table-column>
+              <ta-big-table-column field="Series_Description" title="序列描述">
+              </ta-big-table-column>
+              <ta-big-table-column field="Upload_time" title="上传时间">
+              </ta-big-table-column>
+              <ta-big-table-column field="state" title="状态">
+                <template #default="{ row }">
+                  <ta-tag v-if="row.state === '1'" color="green"
+                    >上传成功</ta-tag
+                  >
+                </template>
+              </ta-big-table-column>
+              <ta-big-table-column field="mathtype" title="算法类型">
+                <template #default="{ row }">
+                  <ta-tag v-if="row.mathtype === '1'" color="blue">自动</ta-tag>
+                </template>
+              </ta-big-table-column>
+            </ta-big-table>
+          </div>
         </div>
-      </div>
+      </ta-spin>
     </ta-drawer>
   </div>
 </template>
-<script lang='javascript'>
+<script lang='jsx'>
 import Vue from "vue";
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
 
@@ -427,6 +433,7 @@ import { v4 as uuidv4 } from "uuid";
 // import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoaderNoWebWorkers.bundle.min";
 // import * as cornerstone from "cornerstone-core";
 // import dicomParser from "dicom-parser";
+// import * as dicomParser from 'dicom-parser';
 import cornerstoneWADOImageLoader from "@cornerstonejs/dicom-image-loader";
 
 import JSZip from "jszip";
@@ -439,10 +446,19 @@ import Upload from "@yh/ta404-ui/es/upload";
 import "@yh/ta404-ui/es/upload/style";
 Vue.use(Upload);
 
+import moment from 'moment';
+
+// import Spin from '@yh/ta404-ui/es/spin';
+// import '@yh/ta404-ui/es/spin/style';
+// Vue.use(Spin)
+
+import AlgorithmTypeSelect from "./module/AlgorithmTypeSelect.vue";
+
 export default {
   name: "manageDicom",
   components: {
     PacsPageHeader,
+    AlgorithmTypeSelect,
   },
   data() {
     const tableColumns = [
@@ -465,6 +481,103 @@ export default {
       },
     ];
     return {
+      algorMathSelectConfig:{
+        show:true,
+        confirmLoading:false,
+        onOk: async (e) => {
+          console.log("onOk", e);
+          const { fileList } = this.uploadObj;
+          console.log("压缩前-", fileList);
+
+          if (fileList.length > 0) {
+            const zip = new JSZip();
+
+            const filePromises = fileList.map(async (file) => {
+              try {
+                const arrayBuffer = await file.arrayBuffer();
+                console.log("arrayBuffer==", arrayBuffer);
+                const byteArray = new Uint8Array(arrayBuffer);
+                console.log("byteArray==", byteArray);
+
+                const isDicom = dicomParser.parseDicom(byteArray);
+                console.log("isDicom==", isDicom);
+
+                if (isDicom) {
+                  zip.file(file.name, file);
+                } else {
+                  console.log(`${file.name} is not a DICOM file.`);
+                }
+              } catch (error) {
+                console.error(`Error processing file ${file.name}:`, error);
+              }
+            });
+
+            const results = await Promise.allSettled(filePromises);
+
+            results.forEach((result, index) => {
+              if (result.status === "rejected") {
+                console.error(`Error processing file ${fileList[index].name}:`, result.reason);
+              }
+            });
+
+
+
+
+            const content = zip.generateAsync({ type: 'blob',compression: 'DEFLATE' }).then((blob) => {
+              console.log("merge--zip-blob:", blob);
+
+               // 获取当前时间戳并格式化
+              const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+              const zipFileName = `archive-${timestamp}.zip`;
+
+              const zipFile = new File([blob], zipFileName, { type: blob.type });
+              console.log("zipFile=", zipFile);
+
+                /* api文件测试用 start*/
+               // 创建一个指向 Blob 的 URL
+              //  const url = URL.createObjectURL(blob);
+                // 创建一个下载链接
+                // const link = document.createElement('a');
+              //  link.href = url;
+                // link.download = 'archive.zip'; // 设置下载文件的名称
+                // 触发点击事件以开始下载
+                // document.body.appendChild(link);
+                // link.click();
+                // 下载完成后，撤销 URL 并清理锚点
+                // document.body.removeChild(link);
+                // URL.revokeObjectURL(url);
+                /* api文件测试用 end*/
+
+              xhr_uploadDicom({
+                algorithmConfig: `[{}]`,
+                dicom: zipFile,
+              })
+                .then((item) => {
+                  console.log("xhr_uploadDicom___item:", item);
+                  const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
+
+                  this.$set(this.tableData_upload_anaRes,0,{
+                    ...this.tableData_upload_anaRes[0],
+                    Upload_time:currentTime,
+                    state:"1",
+                    mathtype:"1",
+                  })
+                  this.$box.update({ visible: false });
+                });
+            });
+          }
+        },
+        onCancel:(e)=>{
+          console.log("onCancel",e);
+          // this.algorMathSelectConfig.show = false;
+          // console.log("this.$box==onCancel",this.$box);
+
+
+
+          this.$box.update({visible:false})
+        },
+      },
+      spinning:false,
       uploadObj: {
         fileList: [],
         size: 0,
@@ -504,16 +617,14 @@ export default {
               console.log("全部载入", this.uploadObj.size);
 
               // this.uploadObj.fnUpload(info.file, info.fileList);
-              /**
-               * 1、压缩zip
-               * 2、上传接口
-               */
+
             }
           } else if (status === "error") {
             this.$message.error(`${info.file.name} file upload failed.`);
           }
         },
         beforeUpload: async (file) => {
+          this.spinning = true;
           // console.log("beforeUpload*****", file);
 
           this.uploadObj.fileList = [...this.uploadObj.fileList, file];
@@ -533,11 +644,55 @@ export default {
             this.tags = await readDicomTags(fileOne);
             console.log("tags____", tags, this.tags.tags);
             try {
-              const sysDicomTagInfo = this.$ut.convertDicomTags(
-                this.tags,
-                dicomTagsDescriptions
-              );
-              console.log("sysDicomTagInfo=", sysDicomTagInfo);
+            /* 参考：  {
+            Accession_Number: "2021010203011",
+            Patient_ID: "123123123",
+            Study_Instance_UID: "1.2.3..3.1.123123123123",
+            Series_Description: "1.25mm CHEST",
+            mathType: "auto", //1:肺炎 2:肺结节 3:骨折 4：非门控钙化积分 （预设）
+          }, */
+
+              this.$ut
+                .convertDicomTags(this.tags, dicomTagsDescriptions)
+                .then((sysDicomTagInfo) => {
+                  console.log("sysDicomTagInfo=", sysDicomTagInfo);
+                  this.$message.success(`序列 解析完成`, 10);
+
+                  const fieldsToMap = ["Accession_Number", "Patient_ID", "Study_Instance_UID","Series_Description"];
+
+                  const mappedValues = this.$ut.mapDicomTagsToValues(sysDicomTagInfo,fieldsToMap)
+
+                  console.log("mappedValues==",mappedValues);
+                  this.mappedValues = mappedValues;
+                  this.spinning = false;
+                  const { show,onOk,onCancel } = this.algorMathSelectConfig
+                 this.$box =  this.$confirm({
+                    title: "算法类型选择",
+                    icon:false,
+                    // 建议使用这种方式传入content值，这里可以写原生HTML标签
+                    // 或vue组件也可以以标签的形式在这里引入
+                    // 写法与vue文件的template 完全一致，
+                    // 需要注意的是，使用此种方式传入值时，必须使用英文的`()`包围
+                    // 否则，编译会报错
+                    content: (<AlgorithmTypeSelect itemData={[mappedValues]} />),
+                    footer: (
+                      <div class="btn_group flex">
+                        <div class="w-full flex justify-end">
+                          <div>
+                            <ta-button on-click={(e)=>onCancel(e)}>取消</ta-button>
+                            <ta-button on-click={(e)=>onOk(e)} type="primary">上传</ta-button>
+                          </div>
+                        </div>
+                      </div>
+                    ),
+                    okText:"上传",
+                    zoomable:true,
+                    confirmLoading:this.algorMathSelectConfig.confirmLoading,
+                    width:"calc(1358 / 1920 * 100vw)",
+                    keyboard:false,
+                    visible:this.algorMathSelectConfig.show,
+                  });
+                });
             } catch (error) {
               console.error("Error converting DICOM tags:", error.message);
             }
@@ -553,6 +708,7 @@ export default {
           newFileList.splice(index, 1);
           this.uploadObj.fileList = newFileList;
         },
+        // 测试用
         fnUpload: (file, fileList) => {
           console.log("start----fnUpload file, fileList", file, fileList);
           const dicom = fileList[0];
@@ -567,15 +723,15 @@ export default {
         },
       },
       tableData_upload_anaRes: [
-        {
-          xid: "20210407000133",
-          hzid: "16187278",
-          xlid: "1.2.840.113619.2.289.3.168430441.447.1617294423.131.3",
-          xlms: "1.25mm CHEST",
-          scsj: "2024-06-14 11:52:02",
-          state: "1",
-          mathtype: "1",
-        },
+        // {
+        //   Accession_Number: "20210407000133",
+        //   Patient_ID: "16187278",
+        //   Study_Instance_UID: "1.2.840.113619.2.289.3.168430441.447.1617294423.131.3",
+        //   Series_Description: "1.25mm CHEST",
+        //   Upload_time: "2024-06-14 11:52:02",
+        //   state: "1",
+        //   mathtype: "1",
+        // },
       ],
       fileDraw: {
         title: "dicom文件上传",

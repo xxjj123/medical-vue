@@ -1,10 +1,38 @@
 export default {
   /**
+   * 原始数据数组和需要筛选的字段名称数组。这个函数将转换字段名称数组中的值，将下划线转换为空间，并检查这些值是否与原始数据中每个对象的 engName 属性匹配。如果匹配，它会将字段名称映射到对应的 sortValue。
+   * @param originalData
+   * @param fieldsToMap
+   * @returns
+   */
+  mapDicomTagsToValues(originalData, fieldsToMap) {
+    // 创建一个结果对象
+    const result = {};
+
+    // 遍历字段名称数组
+    fieldsToMap.forEach(field => {
+      // 将下划线转换为空间，以匹配原始数据中的 engName
+      const normalizedFieldName = field.replace(/_/g, ' ');
+
+      // 遍历原始数据数组
+      originalData.forEach(item => {
+        // 检查当前字段名称是否与原始数据的 engName 属性匹配
+        if (item.engName === normalizedFieldName) {
+          // 如果匹配，将字段名称添加到结果对象，并设置对应的 sortValue
+          result[field] = item.sortValue;
+        }
+      });
+    });
+
+    // 返回结果对象
+    return result;
+  },
+  /**
    * readDicomTags输出格式转换为系统用json
    * @param dicomData
    * @returns
    */
-  convertDicomTags(dicomData, dicomTagsDescriptions) {
+  async convertDicomTags(dicomData, dicomTagsDescriptions) {
     // debugger
     // 验证dicomData和dicomData.tags的有效性
     if (!dicomData || !dicomData.tags || !Array.isArray(dicomData.tags)) {
