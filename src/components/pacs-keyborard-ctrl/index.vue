@@ -10,7 +10,7 @@
     <template slot="footer">
       <div class="flex justify-between">
         <div>
-          <ta-button type="solid" :ghost="true"> 恢复默认</ta-button>
+          <ta-button :ghost="true"> 恢复默认</ta-button>
         </div>
         <div>
           <ta-button key="back" @click="handleCancel">取消</ta-button>

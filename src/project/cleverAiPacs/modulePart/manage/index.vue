@@ -8,61 +8,72 @@
       <div class="headerBox">
         <ta-row type="flex" justify="space-between">
           <ta-col :span="20">
-            <ta-form-model :layout="'inline'" :model="form">
-              <ta-form-model-item label="检查时间">
+            <ta-form-model :layout="'inline'" ref="searchForm" :model="form">
+              <ta-form-model-item label="检查时间" prop="qaTime">
                 <ta-select
-                  defaultValue="custom"
                   style="width: 120px"
-                  @change="handleChange_jstime"
-                  :options="options_querytime"
-                  :options-key="optionsKey"
+                  v-model="form.qaTime"
+                  @change="qaTimeOb.onChange"
+                  :options="qaTimeOb.options"
+                  :options-key="qaTimeOb.optionskV"
                 />
               </ta-form-model-item>
-              <ta-form-model-item>
+              <ta-form-model-item v-if="rangeDateOb.show" prop="rangeDate">
                 <div class="custom_pickerDeepBlue">
                   <ta-range-picker
-                    @change="onChange"
-                    :value="form.rangeDate"
+                    @change="rangeDateOb.onChange"
+                    :format="rangeDateOb.dateFormat"
+                    v-model="form.rangeDate"
                     :allow-one="true"
                     :getCalendarContainer="(trigger) => trigger.parentElement"
                   />
                 </div>
               </ta-form-model-item>
-              <ta-form-model-item label="患者信息">
+              <ta-form-model-item label="患者信息" prop="patientValue">
                 <ta-input-group compact>
                   <ta-select
-                    defaultValue="jch"
-                    @change="handleChange_hzinfo"
-                    :options="options_patientInfo"
-                    :options-key="optionsKey_patientInfo"
+                    style="width: 100px"
+                    v-model="form.patientInfo"
+                    @change="patientMapOb.onChange"
+                    :options="patientMapOb.options"
+                    :options-key="patientMapOb.optionskV"
                   >
                   </ta-select>
-                  <ta-input style="width: 100px" />
+                  <ta-input
+                    allowClear
+                    style="width: 100px"
+                    v-model="form.patientValue"
+                  />
                 </ta-input-group>
               </ta-form-model-item>
-              <ta-form-model-item label="算法类型">
+              <ta-form-model-item label="算法类型" prop="mathType">
                 <ta-select
-                  defaultValue=""
                   style="width: 120px"
-                  @change="handleChange_sdlx"
-                  :options="options_suanfa"
-                  :options-key="optionsKey_suafa"
+                  v-model="form.mathType"
+                  @change="mathTypeMapOb.onChange"
+                  :options="mathTypeMapOb.options"
+                  :options-key="mathTypeMapOb.optionskV"
                 >
                 </ta-select>
               </ta-form-model-item>
-              <ta-form-model-item label="计算状态">
+              <ta-form-model-item label="计算状态" prop="computeState">
                 <ta-select
-                  defaultValue=""
                   style="width: 120px"
-                  @change="handleChange_jszt"
-                  :options="options_jszt"
-                  :options-key="optionsKey_jszt"
+                  v-model="form.computeState"
+                  @change="computeStateMapOb.onChange"
+                  :options="computeStateMapOb.options"
+                  :options-key="computeStateMapOb.optionskV"
                 >
                 </ta-select>
               </ta-form-model-item>
               <ta-form-model-item>
-                <ta-button type="primary" class="mr-[8px]">查询</ta-button>
-                <ta-button>重置</ta-button>
+                <ta-button
+                  type="primary"
+                  class="mr-[8px]"
+                  @click="handle_queryDicomList"
+                  >查询</ta-button
+                >
+                <ta-button @click="handle_searchItem_reset">重置</ta-button>
                 <ta-button @click="goto_workplatform">跳转</ta-button>
               </ta-form-model-item>
             </ta-form-model>
@@ -71,14 +82,12 @@
             <div class="btn_ctrl flex justify-start">
               <ta-button
                 class="aghost__border-grey-1 flex items-center mr-[12px]"
-                type="solid"
                 :ghost="true"
                 ><i class="ico_star mr-[5px]"></i
                 ><span>我的收藏</span></ta-button
               >
               <ta-button
                 class="aghost__border-grey-1 flex items-center"
-                type="solid"
                 :ghost="true"
                 @click="handle_openfiledraw"
                 ><i class="ico_upd mr-[5px]"></i
@@ -89,13 +98,6 @@
         </ta-row>
       </div>
       <div class="tableBox">
-        <!-- <ta-big-table
-          border
-          ref="xTable"
-          height="300"
-          :data="tableData"
-          :columns="tableColumns"
-        > -->
         <ta-big-table
           ref="xTable"
           height="auto"
@@ -105,7 +107,7 @@
           border="inner"
         >
           <ta-big-table-column
-            field="is-collect"
+            field="myFavorite"
             title="#"
             width="60"
             fixed="left"
@@ -116,7 +118,7 @@
                 @click="handle_star(row, rowIndex)"
               >
                 <ta-icon
-                  v-if="row.collect === 1"
+                  v-if="row.myFavorite"
                   :style="starOn_style"
                   type="star"
                   theme="filled"
@@ -126,7 +128,7 @@
             </template>
           </ta-big-table-column>
           <ta-big-table-column
-            field="examinationId"
+            field="accessionNumber"
             title="检查号"
             width="150"
             fixed="left"
@@ -146,23 +148,27 @@
             fixed="left"
           >
           </ta-big-table-column>
-          <ta-big-table-column field="age" title="年龄" width="70">
+          <ta-big-table-column field="patientAge" title="年龄" width="70">
           </ta-big-table-column>
           <ta-big-table-column
-            field="examinationTime"
+            field="studyDateAndTime"
             title="检查时间"
             width="180"
           >
           </ta-big-table-column>
           <ta-big-table-column
-            field="examinationDescription"
+            field="studyDescription"
             title="检查描述"
             min-width="150"
           >
           </ta-big-table-column>
           <ta-big-table-column field="seriesCount" title="序列数" width="130">
           </ta-big-table-column>
-          <ta-big-table-column field="mathType" title="算法类型" width="140">
+          <ta-big-table-column
+            field="algorithmType"
+            title="算法类型"
+            width="140"
+          >
           </ta-big-table-column>
 
           <ta-big-table-column
@@ -181,7 +187,7 @@
                   <a class="alink"> 重新分析 </a>
                   <ta-divider type="vertical" />
                   <a class="alink" @click="handle_star(row, rowIndex)">
-                    <template v-if="row.collect === 1"> 取消收藏 </template>
+                    <template v-if="row.myFavorite"> 取消收藏 </template>
                     <template v-else> 添加收藏 </template>
                   </a>
                 </ta-col>
@@ -199,20 +205,20 @@
           </ta-big-table-column>
 
           <template slot="bottomBar">
-            <!-- <ta-pagination
-              ref="gridPager"
-              style="text-align: right"
-              :data-source.sync="tableData"
-              :params="userPageParams"
-            /> -->
             <ta-pagination
               style="text-align: right"
+              :dataSource.sync="tableData"
+              :showTotal="false"
               sizeChangeInput
-              showSizeChanger
-              :pageSize.sync="pageSizeInput"
-              @showSizeChange="onShowSizeChange"
-              :defaultCurrent="3"
-              :total="500"
+              :showSizeChanger="false"
+              :url="managerDicomTableConf.queryUrl"
+              :params="managerDicomTableConf.fnParams"
+              :pageSize.sync="managerDicomTableConf.pageInfo.pageSize"
+              @showSizeChange="managerDicomTableConf.onShowSizeChange"
+              @change="managerDicomTableConf.onChange"
+              :defaultCurrent="managerDicomTableConf.pageInfo.pageNumber"
+              :total="managerDicomTableConf.pageInfo.total"
+              ref="gridPager"
             />
           </template>
         </ta-big-table>
@@ -313,22 +319,9 @@
         <div class="custom_panel">
           <div class="custom_title pb-[20px]">上传数据</div>
           <div class="custom_context">
-            <!-- <div
-              class="upload_box flex flex-col items-center justify-center border border-dashed border-white pt-[50px] pb-[50px]"
-            > -->
             <div
               class="upload_box border border-dashed border-white pt-[50px] pb-[50px]"
             >
-              <!-- <ta-upload
-                :file-list="uploadObj.fileList"
-                :before-upload="uploadObj.beforeUpload"
-                :remove="uploadObj.handleRemove"
-              >
-                <ta-button type="primary" icon="upload" class="mb-4"
-                  >上传数据</ta-button
-                >
-              </ta-upload> -->
-
               <ta-upload-dragger
                 name="file"
                 :multiple="false"
@@ -345,12 +338,6 @@
                   <ta-button type="primary" icon="upload" class="mb-4"
                     >上传数据</ta-button
                   >
-                  <!-- <input
-                    type="file"
-                    webkitdirectory
-                    directory
-                    @change="handleFile"
-                  /> -->
                 </div>
                 <div class="ant-upload-text">
                   <div class="mid_subTit text-center">
@@ -365,11 +352,6 @@
                   </div>
                 </div>
               </ta-upload-dragger>
-
-              <!-- <div class="mid_subTit flex">
-                <div class="mr-[10px]">点击或拖入.dcm文件/文件夹到本区域</div>
-                <div>文件大小最大5G,最多20个序列</div>
-              </div> -->
             </div>
           </div>
         </div>
@@ -411,6 +393,8 @@
         </div>
       </ta-spin>
     </ta-drawer>
+
+    <ta-spin class="loadTop_full" :spinning="spinning"></ta-spin>
   </div>
 </template>
 <script lang='jsx'>
@@ -423,6 +407,7 @@ import {
   uploadExamination,
   isExit,
   xhr_uploadDicom,
+  xhr_pageStudies,
 } from "@/api";
 import { v4 as uuidv4 } from "uuid";
 // import dicomParser from "dicom-parser/dist/dicomParser.js";
@@ -434,138 +419,330 @@ import { v4 as uuidv4 } from "uuid";
 // import * as cornerstone from "cornerstone-core";
 // import dicomParser from "dicom-parser";
 // import * as dicomParser from 'dicom-parser';
-import cornerstoneWADOImageLoader from "@cornerstonejs/dicom-image-loader";
-
-import JSZip from "jszip";
 // import cornerstone from "cornerstone-core/dist/cornerstone";
+
+import cornerstoneWADOImageLoader from "@cornerstonejs/dicom-image-loader";
+import JSZip from "jszip";
 
 import { readDicomTags } from "@itk-wasm/dicom";
 import { dicomTagsDescriptions } from "@/assets/js/utils/dicom/codeDesc";
+import { PATIENT_LABOPTIONS,isPatientOptionValid } from "@/assets/js/utils/dicom/select";
 
 import Upload from "@yh/ta404-ui/es/upload";
 import "@yh/ta404-ui/es/upload/style";
 Vue.use(Upload);
 
-import moment from 'moment';
-
-// import Spin from '@yh/ta404-ui/es/spin';
-// import '@yh/ta404-ui/es/spin/style';
-// Vue.use(Spin)
 
 import AlgorithmTypeSelect from "./module/AlgorithmTypeSelect.vue";
-
+import moment from "moment";
+import { debounce } from "lodash";
+import urlJson from '@/api/collect-api';
+import {
+  apiOps,
+  testDevOps
+} from '@/api/options';
+const { study } = testDevOps;
 export default {
   name: "manageDicom",
   components: {
     PacsPageHeader,
     AlgorithmTypeSelect,
   },
-  data() {
-    const tableColumns = [
-      {
-        title: "#",
-        field: "is-collect",
-        width: 50,
+  computed:{
+    tableData:{
+      get(){
+        return this.tableDataValue;
       },
-      {
-        title: "检查号",
-        field: "qid",
-        customRender: {
-          default: ({ row }, h) => {
-            console.log("row, h", row, h);
-            console.log("-this.$createElement", this.$createElement);
-            // return '-'
-            return h("span", {}, `${row.qid}来了老弟`);
-          },
+      set(val){
+        // return val
+        this.tableDataValue = val;
+      },
+    }
+  },
+  data() {
+
+    return {
+      rangeDateOb:{
+        show:false,
+        dateFormat:"YYYY-MM-DD",
+        onChange:(date, dateString)=>{
+          console.log(date, dateString);
         },
       },
-    ];
-    return {
+      patientMapOb:{
+        onChange:(value)=>{
+          console.log(`selected ${value}`);
+        },
+        options:[
+          {
+            labName: "检查号",
+            value: "accessionNumber",
+            key: "011",
+          },
+          {
+            labName: "患者ID",
+            value: "patientId",
+            key: "012",
+          },
+          {
+            labName: "患者姓名",
+            value: "patientName",
+            key: "013",
+          },
+        ],
+        optionskV:{
+          value: "value",
+          label: "labName", // 默认值为'label'
+          disabled: "disabled",
+          key: "key",
+        },
+      },
+      mathTypeMapOb:{
+        onChange:(value)=>{
+          console.log(`selected ${value}`);
+        },
+        options:[
+          {
+            labName: "全部",
+            value: "",
+            key: "all",
+          },
+          {
+            labName: "冠脉CTA",
+            value: "gm-cta",
+            key: "011",
+          },
+          {
+            labName: "门控钙化积分",
+            value: "mk-ghjf",
+            key: "012",
+          },
+          {
+            labName: "头颈CTA",
+            value: "tj-cta",
+            key: "013",
+          },
+          {
+            labName: "ICH",
+            value: "ich",
+            key: "014",
+          },
+          {
+            labName: "胸肺CT",
+            value: "xf-ct",
+            key: "015",
+          },
+        ],
+        optionskV:{
+          value: "value",
+          label: "labName", // 默认值为'label'
+          disabled: "disabled",
+          key: "key",
+        }
+
+
+      },
+      computeStateMapOb:{
+          onChange:(value)=> {
+            console.log(`selected ${value}`);
+          },
+          optionskV: {
+            value: "value",
+            label: "labName", // 默认值为'label'
+            disabled: "disabled",
+            key: "key",
+          },
+          options: [
+            {
+              labName: "全部",
+              value: "",
+              key: "all",
+            },
+            {
+              labName: "计算成功",
+              value: "jscg",
+              key: "001",
+            },
+            {
+              labName: "计算失败",
+              value: "jssb",
+              key: "002",
+            },
+            {
+              labName: "计算中",
+              value: "jsz",
+              key: "003",
+            },
+            {
+              labName: "等待计算",
+              value: "ddjs",
+              key: "004",
+            },
+            {
+              labName: "计算取消",
+              value: "jsqx",
+              key: "005",
+            },
+          ],
+      },
+      tableDataValue: [],
+      managerDicomTableConf:{
+        onChange:(page, pageSize)=>{
+          console.log("onChange--page, pageSize",page, pageSize);
+          this.managerDicomTableConf.pageInfo.pageNumber = page;
+          this.managerDicomTableConf.pageInfo.pageSize = pageSize;
+
+          this.managerDicomTableConf.queryPagerInfo()
+          this.handle_queryDicomList();
+        },
+        onShowSizeChange:(current, pageSize)=>{
+          console.log("this.managerDicomTableConf.pageInfo.pageNumber",this.managerDicomTableConf.pageInfo.pageNumber)
+            console.log(current, pageSize);
+            this.managerDicomTableConf.pageInfo.pageNumber = this.managerDicomTableConf.pageInfo.pageNumber;
+          this.managerDicomTableConf.pageInfo.pageSize = pageSize;
+        },
+        queryUrl:study + urlJson['pageStudies'],
+        pageInfo:{
+          pageNumber:1,
+          pageSize:10,
+          total:0,
+          // pages:-1,//页数
+          paginationModel:"mostCount",
+        },
+        queryPagerInfo:()=>{
+          const pager = this.$refs.gridPager.getPagerInfo()
+          console.log("pager--",pager);
+          return pager;
+        },
+        fnParams:()=>{
+          const baseModel = {
+            paginationModel:"mostCount"
+          }
+          console.log("fnParams----this.form",this.form);
+          let ExtParams = {};
+          const { patientInfo,patientValue,rangeDate } = this.form;
+          // debugger
+          const isisPatientOptionValid_state = isPatientOptionValid(patientInfo)
+          if(isisPatientOptionValid_state){
+            switch (patientInfo){
+              case PATIENT_LABOPTIONS.AccessionNumber:{
+                ExtParams.accessionNumber = patientValue;
+              }
+                break;
+              case PATIENT_LABOPTIONS.PatientId:{
+                ExtParams.patientId = patientValue;
+              }
+                break;
+              case PATIENT_LABOPTIONS.PatientName:{
+                ExtParams.patientName = patientValue;
+              }
+                break;
+              default:
+                return void 0;
+            }
+          }
+          ExtParams.startData = rangeDate[0];
+          ExtParams.endData = rangeDate[1];
+
+
+          const fullExtParam = Object.assign({},baseModel,ExtParams)
+
+          return fullExtParam;
+        }
+      },
       algorMathSelectConfig:{
         show:true,
         confirmLoading:false,
-        onOk: async (e) => {
-          console.log("onOk", e);
-          const { fileList } = this.uploadObj;
-          console.log("压缩前-", fileList);
+        onOk:async (e) => {
+            console.log("onOk", e);
+            const { fileList } = this.uploadObj;
+            console.log("压缩前-", fileList);
+            this.spinning = true;
+            if (fileList.length > 0) {
+              const zip = new JSZip();
 
-          if (fileList.length > 0) {
-            const zip = new JSZip();
+              const filePromises = fileList.map(async (file) => {
+                try {
+                  const arrayBuffer = await file.arrayBuffer();
+                  console.log("arrayBuffer==", arrayBuffer);
+                  const byteArray = new Uint8Array(arrayBuffer);
+                  console.log("byteArray==", byteArray);
 
-            const filePromises = fileList.map(async (file) => {
-              try {
-                const arrayBuffer = await file.arrayBuffer();
-                console.log("arrayBuffer==", arrayBuffer);
-                const byteArray = new Uint8Array(arrayBuffer);
-                console.log("byteArray==", byteArray);
+                  const isDicom = dicomParser.parseDicom(byteArray);
+                  console.log("isDicom==", isDicom);
 
-                const isDicom = dicomParser.parseDicom(byteArray);
-                console.log("isDicom==", isDicom);
-
-                if (isDicom) {
-                  zip.file(file.name, file);
-                } else {
-                  console.log(`${file.name} is not a DICOM file.`);
+                  if (isDicom) {
+                    zip.file(file.name, file);
+                  } else {
+                    console.log(`${file.name} is not a DICOM file.`);
+                  }
+                } catch (error) {
+                  console.error(`Error processing file ${file.name}:`, error);
                 }
-              } catch (error) {
-                console.error(`Error processing file ${file.name}:`, error);
-              }
-            });
+              });
 
-            const results = await Promise.allSettled(filePromises);
+              const results = await Promise.allSettled(filePromises);
 
-            results.forEach((result, index) => {
-              if (result.status === "rejected") {
-                console.error(`Error processing file ${fileList[index].name}:`, result.reason);
-              }
-            });
+              results.forEach((result, index) => {
+                if (result.status === "rejected") {
+                  console.error(`Error processing file ${fileList[index].name}:`, result.reason);
+                }
+              });
 
 
 
 
-            const content = zip.generateAsync({ type: 'blob',compression: 'DEFLATE' }).then((blob) => {
-              console.log("merge--zip-blob:", blob);
+              const content = zip.generateAsync({ type: 'blob',compression: 'DEFLATE' }).then((blob) => {
+                console.log("merge--zip-blob:", blob);
 
-               // 获取当前时间戳并格式化
-              const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-              const zipFileName = `archive-${timestamp}.zip`;
+                 // 获取当前时间戳并格式化
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                const zipFileName = `archive-${timestamp}.zip`;
 
-              const zipFile = new File([blob], zipFileName, { type: blob.type });
-              console.log("zipFile=", zipFile);
+                const zipFile = new File([blob], zipFileName, { type: blob.type });
+                console.log("zipFile=", zipFile);
 
-                /* api文件测试用 start*/
-               // 创建一个指向 Blob 的 URL
-              //  const url = URL.createObjectURL(blob);
-                // 创建一个下载链接
-                // const link = document.createElement('a');
-              //  link.href = url;
-                // link.download = 'archive.zip'; // 设置下载文件的名称
-                // 触发点击事件以开始下载
-                // document.body.appendChild(link);
-                // link.click();
-                // 下载完成后，撤销 URL 并清理锚点
-                // document.body.removeChild(link);
-                // URL.revokeObjectURL(url);
-                /* api文件测试用 end*/
+                  /* api文件测试用 start*/
+                 // 创建一个指向 Blob 的 URL
+                //  const url = URL.createObjectURL(blob);
+                  // 创建一个下载链接
+                  // const link = document.createElement('a');
+                //  link.href = url;
+                  // link.download = 'archive.zip'; // 设置下载文件的名称
+                  // 触发点击事件以开始下载
+                  // document.body.appendChild(link);
+                  // link.click();
+                  // 下载完成后，撤销 URL 并清理锚点
+                  // document.body.removeChild(link);
+                  // URL.revokeObjectURL(url);
+                  /* api文件测试用 end*/
 
-              xhr_uploadDicom({
-                algorithmConfig: `[{}]`,
-                dicom: zipFile,
-              })
-                .then((item) => {
-                  console.log("xhr_uploadDicom___item:", item);
-                  const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
 
-                  this.$set(this.tableData_upload_anaRes,0,{
-                    ...this.tableData_upload_anaRes[0],
-                    Upload_time:currentTime,
-                    state:"1",
-                    mathtype:"1",
-                  })
-                  this.$box.update({ visible: false });
-                });
-            });
-          }
+                xhr_uploadDicom({
+                  algorithmConfig: `[{}]`,
+                  dicom: zipFile,
+                })
+                  .then((item) => {
+                    const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
+                    console.log("xhr_uploadDicom___item:", item);
+                    // this.tableData_upload_anaRe[0] = {
+                    //   ...this.tableData_upload_anaRes[0],
+                    //   Upload_time:currentTime,
+                    //   state:"1",
+                    //   mathtype:"1"
+                    // }
+                    this.$set(this.tableData_upload_anaRes,0,{
+                      ...this.tableData_upload_anaRes[0],
+                      Upload_time:currentTime,
+                      state:"1",
+                      mathtype:"1"
+                    })
+                    this.spinning = false;
+                    this.$box.update({ visible: false });
+                  });
+              });
+            }
+
         },
         onCancel:(e)=>{
           console.log("onCancel",e);
@@ -664,6 +841,7 @@ export default {
 
                   console.log("mappedValues==",mappedValues);
                   this.mappedValues = mappedValues;
+                  this.tableData_upload_anaRes.push(this.mappedValues);
                   this.spinning = false;
                   const { show,onOk,onCancel } = this.algorMathSelectConfig
                  this.$box =  this.$confirm({
@@ -732,13 +910,14 @@ export default {
         //   state: "1",
         //   mathtype: "1",
         // },
-      ],
-      fileDraw: {
+    ],
+    fileDraw: {
         title: "dicom文件上传",
         headerHeight: "65px",
         visible: false,
         onClose: () => {
           console.log("onClose");
+          this.cache_init_pageData();
           this.fileDraw.visible = false;
         },
         width: "100vw",
@@ -755,143 +934,54 @@ export default {
         },
       },
       form: {
-        fieldA: "",
-        rangeDate: "",
+        qaTime:"",
+        rangeDate: ['',''],
+        patientInfo:"",
+        patientValue:"",
+        mathType:"",
+        computeState:"",
+
       },
-      optionsKey: {
-        value: "value",
-        label: "labName", // 默认值为'label'
-        disabled: "disabled",
-        key: "key",
+      qaTimeOb:{
+        onChange:(value)=>{
+          console.log(`selected ${value}`);
+        },
+        options:[
+          {
+            labName: "今天",
+            value: "today",
+            key: "011",
+          },
+          {
+            labName: "昨天",
+            value: "yesterday",
+            key: "012",
+          },
+          {
+            labName: "三天内",
+            value: "threedays",
+            key: "013",
+          },
+          {
+            labName: "一周内",
+            value: "inweek",
+            key: "014",
+          },
+          {
+            labName: "自定义",
+            value: "custom",
+            key: "015",
+          },
+        ],
+        optionskV: {
+          value: "value",
+          label: "labName", // 默认值为'label'
+          disabled: "disabled",
+          key: "key",
+        }
       },
-      options_querytime: [
-        {
-          labName: "今天",
-          value: "today",
-          key: "011",
-        },
-        {
-          labName: "昨天",
-          value: "yesterday",
-          key: "012",
-        },
-        {
-          labName: "三天内",
-          value: "threedays",
-          key: "013",
-        },
-        {
-          labName: "一周内",
-          value: "inweek",
-          key: "014",
-        },
-        {
-          labName: "自定义",
-          value: "custom",
-          key: "015",
-        },
-      ],
-      optionsKey_patientInfo: {
-        value: "value",
-        label: "labName", // 默认值为'label'
-        disabled: "disabled",
-        key: "key",
-      },
-      options_patientInfo: [
-        {
-          labName: "检查号",
-          value: "jch",
-          key: "011",
-        },
-        {
-          labName: "患者ID",
-          value: "huanzheID",
-          key: "012",
-        },
-        {
-          labName: "患者姓名",
-          value: "huanzheName",
-          key: "013",
-        },
-      ],
-      optionsKey_suafa: {
-        value: "value",
-        label: "labName", // 默认值为'label'
-        disabled: "disabled",
-        key: "key",
-      },
-      options_suanfa: [
-        {
-          labName: "全部",
-          value: "",
-          key: "all",
-        },
-        {
-          labName: "冠脉CTA",
-          value: "gm-cta",
-          key: "011",
-        },
-        {
-          labName: "门控钙化积分",
-          value: "mk-ghjf",
-          key: "012",
-        },
-        {
-          labName: "头颈CTA",
-          value: "tj-cta",
-          key: "013",
-        },
-        {
-          labName: "ICH",
-          value: "ich",
-          key: "014",
-        },
-        {
-          labName: "胸肺CT",
-          value: "xf-ct",
-          key: "015",
-        },
-      ],
-      optionsKey_jszt: {
-        value: "value",
-        label: "labName", // 默认值为'label'
-        disabled: "disabled",
-        key: "key",
-      },
-      options_jszt: [
-        {
-          labName: "全部",
-          value: "",
-          key: "all",
-        },
-        {
-          labName: "计算成功",
-          value: "jscg",
-          key: "001",
-        },
-        {
-          labName: "计算失败",
-          value: "jssb",
-          key: "002",
-        },
-        {
-          labName: "计算中",
-          value: "jsz",
-          key: "003",
-        },
-        {
-          labName: "等待计算",
-          value: "ddjs",
-          key: "004",
-        },
-        {
-          labName: "计算取消",
-          value: "jsqx",
-          key: "005",
-        },
-      ],
-      tableColumns,
-      tableData: [],
+
+      // tableData: [],
 
       starOn_style: {
         color: `#F5A623`,
@@ -904,6 +994,14 @@ export default {
     };
   },
   watch: {
+    tableData:{
+      handler(nVal,oVal){
+        console.log("tableData==",nVal,oVal);
+        // this.tableData = nVal;
+      },
+      deep:true,
+      immediate:true
+    },
     pageSize(val) {
       console.log("pageSize", val);
     },
@@ -912,6 +1010,74 @@ export default {
     },
   },
   methods: {
+    handle_searchItem_reset(){
+      console.log("handle_searchItem_reset");
+      this.$refs['searchForm'].resetFields();
+      console.log("this.$refs['searchForm']",this.$refs['searchForm']);
+    },
+    init_searchData(){
+      //初始化 form 查询条件数据
+      const startDate =  moment().format(this.rangeDateOb.dateFormat);
+      const endDate = moment().format(this.rangeDateOb.dateFormat);
+      this.form.rangeDate = [startDate,endDate];
+      this.rangeDateOb.show = true;
+    },
+    init_loadData(){
+
+      this.$refs.gridPager.loadData(result=>{
+        console.log("loadata-data",result);
+        // const pageObj = result?.data?.pageBean;
+        // const list = pageObj?.list;
+        // const { pageNum:pageNumber,pageSize,currentSize,total,pages } = pageObj;
+        // this.managerDicomTableConf.pageInfo = {
+        //   ...this.managerDicomTableConf.pageInfo,
+        //   total
+        // }
+        //   if(Array.isArray(list)){
+        //     this.tableDataValue = list;
+        //   }
+
+      })
+    },
+    handle_queryDicomList(){
+      // 注入条件
+      console.log("this.form=",this.form)
+
+
+      this.cache_init_pageData();
+    },
+    async cache_init_pageData(){
+      this.init_loadData();
+      // const pageInfo = {
+      //   ...this.managerDicomTableConf.pageInfo
+      // }
+
+      // try{
+      //   const pageList = await xhr_pageStudies(pageInfo);
+      //   const pageObj = pageList?.data?.pageBean;
+      //   const list = pageObj?.list;
+      //   const { pageNum:pageNumber,pageSize,currentSize,total,pages } = pageObj;
+
+      //   this.managerDicomTableConf.pageInfo = {
+      //     ...this.managerDicomTableConf.pageInfo,
+      //     total
+      //   }
+
+      //   if(Array.isArray(list)){
+
+      //     this.tableDataValue = list;
+
+      //   }
+
+
+
+      //   console.log("xhr_pageStudies----pageList",pageList);
+      // }catch(e){
+      //   //TODO handle the exception
+      //   console.error(e);
+      // }
+
+    },
     handleFile(e) {
       console.log("handleFile__", e);
     },
@@ -997,27 +1163,13 @@ export default {
       return formData;
     },
 
-    onShowSizeChange(current, pageSize) {
-      console.log(current, pageSize);
-    },
+
     handle_openfiledraw() {
       this.fileDraw.visible = true;
     },
-    handleChange_jstime(value) {
-      console.log(`selected ${value}`);
-    },
-    handleChange_hzinfo(value) {
-      console.log(`selected ${value}`);
-    },
-    handleChange_sdlx(value) {
-      console.log(`selected ${value}`);
-    },
-    handleChange_jszt(value) {
-      console.log(`selected ${value}`);
-    },
-    onChange(date, dateString) {
-      console.log(date, dateString);
-    },
+
+
+
     handle_star(row, rowIndex) {
       // row.collect = 1;
       const { collect } = this.tableData[rowIndex];
@@ -1080,124 +1232,26 @@ export default {
       return {};
     },
   },
-  created() {
-    this.tableData = [
-      {
-        qid: "DJ109090910212", //检查号
-        hzId: "4123122111", //患者ID
-        hzName: "李文豪", //患者姓名
-        age: "62", //年龄
-        qcTime: "2024.04.01 11:28", //检查时间
-        qcRemark: "Chest", //检查描述
-        seqNo: "01", //序列数
-        mathType: "胸肺CT", //算法类型
-      },
-      {
-        qid: "DJ109090910212", //检查号
-        hzId: "4123122111", //患者ID
-        hzName: "李文豪", //患者姓名
-        age: "62", //年龄
-        qcTime: "2024.04.01 11:28", //检查时间
-        qcRemark: "Chest", //检查描述
-        seqNo: "01", //序列数
-        mathType: "胸肺CT", //算法类型
-      },
-      {
-        qid: "DJ109090910212", //检查号
-        hzId: "4123122111", //患者ID
-        hzName: "李文豪", //患者姓名
-        age: "62", //年龄
-        qcTime: "2024.04.01 11:28", //检查时间
-        qcRemark: "Chest", //检查描述
-        seqNo: "01", //序列数
-        mathType: "胸肺CT", //算法类型
-      },
-      {
-        qid: "DJ109090910212", //检查号
-        hzId: "4123122111", //患者ID
-        hzName: "李文豪", //患者姓名
-        age: "62", //年龄
-        qcTime: "2024.04.01 11:28", //检查时间
-        qcRemark: "Chest", //检查描述
-        seqNo: "01", //序列数
-        mathType: "胸肺CT", //算法类型
-      },
-      {
-        qid: "DJ109090910212", //检查号
-        hzId: "4123122111", //患者ID
-        hzName: "李文豪", //患者姓名
-        age: "62", //年龄
-        qcTime: "2024.04.01 11:28", //检查时间
-        qcRemark: "Chest", //检查描述
-        seqNo: "01", //序列数
-        mathType: "胸肺CT", //算法类型
-      },
-      {
-        qid: "DJ109090910212", //检查号
-        hzId: "4123122111", //患者ID
-        hzName: "李文豪", //患者姓名
-        age: "62", //年龄
-        qcTime: "2024.04.01 11:28", //检查时间
-        qcRemark: "Chest", //检查描述
-        seqNo: "01", //序列数
-        mathType: "胸肺CT", //算法类型
-      },
-    ];
 
-    this.tableData_anaRes = [
-      {
-        xid: "4", //序列号
-        desc: "1.25mm lung", //序列描述
-        picNo: "209", //图形数量
-        mathType: "胸肺CT", //算法类型
-        compactState: "1", //计算状态 1：计算成功 2：失算失败 3：计算取消
-        ctrlState: "1", //操作状态 1：超时 2：撤回 3:待审核 4：通过
-        ctrlDoctor: "华佗",
-      },
-      {
-        xid: "5", //序列号
-        desc: "1.25mm lung", //序列描述
-        picNo: "209", //图形数量
-        mathType: "胸肺CT", //算法类型
-        compactState: "1", //计算状态 1：计算成功 2：失算失败 3：计算取消
-        ctrlState: "1", //操作状态 1：超时 2：撤回 3:待审核 4：通过
-        ctrlDoctor: "华佗",
-      },
-      {
-        xid: "6", //序列号
-        desc: "1.25mm lung", //序列描述
-        picNo: "209", //图形数量
-        mathType: "胸肺CT", //算法类型
-        compactState: "1", //计算状态 1：计算成功 2：失算失败 3：计算取消
-        ctrlState: "1", //操作状态 1：超时 2：撤回 3:待审核 4：通过
-        ctrlDoctor: "华佗",
-      },
-    ];
-  },
   created() {
-    const userId = "0";
-    getExaminationList(userId).then((res) => {
-      console.log("res.data=", res);
-      this.tableData = res;
-      // const result = res.data;
-      // const { code } = result;
-      // if (code === 1 || code === 2) {
-      //   console.log("result.data=", result.data);
-      //   this.tableData = result.data;
-      // }
-    });
+    this.init_searchData();
+    console.log("moment----",moment().format('YYYY-MM-DD'));
     this.$nextTick(() => {
+      // this.init_loadData();
+
       setTimeout(() => {
         console.log("dicomParser===", dicomParser);
         // console.log("cornerstone==", cornerstone);
         cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
         cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
         console.log("cornerstoneWADOImageLoader==", cornerstoneWADOImageLoader);
+
+
+
       }, 5000);
     });
   },
   mounted() {
-    this.$refs.gridPager.loadData((data) => {});
   },
 };
 </script>
@@ -1302,6 +1356,24 @@ export default {
 .upload_box {
   /deep/ .ant-upload {
     background: transparent !important;
+  }
+}
+.page_full {
+  /deep/ .loadTop_full {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 111111;
+    width: 100%;
+    height: 100%;
+    > span {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      margin: auto;
+    }
   }
 }
 </style>

@@ -131,20 +131,30 @@ export const xhr_addFavorite = (formData) => {
 
 
 /**
- *
+ * computeSeriesId 主键
  *  startDate
  *  endDate
- * accessionNumber
- * patientId
- * patientName
- * algorithmType
- * computeStatus
- * myFavorite
- * reasonable
- * pageNumber
- * pageSize
- * operationNameAndType
- * paginationModel
+ * accessionNumber 访问号
+ * patientId 患者id
+ * patientName 患者姓名
+ * algorithmType 重建算法-类型
+ * computeStatus 计算状态
+ * myFavorite 是否收藏
+ * reasonable //
+ * pageNumber 翻页
+ * pageSize 页条数
+ * operationNameAndType 操作名称与类型
+ * paginationModel 分页附带...obj
+ * operateStatus 操作状态
+ * operateDoctorUserId 操作医生id
+ * imageCount 序列总数
+ * seriesDescription 描述
+ * seriesNumber 序列号
+ * studyInstanceUid 研究实例 UID
+ * seriesInstanceUid 序列实例 UID
+ * printStatus “1”
+ * pushStatus “1”
+ *
  *
  *
  * @param formData
@@ -153,7 +163,8 @@ export const xhr_addFavorite = (formData) => {
 export const xhr_pageStudies = (formData) => {
   return Base.submit(null, {
     method: 'get',
-    url: api5 + Topbase + study + urlJson['pageStudies'],
+    // url: api5 + Topbase + study + urlJson['pageStudies'],
+    url: study + urlJson['pageStudies'],
     urlParam: {
       ...formData
     }

@@ -92,12 +92,16 @@ export default {
   props: {
     bread: {
       type: Boolean,
-      default: false,
+      default: () => {
+        return false;
+      },
     },
     // 片子模式切换按钮
     filmModeBtn: {
       type: Boolean,
-      default: false,
+      default: () => {
+        return false;
+      },
     },
   },
   components: {
