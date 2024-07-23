@@ -122,7 +122,8 @@ export const xhr_deleteSeries = (formData) => {
  */
 export const xhr_addFavorite = (formData) => {
   return Base.submit(null, {
-    url: api5 + Topbase + study + urlJson['addFavorite'],
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: study + urlJson['addFavorite'],
     data: {
       ...formData
     }

@@ -81,6 +81,7 @@
           <ta-col>
             <div class="btn_ctrl flex justify-start">
               <ta-button
+                @click="handle_favorite_querylist"
                 class="aghost__border-grey-1 flex items-center mr-[12px]"
                 :ghost="true"
                 ><i class="ico_star mr-[5px]"></i
@@ -427,6 +428,7 @@ import {
   isExit,
   xhr_uploadDicom,
   xhr_pageStudies,
+  xhr_addFavorite,
 } from "@/api";
 import { v4 as uuidv4 } from "uuid";
 // import dicomParser from "dicom-parser/dist/dicomParser.js";
@@ -664,6 +666,7 @@ export default {
           // pages:-1,//页数
           paginationModel:"mostCount",
         },
+        myFavorite:false,
         queryPagerInfo:()=>{
           const pager = this.$refs.gridPager.getPagerInfo()
           console.log("pager--",pager);
@@ -698,6 +701,10 @@ export default {
           }
           ExtParams.startData = rangeDate[0];
           ExtParams.endData = rangeDate[1];
+
+          if(this.managerDicomTableConf.myFavorite){
+            ExtParams.myFavorite = true;
+          }
 
 
           const fullExtParam = Object.assign({},baseModel,ExtParams)
@@ -1065,6 +1072,18 @@ export default {
     },
   },
   methods: {
+    handle_favorite_querylist(){
+      const {myFavorite} = this.managerDicomTableConf
+      if(!myFavorite){
+        this.$set(this.managerDicomTableConf,"myFavorite",true)
+        this.init_loadData();
+        this.$message.success(`切换查看我的收藏列表`)
+      }else{
+        this.$set(this.managerDicomTableConf,"myFavorite",false)
+        this.init_loadData();
+        this.$message.success(`返回默认查询列表数据`)
+      }
+    },
     handle_searchItem_reset(){
       console.log("handle_searchItem_reset");
       this.$refs['searchForm'].resetFields();
@@ -1226,15 +1245,29 @@ export default {
 
 
     handle_star(row, rowIndex) {
-      // row.collect = 1;
-      const { collect } = this.tableData[rowIndex];
-      if (collect === 1) {
-        this.$set(this.tableData[rowIndex], "collect", 0);
-        this.$message.success("取消收藏成功");
-      } else {
-        this.$set(this.tableData[rowIndex], "collect", 1);
-        this.$message.success("收藏成功");
+      console.log("row---handle_star",row);
+      const {studyId} = row;
+      if(studyId){
+
+        xhr_addFavorite({
+          studyId
+        }).then(item=>{
+          console.log("xhr_addFavorite___",item);
+          const { collect } = this.tableData[rowIndex];
+          if (row.myFavorite) {
+            this.$set(this.tableData[rowIndex], "myFavorite", false);
+            this.$message.success("取消收藏成功");
+          } else {
+            this.$set(this.tableData[rowIndex], "myFavorite", true);
+            this.$message.success("收藏成功");
+          }
+        })
+
+      }else{
+        return
       }
+
+
       console.log("row", row, rowIndex);
       console.log("this.tableData[rowIndex]=", this.tableData[rowIndex]);
     },
@@ -1271,6 +1304,7 @@ export default {
       });
     },
     handle_star_subTable(row, rowIndex) {
+     return;
       // row.collect = 1;
       const { collect } = this.tableData_anaRes[rowIndex];
       if (collect === 1) {
