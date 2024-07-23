@@ -103,6 +103,7 @@
           height="auto"
           auto-resize
           :data="tableData"
+          @cell-click="tableDataConfig.cellClickEvent"
           highlight-hover-row
           border="inner"
         >
@@ -174,6 +175,9 @@
             title="算法类型"
             width="140"
           >
+            <template #default="{}">
+              <ta-tag color="blue">自动</ta-tag>
+            </template>
           </ta-big-table-column>
 
           <ta-big-table-column
@@ -244,7 +248,7 @@
                 @click="handle_star_subTable(row, rowIndex)"
               >
                 <ta-icon
-                  v-if="row.collect === 1"
+                  v-if="row.myFavorite"
                   :style="starOn_style"
                   type="star"
                   theme="filled"
@@ -253,27 +257,37 @@
               </div>
             </template>
           </ta-big-table-column>
-          <ta-big-table-column field="xid" title="序列号">
+          <ta-big-table-column field="seriesNumber" title="序列号">
           </ta-big-table-column>
-          <ta-big-table-column field="desc" title="序列描述">
+          <ta-big-table-column field="seriesDescription" title="序列描述">
           </ta-big-table-column>
-          <ta-big-table-column field="picNo" title="图形数量">
+          <ta-big-table-column field="imageCount" title="图形数量">
           </ta-big-table-column>
-          <ta-big-table-column field="mathType" title="算法类型">
+          <ta-big-table-column field="algorithmType" title="算法类型">
+            <template #default="{}">
+              <ta-tag color="blue">自动</ta-tag>
+            </template>
           </ta-big-table-column>
-          <ta-big-table-column field="compactState" title="计算状态">
+          <ta-big-table-column field="computeStatus" title="计算状态">
             <template #default="{ row }">
-              <ta-tag v-if="row.compactState === '1'" color="cyan"
+              <ta-tag v-if="row.computeStatus === '3'" color="#87cdfc"
                 >计算成功</ta-tag
+              >
+              <ta-tag v-if="row.computeStatus === '2'" color="#e7ee33"
+                >计算中</ta-tag
+              >
+              <ta-tag v-if="row.computeStatus === '1'" color="#e4393c"
+                >计算失败</ta-tag
               >
             </template>
           </ta-big-table-column>
           <ta-big-table-column field="ctrlState" title="操作状态">
-            <template #default="{ row }">
-              <ta-tag v-if="row.ctrlState === '1'" color="pink">超时</ta-tag>
+            <template #default="{}">
+              <ta-tag color="#f37c32">正常解析</ta-tag>
             </template>
           </ta-big-table-column>
           <ta-big-table-column field="ctrlDoctor" title="操作医师">
+            <template #default="{}"> 汪彩霞 </template>
           </ta-big-table-column>
           <ta-big-table-column
             fixed="right"
@@ -469,6 +483,26 @@ export default {
 
     return {
       tableDataConfig:{
+        cellClickEvent:({ row, rowIndex, $rowIndex,column })=>{
+          const { property } = column;
+          if(property !== "myFavorite" && property !== "operate"){
+            console.log("column=cellClickEvent=",column,"row, rowIndex, $rowIndex",row, rowIndex, $rowIndex);
+
+            const { seriesList,myFavorite } = row;
+
+            let newSeriesList = [];
+
+
+            newSeriesList = seriesList.map(vo=>({ ...vo, myFavorite }))
+
+
+            this.tableData_anaRes = newSeriesList;
+
+
+
+
+          }
+        },
         formatter:{
           patientAge:({cellValue})=>{
 
