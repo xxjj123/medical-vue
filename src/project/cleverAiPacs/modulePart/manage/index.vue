@@ -148,7 +148,12 @@
             fixed="left"
           >
           </ta-big-table-column>
-          <ta-big-table-column field="patientAge" title="年龄" width="70">
+          <ta-big-table-column
+            field="patientAge"
+            title="年龄"
+            :formatter="tableDataConfig.formatter.patientAge"
+            width="70"
+          >
           </ta-big-table-column>
           <ta-big-table-column
             field="studyDateAndTime"
@@ -427,6 +432,7 @@ import JSZip from "jszip";
 import { readDicomTags } from "@itk-wasm/dicom";
 import { dicomTagsDescriptions } from "@/assets/js/utils/dicom/codeDesc";
 import { PATIENT_LABOPTIONS,isPatientOptionValid } from "@/assets/js/utils/dicom/select";
+import { serializeAge } from "@/assets/js/utils/dicom/inputFormat";
 
 import Upload from "@yh/ta404-ui/es/upload";
 import "@yh/ta404-ui/es/upload/style";
@@ -462,6 +468,21 @@ export default {
   data() {
 
     return {
+      tableDataConfig:{
+        formatter:{
+          patientAge:({cellValue})=>{
+
+            const newCellVal = serializeAge({
+              dataSource:cellValue,
+              unit: true,
+              language: 'zh'
+            })
+
+            return newCellVal;
+
+          }
+        },
+      },
       rangeDateOb:{
         show:false,
         dateFormat:"YYYY-MM-DD",
