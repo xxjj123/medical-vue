@@ -109,7 +109,8 @@ export const xhr_deleteStudy = (formData) => {
  */
 export const xhr_deleteSeries = (formData) => {
   return Base.submit(null, {
-    url: api5 + Topbase + study + urlJson['deleteSeries'],
+    // url: api5 + Topbase + study + urlJson['deleteSeries'],
+    url: study + urlJson['deleteSeries'],
     data: {
       ...formData
     }

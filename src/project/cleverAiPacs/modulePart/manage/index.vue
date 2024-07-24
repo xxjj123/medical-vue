@@ -462,6 +462,7 @@ import {
   xhr_addFavorite,
   xhr_removeFavorite,
   xhr_reCompute,
+  xhr_deleteSeries,
 } from "@/api";
 import { v4 as uuidv4 } from "uuid";
 // import dicomParser from "dicom-parser/dist/dicomParser.js";
@@ -1382,6 +1383,8 @@ export default {
     },
     handle_delRow_subTable(row, rowIndex) {
       console.log("this", this);
+
+
       this.$confirm({
         // icon:(<ta-icon type="info-circle" />),
         // icon:(<i>12312</i>),
@@ -1391,8 +1394,19 @@ export default {
         content: "确定要将该组病变检出结果恢复至初始状态吗？",
         maskClosable: true,
         onOk: () => {
-          this.$delete(this.tableData_anaRes, rowIndex);
-          this.$message.success("删除成功");
+
+          const { computeSeriesId } = row;
+
+
+          xhr_deleteSeries({
+            computeSeriesId
+          }).then(item=>{
+            console.log("xhr_deleteSeries___",item);
+            this.$delete(this.tableData_anaRes, rowIndex);
+            this.$message.success("删除成功");
+            // reload main table
+            this.handle_queryDicomList();
+          })
         },
       });
     },
