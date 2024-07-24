@@ -79,7 +79,8 @@ export const xhr_uploadDicom = (formData) => {
  */
 export const xhr_removeFavorite = (formData) => {
   return Base.submit(null, {
-    url: api5 + Topbase + study + urlJson['removeFavorite'],
+    // url: api5 + Topbase + study + urlJson['removeFavorite'],
+    url: study + urlJson['removeFavorite'],
     data: {
       ...formData
     }

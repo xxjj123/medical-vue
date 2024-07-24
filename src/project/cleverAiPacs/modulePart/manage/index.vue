@@ -460,6 +460,7 @@ import {
   xhr_uploadDicom,
   xhr_pageStudies,
   xhr_addFavorite,
+  xhr_removeFavorite,
   xhr_reCompute,
 } from "@/api";
 import { v4 as uuidv4 } from "uuid";
@@ -1335,19 +1336,25 @@ export default {
       const {studyId} = row;
       if(studyId){
 
-        xhr_addFavorite({
-          studyId
-        }).then(item=>{
-          console.log("xhr_addFavorite___",item);
-          const { collect } = this.tableData[rowIndex];
-          if (row.myFavorite) {
-            this.$set(this.tableData[rowIndex], "myFavorite", false);
-            this.$message.success("取消收藏成功");
+         if (row.myFavorite) {
+            xhr_removeFavorite({
+              studyId
+            }).then(item=>{
+              console.log("xhr_addFavorite___",item);
+              this.$set(this.tableData[rowIndex], "myFavorite", false);
+              this.$message.success("取消收藏成功");
+            })
+
           } else {
-            this.$set(this.tableData[rowIndex], "myFavorite", true);
-            this.$message.success("收藏成功");
+            xhr_addFavorite({
+              studyId
+            }).then(item=>{
+              console.log("xhr_addFavorite___",item);
+              this.$set(this.tableData[rowIndex], "myFavorite", true);
+              this.$message.success("收藏成功");
+
+            })
           }
-        })
 
       }else{
         return
