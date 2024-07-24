@@ -95,7 +95,8 @@ export const xhr_removeFavorite = (formData) => {
  */
 export const xhr_deleteStudy = (formData) => {
   return Base.submit(null, {
-    url: api5 + Topbase + study + urlJson['deleteStudy'],
+    // url: api5 + Topbase + study + urlJson['deleteStudy'],
+    url: study + urlJson['deleteStudy'],
     data: {
       ...formData
     }
