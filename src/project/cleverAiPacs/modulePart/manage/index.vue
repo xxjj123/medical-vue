@@ -190,16 +190,26 @@
             <template #default="{ row, rowIndex }">
               <ta-row type="flex" justify="space-around">
                 <ta-col :span="18">
-                  <a class="alink" @click="handleEdit(rowIndex, row)">
-                    查看结果
-                  </a>
+                  <pacs-abtn
+                    :disabled.sync="row.isDisabled"
+                    @click="handleEdit(rowIndex, row)"
+                    >查看结果</pacs-abtn
+                  >
                   <ta-divider type="vertical" />
-                  <a class="alink"> 重新分析 </a>
+                  <pacs-abtn
+                    :disabled.sync="row.isDisabled"
+                    :exclude="true"
+                    @click="handle_replay_xrd(rowIndex, row)"
+                    >重新分析</pacs-abtn
+                  >
                   <ta-divider type="vertical" />
-                  <a class="alink" @click="handle_star(row, rowIndex)">
+                  <pacs-abtn
+                    :disabled.sync="row.isDisabled"
+                    @click="handle_star(row, rowIndex)"
+                  >
                     <template v-if="row.myFavorite"> 取消收藏 </template>
                     <template v-else> 添加收藏 </template>
-                  </a>
+                  </pacs-abtn>
                 </ta-col>
                 <ta-col>
                   <ta-icon
@@ -299,14 +309,35 @@
             <template #default="{ row, rowIndex }">
               <ta-row type="flex" justify="space-around">
                 <ta-col :span="18">
-                  <a class="alink"> 查看结果 </a>
+                  <pacs-abtn
+                    v-if="temp_isViewResultBtn(row.computeStatus)"
+                    :disabled.sync="row.isDisabled"
+                    @click="handleEdit1(rowIndex, row)"
+                    >查看结果</pacs-abtn
+                  >
+                  <pacs-abtn v-else :disabled="true">查看结果</pacs-abtn>
                   <ta-divider type="vertical" />
-                  <a class="alink"> 重新分析 </a>
+                  <pacs-abtn
+                    v-if="temp_isViewResultBtn(row.computeStatus)"
+                    :disabled.sync="row.isDisabled"
+                    :exclude="true"
+                    @click="handle_replay_xrd1(rowIndex, row)"
+                    >重新分析</pacs-abtn
+                  >
+                  <pacs-abtn v-else :disabled="true">重新分析</pacs-abtn>
                   <ta-divider type="vertical" />
-                  <a class="alink" @click="handle_star_subTable(row, rowIndex)">
-                    <template v-if="row.collect === 1"> 取消收藏 </template>
+                  <pacs-abtn
+                    v-if="temp_isViewResultBtn(row.computeStatus)"
+                    :disabled.sync="row.isDisabled"
+                    @click="handle_star_subTable(row, rowIndex)"
+                  >
+                    <template v-if="row.myFavorite"> 取消收藏 </template>
                     <template v-else> 添加收藏 </template>
-                  </a>
+                  </pacs-abtn>
+                  <pacs-abtn v-else :disabled="true">
+                    <template v-if="row.myFavorite"> 取消收藏 </template>
+                    <template v-else> 添加收藏 </template>
+                  </pacs-abtn>
                 </ta-col>
                 <ta-col>
                   <ta-icon
@@ -429,6 +460,7 @@ import {
   xhr_uploadDicom,
   xhr_pageStudies,
   xhr_addFavorite,
+  xhr_reCompute,
 } from "@/api";
 import { v4 as uuidv4 } from "uuid";
 // import dicomParser from "dicom-parser/dist/dicomParser.js";
@@ -448,12 +480,14 @@ import JSZip from "jszip";
 import { readDicomTags } from "@itk-wasm/dicom";
 import { dicomTagsDescriptions } from "@/assets/js/utils/dicom/codeDesc";
 import { PATIENT_LABOPTIONS,isPatientOptionValid } from "@/assets/js/utils/dicom/select";
+import { CalculationStatus,calculationStatusDictionary,isCalculationStatusValid } from "@/assets/js/utils/dicom/computeState";
 import { serializeAge } from "@/assets/js/utils/dicom/inputFormat";
 
 import Upload from "@yh/ta404-ui/es/upload";
 import "@yh/ta404-ui/es/upload/style";
 Vue.use(Upload);
 
+import pacsAbtn from "@/components/pacs-abtn/index.vue";
 
 import AlgorithmTypeSelect from "./module/AlgorithmTypeSelect.vue";
 import moment from "moment";
@@ -464,9 +498,13 @@ import {
   testDevOps
 } from '@/api/options';
 const { study } = testDevOps;
+
+
+
 export default {
   name: "manageDicom",
   components: {
+    pacsAbtn,
     PacsPageHeader,
     AlgorithmTypeSelect,
   },
@@ -483,19 +521,22 @@ export default {
   },
   data() {
 
+
+
     return {
       tableDataConfig:{
         cellClickEvent:({ row, rowIndex, $rowIndex,column })=>{
           const { property } = column;
-          if(property !== "myFavorite" && property !== "operate"){
+          // if(property !== "myFavorite" && property !== "operate"){
+          if(property !== "myFavorite"){
             console.log("column=cellClickEvent=",column,"row, rowIndex, $rowIndex",row, rowIndex, $rowIndex);
 
-            const { seriesList,myFavorite } = row;
+            const { seriesList,myFavorite,isDisabled } = row;
 
             let newSeriesList = [];
 
 
-            newSeriesList = seriesList.map(vo=>({ ...vo, myFavorite }))
+            newSeriesList = seriesList.map(vo=>({ ...vo, myFavorite, isDisabled }))
 
 
             this.tableData_anaRes = newSeriesList;
@@ -1072,6 +1113,41 @@ export default {
     },
   },
   methods: {
+  /**
+   * 模版处理：根据计算状态返回切换按钮是否可点击
+   * @param computeStatus
+   */
+    temp_isViewResultBtn(computeStatus){
+      // debugger;
+      const computeStatusNum = Number(computeStatus);
+        if (!isCalculationStatusValid(computeStatusNum)) {
+          return false; // 如果状态无效，则不显示按钮
+        }
+        // 定义哪些状态下按钮不可点击
+        const nonClickableStatuses = [
+          CalculationStatus.Waiting,
+          CalculationStatus.Calculating
+        ];
+        // 检查计算状态是否在不可点击的状态列表中
+        return !nonClickableStatuses.includes(computeStatusNum);
+    },
+
+    // 重新分析
+    handle_replay_xrd(rowIndex, row){
+      console.log("main=handle_replay_xrd",rowIndex, row);
+
+    },
+    // 重新分析1
+    handle_replay_xrd1(rowIndex, row){
+      console.log("sub=handle_replay_xrd",rowIndex, row);
+      const { computeSeriesId } = row;
+      xhr_reCompute({
+        computeSeriesId
+      }).then(item=>{
+        console.log("重新分析1 sub=item",item);
+      })
+
+    },
     handle_favorite_querylist(){
       const {myFavorite} = this.managerDicomTableConf
       if(!myFavorite){
@@ -1163,13 +1239,23 @@ export default {
         },
       });
     },
-    handleEdit(index, row) {
-      this.$router.push({
+    handleEdit1(index, row) {
+      console.log("handleEdit--manage",index, row);
+     /*  this.$router.push({
         path: "diagnose",
         query: {
           applyId: row.applyId,
         },
-      });
+      }); */
+    },
+    handleEdit(index, row) {
+      console.log("handleEdit--manage",index, row);
+     /*  this.$router.push({
+        path: "diagnose",
+        query: {
+          applyId: row.applyId,
+        },
+      }); */
     },
     extractDicomData(dataSet) {
       let examID = dataSet.string("x0020000d");
@@ -1279,7 +1365,7 @@ export default {
         iconType: "info-circle",
         title: "确定删除该数据吗?",
         // 如果需要弹窗显示的仅为一个字符串文本，则可以直接传入字符串
-        content: "确定要将骨折病变检出结果恢复至初始状态吗？",
+        content: "确定要将该组病变检出结果恢复至初始状态吗？",
         maskClosable: true,
         onOk: () => {
           this.$delete(this.tableData, rowIndex);
@@ -1295,7 +1381,7 @@ export default {
         iconType: "info-circle",
         title: "确定删除该数据吗?",
         // 如果需要弹窗显示的仅为一个字符串文本，则可以直接传入字符串
-        content: "确定要将骨折病变检出结果恢复至初始状态吗？",
+        content: "确定要将该组病变检出结果恢复至初始状态吗？",
         maskClosable: true,
         onOk: () => {
           this.$delete(this.tableData_anaRes, rowIndex);

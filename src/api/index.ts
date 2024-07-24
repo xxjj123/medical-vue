@@ -172,6 +172,22 @@ export const xhr_pageStudies = (formData) => {
   });
 };
 /**
+ * 重新分析
+ * computeSeriesId
+ * @param formData
+ */
+export const xhr_reCompute = (formData) => {
+  return Base.submit(null, {
+    method: 'POST',
+    // url: api5 + Topbase + study + urlJson['pageStudies'],
+    url: study + urlJson['reCompute'],
+    data: {
+      ...formData
+    }
+  });
+}
+
+/**
  * seriesComputeId
  *
  * @param formData

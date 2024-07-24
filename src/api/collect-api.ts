@@ -17,7 +17,8 @@ export default {
   'deleteSeries': '/deleteSeries',//删除序列
   'addFavorite': '/addFavorite',//添加收藏
   'pageStudies': '/pageStudies',//分页查询检查
-  'reAnalyse': '/reAnalyse',//重新分析
+  'reAnalyse': '/reAnalyse',//重新分析 old
+  'reCompute': '/reCompute',//重新分析 new
 
   /* fs  */
   'upload': '/upload', //文件存储-文件上传
