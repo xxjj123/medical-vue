@@ -1386,6 +1386,7 @@ export default {
             console.log("xhr_deleteStudy___",item);
             this.$delete(this.tableData, rowIndex);
             this.$message.success("删除成功");
+            this.handle_queryDicomList();
           })
 
         },
