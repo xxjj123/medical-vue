@@ -15,8 +15,10 @@ const {Topbase, study, readwriteFsBase, cb, } = testDevOps;
 
 import axios from 'axios'
 import Vue from 'vue'
+const instance = Vue.prototype;
 
-
+// import {getBaseURL} from "@/assets/js/utils";
+import {getBaseURL} from "@/assets/js/utils/url-toto.ts";
 /**
  * TODO::这份文件的接口，先迎合-文佳搭建的spring-boot去返回，后续后端迁移至404后台写法，需改写~
  * ps：目前是从catch中才能捕获到值，先这么处理~
@@ -267,8 +269,10 @@ export const getDiagnoseResult = (applyId) => {
 // 获取-全系统业务相关码表
 export const getSysDict = () => {
   return new Promise((resolve, reject) => {
+    const newUrl = `${getBaseURL()}/dict.json`
     Base.submit(null, {
-      url: 'http://localhost:5173/dict.json',
+      // url: 'http://localhost:5173/dict.json',//nice use
+      url: newUrl,
     }).then((dataResult) => {
       // console.log("dataResult", dataResult, JSON.stringify(dataResult.data.scanSite));
       if (dataResult.code === 200) {

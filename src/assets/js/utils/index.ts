@@ -1,5 +1,23 @@
 export default {
   /**
+   * 获取当前域名+base的地址
+   * @returns
+   */
+  getBaseURL: () => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    let baseURL;
+
+    if (isProduction) {
+      // 生产环境使用location.origin加上VITE_LOGIN_SYS_BASE_SORT的环境变量
+      baseURL = `${location.origin}${process.env.VITE_LOGIN_SYS_BASE_SORT}`;
+    } else {
+      // 非生产环境使用location.origin
+      baseURL = location.origin;
+    }
+
+    return baseURL;
+  },
+  /**
    * 原始数据数组和需要筛选的字段名称数组。这个函数将转换字段名称数组中的值，将下划线转换为空间，并检查这些值是否与原始数据中每个对象的 engName 属性匹配。如果匹配，它会将字段名称映射到对应的 sortValue。
    * @param originalData
    * @param fieldsToMap

@@ -1,14 +1,16 @@
 import Vue from "vue";
+// const instance = Vue.prototype;
+// import {getBaseURL} from "@/assets/js/utils";
+import {getBaseURL} from "@/assets/js/utils/url-toto.ts";
 
 import "@kitware/vtk.js/Rendering/Profiles/All";
 import {
   readImageDicomFileSeries
 } from '@itk-wasm/dicom'
 import {setPipelinesBaseUrl, getPipelinesBaseUrl, setPipelineWorkerUrl, } from "@itk-wasm/dicom";
-setPipelinesBaseUrl("http://localhost:5173/libs/dicom-6.0.1/package/dist/pipelines");
-// setPipelineWorkerUrl("/libs/dicom-6.0.1/package/dist/bundle/index-worker-embedded.js");
-// setPipelineWorkerUrl("/libs/dicom-6.0.1/package/dist/pipelines/read-image-dicom-file-series.js");
-// setPipelineWorkerUrl("libs/itk/image-io/read-image-dicom-file-series.js");
+const pipeNewUrl = `${getBaseURL()}/libs/dicom-6.0.1/package/dist/pipelines`;
+setPipelinesBaseUrl(pipeNewUrl);
+// setPipelinesBaseUrl("http://localhost:5173/libs/dicom-6.0.1/package/dist/pipelines");//nice use
 
 console.log("getPipelinesBaseUrl==", getPipelinesBaseUrl());
 console.log("setPipelineWorkerUrl =", setPipelineWorkerUrl);
