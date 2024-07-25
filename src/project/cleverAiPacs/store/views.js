@@ -8,8 +8,13 @@ import {
   readImageDicomFileSeries
 } from '@itk-wasm/dicom'
 import {setPipelinesBaseUrl, getPipelinesBaseUrl, setPipelineWorkerUrl, } from "@itk-wasm/dicom";
-const pipeNewUrl = `${getBaseURL()}/libs/dicom-6.0.1/package/dist/pipelines`;
-setPipelinesBaseUrl(pipeNewUrl);
+let newUrl = '';
+if (process.env.NODE_ENV === 'production') {
+  newUrl = `${location.origin}${getBaseURL()}/libs/dicom-6.0.1/package/dist/pipelines`;
+} else {
+  newUrl = `${getBaseURL()}/libs/dicom-6.0.1/package/dist/pipelines`;
+}
+setPipelinesBaseUrl(newUrl);
 // setPipelinesBaseUrl("http://localhost:5173/libs/dicom-6.0.1/package/dist/pipelines");//nice use
 
 console.log("getPipelinesBaseUrl==", getPipelinesBaseUrl());

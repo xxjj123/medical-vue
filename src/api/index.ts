@@ -269,7 +269,13 @@ export const getDiagnoseResult = (applyId) => {
 // 获取-全系统业务相关码表
 export const getSysDict = () => {
   return new Promise((resolve, reject) => {
-    const newUrl = `${getBaseURL()}/dict.json`
+    let newUrl = ``
+    if (process.env.NODE_ENV === 'production') {
+      newUrl = `${location.origin}${getBaseURL()}/dict.json`
+    } else {
+      newUrl = `${getBaseURL()}/dict.json`
+    }
+    console.log("newUrl==", newUrl);
     Base.submit(null, {
       // url: 'http://localhost:5173/dict.json',//nice use
       url: newUrl,
