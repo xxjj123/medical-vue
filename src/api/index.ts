@@ -271,7 +271,7 @@ export const getSysDict = () => {
   return new Promise((resolve, reject) => {
     let newUrl = ``
     if (process.env.NODE_ENV === 'production') {
-      newUrl = `${location.origin}${getBaseURL()}/dict.json`
+      newUrl = `${location.origin}${faceConfig.sortPath}/dict.json`
     } else {
       newUrl = `${getBaseURL()}/dict.json`
     }

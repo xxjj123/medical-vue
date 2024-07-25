@@ -10,7 +10,7 @@ import {
 import {setPipelinesBaseUrl, getPipelinesBaseUrl, setPipelineWorkerUrl, } from "@itk-wasm/dicom";
 let newUrl = '';
 if (process.env.NODE_ENV === 'production') {
-  newUrl = `${location.origin}${getBaseURL()}/libs/dicom-6.0.1/package/dist/pipelines`;
+  newUrl = `${location.origin}${faceConfig.sortPath}/libs/dicom-6.0.1/package/dist/pipelines`;
 } else {
   newUrl = `${getBaseURL()}/libs/dicom-6.0.1/package/dist/pipelines`;
 }
