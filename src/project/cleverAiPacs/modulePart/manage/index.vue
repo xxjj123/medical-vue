@@ -1253,12 +1253,12 @@ export default {
     },
     handleEdit(index, row) {
       console.log("handleEdit--manage",index, row);
-     /*  this.$router.push({
+      this.$router.push({
         path: "diagnose",
         query: {
           applyId: row.applyId,
         },
-      }); */
+      });
     },
     extractDicomData(dataSet) {
       let examID = dataSet.string("x0020000d");

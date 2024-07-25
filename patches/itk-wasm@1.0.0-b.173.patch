@@ -1,0 +1,13 @@
+diff --git a/dist/pipeline/internal/load-emscripten-module-web-worker.js b/dist/pipeline/internal/load-emscripten-module-web-worker.js
+index a528a2d550e407ebb579daa5ba67f09e60b75120..ab2d7684556982dcf6cec727dd163d023cd2a17b 100644
+--- a/dist/pipeline/internal/load-emscripten-module-web-worker.js
++++ b/dist/pipeline/internal/load-emscripten-module-web-worker.js
+@@ -32,7 +32,7 @@ async function loadEmscriptenModuleWebWorker(moduleRelativePathOrURL, baseUrl, q
+     const decompressedArray = decoder.decode(new Uint8Array(response.data));
+     const wasmBinary = decompressedArray.buffer;
+     const modulePath = `${modulePrefix}.js`;
+-    const result = await import(/* webpackIgnore: true */ /* @vite-ignore */ modulePath);
++    const result = await import(/* @vite-ignore */ modulePath);
+     const emscriptenModule = result.default({ wasmBinary });
+     return emscriptenModule;
+ }
