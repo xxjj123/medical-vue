@@ -1,24 +1,15 @@
-import urlJson from './collect-api';
-import {
-  apiOps,
-  testDevOps
-} from './options';
-const {
-  api,
-  api2,
-  api3,
-  api5,
-} = apiOps;
+import urlJson from "./collect-api";
+import { apiOps, testDevOps } from "./options";
+const { api, api2, api3, api5, api6 } = apiOps;
 
+const { Topbase, study, readwriteFsBase, cb, diagnose } = testDevOps;
 
-const {Topbase, study, readwriteFsBase, cb, } = testDevOps;
-
-import axios from 'axios'
-import Vue from 'vue'
+import axios from "axios";
+import Vue from "vue";
 const instance = Vue.prototype;
 
 // import {getBaseURL} from "@/assets/js/utils";
-import {getBaseURL} from "@/assets/js/utils/url-toto.ts";
+import { getBaseURL } from "@/assets/js/utils/url-toto.ts";
 /**
  * TODO::这份文件的接口，先迎合-文佳搭建的spring-boot去返回，后续后端迁移至404后台写法，需改写~
  * ps：目前是从catch中才能捕获到值，先这么处理~
@@ -29,12 +20,12 @@ import {getBaseURL} from "@/assets/js/utils/url-toto.ts";
 // 诊断分析
 export const startDiagnose = (formData) => {
   return Base.submit(null, {
-    url: api + urlJson['start-diagnose'],
+    url: api + urlJson["start-diagnose"],
     data: {
-      ...formData
-    }
-  })
-}
+      ...formData,
+    },
+  });
+};
 /* 山哥专属 start*/
 /**
  * algorithmConfig [{}]
@@ -44,35 +35,38 @@ export const startDiagnose = (formData) => {
  */
 export const xhr_uploadDicom = (formData) => {
   return Base.submit(null, {
-    method: 'POST',
+    method: "POST",
     autoQs: false,
     isFormData: true,
     // responseType: 'blob',
     // url: api5 + Topbase + study + urlJson['uploadDicom'],
-    url: study + urlJson['uploadDicom'],
+    url: study + urlJson["uploadDicom"],
     data: formData,
     // data: {
     //   ...formData
     // },
-    transformResponse: [(data) => {
-      console.log("data===transformResponse=", data);
-      return data;
-    }, (data) => {
-      // 解析 Blob 数据并创建 Blob 数组
-      console.log("-----------", data);
+    transformResponse: [
+      (data) => {
+        console.log("data===transformResponse=", data);
+        return data;
+      },
+      (data) => {
+        // 解析 Blob 数据并创建 Blob 数组
+        console.log("-----------", data);
 
-      // const blobArray = parseBlobToFiles(data);
-      // return blobArray;
-      return data;
-    }]
-  }).then((response) => {
-    console.log("response", response);
-
-  }).catch(error => {
-    console.log("error", error);
-
+        // const blobArray = parseBlobToFiles(data);
+        // return blobArray;
+        return data;
+      },
+    ],
   })
-}
+    .then((response) => {
+      console.log("response", response);
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
+};
 /**
  * studyId
  *
@@ -82,12 +76,12 @@ export const xhr_uploadDicom = (formData) => {
 export const xhr_removeFavorite = (formData) => {
   return Base.submit(null, {
     // url: api5 + Topbase + study + urlJson['removeFavorite'],
-    url: study + urlJson['removeFavorite'],
+    url: study + urlJson["removeFavorite"],
     data: {
-      ...formData
-    }
-  })
-}
+      ...formData,
+    },
+  });
+};
 
 // 以下是根据注释补全的函数定义
 /**
@@ -98,10 +92,10 @@ export const xhr_removeFavorite = (formData) => {
 export const xhr_deleteStudy = (formData) => {
   return Base.submit(null, {
     // url: api5 + Topbase + study + urlJson['deleteStudy'],
-    url: study + urlJson['deleteStudy'],
+    url: study + urlJson["deleteStudy"],
     data: {
-      ...formData
-    }
+      ...formData,
+    },
   });
 };
 /**
@@ -113,10 +107,10 @@ export const xhr_deleteStudy = (formData) => {
 export const xhr_deleteSeries = (formData) => {
   return Base.submit(null, {
     // url: api5 + Topbase + study + urlJson['deleteSeries'],
-    url: study + urlJson['deleteSeries'],
+    url: study + urlJson["deleteSeries"],
     data: {
-      ...formData
-    }
+      ...formData,
+    },
   });
 };
 /**
@@ -128,13 +122,12 @@ export const xhr_deleteSeries = (formData) => {
 export const xhr_addFavorite = (formData) => {
   return Base.submit(null, {
     // url: api5 + Topbase + study + urlJson['addFavorite'],
-    url: study + urlJson['addFavorite'],
+    url: study + urlJson["addFavorite"],
     data: {
-      ...formData
-    }
+      ...formData,
+    },
   });
 };
-
 
 /**
  * computeSeriesId 主键
@@ -168,12 +161,12 @@ export const xhr_addFavorite = (formData) => {
  */
 export const xhr_pageStudies = (formData) => {
   return Base.submit(null, {
-    method: 'get',
+    method: "get",
     // url: api5 + Topbase + study + urlJson['pageStudies'],
-    url: study + urlJson['pageStudies'],
+    url: study + urlJson["pageStudies"],
     urlParam: {
-      ...formData
-    }
+      ...formData,
+    },
   });
 };
 /**
@@ -183,14 +176,14 @@ export const xhr_pageStudies = (formData) => {
  */
 export const xhr_reCompute = (formData) => {
   return Base.submit(null, {
-    method: 'POST',
+    method: "POST",
     // url: api5 + Topbase + study + urlJson['pageStudies'],
-    url: study + urlJson['reCompute'],
+    url: study + urlJson["reCompute"],
     data: {
-      ...formData
-    }
+      ...formData,
+    },
   });
-}
+};
 
 /**
  * seriesComputeId
@@ -200,10 +193,10 @@ export const xhr_reCompute = (formData) => {
  */
 export const xhr_reAnalyse = (formData) => {
   return Base.submit(null, {
-    url: api5 + Topbase + study + urlJson['reAnalyse'],
+    url: api5 + Topbase + study + urlJson["reAnalyse"],
     data: {
-      ...formData
-    }
+      ...formData,
+    },
   });
 };
 /**
@@ -214,10 +207,10 @@ export const xhr_reAnalyse = (formData) => {
  */
 export const xhr_upload = (formData) => {
   return Base.submit(null, {
-    url: api5 + Topbase + readwriteFsBase + urlJson['upload'],
+    url: api5 + Topbase + readwriteFsBase + urlJson["upload"],
     data: {
-      ...formData
-    }
+      ...formData,
+    },
   });
 };
 
@@ -228,54 +221,68 @@ export const xhr_upload = (formData) => {
  */
 export const xhr_push = (formData) => {
   return Base.submit(null, {
-    url: api5 + Topbase + cb + urlJson['push'],
+    url: api5 + Topbase + cb + urlJson["push"],
     data: {
-      ...formData
-    }
+      ...formData,
+    },
+  });
+};
+
+/**
+ * seriesComputeId
+ *
+ * @param formData
+ * @returns
+ */
+export const xhr_getNoduleInfo = (formData) => {
+  console.log(formData);
+  return Base.submit(null, {
+    url: diagnose + urlJson["getNoduleInfo"],
+    data: {
+      ...formData,
+    },
   });
 };
 
 /* 山哥专属 end*/
 
-
 // 获取诊断结果
 export const getDiagnoseResult = (applyId) => {
   return new Promise((resolve, reject) => {
     Base.submit(null, {
-      method: 'get',
-      url: api + urlJson['get-diagnose-result'],
+      method: "get",
+      url: api + urlJson["get-diagnose-result"],
       // data: {
       //   applyId: applyId
       // },
       urlParam: {
-        applyId: "83299b46-8d18-4e41-88eb-cab1afa67523",//applyId
-      }
-    }).then(res => {
-      console.log("res", res);
-      Vue.prototype.$message.destroy()
+        applyId: "83299b46-8d18-4e41-88eb-cab1afa67523", //applyId
+      },
     })
-      .catch(error => {
+      .then((res) => {
+        console.log("res", res);
+        Vue.prototype.$message.destroy();
+      })
+      .catch((error) => {
         Vue.prototype.$message.destroy();
         console.log("err=================000000", error);
         resolve(error.data);
-      })
-  })
-}
-
-
+      });
+  });
+};
 
 // ===========================================
 
 // 获取-全系统业务相关码表
 export const getSysDict = () => {
   return new Promise((resolve, reject) => {
-    let newUrl = ``
-    if (process.env.NODE_ENV === 'production') {
-      newUrl = `${location.origin}${getBaseURL()}/dict.json`
+    let newUrl = ``;
+    if (process.env.NODE_ENV === "production") {
+      newUrl = `${location.origin}${getBaseURL()}/dict.json`;
     } else {
-      newUrl = `${getBaseURL()}/dict.json`
+      newUrl = `${getBaseURL()}/dict.json`;
     }
-    console.log("newUrl==", newUrl);
+    // console.log("newUrl==", newUrl);
     Base.submit(null, {
       // url: 'http://localhost:5173/dict.json',//nice use
       url: newUrl,
@@ -283,34 +290,32 @@ export const getSysDict = () => {
       // console.log("dataResult", dataResult, JSON.stringify(dataResult.data.scanSite));
       if (dataResult.code === 200) {
         // return dataResult.data;
-        resolve(dataResult.data)
+        resolve(dataResult.data);
       }
-    })
-
-  })
-
-}
-
+    });
+  });
+};
 
 // 获取诊断列表
 
 export const getExaminationList = (userId) => {
   return new Promise((resolve, reject) => {
     Base.submit(null, {
-      url: api2 + urlJson['get-examination-list'],
-      method: 'get',
+      url: api2 + urlJson["get-examination-list"],
+      method: "get",
       urlParam: {
-        userId: userId
-      }
+        userId: userId,
+      },
     })
-      .then(data => {
+      .then((data) => {
         console.log("list0000000000000000", data);
-      }).catch(error => {
+      })
+      .catch((error) => {
         console.log("err=================000000", error);
         resolve(error.data);
-      })
-  })
-}
+      });
+  });
+};
 // axios.get(api2 + urlJson['get-examination-list'], {
 //   params: {
 //     applyId: applyId
@@ -322,40 +327,43 @@ export const getExaDetail_keya = () => {
   // eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtY3dfYW5hbHlzZXIiLCJqd3RDbGFpbSI6eyJ1c2VySWQiOjI1LCJhY2NvdW50IjoibWN3IiwibmFtZSI6Im1jdyIsInJvbGUiOiJhbmFseXNlciIsImFjY291bnRMb2dJZCI6NzMxfSwiaWF0IjoxNzE3NjY0NTY2LCJleHAiOjE3MTc2NjQ1NjZ9.9-wbOmQHTur1oxxOUC9TTbIRX55KJBOz157bLcoHi7uqMNcA-hKzPSh0XuMjUta_XOgPXa6zuggseVRyTH6SrA
   return Base.submit(null, {
     headers: {
-      Authorization: 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtY3dfYW5hbHlzZXIiLCJqd3RDbGFpbSI6eyJ1c2VySWQiOjI1LCJhY2NvdW50IjoibWN3IiwibmFtZSI6Im1jdyIsInJvbGUiOiJhbmFseXNlciIsImFjY291bnRMb2dJZCI6NzMxfSwiaWF0IjoxNzE3NjY0NTY2LCJleHAiOjE3MTc2NjQ1NjZ9.9-wbOmQHTur1oxxOUC9TTbIRX55KJBOz157bLcoHi7uqMNcA-hKzPSh0XuMjUta_XOgPXa6zuggseVRyTH6SrA',
+      Authorization:
+        "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtY3dfYW5hbHlzZXIiLCJqd3RDbGFpbSI6eyJ1c2VySWQiOjI1LCJhY2NvdW50IjoibWN3IiwibmFtZSI6Im1jdyIsInJvbGUiOiJhbmFseXNlciIsImFjY291bnRMb2dJZCI6NzMxfSwiaWF0IjoxNzE3NjY0NTY2LCJleHAiOjE3MTc2NjQ1NjZ9.9-wbOmQHTur1oxxOUC9TTbIRX55KJBOz157bLcoHi7uqMNcA-hKzPSh0XuMjUta_XOgPXa6zuggseVRyTH6SrA",
     },
-    url: api3 + urlJson['keyaDemo_download_6129'],
-    method: 'GET',
+    url: api3 + urlJson["keyaDemo_download_6129"],
+    method: "GET",
     // urlParam: {
     //   applyId: applyId
     // }
-
-  }).then(res => {
-    console.log("keyayyy--res", res);
-
-    return Promise.resolve(res.data);
-  }).catch(err => {
-    console.log("keyayyy--err", err);
-    return Promise.resolve(err?.data);
   })
-}
+    .then((res) => {
+      console.log("keyayyy--res", res);
+
+      return Promise.resolve(res.data);
+    })
+    .catch((err) => {
+      console.log("keyayyy--err", err);
+      return Promise.resolve(err?.data);
+    });
+};
 
 //获取诊断细节
 // TODO: 不是404数据结构-异常特殊处理下，会进入catch，等后端重写后，重新接入。
 export const getExaminationDetail = (applyId) => {
-
   return Base.submit(null, {
-    url: api2 + urlJson['get-examination-detail'],
-    method: 'GET',
+    url: api2 + urlJson["get-examination-detail"],
+    method: "GET",
     urlParam: {
-      applyId: applyId
-    }
-  }).then(res => {
-    return Promise.resolve(res.data);
-  }).catch(err => {
-    return Promise.resolve(err?.data);
+      applyId: applyId,
+    },
   })
-}
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((err) => {
+      return Promise.resolve(err?.data);
+    });
+};
 // Base.submit(null, {
 //   url: api2 + urlJson['get-examination-detail'],
 //   method: 'GET',
@@ -380,15 +388,14 @@ export const getExaminationDetail = (applyId) => {
 //   // }
 // })
 
-
 //上传诊断文件以及基础信息
 export const uploadExamination = (formData) =>
   Base.submit(null, {
-    url: api2 + urlJson['upload-examination'],
+    url: api2 + urlJson["upload-examination"],
     data: {
-      ...formData
-    }
-  })
+      ...formData,
+    },
+  });
 
 function parseBlobToArray(blob) {
   // 假设 Blob 包含多个文件，并且您知道如何分割这些文件
@@ -434,7 +441,9 @@ function parseBlobToFiles_muil(blob) {
     const subBlob = blob.slice(offset, Math.min(offset + fileSize, blob.size));
 
     // 创建一个 File 对象
-    const file = new File([subBlob], 'filename.ext', {type: 'application/octet-stream'});
+    const file = new File([subBlob], "filename.ext", {
+      type: "application/octet-stream",
+    });
 
     // 将 File 对象添加到列表中
     files.push(file);
@@ -457,57 +466,60 @@ export const readBlobAsArrayBuffer = async (blob) => {
       reject(error);
     };
   });
-}
+};
 
 //根据applyid获取文件
 //上传诊断文件以及基础信息
 export const getFile = (applyId) => {
   return new Promise((resolve, reject) => {
-    Base.submit(null, {
-      method: 'GET',
-      autoQs: false,
-      responseType: 'blob',
-      // parseBigNumber: true,
-      url: api2 + urlJson['get-file'],
-      urlParam: {
-        applyId: applyId
+    Base.submit(
+      null,
+      {
+        method: "GET",
+        autoQs: false,
+        responseType: "blob",
+        // parseBigNumber: true,
+        url: api2 + urlJson["get-file"],
+        urlParam: {
+          applyId: applyId,
+        },
+        transformResponse: [
+          (data) => {
+            console.log("data===transformResponse=", data);
+            return data;
+            // 在这里处理下载的文件
+            // 例如，你可以使用 File API 将二进制数据转换为文件
+            // const url = window.URL.createObjectURL(new Blob([data]));
+            // const link = document.createElement('a');
+            // link.href = url;
+            // link.setAttribute('download', 'file.txt'); // 设置下载的文件名
+            // document.body.appendChild(link);
+            // link.click();
+            // document.body.removeChild(link);
+            // window.URL.revokeObjectURL(url);
+          },
+        ],
       },
-      transformResponse: [(data) => {
-        console.log("data===transformResponse=", data);
-        return data;
-        // 在这里处理下载的文件
-        // 例如，你可以使用 File API 将二进制数据转换为文件
-        // const url = window.URL.createObjectURL(new Blob([data]));
-        // const link = document.createElement('a');
-        // link.href = url;
-        // link.setAttribute('download', 'file.txt'); // 设置下载的文件名
-        // document.body.appendChild(link);
-        // link.click();
-        // document.body.removeChild(link);
-        // window.URL.revokeObjectURL(url);
-      }]
-
-    }, (data) => {
-      // 解析 Blob 数据并创建 Blob 数组
-      const blobArray = parseBlobToFiles(data);
-      return blobArray;
-    })
+      (data) => {
+        // 解析 Blob 数据并创建 Blob 数组
+        const blobArray = parseBlobToFiles(data);
+        return blobArray;
+      },
+    )
       .then(function (response) {
         // 处理成功的逻辑
         const blobArray = response.data; // 这里应该是一个 Blob 数组
         // 您可以在这里对 blobArray 进行进一步的处理
         console.log("response", response, "blobArray", blobArray);
         resolve(response);
-
       })
       .catch(function (error) {
         // 处理错误的逻辑
         console.log("处理错误的逻辑", error);
         reject(error);
-
       });
-  })
-}
+  });
+};
 
 /*  Base.downloadFile({
    method: 'get',
@@ -518,12 +530,10 @@ export const getFile = (applyId) => {
    }
  }) */
 
-
-
 export const isExit = (studyInstanceUID) =>
   Base.submit(null, {
-    url: api2 + urlJson['is-exit'],
+    url: api2 + urlJson["is-exit"],
     urlParam: {
-      studyInstanceUID: studyInstanceUID
-    }
-  })
+      studyInstanceUID: studyInstanceUID,
+    },
+  });

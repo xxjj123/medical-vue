@@ -1,31 +1,27 @@
-import {
-  Vue,
-  store,
-} from "@common/js/public-ant-modules";
+import { Vue, store } from "@common/js/public-ant-modules";
 
 const instance = Vue.prototype;
 
-
-export function select_codeTable_type_group(type) { //返回码表固定type值的数组
+export function select_codeTable_type_group(type) {
+  //返回码表固定type值的数组
   return new Promise((resolve, reject) => {
-    let vuexData = localStorage.getItem('carplay')
+    let vuexData = localStorage.getItem("carplay");
     // console.log("ins---vuexData:", vuexData, type);
-    const vData = JSON.parse(vuexData)
-    const {sysInfoOther} = vData
+    const vData = JSON.parse(vuexData);
+    const { sysInfoOther } = vData;
     if (sysInfoOther) {
       let group = sysInfoOther.filter((v, k) => {
         // console.log("v----", v, "k---", k);
 
-        return v.type === type
-      })
-      console.log("group", group);
+        return v.type === type;
+      });
+      // console.log("group", group);
 
-      resolve(group)
+      resolve(group);
     } else {
-      reject()
+      reject();
     }
-
-  })
+  });
 }
 /**
  * 直接返回scanSite
@@ -34,18 +30,18 @@ export function select_codeTable_type_group(type) { //返回码表固定type值�
 export function query_humen_boot_data() {
   return new Promise((resolve, reject) => {
     try {
-      let vuexData = localStorage.getItem('carplay')
+      let vuexData = localStorage.getItem("carplay");
       const humenData = JSON.parse(vuexData).scanSite;
       // debugger
       if (humenData) {
-        resolve(humenData)
+        resolve(humenData);
       } else {
-        resolve([])
+        resolve([]);
       }
     } catch (error) {
-      reject(error)
+      reject(error);
     }
-  })
+  });
 }
 
 /**
@@ -58,7 +54,7 @@ export function query_humen_boot_data() {
  */
 export function findObjectByValue(dataSource, path, searchValue) {
   // 将路径字符串转换为数组
-  const pathArray = path.split('.');
+  const pathArray = path.split(".");
 
   // 使用 reduce 方法遍历路径数组
   let currentObject = dataSource;
@@ -74,9 +70,8 @@ export function findObjectByValue(dataSource, path, searchValue) {
   }
 
   // 过滤出 value 等于 searchValue 的对象
-  return currentObject.filter(item => item.value === searchValue);
+  return currentObject.filter((item) => item.value === searchValue);
 }
-
 
 /**
  * 返回指定属性的array内容
@@ -86,13 +81,17 @@ export function findObjectByValue(dataSource, path, searchValue) {
  */
 export function getPropertyArray(dataSource, path) {
   // 将路径字符串转换为数组
-  const pathArray = path.split('.');
+  const pathArray = path.split(".");
 
   // 使用 reduce 方法遍历路径数组
   let currentObject = dataSource;
   for (const key of pathArray) {
     // 检查当前对象是否包含路径中的键
-    if (currentObject !== undefined && currentObject !== null && currentObject.hasOwnProperty(key)) {
+    if (
+      currentObject !== undefined &&
+      currentObject !== null &&
+      currentObject.hasOwnProperty(key)
+    ) {
       // 更新当前对象为路径中的下一个对象
       currentObject = currentObject[key];
     } else {
@@ -112,17 +111,17 @@ export function getPropertyArray(dataSource, path) {
  */
 export function getLungSide(input) {
   // 检查输入是否为字符串
-  if (typeof input !== 'string') {
-    console.warn('Warning: Input must be a string.');
+  if (typeof input !== "string") {
+    console.warn("Warning: Input must be a string.");
     return;
   }
   // 检查字符串中是否包含 'right' 或 'left'
-  if (input.includes('right')) {
-    return 'right';
-  } else if (input.includes('left')) {
-    return 'left';
+  if (input.includes("right")) {
+    return "right";
+  } else if (input.includes("left")) {
+    return "left";
   } else {
     console.warn('Warning: String does not contain "right" or "left".');
     return;
   }
-};
+}

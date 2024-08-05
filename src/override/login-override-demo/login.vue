@@ -132,8 +132,8 @@ export default {
   },
   created() {
     this.$store.dispatch("getSysCfg");
-    console.log("dynamicUrl_logo=", this.dynamicUrl_logo);
-    console.log("dynamicUrl_taimg=", this.dynamicUrl_taimg, import.meta.url);
+    // console.log("dynamicUrl_logo=", this.dynamicUrl_logo);
+    // console.log("dynamicUrl_taimg=", this.dynamicUrl_taimg, import.meta.url);
   },
   methods: {
     modifyPasswordPaneCtr() {

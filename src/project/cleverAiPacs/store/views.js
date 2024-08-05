@@ -1,24 +1,28 @@
 import Vue from "vue";
 // const instance = Vue.prototype;
 // import {getBaseURL} from "@/assets/js/utils";
-import {getBaseURL} from "@/assets/js/utils/url-toto.ts";
+import { getBaseURL } from "@/assets/js/utils/url-toto.ts";
 
 import "@kitware/vtk.js/Rendering/Profiles/All";
+import { readImageDicomFileSeries } from "@itk-wasm/dicom";
 import {
-  readImageDicomFileSeries
-} from '@itk-wasm/dicom'
-import {setPipelinesBaseUrl, getPipelinesBaseUrl, setPipelineWorkerUrl, } from "@itk-wasm/dicom";
-let newUrl = '';
-if (process.env.NODE_ENV === 'production') {
-  newUrl = `${location.origin}${getBaseURL()}/libs/dicom-6.0.1/package/dist/pipelines`;
+  setPipelinesBaseUrl,
+  getPipelinesBaseUrl,
+  setPipelineWorkerUrl,
+} from "@itk-wasm/dicom";
+let newUrl = "";
+if (process.env.NODE_ENV === "production") {
+  newUrl = `${
+    location.origin
+  }${getBaseURL()}/libs/dicom-6.0.1/package/dist/pipelines`;
 } else {
   newUrl = `${getBaseURL()}/libs/dicom-6.0.1/package/dist/pipelines`;
 }
 setPipelinesBaseUrl(newUrl);
 // setPipelinesBaseUrl("http://localhost:5173/libs/dicom-6.0.1/package/dist/pipelines");//nice use
 
-console.log("getPipelinesBaseUrl==", getPipelinesBaseUrl());
-console.log("setPipelineWorkerUrl =", setPipelineWorkerUrl);
+// console.log("getPipelinesBaseUrl==", getPipelinesBaseUrl());
+// console.log("setPipelineWorkerUrl =", setPipelineWorkerUrl);
 // import {readImageDicomFileSeries} from `${getPipelinesBaseUrl()}`;
 import * as dicomW from "@itk-wasm/dicom";
 import vtkITKHelper from "@kitware/vtk.js/Common/DataModel/ITKHelper";
@@ -41,7 +45,7 @@ import {
 } from "@kitware/vtk.js/Widgets/Widgets3D/ResliceCursorWidget/Constants";
 import vtkPicker from "@kitware/vtk.js/Rendering/Core/Picker";
 
-import {vec3, quat, mat4} from "gl-matrix";
+import { vec3, quat, mat4 } from "gl-matrix";
 import vtkPlane from "@kitware/vtk.js/Common/DataModel/Plane";
 
 const VIEW_TYPES = {
@@ -101,9 +105,9 @@ const getAnnotatedCube = () => {
   return cube;
 };
 // actions.js
-const InitWindow = ({commit, state, rootState, dispatch}, payload) => {
-  const {toolsStore} = rootState;
-  const {ww, wl} = payload;
+const InitWindow = ({ commit, state, rootState, dispatch }, payload) => {
+  const { toolsStore } = rootState;
+  const { ww, wl } = payload;
   dispatch(
     "toolsStore/UpdateColorWindow",
     {
@@ -123,8 +127,8 @@ const InitWindow = ({commit, state, rootState, dispatch}, payload) => {
   // toolsStore.UpdateColorLevel(wl)
 };
 // actions.js
-const initCrossHair = ({commit, state, rootState, dispatch}) => {
-  const {toolsStore} = rootState;
+const initCrossHair = ({ commit, state, rootState, dispatch }) => {
+  const { toolsStore } = rootState;
   const widgetState = toolsStore.widget.getWidgetState();
   widgetState.getCenterHandle().setScale1(true);
   widgetState.getAxisYinX().setScale3From([0.8, 0.8, 0.8]);
@@ -142,8 +146,8 @@ const initCrossHair = ({commit, state, rootState, dispatch}) => {
 };
 
 // actions.js
-const handleendMouseWheel = ({commit, state, rootState, dispatch}) => {
-  const {toolsStore} = rootState;
+const handleendMouseWheel = ({ commit, state, rootState, dispatch }) => {
+  const { toolsStore } = rootState;
   state.viewMprViews.forEach((v, objindex) => {
     dispatch(
       "toolsStore/GetImagePage",
@@ -158,14 +162,14 @@ const handleendMouseWheel = ({commit, state, rootState, dispatch}) => {
   });
 };
 // actions.js
-const handleMouseMove = ({commit, state, rootState, dispatch}, payload) => {
-  const {toolsStore} = rootState;
-  const {event, obj, picker, image, viewsData, index} = payload;
+const handleMouseMove = ({ commit, state, rootState, dispatch }, payload) => {
+  const { toolsStore } = rootState;
+  const { event, obj, picker, image, viewsData, index } = payload;
 
-  const {mouseDown} = state;
+  const { mouseDown } = state;
 
   if (mouseDown == true && toolsStore.intermode == "crosshair") {
-    const {x, y} = event.position;
+    const { x, y } = event.position;
     picker.pick([x, y, 0], obj.renderer);
 
     if (picker.getPickedPositions().length > 0) {
@@ -209,7 +213,7 @@ const handleMouseMove = ({commit, state, rootState, dispatch}, payload) => {
       console.log("No point picked.");
     }
   }
-  const {x, y} = event.position;
+  const { x, y } = event.position;
   picker.pick([x, y, 0], obj.renderer);
 
   if (picker.getPickedPositions().length > 0) {
@@ -234,9 +238,9 @@ const handleMouseMove = ({commit, state, rootState, dispatch}, payload) => {
 };
 
 // actions.js
-const handleMouseUp = ({commit, state, rootState, dispatch}, payload) => {
-  const {toolsStore} = rootState;
-  const {obj} = payload;
+const handleMouseUp = ({ commit, state, rootState, dispatch }, payload) => {
+  const { toolsStore } = rootState;
+  const { obj } = payload;
   commit("UPDATE_MOUSE_DOWN", false);
   if (toolsStore.intermode == "pan") {
     obj.interactor.getInteractorStyle().startCameraPose();
@@ -246,16 +250,16 @@ const handleMouseUp = ({commit, state, rootState, dispatch}, payload) => {
 
 // actions.js
 const handleLeftButtonPress = (
-  {commit, state, rootState, dispatch},
+  { commit, state, rootState, dispatch },
   payload,
 ) => {
-  const {toolsStore} = rootState;
-  const {event, obj, picker} = payload;
+  const { toolsStore } = rootState;
+  const { event, obj, picker } = payload;
 
   commit("UPDATE_MOUSE_DOWN", true); // 假设 mouseDown 是一个响应式状态
 
   if (toolsStore.intermode == "crosshair") {
-    const {x, y} = event.position;
+    const { x, y } = event.position;
     picker.pick([x, y, 0], obj.renderer);
 
     if (picker.getPickedPositions().length > 0) {
@@ -295,7 +299,7 @@ const handleLeftButtonPress = (
         );
       });
     } else {
-      console.log("No point picked.");
+      // console.log("No point picked.");
     }
   } else if (toolsStore.intermode == "pan") {
     obj.interactor.getInteractorStyle().endCameraPose();
@@ -304,9 +308,9 @@ const handleLeftButtonPress = (
 };
 
 // actions.js 更新边缘渐变
-const updateEdgeGradient = (store, {renderWindow, actor}) => {
-  const {commit, state, rootState, dispatch} = store;
-  const {imageData} = state;
+const updateEdgeGradient = (store, { renderWindow, actor }) => {
+  const { commit, state, rootState, dispatch } = store;
+  const { imageData } = state;
   // const volumeMapper = vtkVolumeMapper.newInstance()
   // volumeMapper.setInputData(imageData)
 
@@ -364,7 +368,7 @@ export default {
   },
   mutations: {
     UPDATE_VIEW_DATA(state, payload) {
-      const {objindex, attributes} = payload;
+      const { objindex, attributes } = payload;
       const viewData = state.viewsData[objindex];
       // debugger
       if (viewData) {
@@ -375,13 +379,13 @@ export default {
       }
     },
     UPDATE_HU_VALUE(state, payload) {
-      const {index, hu} = payload;
+      const { index, hu } = payload;
       Vue.set(state.viewsData[index], "hu", hu);
     },
     UPDATE_MOUSE_DOWN(state, payload) {
       state.mouseDown = payload;
     },
-    UPDATE_VIEWS_DATA(state, {index, newViewsData}) {
+    UPDATE_VIEWS_DATA(state, { index, newViewsData }) {
       Vue.set(state.viewsData, index, newViewsData);
     },
     // 更新 Coronal 的 spacing
@@ -439,11 +443,11 @@ export default {
         resliceActor,
       };
       state.viewMprViews.push(view);
-      console.log("state.viewMprViews--current:", state.viewMprViews);
+      // console.log("state.viewMprViews--current:", state.viewMprViews);
     },
     //更新viewsData的某个对象
     put_jsonOb_viewsData(state, payload) {
-      const {index, newData} = payload;
+      const { index, newData } = payload;
 
       Object.assign(state.viewsData[index], newData);
     },
@@ -451,7 +455,7 @@ export default {
       state.helloViews = container;
     },
     INIT_3D_VIEW(state, payload) {
-      const {fullw} = payload;
+      const { fullw } = payload;
       // debugger;
       const renderWindow = fullw.getRenderWindow();
       const renderer = fullw.getRenderer();
@@ -485,7 +489,7 @@ export default {
     },
 
     UPDATE_VIEW(state, payload) {
-      const {viewType, data} = payload;
+      const { viewType, data } = payload;
       // debugger;
       switch (viewType) {
         case VIEW_TYPES.CORONAL:
@@ -529,7 +533,7 @@ export default {
         ...state.imageData,
       });
     },
-    INIT_MPR_VIEW(state, {container, view, mode}) {
+    INIT_MPR_VIEW(state, { container, view, mode }) {
       // 根据Pinia中的InitMprView方法逻辑初始化MPR视图并更新state
       // 这里需要根据具体的逻辑来更新state
     },
@@ -544,7 +548,7 @@ export default {
     },
 
     // 设置窗口级别
-    SET_WINDOW_LEVEL(state, {ww, wl}) {
+    SET_WINDOW_LEVEL(state, { ww, wl }) {
       state.windowWidth = ww;
       state.windowLevel = wl;
     },
@@ -571,10 +575,10 @@ export default {
   },
   actions: {
     async UpdateColorWindow_self(
-      {commit, state, rootState, dispatch},
+      { commit, state, rootState, dispatch },
       value,
     ) {
-      const {ww} = value;
+      const { ww } = value;
 
       state.viewMprViews.forEach((obj, objindex) => {
         // const viewData = state.viewsStore.viewsData[objindex];
@@ -590,7 +594,7 @@ export default {
         obj.resliceActor.getProperty().setColorWindow(ww);
         obj.interactor.render();
       });
-      console.log(value, "vvvvvvvvvvvvvvvvvvvvvvvv");
+      // console.log(value, "vvvvvvvvvvvvvvvvvvvvvvvv");
 
       // console.log(state.viewMprViews[0].resliceActor.getProperty().get())
       // state.viewMprViews[0].resliceActor.getProperty().setColorWindow(ww);
@@ -600,8 +604,8 @@ export default {
       // state.viewMprViews[2].resliceActor.getProperty().setColorWindow(ww);
       // state.viewMprViews[2].renderWindow.render();
     },
-    async UpdateColorLevel_self({commit, state, rootState, dispatch}, value) {
-      const {wl} = value;
+    async UpdateColorLevel_self({ commit, state, rootState, dispatch }, value) {
+      const { wl } = value;
 
       state.viewMprViews.forEach((obj, objindex) => {
         // const viewData = state.viewsStore.viewsData[objindex];
@@ -625,12 +629,12 @@ export default {
       // state.viewMprViews[2].resliceActor.getProperty().setColorLevel(wl);
       // state.viewMprViews[2].interactor.render();
     },
-    async updateViewData({commit}, payload) {
+    async updateViewData({ commit }, payload) {
       commit("UPDATE_VIEW_DATA", payload);
       // 这个有问题，设置会导致黑屏
     },
-    async initViewAction({commit, dispatch}, payload) {
-      const {container, viewName, viewType, slicingMode} = payload;
+    async initViewAction({ commit, dispatch }, payload) {
+      const { container, viewName, viewType, slicingMode } = payload;
       const view = {
         viewName: viewName,
         viewColor: VIEW_COLORS.BACKGROUND,
@@ -644,20 +648,20 @@ export default {
         view,
         slicingMode,
       });
-      console.log("data===initViewAction=MPR", data);
+      // console.log("data===initViewAction=MPR", data);
       // 提交mutation来更新状态
       commit("UPDATE_VIEW", {
         viewType,
         data,
       });
     },
-    async init3DView({commit}, container) {
+    async init3DView({ commit }, container) {
       const fullw = vtkFullScreenRenderWindow.newInstance({
         container: container,
         background: VIEW_COLORS.BACKGROUND,
       });
 
-      console.log("fullw___", fullw);
+      // console.log("fullw___", fullw);
       // debugger;
 
       // 调用mutation更新state
@@ -665,7 +669,7 @@ export default {
         fullw,
       });
     },
-    async initCoronalView({commit, dispatch}, container) {
+    async initCoronalView({ commit, dispatch }, container) {
       //更新冠状面数据源
       await dispatch("initViewAction", {
         container,
@@ -674,7 +678,7 @@ export default {
         slicingMode: vtkImageMapper.SlicingMode.I,
       });
     },
-    async initAxialView({commit, dispatch}, container) {
+    async initAxialView({ commit, dispatch }, container) {
       // 更新轴数据
       await dispatch("initViewAction", {
         container,
@@ -683,7 +687,7 @@ export default {
         slicingMode: vtkImageMapper.SlicingMode.K,
       });
     },
-    async initSagittalView({commit, dispatch}, container) {
+    async initSagittalView({ commit, dispatch }, container) {
       // 更新矢状面数据
       await dispatch("initViewAction", {
         container,
@@ -693,11 +697,11 @@ export default {
       });
     },
 
-    readDicomFileSeries({commit, state}, files) {
+    readDicomFileSeries({ commit, state }, files) {
       // debugger
-      console.log("files", files);
-      console.log("dicomW==", dicomW);
-      console.log("readImageDicomFileSeries=", readImageDicomFileSeries);
+      // console.log("files", files);
+      // console.log("dicomW==", dicomW);
+      // console.log("readImageDicomFileSeries=", readImageDicomFileSeries);
       // debugger
       return readImageDicomFileSeries({
         inputImages: files,
@@ -705,10 +709,10 @@ export default {
       })
         .then((res) => {
           // debugger;
-          const {outputImage} = res;
+          const { outputImage } = res;
           const image = vtkITKHelper.convertItkToVtkImage(outputImage);
           // Object.assign(imageData, image)
-          console.log("image-----------", image);
+          // console.log("image-----------", image);
           commit("SET_IMAGE_DATA", image);
           return image;
         })
@@ -718,9 +722,9 @@ export default {
         });
     },
     // 其他actions...
-    async InitMprView({commit, rootState}, payload) {
-      const {toolsStore} = rootState;
-      const {container, view, slicingMode: mode} = payload;
+    async InitMprView({ commit, rootState }, payload) {
+      const { toolsStore } = rootState;
+      const { container, view, slicingMode: mode } = payload;
       // debugger;
       const grw = vtkGenericRenderWindow.newInstance();
       grw.setContainer(container);
@@ -754,19 +758,19 @@ export default {
 
       obj.widgetManager.setRenderer(obj.renderer);
 
-      console.log("widgetManager", obj.widgetManager);
-      console.log("rootState==", rootState, "toolsStore", toolsStore);
-      console.log("toolsStore.widget", toolsStore.widget);
-      console.log("view.viewType====", view.viewType);
-      console.log(xyzToViewType[view.viewType]);
+      // console.log("widgetManager", obj.widgetManager);
+      // console.log("rootState==", rootState, "toolsStore", toolsStore);
+      // console.log("toolsStore.widget", toolsStore.widget);
+      // console.log("view.viewType====", view.viewType);
+      // console.log(xyzToViewType[view.viewType]);
 
       const widgetInstance = obj.widgetManager.addWidget(
         toolsStore.widget,
         xyzToViewType[view.viewType],
       );
-      console.log("widgetInstance====", widgetInstance);
+      // console.log("widgetInstance====", widgetInstance);
       obj.widgetInstance = widgetInstance;
-      console.log("widgetInstance=", obj.widgetInstance);
+      // console.log("widgetInstance=", obj.widgetInstance);
       obj.widgetManager.enablePicking();
 
       obj.reslice = vtkImageReslice.newInstance();
@@ -774,7 +778,7 @@ export default {
       obj.resliceMapper.setInputConnection(obj.reslice.getOutputPort());
       obj.resliceActor = vtkImageSlice.newInstance();
       obj.resliceActor.setMapper(obj.resliceMapper);
-      console.log("UPDATE_MPR_VIEW---obj", obj, "mode--", mode);
+      // console.log("UPDATE_MPR_VIEW---obj", obj, "mode--", mode);
       commit("UPDATE_MPR_VIEW", {
         ...obj,
         viewName: view.viewName,
@@ -796,14 +800,14 @@ export default {
     },
 
     async get3DView(store, payload) {
-      const {commit, state, rootState, dispatch} = store;
+      const { commit, state, rootState, dispatch } = store;
       // const {
       //   imageData
       // } = payload;
       //this into payload is image func obj;
-      const {view3D, imageData} = state;
+      const { view3D, imageData } = state;
 
-      console.log("get3DView---imageData", imageData);
+      // console.log("get3DView---imageData", imageData);
 
       view3D.renderer.removeAllViewProps();
       const mapper = vtkVolumeMapper.newInstance();
@@ -831,10 +835,10 @@ export default {
     },
 
     async getSlice(store, payload) {
-      console.log("store==getSlice", store);
-      const {commit, state, rootState, dispatch} = store;
-      const {viewsData} = state;
-      const {toolsStore} = rootState;
+      // console.log("store==getSlice", store);
+      const { commit, state, rootState, dispatch } = store;
+      const { viewsData } = state;
+      const { toolsStore } = rootState;
       const image = payload;
       const dimensions = image.getDimensions();
       const spacing = image.getSpacing();
@@ -860,7 +864,7 @@ export default {
       // 遍历 viewMprViews 对象并更新状态
       state.viewMprViews.forEach((obj, index) => {
         // debugger;
-        console.log("obj===viewMprViews", obj);
+        // console.log("obj===viewMprViews", obj);
         // 更新 obj.dimensions
         obj.dimensions = image.getDimensions()[obj.viewMode];
         // state.viewsData[index].dimensions = image.getDimensions()[obj.viewMode];
@@ -930,7 +934,7 @@ export default {
 
         // 更新 viewMprViews 的 interactor 事件
         state.viewMprViews.forEach((v, index2) => {
-          console.log("v.widgetInstance", v.widgetInstance, v);
+          // console.log("v.widgetInstance", v.widgetInstance, v);
           v.widgetInstance.onStartInteractionEvent(() => {
             dispatch(
               "toolsStore/updateReslice",
@@ -1011,7 +1015,7 @@ export default {
         wl: -500,
       });
 
-      console.log("store--store-store", store);
+      // console.log("store--store-store", store);
 
       // 更新 viewMprViews 的 interactor 事件
       state.viewMprViews.forEach((v, objindex) => {
@@ -1028,7 +1032,7 @@ export default {
       });
     },
 
-    async initWindow({commit}, {ww, wl}) {
+    async initWindow({ commit }, { ww, wl }) {
       commit("SET_WINDOW_LEVEL", {
         ww,
         wl,
@@ -1036,13 +1040,13 @@ export default {
     },
 
     // 根据Pinia中的ReadFile方法创建action
-    async readFile({commit, dispatch}, file) {
+    async readFile({ commit, dispatch }, file) {
       // debugger
       try {
         // const image = await dispatch('readDicomFileSeries', file);
         // console.log("image========readFile", image);
         dispatch("readDicomFileSeries", file).then((image) => {
-          console.log("get3DView-before-image", image);
+          // console.log("get3DView-before-image", image);
           dispatch("get3DView", image); // 3d
           dispatch("getSlice", image);
         });
@@ -1056,7 +1060,7 @@ export default {
     },
 
     // 读取DICOM文件系列并处理图像数据
-    async processDicomFiles({commit}, files) {
+    async processDicomFiles({ commit }, files) {
       try {
         const dicomData = await readImageDicomFileSeries({
           inputImages: files,
@@ -1067,14 +1071,14 @@ export default {
         commit("SET_IMAGE_DATA", vtkImage);
         // 处理完图像数据后，可能需要初始化视图或执行其他操作
         // 例如：this.initViews();
-        console.log("vtkImage----", vtkImage, vtkImage.toJSON());
+        // console.log("vtkImage----", vtkImage, vtkImage.toJSON());
       } catch (error) {
         console.error("Error processing DICOM files:", error);
       }
     },
 
     // 初始化图像窗口和级别
-    async initWindow({commit}, {ww, wl}) {
+    async initWindow({ commit }, { ww, wl }) {
       commit("SET_WINDOW_LEVEL", {
         ww,
         wl,
@@ -1083,8 +1087,8 @@ export default {
     },
 
     // 应用裁剪平面
-    async applyClipping({commit, state}, {ijk1, ijk2}) {
-      const {imageData, view3D} = state;
+    async applyClipping({ commit, state }, { ijk1, ijk2 }) {
+      const { imageData, view3D } = state;
       const dimensions = imageData.getDimensions();
       const clippingPlanes = [
         // 创建裁剪平面的逻辑
@@ -1098,17 +1102,17 @@ export default {
     },
 
     // 重置裁剪平面
-    async resetClippingPlanes({commit, state}) {
+    async resetClippingPlanes({ commit, state }) {
       commit("REMOVE_ALL_CLIPPING_PLANES");
       // 可能需要执行其他操作，例如重新渲染视图
       state.view3D.renderWindow.render();
     },
 
     // 应用裁剪平面
-    applyClipping({commit, state}, payload) {
+    applyClipping({ commit, state }, payload) {
       // payload 应包含必要的参数，例如 point1 和 point2
-      const {imageData, view3D} = state;
-      const {point1, point2} = payload;
+      const { imageData, view3D } = state;
+      const { point1, point2 } = payload;
       const dimensions = imageData.getDimensions();
       const ijk1 = [point1.x, point1.y, dimensions[2] - point1.z];
       const ijk2 = [point2.x, point2.y, dimensions[2] - point2.z];
