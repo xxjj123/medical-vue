@@ -51,43 +51,43 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useToolsStore } from '@/stores'
+import { computed } from "vue";
+import { useToolsStore } from "@/stores";
 
-const toolsStore = useToolsStore()
+const toolsStore = useToolsStore();
 const SelectCheckbox = (row) => {
-  console.log(row)
-}
+  // console.log(row)
+};
 const SelectRow = (row) => {
-  console.log(row)
-  let centerpoint = []
-  let point1 = row.annotation[0].points[0]
-  let point2 = row.annotation[0].points[1]
-  let XLength = Math.abs(point1.x - point2.x)
-  let YLength = Math.abs(point1.y - point2.y)
-  let ZLength = Math.abs(point1.z - point2.z)
+  // console.log(row)
+  let centerpoint = [];
+  let point1 = row.annotation[0].points[0];
+  let point2 = row.annotation[0].points[1];
+  let XLength = Math.abs(point1.x - point2.x);
+  let YLength = Math.abs(point1.y - point2.y);
+  let ZLength = Math.abs(point1.z - point2.z);
 
   centerpoint = [
     (point1.x + point2.x) / 2,
     (point1.y + point2.y) / 2,
-    (point1.z + point2.z) / 2
-  ]
-  toolsStore.ChangeImagePage(centerpoint)
-  toolsStore.AddCube([XLength, YLength, ZLength], centerpoint)
+    (point1.z + point2.z) / 2,
+  ];
+  toolsStore.ChangeImagePage(centerpoint);
+  toolsStore.AddCube([XLength, YLength, ZLength], centerpoint);
   // viewsStore.applyClipping(
   //   [point1.x, point1.y, point1.z],
   //   [point2.x, point2.y, point2.z]
   // )
-}
+};
 
-const props = defineProps(['data'])
-const { data } = props
+const props = defineProps(["data"]);
+const { data } = props;
 const findingByLevel = computed(() => {
-  if (data.finding && data.finding != '') {
-    return data.finding.split('\n')
+  if (data.finding && data.finding != "") {
+    return data.finding.split("\n");
   }
-  return ''
-})
+  return "";
+});
 </script>
 
 <style lang="scss" scoped></style>

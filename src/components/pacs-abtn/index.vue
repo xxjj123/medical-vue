@@ -16,7 +16,7 @@
     </slot>
   </a>
 </template>
-<script lang='jsx'>
+<script lang="jsx">
 export default {
   name: "pacs-abtn",
   props: {
@@ -31,10 +31,10 @@ export default {
     /**
      * 排除本体
      */
-    exclude:{
-      type:Boolean,
-      default:()=>false
-    }
+    exclude: {
+      type: Boolean,
+      default: () => false,
+    },
   },
   computed: {
     isDisabled: {
@@ -48,23 +48,21 @@ export default {
     },
   },
   data() {
-    return {
-    };
+    return {};
   },
   methods: {
     handleClick() {
-      if(this.exclude){
-        if(!this.isDisabled){
+      if (this.exclude) {
+        if (!this.isDisabled) {
           this.isDisabled = !this.isDisabled;
-        }else{
-          this.$message.success(`分析中-请勿重复点击，稍后返回~`)
+        } else {
+          this.$message.success(`分析中-请勿重复点击，稍后返回~`);
         }
       }
-      console.log("handleClick==",this.isDisabled);
+      // console.log("handleClick==",this.isDisabled);
       this.$emit("click");
     },
   },
 };
 </script>
-<style lang='less' scoped>
-</style>
+<style lang="less" scoped></style>

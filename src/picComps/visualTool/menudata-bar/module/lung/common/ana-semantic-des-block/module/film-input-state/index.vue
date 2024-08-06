@@ -17,13 +17,13 @@
     </template>
   </div>
 </template>
-<script lang='javascript'>
+<script lang="javascript">
 import { selectOptions1, selectOptions2 } from "./assets/js/select-condition";
 import Vue from "vue";
 const instance = Vue.prototype;
 const init_select = async (type) => {
   const selectValues = await instance.$api.select_codeTable_type_group(type);
-  console.log("selectValues_", selectValues);
+  // console.log("selectValues_", selectValues);
   return selectValues;
 };
 // 查询条件输入选择组件
@@ -56,7 +56,7 @@ export default {
           : `筛选条件${this.optionNum}`;
       },
       set(val) {
-        console.log(val, "sssssssssss");
+        // console.log(val, "sssssssssss");
         return val;
       },
     },
@@ -85,10 +85,10 @@ export default {
       if (this.optionNum === "1") {
         //所见
         const apiOPSData = await init_select("IMAGE_VIEW_SORT");
-        console.log("//所见", apiOPSData);
+        // console.log("//所见", apiOPSData);
         const suojian = this.$ut.serializeDropdownList(apiOPSData);
         if (apiOPSData) {
-          console.log("suojian==", suojian);
+          // console.log("suojian==", suojian);
           return suojian;
         } else {
           return selectOptions1;
@@ -96,7 +96,7 @@ export default {
       } else if (this.optionNum == "2") {
         //诊断
         const apiOPSData = await init_select("TYPOLOGY_TYPE");
-        console.log("//诊断", apiOPSData);
+        // console.log("//诊断", apiOPSData);
         if (apiOPSData) {
           return apiOPSData;
         } else {
@@ -115,11 +115,11 @@ export default {
       const { key } = ev;
       const index = key.split("_")[0];
       const curRow = this.optionList[index];
-      console.log("curRow==", curRow);
+      // console.log("curRow==", curRow);
       this.showValueData = curRow.label;
       // this.$set(this.$data, "showValue", curRow.label);
       this.$forceUpdate();
-      console.log("this.showValueData", this.showValueData);
+      // console.log("this.showValueData", this.showValueData);
 
       this.$emit("input", curRow);
       this.$emit("cb-click", curRow);
@@ -130,7 +130,7 @@ export default {
 
       this.showValueData = this.showValue;
 
-      console.log("optionList==", this.optionList);
+      // console.log("optionList==", this.optionList);
     },
   },
   created() {
@@ -140,7 +140,7 @@ export default {
   },
 };
 </script>
-<style lang='less' scoped>
+<style lang="less" scoped>
 .film-input-state_wrapperbox {
   margin-left: 10px;
 }

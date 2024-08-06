@@ -4,7 +4,7 @@ export default {
    * @returns
    */
   getBaseURL: () => {
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = process.env.NODE_ENV === "production";
     let baseURL;
 
     if (isProduction) {
@@ -28,12 +28,12 @@ export default {
     const result = {};
 
     // 遍历字段名称数组
-    fieldsToMap.forEach(field => {
+    fieldsToMap.forEach((field) => {
       // 将下划线转换为空间，以匹配原始数据中的 engName
-      const normalizedFieldName = field.replace(/_/g, ' ');
+      const normalizedFieldName = field.replace(/_/g, " ");
 
       // 遍历原始数据数组
-      originalData.forEach(item => {
+      originalData.forEach((item) => {
         // 检查当前字段名称是否与原始数据的 engName 属性匹配
         if (item.engName === normalizedFieldName) {
           // 如果匹配，将字段名称添加到结果对象，并设置对应的 sortValue
@@ -58,9 +58,11 @@ export default {
     }
 
     // 遍历dicomData.tags数组
-    return dicomData.tags.map(tag => {
+    return dicomData.tags.map((tag) => {
       if (!Array.isArray(tag) || tag.length !== 2) {
-        throw new Error("Invalid tag format. Each tag should be an array with two elements.");
+        throw new Error(
+          "Invalid tag format. Each tag should be an array with two elements.",
+        );
       }
 
       const [code, value] = tag;
@@ -68,10 +70,10 @@ export default {
 
       // 检查description对象是否存在，如果存在，使用对应的eng和chn值
       const engName = description ? description.eng : code; // 获取英文名称或使用code
-      const chnContent = description ? description.chn : '无对应中文解释'; // 获取中文名称或默认值
+      const chnContent = description ? description.chn : "无对应中文解释"; // 获取中文名称或默认值
 
       // 返回结果对象
-      return {code, engName, sortValue: value, chnContent};
+      return { code, engName, sortValue: value, chnContent };
     });
   },
   /**
@@ -90,16 +92,14 @@ export default {
     dimensions,
     sagittalIndex,
     coronalIndex,
-    axialIndex
+    axialIndex,
   }) => {
-
     // 计算新的中心点
     const newCenter = imageData.indexToWorld([
       sagittalIndex,
       coronalIndex,
-      dimensions[2] - axialIndex
+      dimensions[2] - axialIndex,
     ]);
-
 
     return newCenter;
   },
@@ -116,7 +116,7 @@ export default {
     let min = data[0][key];
 
     // 遍历数据源，更新最大值和最小值
-    data.forEach(item => {
+    data.forEach((item) => {
       if (item[key] > max) {
         max = item[key];
       }
@@ -150,16 +150,16 @@ export default {
     // 定义递归处理函数
     const process = (arrayOrObject) => {
       let newData = {};
-      console.log("Array.isArray(arrayOrObject)", Array.isArray(arrayOrObject))
+      // console.log("Array.isArray(arrayOrObject)", Array.isArray(arrayOrObject))
       // 检查是否为数组
       if (Array.isArray(arrayOrObject)) {
         // 递归处理数组中的每个元素
         return arrayOrObject.map((item, index) => {
-          console.log("item,index----", "arrayOrObject", arrayOrObject, item, index);
+          // console.log("item,index----", "arrayOrObject", arrayOrObject, item, index);
 
-          return process(item)
+          return process(item);
         });
-      } else if (typeof arrayOrObject === 'object') {
+      } else if (typeof arrayOrObject === "object") {
         // 检查是否为对象
         // 递归处理对象的每个属性
         // const newData = {};
@@ -168,7 +168,7 @@ export default {
         }
         // 应用自定义数据
         for (const customKey in customData) {
-          console.log("customKey=", customKey)
+          // console.log("customKey=", customKey)
           // 如果newData中已有该属性，则添加下划线前缀备份原属性
           if (newData.hasOwnProperty(customKey)) {
             newData[`_${customKey}`] = newData[customKey];
@@ -176,7 +176,8 @@ export default {
           // 调用customData中的函数来设置属性值
           const customValue = customData[customKey](that, newData);
           // debugger;
-          if (customValue !== undefined && customValue !== "") { //不产生多层数据
+          if (customValue !== undefined && customValue !== "") {
+            //不产生多层数据
             // if (customValue !== undefined) { //产生多层数据，用于显式查看数据层是否处理，debug用
             newData[customKey] = customValue;
           }
@@ -195,7 +196,7 @@ export default {
     if (obj.hasOwnProperty(property) && obj[property] !== "") {
       return obj[property];
     }
-    if (typeof obj === 'object') {
+    if (typeof obj === "object") {
       for (const key of Object.keys(obj)) {
         const value = this.searchDeep(obj[key], property);
         if (value !== undefined) {
@@ -225,7 +226,7 @@ export default {
               return value;
             }
           }
-        } else if (typeof obj === 'object') {
+        } else if (typeof obj === "object") {
           for (const key of Object.keys(obj)) {
             const value = findPropertyValue(obj[key], property);
             if (value !== undefined) {
@@ -251,8 +252,8 @@ export default {
           risk: item.riskCode.toString(), // 转换风险代码为字符串
           volume: item.volume.toString(), // 确保体积是字符串格式
           lobe: item.lobe, // 包括叶段信息
-          lobeSegment: item.lobeSegment,//肺段
-          type: item.type,//结节类型
+          lobeSegment: item.lobeSegment, //肺段
+          type: item.type, //结节类型
           ...tableItem, // 展开找到的属性
         });
       }
@@ -282,7 +283,7 @@ export default {
             const result = searchProperties(arrayItem);
             return arrAccumulator.concat(result[property] || []);
           }, []);
-        } else if (typeof item === 'object') {
+        } else if (typeof item === "object") {
           // 如果当前项是对象，则递归搜索对象的每个属性
           accumulator[property] = searchProperties(item[property])[property];
         }
@@ -291,9 +292,9 @@ export default {
     }
 
     // 处理传入的数据
-    return data.map(item => {
-      const filledItem = {...item}; // 复制原始数据以避免直接修改
-      propertiesToSearch.forEach(property => {
+    return data.map((item) => {
+      const filledItem = { ...item }; // 复制原始数据以避免直接修改
+      propertiesToSearch.forEach((property) => {
         // 使用辅助函数搜索每个属性，并填充值
         filledItem[property] = searchProperties(item)[property];
       });
@@ -324,6 +325,5 @@ export default {
 
     // 返回序列化后的数组
     return serializedList;
-  }
-
-}
+  },
+};

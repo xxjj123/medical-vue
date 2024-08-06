@@ -36,7 +36,7 @@
     </ta-big-table>
   </div>
 </template>
-<script lang='javascript'>
+<script lang="javascript">
 export default {
   name: "AlgorithmTypeSelect",
   props: {
@@ -165,7 +165,7 @@ export default {
     };
   },
   created() {
-    console.log("itemData-----", this.itemData);
+    // console.log("itemData-----", this.itemData);
   },
   methods: {
     selectAllEvent() {},
@@ -174,5 +174,4 @@ export default {
   },
 };
 </script>
-<style lang='less' scoped>
-</style>
+<style lang="less" scoped></style>

@@ -53,7 +53,7 @@ export default {
       this.modalVisible = value;
     },
     modalVisible(value) {
-      console.log("wwww-", value);
+      // console.log("wwww-", value);
       this.$emit("update:visible", value);
     },
   },
@@ -75,10 +75,9 @@ export default {
     },
   },
   beforeDestroy() {
-    console.log("beforeDestroy:::this.modalVisible==", this.modalVisible);
+    // console.log("beforeDestroy:::this.modalVisible==", this.modalVisible);
   },
 };
 </script>
 
-<style lang="less" scoped>
-</style>
+<style lang="less" scoped></style>

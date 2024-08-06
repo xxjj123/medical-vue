@@ -4,7 +4,7 @@
     <LesionList v-model="menuResult" :cKey="cKey"></LesionList>
   </div>
 </template>
-<script lang='javascript'>
+<script lang="javascript">
 import checkToolBar from "./module/check-tool-bar.vue";
 import LesionList from "./module/lesion-list.vue";
 /**
@@ -52,9 +52,9 @@ export default {
     return {};
   },
   created() {
-    console.log("menuResult--", this.menuResult);
+    console.log(this.value);
+    // console.log("menuResult--", this.menuResult);
   },
 };
 </script>
-<style lang='less' scoped>
-</style>
+<style lang="less" scoped></style>

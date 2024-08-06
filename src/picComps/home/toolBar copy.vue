@@ -159,7 +159,7 @@ const slabModes = [
 
 const slabMode = ref(slabModes[0]); // 初始化 slabMode 变量
 const ChangeSlabMode = (mode) => {
-  console.log(mode);
+  // console.log(mode);
   toolsStore.ChangeSlabMode(mode);
 };
 const CrossHair = () => {
@@ -179,7 +179,7 @@ watch(
   () => currenttheme.value.index,
   () => {
     emit("ChangeTheme", currenttheme.value.theme);
-  }
+  },
 );
 
 const ShowSubscript = () => {

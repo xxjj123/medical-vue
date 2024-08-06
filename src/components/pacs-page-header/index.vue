@@ -85,7 +85,7 @@
     <pacsKeyborardCtrl :visible.sync="pacsKbCtrl_visible"></pacsKeyborardCtrl>
   </div>
 </template>
-<script lang='javascript'>
+<script lang="javascript">
 import pacsKeyborardCtrl from "@/components/pacs-keyborard-ctrl/index.vue";
 export default {
   name: "pacs-page-header",
@@ -120,13 +120,13 @@ export default {
 
   watch: {
     pacsKbCtrl_visible(val) {
-      console.log("wathc-,val,__pacsKbCtrl_visible", val);
+      // console.log("wathc-,val,__pacsKbCtrl_visible", val);
     },
   },
   methods: {
     back() {
       const previousRouteString = localStorage.getItem("previousRoute");
-      console.log("previousRouteString***", previousRouteString);
+      // console.log("previousRouteString***", previousRouteString);
       // const { path, query } = previousRouteString;
       // this.$router.push({
       //   path: path,
@@ -154,7 +154,7 @@ export default {
       const previousRouteString = localStorage.getItem("previousRoute");
       if (previousRouteString) {
         const previousRoute = JSON.parse(previousRouteString);
-        console.log("上一个路由信息:", previousRoute);
+        // console.log("上一个路由信息:", previousRoute);
 
         this.breadItem.prevName = previousRoute.meta?.name
           ? previousRoute.meta?.name
@@ -164,13 +164,13 @@ export default {
     },
   },
   created() {
-    console.log("$route-------------", this.$route);
+    // console.log("$route-------------", this.$route);
 
     this.init_BreadInfo();
   },
 };
 </script>
-<style lang='less' scoped>
+<style lang="less" scoped>
 // .func_bgCover() {
 //   background-repeat: no-repeat;
 //   background-size: 100%;

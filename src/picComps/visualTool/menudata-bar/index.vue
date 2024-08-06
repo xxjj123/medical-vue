@@ -58,7 +58,7 @@
     </ta-tabs>
   </div>
 </template>
-<script lang='javascript'>
+<script lang="javascript">
 import noduleResult from "@/picComps/visualTool/menudata-bar/module/lung/nodule-result/index.vue";
 import pneumoniaResult from "@/picComps/visualTool/menudata-bar/module/lung/pneumonia-result/index.vue";
 import fractureResult from "@/picComps/visualTool/menudata-bar/module/lung/fracture-result/index.vue";
@@ -72,12 +72,16 @@ export default {
     calciumScoreResult,
   },
   props: {
-    value: Object,
+    noduleInfo: {
+      type: Object,
+      required: true,
+    },
+    // value: Object,
   },
   computed: {
     menuResult: {
       get() {
-        return this.value;
+        return this.noduleInfo;
       },
       set(val) {
         this.$emit("input", val);
@@ -99,7 +103,7 @@ export default {
   },
   methods: {
     tab_callback(key) {
-      console.log(key);
+      // console.log(key);
       this.curSelectActKey = key;
     },
     handle_shouchang() {
@@ -109,7 +113,7 @@ export default {
   },
 };
 </script>
-<style lang='less' scoped>
+<style lang="less" scoped>
 .menuTopBox {
   padding: 20px;
 

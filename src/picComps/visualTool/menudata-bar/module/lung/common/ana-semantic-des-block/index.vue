@@ -27,7 +27,7 @@
     </div>
   </div>
 </template>
-<script lang='javascript'>
+<script lang="javascript">
 // 语义化描述文本展示器
 /**
  * TODO:
@@ -83,7 +83,7 @@ export default {
         `左肺上叶前段【78/259】见磨玻璃性结节，大小约6.3mmx2.8mm，体积约49.6mm³，平均CT值约-529.3HU。`,
         `右肺上叶前段【78/259】见磨玻璃性结节，大小约4.9mmx3.7mm，体积约51.0mm³，平均CT值约-634.0HU。`,
       ];
-      console.log(" this.resultBookItems=", this.resultBookItems);
+      // console.log(" this.resultBookItems=", this.resultBookItems);
     },
   },
   created() {
@@ -91,7 +91,7 @@ export default {
   },
 };
 </script>
-<style lang='less' scoped>
+<style lang="less" scoped>
 .top_bar {
   font-size: 14px;
   margin-bottom: 14px;
