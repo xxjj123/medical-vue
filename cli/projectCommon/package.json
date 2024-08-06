@@ -1,0 +1,12 @@
+{
+  "name": "@yh/cli-internal-project-common",
+  "version": "1.5.2",
+  "devDependencies": {
+    "@types/yh-cli-internal-types": "workspace:@yh/cli-internal-types@~"
+  },
+  "files": [
+    "src",
+    "tsconfig.json",
+    "pages.json"
+  ]
+}

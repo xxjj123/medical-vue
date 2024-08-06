@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="%VITE_PUBLIC_PATH%favicon.png" rel="shortcut icon" />
+  <meta charset="utf-8">
+  <title>%VITE_HTML_TITLE_CLEVEL_AI_PACS%</title>
+  <script src="/src/project/cleverAiPacs/cleverAiPacs.js" type="module"></script>
+  <script src="libs/tailwind/tailwindcss_3.4.4.js"></script>
+
+  <!-- 尝试自定义你的配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            clifford: '#da373d',
+          }
+        }
+      }
+    }
+
+  </script>
+  <!-- 尝试添加一些自定义 CSS -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+          .content-auto {
+            content-visibility: auto;
+          }
+        }
+      </style>
+  <script type="text/javascript">
+    function setRootFontSize() {
+      // 获取屏幕宽度
+      var screenWidth = window.innerWidth;
+
+      // 根据屏幕宽度计算字体大小
+      var baseFontSize = screenWidth / 1920 * 16; // 假设最大屏幕宽度为 1920px，字体大小为 16px
+
+      // 设置根元素的字体大小
+      document.documentElement.style.fontSize = baseFontSize + 'px';
+    }
+
+  </script>
+</head>
+
+<body>
+  <div id="app" class="fit">
+    <router-view></router-view>
+  </div>
+
+  <script type="text/javascript">
+    // 页面加载时设置根元素字体大小
+    window.onload = function () {
+      setRootFontSize();
+    };
+
+    // 窗口大小变化时重新设置根元素字体大小
+    window.onresize = function () {
+      setRootFontSize();
+    };
+
+  </script>
+
+  <script src="libs/dicom/dicomParser.min.js"></script>
+  <!-- <script src="https://unpkg.com/dicom-parser@1.8.21/dist/dicomParser.min.js"></script> -->
+  <script src="libs/cornerstone/cornerstone.min.js"></script>
+  <script src="libs/cornerstone/cornerstoneMath.min.js"></script>
+  <script src="libs/cornerstone/cornerstoneTools.min.js"></script>
+
+  <!-- <script crossorigin src="libs/itk/assets/index-d813bff7.js"></script> -->
+  <!-- <script src="libs/itk/assets/pipeline.worker-a9f1eae6.js"></script> -->
+
+  <script src="libs/itk/image-io/read-image-dicom-file-series.umd.js"></script>
+  <!-- <script src="libs/dicom-6.0.1/package/dist/pipelines/read-image-dicom-file-series.js"></script> -->
+  <!-- <script src="libs/dicom-6.0.1/package/dist/bundle/index-worker-embedded.js"></script> -->
+
+
+
+</body>
+
+</html>

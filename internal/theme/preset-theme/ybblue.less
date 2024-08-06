@@ -1,0 +1,91 @@
+@primary-color: #00AFB0;
+@primary-1: rgba(10, 243, 243, .95);
+@body-height: 50px;
+// 设置默认字体大小
+// @font-size-base: 16px;
+// 这里支持框架所有样式变量
+// 注意不能添加
+
+/*custom-me 自定义拓展的变量----start */
+@theme_headerBg: #1F1F1F;
+@theme_backBg: #161616;
+@theme_intoColor: #383838; //输入工具背景色，主色调(通用-统一替换)
+/*custom-me 自定义拓展的变量----end */
+
+
+
+/* start----input=== */
+
+@input-bg: @theme_intoColor;
+@input-color: #fff;
+
+/* end----input=== */
+
+
+/* ta-button ----start */
+//默认按钮
+@btn-default-color: @primary-color; //-文字颜色
+@btn-default-border: @primary-color; //-边框颜色
+@btn-default-bg: rgba(0, 175, 176, 0.15); //-背景色
+
+//自定义
+@theme-abtn-grey-1: rgba(255, 255, 255, 0.35); //灰度1
+
+/* ta-button ----end */
+
+
+
+/* 选择器 selected ----start*/
+@select-background: @theme_intoColor;
+@text-color: #f0f0f0;
+
+@select-dropdown-bg: @theme_intoColor;
+@select-item-selected-bg: @primary-color;
+@select-item-active-bg: #006699;
+
+
+
+/* 选择器 selected ----end*/
+
+/* form ---start */
+@label-color: #ddd9d9;
+/* form ---end */
+
+
+/* bigTable ----start */
+@big-table-font-color: #fff; //文字色
+
+@big-table-background-color: rgba(255, 255, 255, 0); //背景色
+
+
+@big-table-header-background-color: #1F1F20; //表头背景色
+
+// box-shadow: 0px 1px 0px 0px rgba(235,237,240,0.15);
+@big-table-border-color: rgba(235, 237, 240, 0.15); //表格边框色
+
+// box-shadow: 0px 1px 0px 0px rgba(235,237,240,0.15);
+@big-table-row-striped-background-color: rgba(235, 237, 240, 0.15); //行条纹背景色
+
+/* bigTable ----end */
+
+
+/* common ----start */
+@border-color-base: #000;
+@border-radius-base: 2px;
+/* common ----end */
+
+/* confirm ----start */
+@theme_modal_color: rgba(2, 31, 31, 0.85);
+@modal-footer-bg: @theme_modal_color;
+@modal-header-bg: @theme_modal_color;
+@modal-footer-border-color-split: transparent;
+@modal-header-border-color-split: transparent;
+
+
+/* confirm ----end */
+
+
+
+/* dropdown ----start */
+@dropdown-selected-color: @primary-color;
+/* dropdown ----end */

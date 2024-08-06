@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+function changed {
+  git diff --name-only HEAD@{1} HEAD | grep "^$1" > /dev/null 2>&1
+}
+
+CHANGED=0
+
+if changed 'package.json'; then
+  echo "📦 package.json 已变更,稍后会自动执行 pnpm install"
+  CHANGED=1
+fi
+
+if changed 'pnpm-lock.yaml'; then
+  echo "📦 pnpm-lock.yaml 已变更,稍后会自动执行 pnpm install"
+  CHANGED=1
+fi
+
+if changed '.env.development'; then
+  echo "📦 .env.development 已变更,稍后会自动执行 pnpm install"
+  CHANGED=1
+fi
+
+if changed '.env.mock'; then
+  echo "📦 .env.mock 已变更,稍后会自动执行 pnpm install"
+  CHANGED=1
+fi
+
+if changed '.env.preview'; then
+  echo "📦 .env.preview 已变更,稍后会自动执行 pnpm install"
+  CHANGED=1
+fi
+
+if changed '.env.production'; then
+  echo "📦 .env.production 已变更,稍后会自动执行 pnpm install"
+  CHANGED=1
+fi
+
+if [ "$CHANGED" = 1 ]; then
+    pnpm install
+fi

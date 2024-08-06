@@ -1,0 +1,23 @@
+.DS_Store
+node_modules/
+/dist/
+/.vite-inspect/
+_upgrade/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.eslintcache
+/war/
+dist
+es
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.zip
+pnpm-lock.yaml

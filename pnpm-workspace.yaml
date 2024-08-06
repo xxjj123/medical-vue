@@ -1,0 +1,4 @@
+packages:
+  - 'internal/*'
+  - 'cli/*'
+  - 'pages/*'

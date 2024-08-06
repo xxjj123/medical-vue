@@ -1,0 +1,537 @@
+{
+  "code": 200,
+  "requestId": "ca0f6c7c-9239-4046-8415-579e7a1edd94",
+  "data": {
+    "sysInfoOther": [{
+        "label": "病理位置风险度",
+        "name": "安全",
+        "type": "POSITION_RISK_DEGREE",
+        "value": "0"
+      },
+      {
+        "label": "病理位置风险度",
+        "name": "低危",
+        "type": "POSITION_RISK_DEGREE",
+        "value": "1"
+      },
+      {
+        "label": "病理位置风险度",
+        "name": "中危",
+        "type": "POSITION_RISK_DEGREE",
+        "value": "2"
+      },
+      {
+        "label": "病理位置风险度",
+        "name": "高危",
+        "type": "POSITION_RISK_DEGREE",
+        "value": "3"
+      },
+
+      {
+        "label": "所见结果文本排序",
+        "name": "按层数排序",
+        "type": "IMAGE_VIEW_SORT",
+        "value": "01"
+      },
+      {
+        "label": "所见结果文本排序",
+        "name": "按肺段分类",
+        "type": "IMAGE_VIEW_SORT",
+        "value": "02"
+      },
+      {
+        "label": "所见结果文本排序",
+        "name": "按类型分类",
+        "type": "IMAGE_VIEW_SORT",
+        "value": "03"
+      },
+      {
+        "label": "所见结果文本排序",
+        "name": "结构化描述",
+        "type": "IMAGE_VIEW_SORT",
+        "value": "04"
+      },
+      {
+        "label": "所见结果文本排序",
+        "name": "结节汇总",
+        "type": "IMAGE_VIEW_SORT",
+        "value": "05"
+      },
+      {
+        "label": "诊断类型",
+        "name": "无",
+        "type": "TYPOLOGY_TYPE",
+        "value": -1
+      },
+      {
+        "label": "诊断类型",
+        "name": "NCCN",
+        "type": "TYPOLOGY_TYPE",
+        "value": "01"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "默认",
+        "type": "LESION_LIST_TYPE",
+        "value": "1"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "按风险",
+        "type": "LESION_LIST_TYPE",
+        "value": "2"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "按IM",
+        "type": "LESION_LIST_TYPE",
+        "value": "3"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "按肺段",
+        "type": "LESION_LIST_TYPE",
+        "value": "4"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "按长径",
+        "type": "LESION_LIST_TYPE",
+        "value": "5"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "按体积",
+        "type": "LESION_LIST_TYPE",
+        "value": "6"
+      },
+      {
+        "label": "病变列表类型",
+        "name": "按类型",
+        "type": "LESION_LIST_TYPE",
+        "value": "7"
+      },
+      {
+        "label": "良恶性",
+        "name": "全部",
+        "type": "LESION_LIST_FILTER_LEX",
+        "value": ""
+      },
+      {
+        "label": "良恶性",
+        "name": "低危",
+        "type": "LESION_LIST_FILTER_LEX",
+        "value": "1"
+      },
+      {
+        "label": "良恶性",
+        "name": "中危",
+        "type": "LESION_LIST_FILTER_LEX",
+        "value": "2"
+      },
+      {
+        "label": "良恶性",
+        "name": "高危",
+        "type": "LESION_LIST_FILTER_LEX",
+        "value": "3"
+      },
+      {
+        "label": "类型",
+        "name": "全部",
+        "type": "LESION_LIST_FILTER_NODULETYPE",
+        "value": ""
+      },
+      {
+        "label": "类型",
+        "name": "肿块",
+        "type": "LESION_LIST_FILTER_NODULETYPE",
+        "value": "1"
+      },
+      {
+        "label": "类型",
+        "name": "混合",
+        "type": "LESION_LIST_FILTER_NODULETYPE",
+        "value": "2"
+      },
+      {
+        "label": "类型",
+        "name": "磨玻璃",
+        "type": "LESION_LIST_FILTER_NODULETYPE",
+        "value": "3"
+      },
+      {
+        "label": "类型",
+        "name": "实性",
+        "type": "LESION_LIST_FILTER_NODULETYPE",
+        "value": "4"
+      },
+      {
+        "label": "类型",
+        "name": "钙化",
+        "type": "LESION_LIST_FILTER_NODULETYPE",
+        "value": "5"
+      },
+      {
+        "label": "长径",
+        "name": "全部",
+        "type": "LESION_LIST_FILTER_MAJOR_AXIS",
+        "value": ""
+      },
+      {
+        "label": "长径",
+        "name": "0-3mm",
+        "type": "LESION_LIST_FILTER_MAJOR_AXIS",
+        "value": [0, 3]
+      },
+      {
+        "label": "长径",
+        "name": "3-5mm",
+        "type": "LESION_LIST_FILTER_MAJOR_AXIS",
+        "value": [3, 5]
+      },
+      {
+        "label": "长径",
+        "name": "5-8mm",
+        "type": "LESION_LIST_FILTER_MAJOR_AXIS",
+        "value": [5, 8]
+      },
+      {
+        "label": "长径",
+        "name": ">8mm",
+        "type": "LESION_LIST_FILTER_MAJOR_AXIS",
+        "value": [">", 8]
+      },
+      {
+        "label": "长径",
+        "name": "自定义",
+        "type": "LESION_LIST_FILTER_MAJOR_AXIS",
+        "value": ["", ""]
+      }
+    ],
+    "scanSite": {
+      "lung": {
+        "noduleType": [{
+            "label": "结节类型",
+            "name": "磨玻璃性结节",
+            "value": "GCN"
+          },
+          {
+            "label": "结节类型",
+            "name": "实性结节",
+            "value": "Solid"
+          },
+          {
+            "label": "结节类型",
+            "name": "钙化结节",
+            "value": "Calcified"
+          },
+          {
+            "label": "结节类型",
+            "name": "混合性结节",
+            "value": "Mixed"
+          },
+          {
+            "label": "结节类型",
+            "name": "肿块",
+            "value": "Mass"
+          }
+        ],
+        "segment": {
+          "rightLung": {
+            "label": "右肺",
+            "segments": [{
+                "label": "肺段",
+                "name": "上叶前段",
+                "value": "1"
+              },
+              {
+                "label": "肺段",
+                "name": "上叶后段",
+                "value": "2"
+              },
+              {
+                "label": "肺段",
+                "name": "上叶尖段",
+                "value": "3"
+              },
+              {
+                "label": "肺段",
+                "name": "中叶内侧段",
+                "value": "4"
+              },
+              {
+                "label": "肺段",
+                "name": "下叶内基底段",
+                "value": "6"
+              },
+              {
+                "label": "肺段",
+                "name": "下叶前基底段",
+                "value": "7"
+              },
+              {
+                "label": "肺段",
+                "name": "下叶后基底段",
+                "value": "8"
+              },
+              {
+                "label": "肺段",
+                "name": "下叶外基底段",
+                "value": "9"
+              },
+              {
+                "label": "肺段",
+                "name": "下叶背段",
+                "value": "10"
+              }
+            ]
+          },
+          "leftLung": {
+            "label": "左肺",
+            "segments": [{
+                "label": "肺段",
+                "name": "上叶上舌段",
+                "value": "11"
+              },
+              {
+                "label": "肺段",
+                "name": "上叶下舌段",
+                "value": "12"
+              },
+              {
+                "label": "肺段",
+                "name": "上叶前段",
+                "value": "13"
+              },
+              {
+                "label": "肺段",
+                "name": "上叶尖后段",
+                "value": "14"
+              },
+              {
+                "label": "肺段",
+                "name": "下叶内前基底段",
+                "value": "15"
+              },
+              {
+                "label": "肺段",
+                "name": "下叶后基底段",
+                "value": "16"
+              },
+              {
+                "label": "肺段",
+                "name": "下叶外基底段",
+                "value": "17"
+              },
+              {
+                "label": "肺段",
+                "name": "下叶背段",
+                "value": "18"
+              }
+            ]
+          }
+        }
+      },
+      "coronaryArtery": {
+        "segment": {
+          "rightCoronaryArtery": {
+            "label": "右冠状动脉",
+            "segments": [{
+                "label": "冠脉分段",
+                "name": "近段",
+                "value": "pRCA"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "中段",
+                "value": "mRCA"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "远段",
+                "value": "dRCA"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "近中段",
+                "value": "pmRCA"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "中远段",
+                "value": "mdRCA"
+              }
+            ]
+          },
+          "leftCoronaryArtery": {
+            "label": "左冠状动脉",
+            "segments": [{
+                "label": "冠脉分段",
+                "name": "主干",
+                "value": "LM"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "前降支近段",
+                "value": "pLAD"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "前降支中段",
+                "value": "mLAD"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "前降支远段",
+                "value": "dLAD"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "前降支近中段",
+                "value": "pmLAD"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "前降支中远段",
+                "value": "mdLAD"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "第一对角支",
+                "value": "D1"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "第一对角支分支",
+                "value": "D1-b"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "第二对角支",
+                "value": "D2"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "第二对角支分支",
+                "value": "D2-b"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "第三对角支",
+                "value": "D3"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "第三对角支分支",
+                "value": "D3-b"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "中间支",
+                "value": "RI"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "中间支分支",
+                "value": "RI-b"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "左冠圆锥支",
+                "value": "L-CB"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "左冠右室前支",
+                "value": "L-RV"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "前间隔支",
+                "value": "LAD-S"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "左回旋支近段",
+                "value": "pLCX"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "左回旋支中远段",
+                "value": "mdLCX"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "第一钝缘支",
+                "value": "OM1"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "第一钝缘支分支",
+                "value": "OM1-b"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "第二钝缘支",
+                "value": "OM2"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "第二钝缘支分支",
+                "value": "OM2-b"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "第三钝缘支",
+                "value": "OM3"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "第三钝缘支分支",
+                "value": "OM3-b"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "左冠后侧支",
+                "value": "L-PLB"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "左冠第一后侧支",
+                "value": "L-PLB1"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "左冠第二后侧支",
+                "value": "L-PLB2"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "左冠后降支",
+                "value": "L-PDA"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "左后间隔支",
+                "value": "L-PDA-S"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "左冠窦房结支",
+                "value": "L-SN"
+              },
+              {
+                "label": "冠脉分段",
+                "name": "左冠房室结支",
+                "value": "L-AVN"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "errors": [],
+  "serviceSuccess": true,
+  "redirectUrl": null
+}

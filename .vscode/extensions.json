@@ -1,0 +1,19 @@
+{
+  // 推荐插件
+  "recommendations": [
+    // 代码检查插件
+    "dbaeumer.vscode-eslint",
+    // 代码格式化插件
+    "esbenp.prettier-vscode",
+    // 统一编辑器代码缩进、换行等行为表现的插件
+    "editorconfig.editorconfig",
+    // 路径补全插件
+    "christian-kohler.path-intellisense",
+    // npm包路径补全插件
+    "christian-kohler.npm-intellisense",
+    // git插件
+    "eamodio.gitlens",
+    // vue单文件组件代码高亮和语法支持插件
+    "vue.volar"
+  ]
+}

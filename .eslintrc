@@ -1,0 +1,43 @@
+{
+  // 继承 [银海前端编码规范](http://172.20.23.216:83/coding/) 中的编码规则
+  "extends": ["@yh/eslint-config/typescript/vue", "plugin:prettier/recommended"],
+  // 声明框架中用到的一些全局变量，避免代码校验报错
+  "globals": {
+    "TaUtils": "readonly",
+    "Base": "readonly",
+    "faceConfig": "readonly",
+    "indexTool": "readonly",
+    "sendMessage": "readonly",
+    "message": "readonly",
+    "goToCurrentRouter": "readonly"
+  },
+  // 覆盖默认的编码规则（适用于所有目录下的代码）
+  "rules": {
+    // 关闭要求vue组件名必须由多个单词组成的规则
+    "vue/multi-word-component-names": "off",
+    // 允许为 this 设置别名
+    "@typescript-eslint/no-this-alias": "off",
+    // 关闭要求组件名称必须大写的规则
+    "vue/component-definition-name-casing": "off"
+  },
+  // 框架代码特殊规则（仅针对框架内部代码）
+  "overrides": [
+    {
+      "files": [
+        "cli/**/*.{js,vue,jsx,ts}",
+        "internal/**/*.{js,ts,vue}",
+        "pages/**/*.{js,ts,vue,jsx}",
+        "build-vite/**/*.{js,ts,vue,jsx}"
+      ],
+      "rules": {
+        "no-shadow": "warn",
+        "no-void": "off",
+        "no-param-reassign": "off",
+        "no-nested-ternary": "warn",
+        "vue/require-prop-types": "off",
+        "vue/require-default-prop": "off",
+        "@typescript-eslint/ban-ts-comment": "off"
+      }
+    }
+  ]
+}

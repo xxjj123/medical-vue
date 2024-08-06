@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "module": "ES2022",
+    "target": "ES2022",
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "lib": [
+      "ES2021.String"
+    ],
+    "types": [
+      "magic-string"
+    ]
+  },
+  "include": [
+    "vite.config.ts",
+    "build-vite/**/*.ts",
+    "build-vite/**/*.mts",
+    "package.json",
+    "viteCommonConfig.ts",
+    "multipleService.config.ts"
+  ]
+}

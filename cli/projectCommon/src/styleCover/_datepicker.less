@@ -1,0 +1,39 @@
+body {
+    .custom_pickerDeepBlue {
+        .ant-calendar {
+            background-color: @select-item-active-bg;
+        }
+
+        // /deep/
+        .ant-calendar-picker-container {
+            color: @primary-color;
+        }
+
+        .ant-calendar-header {
+
+            a.ant-calendar-prev-year-btn,
+            a.ant-calendar-prev-month-btn,
+            a.ant-calendar-next-month-btn,
+            a.ant-calendar-next-year-btn {
+
+                &:before,
+                &:after {
+                    border-color: #fff;
+                }
+            }
+
+
+
+            a.ant-calendar-year-select,
+            a.ant-calendar-month-select {
+                color: #fff;
+            }
+        }
+
+        .ant-calendar-date {
+            &:hover {
+                background-color: @primary-color;
+            }
+        }
+    }
+}

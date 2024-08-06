@@ -1,0 +1,19 @@
+// @function
+.hex-to-rgba(@hex, @opacity: 1) {
+  @red: red(@hex);
+  @green: green(@hex);
+  @blue: blue(@hex);
+  @rgba: rgba(@red, @green, @blue, @opacity);
+  // LESS函数返回最后一个表达式的值
+}
+.background-opacity(@color, @opacity) {
+  @rgba-color: rgba(red(@color), green(@color), blue(@color), @opacity);
+
+  background-color: @rgba-color;
+}
+// 图片填充布局
+.func_bgCover() {
+  background-repeat: no-repeat;
+  background-size: 100%;
+  background-position: 0 0;
+}

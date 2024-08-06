@@ -1,0 +1,20 @@
+{
+  "code": 200,
+  "requestId": "ca0f6c7c-9239-4046-8415-579e7a1edd94",
+  "data": {
+    "cryptoInfo": {
+      "publicKey": "MIIBMzCB7AYHKoZIzj0CATCB4AIBATAsBgcqhkjOPQEBAiEA/////v////////////////////8AAAAA//////////8wRAQg/////v////////////////////8AAAAA//////////wEICjp+p6dn140TVqeS89lCafzl4n1FauPkt28vUFNlA6TBEEEMsSuLB8ZgRlfmQRGajnJlI/jC7/yZgvhcVpFiTNMdMe8Nzai9PZ3nFm9zuNraSFT0KmHfMYqR0AC3zLlITnwoAIhAP////7///////////////9yA99rIcYFK1O79Ak51UEjAgEBA0IABDs0bYE6n6+0IAhLeWqdpHRou1hnlLZZ8OVvHFTjbWYWj1gysKYKw+IBCOgZ5UOsCNdAOP0aTzWuuA1XWhvq19E=",
+      "asymmetricAlgo": "sm2",
+      "symmetricAlgo": "sm4",
+      "hashAlgo": "sm3",
+      "randomKeyLength": 16,
+      "reqDataLevel": 2,
+      "reqUrlWhiteList": ["/template/**", "/favicon.ico", "/login", "/swagger-ui/**", "/logout", "/swagger-api/**", "/indexRestService/getCryptoInfo", "/swagger-resources/**", "/indexRestService/defaultOpen", "/loginRestService/getConfig", "/codetable/getCode", "/indexRestService/getToken"],
+      "queryUrlList": [],
+      "cryptoProvider": "default"
+    }
+  },
+  "errors": [],
+  "serviceSuccess": true,
+  "redirectUrl": null
+}

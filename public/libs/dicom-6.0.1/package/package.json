@@ -1,0 +1,66 @@
+{
+  "name": "@itk-wasm/dicom",
+  "version": "6.0.1",
+  "packageManager": "pnpm@8.11.0",
+  "description": "Read files and images related to DICOM file format.",
+  "type": "module",
+  "module": "./dist/index.js",
+  "types": "./dist/index-all.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index-all.d.ts",
+      "browser": "./dist/index.js",
+      "node": "./dist/index-node.js",
+      "default": "./dist/index-all.js"
+    }
+  },
+  "keywords": [
+    "itk",
+    "wasm",
+    "webassembly"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "itk-wasm": "^1.0.0-b.170"
+  },
+  "devDependencies": {
+    "@shoelace-style/shoelace": "^2.12.0",
+    "@types/node": "^20.2.5",
+    "ava": "^5.1.0",
+    "cypress": "^13.6.1",
+    "esbuild": "^0.19.8",
+    "fs-extra": "^11.2.0",
+    "glob": "^8.1.0",
+    "shx": "^0.3.4",
+    "start-server-and-test": "^2.0.0",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.11",
+    "vite-plugin-static-copy": "^0.17.0",
+    "@itk-wasm/image-io": "1.1.1",
+    "@itk-wasm/dicom-build": "1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InsightSoftwareConsortium/itk-wasm"
+  },
+  "scripts": {
+    "start": "pnpm copyShoelaceAssets && vite",
+    "test": "pnpm test:node && pnpm test:browser",
+    "test:node": "ava test/node/*.js",
+    "test:browser": "pnpm test:browser:chrome && pnpm test:browser:firefox",
+    "test:browser:firefox": "start-server-and-test start http-get://localhost:5177 cypress:runFirefox",
+    "test:browser:chrome": "start-server-and-test start http-get://localhost:5177 cypress:runChrome",
+    "test:browser:debug": "start-server-and-test start http-get://localhost:5177 cypress:open",
+    "copyShoelaceAssets": "shx mkdir -p test/browser/demo-app/public/shoelace && shx cp -r node_modules/@shoelace-style/shoelace/dist/assets test/browser/demo-app/public/",
+    "cypress:open": "pnpm exec cypress open",
+    "cypress:runChrome": "pnpm exec cypress run --browser chrome",
+    "cypress:runFirefox": "pnpm exec cypress run --browser firefox",
+    "build": "pnpm build:tsc && pnpm build:browser:workerEmbedded && pnpm build:browser:workerEmbeddedMin && pnpm build:demo",
+    "build:browser:workerEmbedded": "esbuild --loader:.worker.js=dataurl --bundle --format=esm --outfile=./dist/bundle/index-worker-embedded.js ./src/index-worker-embedded.ts",
+    "build:browser:workerEmbeddedMin": "esbuild --minify --loader:.worker.js=dataurl --bundle --format=esm --outfile=./dist/bundle/index-worker-embedded.min.js ./src/index-worker-embedded.min.ts",
+    "build:version": "node -p \"'const version = ' + JSON.stringify(require('./package.json').version) + '\\nexport default version\\n'\" > src/version.ts",
+    "build:tsc": "pnpm build:version && tsc --pretty",
+    "build:demo": "pnpm copyShoelaceAssets && vite build"
+  }
+}

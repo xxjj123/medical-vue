@@ -1,0 +1,11 @@
+{
+  "name": "@yh/cli-internal-dynamic-theme",
+  "version": "1.0.0",
+  "devDependencies": {
+    "@types/yh-cli-internal-types": "workspace:@yh/cli-internal-types@~"
+  },
+  "exports": {
+    ".": "./presetTheme.ts",
+    "./preset-theme/*.less": "./preset-theme/*.less"
+  }
+}
