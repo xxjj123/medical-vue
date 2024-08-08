@@ -1,6 +1,4 @@
-import {
-  EventBus
-} from "./event-bus";
+import { EventBus } from "./event-bus";
 import {
   Vue,
   store,
@@ -13,17 +11,18 @@ import router from "./router/index"; // 引入 改模块的路由模块
 import viewsStore from "./store/views";
 import toolsStore from "./store/tools";
 import toolBarStore from "./store/toolBar";
+import viewInitStore from "./store/viewInit";
 
 store.registerModule("viewsStore", viewsStore);
 store.registerModule("toolsStore", toolsStore);
 store.registerModule("toolBarStore", toolBarStore);
-import "vue-bus";
+// store.registerModule("viewInitStore", viewInitStore);
 
+import "vue-bus";
 
 import * as api from "@/api/center-ut";
 
 import sUtil from "@/assets/js/utils";
-
 
 // 判断登录状态然后确认是否渲染页面
 checkLogin(() => {

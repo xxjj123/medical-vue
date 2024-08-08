@@ -234,10 +234,42 @@ export const xhr_push = (formData) => {
  * @param formData
  * @returns
  */
+export const xhr_getSeriesInfo = (formData) => {
+  console.log(formData);
+  return Base.submit(null, {
+    url: diagnose + urlJson["getSeriesInfo"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/**
+ * seriesComputeId
+ *
+ * @param formData
+ * @returns
+ */
 export const xhr_getNoduleInfo = (formData) => {
   console.log(formData);
   return Base.submit(null, {
     url: diagnose + urlJson["getNoduleInfo"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/**
+ * seriesComputeId
+ *
+ * @param formData
+ * @returns
+ */
+export const xhr_getSlice = (formData) => {
+  console.log(formData);
+  return Base.submit(null, {
+    url: diagnose + urlJson["getSlice"],
     data: {
       ...formData,
     },

@@ -14,14 +14,8 @@
         <div class="toolBar">
           <vskToolbar></vskToolbar>
         </div>
-        <!-- <div class="pic_views pic_layout">
-          <div class="side viewbox"></div>
-          <div class="side viewbox"></div>
-          <div class="side viewbox"></div>
-          <div class="side viewbox"></div>
-        </div> -->
         <div>
-          <ViewBoard></ViewBoard>
+          <ViewBoard :seriesInfo="seriesInfo"></ViewBoard>
         </div>
         <div class="menu_data">
           <menudataBar
@@ -63,6 +57,7 @@ import {
   getDiagnoseResult,
   getSysDict,
   xhr_getNoduleInfo,
+  xhr_getSeriesInfo,
 } from "@/api";
 
 import JSZip from "jszip";
@@ -114,6 +109,7 @@ export default {
       activeDiagnose: null,
       activeIndex: null,
       DiagnoseMenuResult: {},
+      seriesInfo: {},
       noduleInfo: {},
     };
   },
@@ -134,27 +130,9 @@ export default {
     },
 
     async handleFile(e) {
-      // const loading = ElLoading.service({
-      //   lock: true,
-      //   text: 'Loading',
-      //   background: 'rgba(0, 0, 0, 0.7)'
-      // })]l
-      // console.log("handleFilehandleFile", e);
-
       const files = Array.from(e.target.files);
 
       await this.readFile(files);
-      // await
-      /* await this.processDicomFiles(files);
-      console.log("processDFile==imageData", this.imageData);
-      console.log(
-        "processDFile==imageData:getDimensions",
-        this.imageData.getDimensions()
-      ); */
-
-      // const applyId = "83299b46-8d18-4e41-88eb-cab1afa67523";
-      // await this.Diagnose(applyId);
-      // loading.close()
     },
     // 本页面方法
 
@@ -173,6 +151,16 @@ export default {
         }
       });
     },
+    GetSeriesInfo(computeSeriesId) {
+      return new Promise(async (resolve, reject) => {
+        const result = await xhr_getSeriesInfo({ computeSeriesId });
+        console.log(result);
+        if (result.serviceSuccess) {
+          this.seriesInfo = result.data.resultData;
+          console.log(result.data.resultData);
+        }
+      });
+    },
     Diagnose(computeSeriesId) {
       return new Promise(async (resolve, reject) => {
         const result = await xhr_getNoduleInfo({ computeSeriesId });
@@ -180,51 +168,13 @@ export default {
           this.noduleInfo = result.data.resultData;
           this.menubarShow = true;
         }
-        // this.DiagnoseMenuResult = result;
-        // this.menubarShow = true;
-        // .then((res) => {
-        //   if (res.message === "success") {
-        //     let data = res.data.result;
-        //     console.log(data);
-        //     /**
-        //      * TODO:更新面板数据
-        //      */
-
-        //     resolve(res); // Success: resolve result
-        //   } else {
-        //     reject(res.message);
-        //   }
-        // })
-        // .catch((err) => {
-        //   console.log(err);
-        //   reject(err); // Error: reject with error
-        // });
-        // const data = await getExaDetail_keya();
-        // console.log("data==,data  keya", data);
-        /*     const data = await getExaminationDetail(applyId);
-        console.log("row==getExaminationDetail", data);
-        try {
-          this.menuResult.forEach((item) => {
-            item.data = data[item.des];
-          });
-          // Set the first available diagnosis as activeDiagnose
-          const firstValidDiagnosis = this.menuResult.find((item) => item.data);
-          if (firstValidDiagnosis) {
-            this.activeDiagnose = firstValidDiagnosis;
-          }
-          resolve(data); // Success: resolve result
-        } catch (error) {
-          reject(error);
-        } */
       });
     },
+
     async loadFile(applyId) {
       console.time("unzip");
-      // return new Promise((resolve, reject) => {
       try {
         const res = await getFile(applyId);
-        // console.log("res----fetch", res);
-        // debugger;
         const fileList = [];
         const zip = new JSZip();
         const blob = res.data;
@@ -251,17 +201,6 @@ export default {
           }
         });
 
-        // console.log("filePromises=", filePromises);
-        // return Promise.all(filePromises)
-        //   .finally(() => {
-        //     // console.timeEnd("unzip");
-        //     console.log("fileList=", fileList);
-        //     return Promise.resolve(fileList);
-        //   })
-        //   .catch((err) => {
-        //     console.error("filePromises===err", err);
-        //     return Promise.reject(err);
-        //   });
         await Promise.all(filePromises);
         console.timeEnd("unzip");
         return fileList;
@@ -274,13 +213,9 @@ export default {
     },
   },
   created() {
-    this.SET_HELLOVIEWS("hello world~");
-    // console.log("helloViews==", this.helloViews);
-    // console.log("combinedState==", this.combinedState);
     this.actRun({ a: 1 });
 
     setTimeout(() => {
-      this.SET_HELLOVIEWS("WWWW~");
       this.actRun({ a: 2 });
 
       this.updateActRun({ q: 123123 });
@@ -297,29 +232,10 @@ export default {
       }
       const { computeSeriesId } = this.$route.query;
       this.Diagnose(computeSeriesId);
+      this.GetSeriesInfo(computeSeriesId);
     });
 
     this.setClockUpdateDict();
-    /*
-    this.$nextTick(() => {
-      const { applyId } = this.$route.query;
-      // , this.Diagnose(applyId)
-      // console.log("Diagnose==",Diagnose);
-      this.Diagnose(applyId);
-      Promise.all([this.Diagnose(applyId), this.loadFile(applyId)])
-        .then((res) => {
-          console.log("最终=", res);
-          // debugger;
-          this.readFile(res[1]);
-        })
-        .catch((err) => {
-          console.log(err);
-          Message(err);
-        })
-        .finally(() => {
-          loading.close();
-        });
-    }); */
   },
   mounted() {},
 };

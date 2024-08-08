@@ -7,7 +7,7 @@ import vtkMapper from "@kitware/vtk.js/Rendering/Core/Mapper";
 import vtkActor from "@kitware/vtk.js/Rendering/Core/Actor";
 import vtkProperty from "@kitware/vtk.js/Rendering/Core/Property";
 import { SlabTypes } from "@kitware/vtk.js/Rendering/Core/ImageResliceMapper/Constants";
-
+import vtkXMLImageDataReader from "@kitware/vtk.js/IO/XML/XMLImageDataReader";
 import { vec3, quat, mat4 } from "gl-matrix";
 import vtkPlane from "@kitware/vtk.js/Common/DataModel/Plane";
 

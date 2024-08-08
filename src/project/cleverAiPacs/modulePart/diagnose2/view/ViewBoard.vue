@@ -1,4 +1,5 @@
 <template>
+  <!-- {{ seriesInfo }} -->
   <div class="ViewBoard_panel">
     <div
       :class="[
@@ -22,22 +23,16 @@
           },
         ]"
       >
-        <div class="relative view-item bg-slate-500" ref="ViewAxialRef">
-          <subScript v-show="showsub" v-model="Axial" />
-        </div>
+        <div class="relative view-item bg-slate-500" ref="ViewAxialRef"></div>
       </div>
       <div class="side viewbox view-coronal bg-slate-400">
-        <div class="relative view-item bg-slate-400" ref="ViewCoronalRef">
-          <subScript v-show="showsub" v-model="Coronal" />
-        </div>
+        <div class="relative view-item bg-slate-400" ref="ViewCoronalRef"></div>
       </div>
       <div class="side viewbox view-sagittal bg-slate-600">
         <div
           class="relative view-item bg-slate-600 border-t-0.2 border-l-0.2 border-titleblue"
           ref="ViewSagittalRef"
-        >
-          <subScript v-show="showsub" v-model="Sagittal" />
-        </div>
+        ></div>
       </div>
     </div>
   </div>
@@ -124,13 +119,6 @@ export default {
     ]),
 
     resizeViews() {
-      // const view3d = this.$refs.View3DRef;
-      // const container = view3d.grw.getContainer();
-      // const { width, height } = container.getBoundingClientRect();
-      // view3d.grw.resize(width, height);
-      // view3d.renderWindow.render();
-      // 3d也要resizeView一下
-
       this.viewMprViews.forEach((view) => {
         const container = view.grw.getContainer();
         const { width, height } = container.getBoundingClientRect();
@@ -139,18 +127,9 @@ export default {
       });
     },
   },
-  // created() {
-  //   console.log("this.$bus", this.$bus);
-  //   this.$bus.off("ebs_init_resizeView");
-  //   this.$bus.on("ebs_init_resizeView", () => {
-  //     console.log("触发ebs_init_resizeView");
-  //     this.resizeViews();
-  //   });
-  // },
 
   mounted() {
     this.$nextTick(() => {
-      // console.log("this.$refs.View3DRef=", this.$refs.View3DRef);
       this.init3DView(this.$refs.View3DRef);
       this.initCoronalView(this.$refs.ViewCoronalRef);
       this.initAxialView(this.$refs.ViewAxialRef);
