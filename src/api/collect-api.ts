@@ -27,7 +27,7 @@ export default {
   push: "/push", //ai结果推送
   getNoduleInfo: "/getNoduleInfo", //获取结节信息
   getSeriesInfo: "/getSeriesInfo",
-  getSlice: "getSlice",
+  getSlice: "/getSlice",
 
   /* 山哥-----公司测试环境接口 end*/
 };

@@ -434,6 +434,7 @@ export default {
     };
   },
   methods: {
+    ...mapMutations("viewInitStore", ["resizeViews"]),
     ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
     ...mapActions("toolsStore", [
       "toggleUpdateCrossHair",

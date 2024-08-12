@@ -23,23 +23,41 @@
           },
         ]"
       >
-        <div class="relative view-item bg-slate-500" ref="ViewAxialRef"></div>
+        <div class="relative view-item bg-slate-500" ref="ViewAxialRef">
+          <crossHair
+            v-if="AxialData.displayX && AxialData.displayY"
+            class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none"
+            :crosshairData="axialCrosshairData"
+          />
+        </div>
       </div>
       <div class="side viewbox view-coronal bg-slate-400">
-        <div class="relative view-item bg-slate-400" ref="ViewCoronalRef"></div>
+        <div class="relative view-item bg-slate-400" ref="ViewCoronalRef">
+          <crossHair
+            v-if="CoronalData.displayX && CoronalData.displayY"
+            class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
+            :crosshairData="coronalCrosshairData"
+          />
+        </div>
       </div>
       <div class="side viewbox view-sagittal bg-slate-600">
         <div
           class="relative view-item bg-slate-600 border-t-0.2 border-l-0.2 border-titleblue"
           ref="ViewSagittalRef"
-        ></div>
+        >
+          <crossHair
+            v-if="SagittalData.displayX && SagittalData.displayY"
+            class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
+            :crosshairData="sagittalCrosshairData"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script lang="javascript">
 import subScript from "@/picComps/home/subScript/subScript.vue";
-
+import crossHair from "@/picComps/home/subScript/crossHair.vue";
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
 import { LayoutIcons } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
@@ -58,9 +76,15 @@ export default {
   },
   components: {
     subScript,
+    crossHair,
   },
   computed: {
-    ...mapState("viewsStore", ["viewMprViews"]),
+    ...mapState("viewInitStore", [
+      "AxialData",
+      "CoronalData",
+      "SagittalData",
+      "showCrosshair",
+    ]),
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
     localSlice_CT_pic_layout: {
       get() {
@@ -69,6 +93,27 @@ export default {
       set(value) {
         this.setSlice_CT_pic_layout(value); // 调用 mutation 更新 Vuex 状态
       },
+    },
+    axialCrosshairData() {
+      return {
+        crosshair_x: this.AxialData.displayX,
+        crosshair_y: this.AxialData.displayY,
+        scale_length: this.AxialData.scaleLength,
+      };
+    },
+    coronalCrosshairData() {
+      return {
+        crosshair_x: this.CoronalData.displayX,
+        crosshair_y: this.CoronalData.displayY,
+        scale_length: this.CoronalData.scaleLength,
+      };
+    },
+    sagittalCrosshairData() {
+      return {
+        crosshair_x: this.SagittalData.displayX,
+        crosshair_y: this.SagittalData.displayY,
+        scale_length: this.SagittalData.scaleLength,
+      };
     },
   },
   watch: {
@@ -109,31 +154,24 @@ export default {
     };
   },
   methods: {
-    ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
-    // ...mapMutations("viewsStore", ["SET_HELLOVIEWS"]),
-    ...mapActions("viewsStore", [
-      "init3DView",
-      "initCoronalView",
-      "initAxialView",
-      "initSagittalView",
+    ...mapActions("viewInitStore", [
+      "InitAxialView",
+      "InitCoronalView",
+      "InitSagittalView",
+      "InitSlice",
+      "resizeViews",
     ]),
 
-    resizeViews() {
-      this.viewMprViews.forEach((view) => {
-        const container = view.grw.getContainer();
-        const { width, height } = container.getBoundingClientRect();
-        view.grw.resize(width, height);
-        view.renderWindow.render();
-      });
-    },
+    ...mapActions("viewsStore", ["init3DView"]),
   },
 
   mounted() {
     this.$nextTick(() => {
       this.init3DView(this.$refs.View3DRef);
-      this.initCoronalView(this.$refs.ViewCoronalRef);
-      this.initAxialView(this.$refs.ViewAxialRef);
-      this.initSagittalView(this.$refs.ViewSagittalRef);
+      this.InitAxialView(this.$refs.ViewAxialRef);
+      this.InitCoronalView(this.$refs.ViewCoronalRef);
+      this.InitSagittalView(this.$refs.ViewSagittalRef);
+      console.log("++++++++完成页面初始化了");
       window.addEventListener("resize", this.resizeViews);
     });
   },

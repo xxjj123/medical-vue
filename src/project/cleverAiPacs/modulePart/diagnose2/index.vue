@@ -18,10 +18,7 @@
           <ViewBoard :seriesInfo="seriesInfo"></ViewBoard>
         </div>
         <div class="menu_data">
-          <menudataBar
-            v-if="menubarShow"
-            :noduleInfo="noduleInfo"
-          ></menudataBar>
+          <menudataBar v-if="menubarShow"></menudataBar>
         </div>
       </div>
     </div>
@@ -42,13 +39,6 @@ import {
   createNamespacedHelpers,
 } from "vuex";
 
-// import ViewBoard from "@/project/clevelAiPacs/modulePart/diagnose/view/index.vue";
-// import toolBar from "@/picComps/home/dataresult/toolBar.vue";
-// import calciumResult from "@/picComps/home/dataresult/calciumResult.vue";
-// import fracResult from "@/picComps/home/dataresult/fracResult.vue";
-// import noduleResult from "@/picComps/home/dataresult/noduleResult.vue";
-// import pneumoniaResult from "@/picComps/home/dataresult/pneumoniaResult.vue";
-
 import {
   getExaDetail_keya,
   readBlobAsArrayBuffer,
@@ -66,12 +56,6 @@ export default {
   name: "diagnose",
   components: {
     PacsPageHeader,
-    // ViewBoard,
-    // toolBar,
-    // calciumResult,
-    // fracResult,
-    // noduleResult,
-    // pneumoniaResult,
     vskToolbar,
     filmBar,
     menudataBar,
@@ -110,13 +94,13 @@ export default {
       activeIndex: null,
       DiagnoseMenuResult: {},
       seriesInfo: {},
-      noduleInfo: {},
     };
   },
   methods: {
+    ...mapMutations("viewInitStore", ["SET_SERIES_INFO", "SET_NODULE_INFO"]),
+    ...mapActions("viewInitStore", ["InitSlice"]),
     // 测试
     ...mapActions("toolsStore", ["actRun", "updateActRun"]),
-    ...mapMutations("viewsStore", ["SET_HELLOVIEWS"]),
     // 正规业务start
     ...mapActions("viewsStore", ["readFile", "processDicomFiles"]),
 
@@ -152,12 +136,15 @@ export default {
       });
     },
     GetSeriesInfo(computeSeriesId) {
+      console.log("GetSeriesInfo==");
       return new Promise(async (resolve, reject) => {
         const result = await xhr_getSeriesInfo({ computeSeriesId });
         console.log(result);
         if (result.serviceSuccess) {
-          this.seriesInfo = result.data.resultData;
-          console.log(result.data.resultData);
+          let seriesInfo = result.data.resultData;
+          this.SET_SERIES_INFO(seriesInfo);
+          this.InitSlice();
+          console.log(seriesInfo);
         }
       });
     },
@@ -165,8 +152,11 @@ export default {
       return new Promise(async (resolve, reject) => {
         const result = await xhr_getNoduleInfo({ computeSeriesId });
         if (result.serviceSuccess) {
-          this.noduleInfo = result.data.resultData;
+          console.log(result.data.resultData);
+          this.SET_NODULE_INFO(result.data.resultData);
           this.menubarShow = true;
+        } else {
+          console.log("xhr_getNoduleInfo失败");
         }
       });
     },
@@ -231,7 +221,7 @@ export default {
         // console.log("carplay-已存在");
       }
       const { computeSeriesId } = this.$route.query;
-      this.Diagnose(computeSeriesId);
+      this.Diagnose("1813039756787879937");
       this.GetSeriesInfo(computeSeriesId);
     });
 

@@ -249,6 +249,7 @@ export default {
       if (Object.keys(tableItem).length > 0) {
         tableData.push({
           ...item.ctMeasures, // 包括ctMeasures中的属性
+          boxIndex: item.boxIndex,
           risk: item.riskCode.toString(), // 转换风险代码为字符串
           volume: item.volume.toString(), // 确保体积是字符串格式
           lobe: item.lobe, // 包括叶段信息

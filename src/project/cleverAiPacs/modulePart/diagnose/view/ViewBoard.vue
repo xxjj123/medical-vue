@@ -114,8 +114,6 @@ export default {
     };
   },
   methods: {
-    ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
-    // ...mapMutations("viewsStore", ["SET_HELLOVIEWS"]),
     ...mapActions("viewsStore", [
       "init3DView",
       "initCoronalView",

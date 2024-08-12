@@ -235,7 +235,6 @@ export const xhr_push = (formData) => {
  * @returns
  */
 export const xhr_getSeriesInfo = (formData) => {
-  console.log(formData);
   return Base.submit(null, {
     url: diagnose + urlJson["getSeriesInfo"],
     data: {
@@ -267,12 +266,12 @@ export const xhr_getNoduleInfo = (formData) => {
  * @returns
  */
 export const xhr_getSlice = (formData) => {
-  console.log(formData);
   return Base.submit(null, {
     url: diagnose + urlJson["getSlice"],
     data: {
       ...formData,
     },
+    responseType: "arraybuffer",
   });
 };
 

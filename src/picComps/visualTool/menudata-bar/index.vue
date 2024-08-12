@@ -63,6 +63,8 @@ import noduleResult from "@/picComps/visualTool/menudata-bar/module/lung/nodule-
 import pneumoniaResult from "@/picComps/visualTool/menudata-bar/module/lung/pneumonia-result/index.vue";
 import fractureResult from "@/picComps/visualTool/menudata-bar/module/lung/fracture-result/index.vue";
 import calciumScoreResult from "@/picComps/visualTool/menudata-bar/module/lung/calcium-score-result/index.vue";
+import { mapState } from "vuex";
+
 export default {
   name: "menudata-bar",
   components: {
@@ -71,14 +73,9 @@ export default {
     fractureResult,
     calciumScoreResult,
   },
-  props: {
-    noduleInfo: {
-      type: Object,
-      required: true,
-    },
-    // value: Object,
-  },
+
   computed: {
+    ...mapState("viewInitStore", ["noduleInfo"]),
     menuResult: {
       get() {
         return this.noduleInfo;

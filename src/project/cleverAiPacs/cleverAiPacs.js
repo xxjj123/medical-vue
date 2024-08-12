@@ -16,7 +16,7 @@ import viewInitStore from "./store/viewInit";
 store.registerModule("viewsStore", viewsStore);
 store.registerModule("toolsStore", toolsStore);
 store.registerModule("toolBarStore", toolBarStore);
-// store.registerModule("viewInitStore", viewInitStore);
+store.registerModule("viewInitStore", viewInitStore);
 
 import "vue-bus";
 

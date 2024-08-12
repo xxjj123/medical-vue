@@ -114,7 +114,6 @@ export default {
       activeDiagnose: null,
       activeIndex: null,
       DiagnoseMenuResult: {},
-      noduleInfo: {},
     };
   },
   methods: {
@@ -177,7 +176,6 @@ export default {
       return new Promise(async (resolve, reject) => {
         const result = await xhr_getNoduleInfo({ computeSeriesId });
         if (result.serviceSuccess) {
-          this.noduleInfo = result.data.resultData;
           this.menubarShow = true;
         }
         // this.DiagnoseMenuResult = result;

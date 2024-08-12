@@ -281,6 +281,8 @@
 <script lang="jsx">
 import anaSemanticDesBlock from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/index.vue";
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
+import { CodeSandboxOutline } from "@yh/icons-svg";
+import { mapActions } from "vuex";
 // 病理部位标志
 const LESION_PART_SITE = {
   CALCIUM: "calcium", //钙化
@@ -723,6 +725,7 @@ export default {
     };
   },
   methods: {
+    ...mapActions("viewInitStore", ["ChooseAnnotation"]),
     setPopupContainer(trigger) {
       return trigger.parentElement;
     },
@@ -737,6 +740,9 @@ export default {
       triggerCheckbox,
       $event,
     }) {
+      console.log(row);
+      const bboxindex = row.boxIndex;
+      this.ChooseAnnotation(bboxindex);
       // console.log(
       //   " row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event ", row,
       //   rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event);
@@ -1020,6 +1026,7 @@ export default {
         customizedData,
         propertiesToSearch,
       );
+
       // console.log("tableData__", tableData);
       // console.log("tableData__JSON.st",JSON.stringify(tableData));
 
@@ -1071,6 +1078,7 @@ export default {
         console.log("test3res==", test3res); */
 
       const jsonData = tableItem.focalDetailList;
+      console.log(jsonData);
 
       this.processJsonData(jsonData).then(() => {
         //finding 所见，diagnosis 诊断
