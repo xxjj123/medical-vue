@@ -221,7 +221,7 @@ export default {
         // console.log("carplay-已存在");
       }
       const { computeSeriesId } = this.$route.query;
-      this.Diagnose("1813039756787879937");
+      this.Diagnose(computeSeriesId);
       this.GetSeriesInfo(computeSeriesId);
     });
 

@@ -9,6 +9,8 @@
         { pic_layout_original: layout === '3' },
       ]"
     >
+      <!-- {{ szckx_on }} -->
+
       <div class="side viewbox view-3d">
         <div
           class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue"
@@ -56,14 +58,38 @@
   </div>
 </template>
 <script lang="javascript">
+import {
+  ButtonNames,
+  LayoutIcons,
+  toggleButtonState,
+  suffix_name,
+} from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
+
 import subScript from "@/picComps/home/subScript/subScript.vue";
 import crossHair from "@/picComps/home/subScript/crossHair.vue";
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
-import { LayoutIcons } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
-
+let btnStateGrp = {
+  [`${ButtonNames.Ckcw}${suffix_name}`]: false,
+  [`${ButtonNames.Mdtyms}${suffix_name}`]: false,
+  [`${ButtonNames.Jbinfo}${suffix_name}`]: false,
+  [`${ButtonNames.AiInfo}${suffix_name}`]: false,
+  [`${ButtonNames.Szckx}${suffix_name}`]: false,
+  [`${ButtonNames.Pyms}${suffix_name}`]: false,
+};
+console.log(btnStateGrp);
 export default {
   name: "ViewBoard",
+  data() {
+    return {
+      Axial: null, //轴切的 （原图）
+      Coronal: null, //冠状的
+      Sagittal: null, //矢状的
+      ...btnStateGrp,
+      szckx_on: btnStateGrp[`${ButtonNames.Szckx}${suffix_name}`],
+      layout: "1", //1:肋骨高级图布局（pic_layout_3d） 2:mpr布局（pic_layout）3:原图（pic_layout_original）
+    };
+  },
   props: {
     theme: {
       type: String,
@@ -144,15 +170,7 @@ export default {
       immediate: true,
     },
   },
-  data() {
-    return {
-      Axial: null, //轴切的 （原图）
-      Coronal: null, //冠状的
-      Sagittal: null, //矢状的
 
-      layout: "1", //1:肋骨高级图布局（pic_layout_3d） 2:mpr布局（pic_layout）3:原图（pic_layout_original）
-    };
-  },
   methods: {
     ...mapActions("viewInitStore", [
       "InitAxialView",

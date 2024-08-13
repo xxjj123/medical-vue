@@ -77,6 +77,8 @@ export default {
       displayX: null,
       displayY: null,
       scaleLength: null,
+      Ww: null,
+      Wl: null,
       reversed: false,
       cameraRotate: 0,
       hu: "",
@@ -90,6 +92,8 @@ export default {
       displayX: null,
       displayY: null,
       scaleLength: null,
+      Ww: null,
+      Wl: null,
       reversed: false,
       cameraRotate: 0,
       hu: "",
@@ -103,6 +107,8 @@ export default {
       displayX: null,
       displayY: null,
       scaleLength: null,
+      Ww: null,
+      Wl: null,
       reversed: false,
       cameraRotate: 0,
       hu: "",
@@ -192,6 +198,8 @@ export default {
       });
       data.sliceActor.getProperty().setColorWindow(1500);
       data.sliceActor.getProperty().setColorLevel(500);
+      commit("SET_VIEW_DATA", { viewType, key: "Ww", value: 1500 });
+      commit("SET_VIEW_DATA", { viewType, key: "Wl", value: 500 });
       commit("SET_VIEW_DATA", { viewType, key: "viewName", value: viewName });
       commit("SET_VIEW_DATA", { viewType, key: "viewIndex", value: viewType });
     },
@@ -441,19 +449,20 @@ export default {
         value: ndcY,
       });
     },
-    async UpdateIJK({ dispatch }, ijk) {
-      console.log("updateijk");
+    async UpdateIJK({ dispatch, getters, commit }, ijk) {
       await Promise.all([
         dispatch("updateSliceForView", {
           viewName: VIEW_NAMES.SAGITTAL,
           index: ijk[0],
           viewType: VIEW_TYPES.SAGITTAL,
         }),
+
         dispatch("updateSliceForView", {
           viewName: VIEW_NAMES.CORONAL,
           index: ijk[1],
           viewType: VIEW_TYPES.CORONAL,
         }),
+
         dispatch("updateSliceForView", {
           viewName: VIEW_NAMES.AXIAL,
           index: ijk[2],
@@ -676,6 +685,29 @@ export default {
         });
       }
     },
+    UpdateColorWindow({ state, commit }, value) {
+      state.viewMprViews.forEach((view, objindex) => {
+        commit("SET_VIEW_DATA", {
+          viewType: view.viewIndex,
+          key: "Ww",
+          value: value,
+        });
+        view.view.sliceActor.getProperty().setColorWindow(value);
+        view.view.interactor.render();
+      });
+    },
+
+    UpdateColorLevel({ state, commit }, value) {
+      state.viewMprViews.forEach((view, objindex) => {
+        commit("SET_VIEW_DATA", {
+          viewType: view.viewIndex,
+          key: "Wl",
+          value: value,
+        });
+        view.view.sliceActor.getProperty().setColorLevel(value);
+        view.view.interactor.render();
+      });
+    },
     handleMouseWheel({ commit, state, dispatch, getters }, { spinY, view }) {
       console.log("handleMouseWheel");
 
@@ -754,11 +786,11 @@ export default {
           dispatch("updateSliceForView", { viewName, index, viewType }),
         );
       },
-      200,
+      150,
     ),
     throttleUpdateOtherSlice: throttle(({ dispatch }, { viewType, ijk }) => {
       requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
-    }, 200),
+    }, 150),
     async GetSlice({ dispatch, state }, { viewName, index }) {
       try {
         const res = await xhr_getSlice({
@@ -838,18 +870,18 @@ export default {
       const { width: containerWidth, height: containerHeight } = view.grw
         .getContainer()
         .getBoundingClientRect();
-      const zoomFactor = Math.min(
-        1 / Math.abs(point1[0] - point2[0]),
-        1 / Math.abs(point1[1] - point2[1]),
-      );
+
       camera.zoom(
-        containerWidth * Math.abs(point1[0] - point2[0]) >
+        containerWidth * Math.abs(point1[0] - point2[0]) <
           containerHeight * Math.abs(point1[1] - point2[1])
           ? Math.max(
               1 / Math.abs(point1[0] - point2[0]),
               1 / Math.abs(point1[1] - point2[1]),
             )
-          : zoomFactor,
+          : Math.min(
+              1 / Math.abs(point1[0] - point2[0]),
+              1 / Math.abs(point1[1] - point2[1]),
+            ),
       );
       camera.roll(getters.viewsData[viewType].cameraRotate);
       view.renderWindow.render();
@@ -896,10 +928,21 @@ export default {
       view.view.renderer.addActor(actor);
       view.view.renderWindow.render();
     },
-    async ChooseAnnotation({ state, dispatch, getters }, bboxindex) {
-      console.log("ChooseAnnotation");
-      console.log(getters.viewsData);
-      console.log(bboxindex);
+
+    async ChangeSlider({ dispatch }, { viewName, viewIndex, pageIndex }) {
+      commit("SET_VIEW_DATA", {
+        viewType: viewIndex,
+        key: "changedPageindex",
+        value: pageIndex,
+      });
+      dispatch("throttleUpdateSingleSlice", { viewName, viewIndex, pageIndex });
+
+      dispatch("UpdateDisplay", {
+        viewType: viewIndex,
+        changedPageIndex: pageIndex,
+      });
+    },
+    async ChooseAnnotation({ state, dispatch, getters, commit }, bboxindex) {
       state.noduleInfo.focalDetailList.forEach(async (nodule) => {
         const { bbox, boxIndex } = nodule;
         if (boxIndex === bboxindex) {
@@ -917,23 +960,22 @@ export default {
                   : BBOX_COLORS.DEFAULT),
               );
           });
+          getters.viewsData.forEach((viewdata, index) => {
+            commit("SET_VIEW_DATA", {
+              viewType: viewdata.viewIndex,
+              key: "changedPageindex",
+              value: ijk[viewdata.viewIndex],
+            });
+          });
           await dispatch("UpdateIJK", ijk);
+
+          getters.viewsData.forEach((viewdata, index) => {
+            dispatch("UpdateDisplay", {
+              viewType: viewdata.viewIndex,
+              changedPageIndex: viewdata.changedPageindex,
+            });
+          });
         }
-      });
-    },
-
-    async ChangeSlider({ dispatch }, { viewName, viewIndex, pageIndex }) {
-      dispatch("throttleUpdateSingleSlice", { viewName, viewIndex, pageIndex });
-
-      commit("SET_VIEW_DATA", {
-        viewType: viewIndex,
-        key: "changedPageindex",
-        value: pageIndex,
-      });
-
-      dispatch("UpdateDisplay", {
-        viewType: viewIndex,
-        changedPageIndex: pageIndex,
       });
     },
     AutoPlay({ commit, dispatch, state }, { viewType, time }) {
@@ -1026,6 +1068,7 @@ export default {
       });
       dispatch("setupCamera", viewType);
     },
+
     resizeViews({ dispatch, state, getters, commit }) {
       console.log("resizeViews");
       const ijk = [];

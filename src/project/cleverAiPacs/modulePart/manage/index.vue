@@ -287,8 +287,8 @@
               <ta-tag v-if="row.computeStatus === '2'" color="#e7ee33"
                 >计算中</ta-tag
               >
-              <ta-tag v-if="row.computeStatus === '1'" color="#e4393c"
-                >计算失败</ta-tag
+              <ta-tag v-if="row.computeStatus === '1'" color="#e7ee33"
+                >等待计算</ta-tag
               >
             </template>
           </ta-big-table-column>

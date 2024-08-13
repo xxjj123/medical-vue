@@ -18,7 +18,7 @@
     </div>
   </div>
 </template>
-<script lang='javascript'>
+<script lang="javascript">
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
 //视窗，窗宽窗位
@@ -66,15 +66,17 @@ export default {
     },
   },
   methods: {
+    ...mapActions("viewInitStore", ["UpdateColorWindow", "UpdateColorLevel"]),
     ...mapActions("viewsStore", [
       "UpdateColorWindow_self",
       "UpdateColorLevel_self",
     ]),
     changeLevelWinTheme() {
+      console.log("kaishiUpdateColorLevel");
       const { tag } = this.buttons[this.activeIndex];
       const { ww, wl } = winCtrl[tag];
-      this.UpdateColorWindow_self({ ww });
-      this.UpdateColorLevel_self({ wl });
+      this.UpdateColorWindow({ ww });
+      this.UpdateColorLevel({ wl });
     },
     activate(index) {
       this.activeIndex = index;
@@ -83,7 +85,7 @@ export default {
   },
 };
 </script>
-<style lang='less' scoped>
+<style lang="less" scoped>
 .button-group {
   position: relative;
   // min-width: 224px;

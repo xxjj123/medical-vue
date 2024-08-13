@@ -298,8 +298,8 @@ export default {
   watch: {
     "mdtyms_conf.silder.barValue": {
       handler(nVal, oVal) {
-        // console.log("watch---mdtyms_conf.silder.barValue", nVal, oVal);
-        // console.log("Tautil----------", TaUtils);
+        console.log("watch---mdtyms_conf.silder.barValue", nVal, oVal);
+        console.log("Tautil----------", TaUtils);
 
         const { silder } = this.mdtyms_conf;
         const { barValue, multiplicand } = silder;
@@ -314,7 +314,7 @@ export default {
 
           this.$set(this.mdtyms_conf, "level", levelCF);
 
-          // console.log("this.mdtyms_conf==", this.mdtyms_conf);
+          console.log("this.mdtyms_conf==", this.mdtyms_conf);
         }
       },
       immediate: true,
@@ -338,14 +338,14 @@ export default {
     },
   },
   created() {
-    // console.log("===this.ckcw_on==", this.ckcw_on, ButtonNames.Ckcw);
-    // console.log("dicomdicomdicomdicomdicomdicomdicom", dicom);
+    console.log("===this.ckcw_on==", this.ckcw_on, ButtonNames.Ckcw);
+    console.log("dicomdicomdicomdicomdicomdicomdicom", dicom);
   },
   data() {
     return {
       mdtyms_conf: {
         onChange: (ev) => {
-          // console.log("onChange___mdtyms_conf", ev, this.mdtyms_conf);
+          console.log("onChange___mdtyms_conf", ev, this.mdtyms_conf);
           const { value } = this.mdtyms_conf;
           let mode = "max";
           if (value === 1) {
@@ -370,10 +370,10 @@ export default {
           max: 128,
           barValue: 20,
           change: (ev) => {
-            // console.log("ev---change:mdtyms_conf", ev);
+            console.log("ev---change:mdtyms_conf", ev);
           },
           afterChange: (ev) => {
-            // console.log("ev---afterchange:mdtyms_conf", ev);
+            console.log("ev---afterchange:mdtyms_conf", ev);
           },
         },
       },
@@ -391,11 +391,11 @@ export default {
         win_holder: 1, //"1",
         winW: {
           onChange: (value) => {
-            // console.log("onChange:", value);/
+            console.log("onChange:", value);
             this.$set(this.view_window, "win_w", value);
           },
           onAfterChange: (value) => {
-            // console.log("onChange1:", value, this.view_window);
+            console.log("onChange1:", value, this.view_window);
             this.$set(this.view_window, "win_w", value);
             // 灰度
             this.UpdateColorWindow_self({ ww: value });
@@ -404,12 +404,12 @@ export default {
         },
         winHold: {
           onChange: (value) => {
-            // console.log("onChange:", value);
+            console.log("onChange:", value);
             this.$set(this.view_window, "win_holder", value);
           },
           onAfterChange: (value) => {
             // 亮度
-            // console.log("onChange1:", value);
+            console.log("onChange1:", value);
             this.$set(this.view_window, "win_holder", value);
             this.UpdateColorLevel_self({ wl: value });
             this.$forceUpdate();
@@ -434,7 +434,6 @@ export default {
     };
   },
   methods: {
-    ...mapMutations("viewInitStore", ["resizeViews"]),
     ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
     ...mapActions("toolsStore", [
       "toggleUpdateCrossHair",
@@ -457,7 +456,7 @@ export default {
           {
             toggleButtonState(ButtonNames.Mdtyms, this);
             // 密度投影
-            // console.log();
+            console.log();
           }
           break;
         // 其他按钮的逻辑...
@@ -476,14 +475,14 @@ export default {
             toggleButtonState(ButtonNames.Szckx, this);
             // 十字参考线
             this.toggleUpdateCrossHair(!!this.szckx_on);
-            // console.log("// 十字参考线=", !!this.szckx_on);
+            console.log("// 十字参考线=", !!this.szckx_on);
           }
           break;
         case ButtonNames.Pyms:
           {
             toggleButtonState(ButtonNames.Pyms, this);
             this.toggleUpdateStartPan(!!this.pyms_on);
-            // console.log("// 平移模式=", !!this.pyms_on);
+            console.log("// 平移模式=", !!this.pyms_on);
           }
           break;
         default:
