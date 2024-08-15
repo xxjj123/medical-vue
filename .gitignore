@@ -20,4 +20,5 @@ es
 *.njsproj
 *.sln
 *.zip
+*.7z
 pnpm-lock.yaml
