@@ -1260,7 +1260,7 @@ function buildProxy() {
       rewrite: (path5) => path5.replace(/^\/ta404\/api3\//, ""),
     },
     ["^/ta404/api6/"]: {
-      target: "http://127.0.0.1:39625/",
+      target: "http://192.168.1.4:39625/",
       changeOrigin: true,
       rewrite: (path6) => path6.replace(/^\/ta404\/api6\//, ""),
     },

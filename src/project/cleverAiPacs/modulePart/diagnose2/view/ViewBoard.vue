@@ -184,8 +184,8 @@ export default {
 
     ...mapActions("viewsStore", ["init3DView"]),
     resizeViews() {
-      this.resizeSliceViews();
       this.resize3DViews();
+      this.resizeSliceViews();
     },
   },
 
