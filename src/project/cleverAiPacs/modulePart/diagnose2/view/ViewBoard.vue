@@ -111,6 +111,7 @@ export default {
       "SagittalData",
       "showCrosshair",
     ]),
+
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
     localSlice_CT_pic_layout: {
       get() {
@@ -177,19 +178,23 @@ export default {
       "InitCoronalView",
       "InitSagittalView",
       "InitSlice",
-      "resizeViews",
+      "resizeSliceViews",
     ]),
+    ...mapActions("view3DStore", ["Init3DView", "resize3DViews"]),
 
     ...mapActions("viewsStore", ["init3DView"]),
+    resizeViews() {
+      this.resizeSliceViews();
+      this.resize3DViews();
+    },
   },
 
   mounted() {
     this.$nextTick(() => {
-      this.init3DView(this.$refs.View3DRef);
+      this.Init3DView(this.$refs.View3DRef);
       this.InitAxialView(this.$refs.ViewAxialRef);
       this.InitCoronalView(this.$refs.ViewCoronalRef);
       this.InitSagittalView(this.$refs.ViewSagittalRef);
-      console.log("++++++++完成页面初始化了");
       window.addEventListener("resize", this.resizeViews);
     });
   },

@@ -179,7 +179,7 @@ var init_viteCommonConfig = __esm({
           "@itk-wasm/dicom",
           "itk-wasm",
           "itk",
-          "@kitware/vtk.js",
+          // "@kitware/vtk.js",
           "cornerstone",
           "cornerstone-core",
           "cornerstone-wado-image-loader",

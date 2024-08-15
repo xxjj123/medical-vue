@@ -12,12 +12,13 @@ import viewsStore from "./store/views";
 import toolsStore from "./store/tools";
 import toolBarStore from "./store/toolBar";
 import viewInitStore from "./store/viewInit";
+import view3DStore from "./store/view3D";
 
 store.registerModule("viewsStore", viewsStore);
 store.registerModule("toolsStore", toolsStore);
 store.registerModule("toolBarStore", toolBarStore);
 store.registerModule("viewInitStore", viewInitStore);
-
+store.registerModule("view3DStore", view3DStore);
 import "vue-bus";
 
 import * as api from "@/api/center-ut";
