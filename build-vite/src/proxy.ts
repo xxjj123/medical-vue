@@ -40,6 +40,11 @@ export function buildProxy() {
       changeOrigin: true,
       rewrite: (path: string) => path.replace(/^\/ta404\/api3\//, '')
     },
+    ["^/ta404/api6/"]: {
+      target: "http://192.168.1.4:39625/",
+      changeOrigin: true,
+      rewrite: (path6) => path6.replace(/^\/ta404\/api6\//, ""),
+    },
     [proxyName]: {
       target:
         getEnv('RUN_ENV') === 'mock' ? 'http://localhost:36742/' : getEnv('VITE_BACKEND_PATH'),
