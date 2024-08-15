@@ -43,6 +43,10 @@ const BBOX_COLORS = {
   DEFAULT: [0.29, 0.56, 0.89],
   SELECTED: [1.0, 1.0, 0.0],
 };
+const BBOX_LINEWIDTH = {
+  DEFAULT: 1,
+  SELECTED: 2,
+};
 function GetTureIJK({ viewType, ijk }) {
   const newijkMap = {
     [VIEW_TYPES.AXIAL]: [ijk[0], ijk[1], ""],
@@ -527,13 +531,19 @@ export default {
             ) {
               const selectedAnnotation = annotation.bboxIndex;
               state.annotations.value.forEach((anno) => {
+                const color = BBOX_COLORS.DEFAULT
+                const lineWidth = BBOX_LINEWIDTH.DEFAULT
+                if(anno.bboxIndex === selectedAnnotation){
+                   color = BBOX_COLORS.SELECTED
+                   lineWidth = BBOX_LINEWIDTH.SELECTED
+                }
                 anno.actor
                   .getProperty()
                   .setColor(
-                    ...(anno.bboxIndex === selectedAnnotation
-                      ? BBOX_COLORS.SELECTED
-                      : BBOX_COLORS.DEFAULT),
-                  );
+                    ...color
+                  )
+                  anno.actor.getProperty().setLineWidth(lineWidth);
+
               });
               view.view.renderWindow.render();
             }
@@ -946,6 +956,9 @@ export default {
      * @param {number} bboxindex - 结节索引index
      */
     async ChooseAnnotation({ state, dispatch, getters, commit }, bboxindex) {
+      console.log("ChooseAnnotation")
+      console.log(bboxindex)
+
       state.noduleInfo.focalDetailList.forEach(async (nodule) => {
         const { bbox, boxIndex } = nodule;
         if (boxIndex === bboxindex) {
@@ -955,13 +968,18 @@ export default {
             Math.round((bbox[4] + bbox[5]) / 2),
           ];
           state.annotations.value.forEach((anno) => {
-            anno.actor
-              .getProperty()
-              .setColor(
-                ...(anno.bboxIndex === boxIndex
-                  ? BBOX_COLORS.SELECTED
-                  : BBOX_COLORS.DEFAULT),
-              );
+           let  color = BBOX_COLORS.DEFAULT
+           let lineWidth = BBOX_LINEWIDTH.DEFAULT
+            if(anno.bboxIndex === bboxindex){
+                   color = BBOX_COLORS.SELECTED
+                   lineWidth = BBOX_LINEWIDTH.SELECTED
+                }
+                anno.actor
+                  .getProperty()
+                  .setColor(
+                    ...color
+                  )
+                  anno.actor.getProperty().setLineWidth(lineWidth);
           });
           getters.viewsData.forEach((viewdata, index) => {
             commit("SET_VIEW_DATA", {
@@ -1091,7 +1109,7 @@ export default {
     /**
      * 重置视图
      */
-    resizeViews({ dispatch, state, getters, commit }) {
+    resizeSliceViews({ dispatch, state, getters, commit }) {
       const ijk = [];
       ijk[VIEW_TYPES.AXIAL] =
         getters.viewsData[VIEW_TYPES.AXIAL].changedPageindex;

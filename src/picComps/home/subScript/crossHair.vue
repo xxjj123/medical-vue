@@ -64,7 +64,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions("viewInitStore", ["resizeViews"]),
+    ...mapActions("viewInitStore", ["resizeSliceViews"]),
     detectZoom() {
       let ratio = 1;
       const screen = window.screen;
@@ -82,7 +82,7 @@ export default {
         ratio = window.outerWidth / window.innerWidth;
       }
       this.screenRatio = ratio;
-      this.resizeViews();
+      this.resizeSliceViews();
     },
     updateDimensions() {
       if (this.$refs.container) {

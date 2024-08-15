@@ -83,7 +83,7 @@ export default {
     },
   },
   actions: {
-    async Init3DView({ commit }, container) {
+    async Init3DView({ commit ,dispatch }, container) {
       const fullw = vtkFullScreenRenderWindow.newInstance({
         container: container,
         background: VIEW_COLORS.BACKGROUND,
@@ -96,13 +96,14 @@ export default {
       commit("INIT_3D_VIEW", {
         fullw,
       });
+      dispatch("resize3DViews") ;
     },
     resize3DViews({ dispatch, state, getters, commit }) {
       const container = state.view3D.fullw.getContainer();
       const { width, height } = container.getBoundingClientRect();
 
-      view.view.grw.resize(width, height);
-      view.view.renderWindow.render();
+      state.view3D.fullw.resize(width, height);
+      state.view3D.renderWindow.render();
     },
   },
 };
