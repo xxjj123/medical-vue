@@ -266,11 +266,9 @@ export default {
       dimensions[VIEW_TYPES.SAGITTAL] = state.seriesInfo.sagittalCount;
       dimensions[VIEW_TYPES.CORONAL] = state.seriesInfo.coronalCount;
       dimensions[VIEW_TYPES.AXIAL] = state.seriesInfo.axialCount;
-      console.log(dimensions);
 
       const ijk = dimensions.map((d) => Math.round(d / 2) + 1);
-      console.log(ijk);
-      console.log(state.viewMprViews[0]);
+
       ijk.forEach((item, index) => {
         commit("SET_VIEW_MPR_VIEW", {
           viewType: index,
@@ -283,13 +281,11 @@ export default {
         } else if (item > state.viewMprViews[index].dimension) {
           item = state.viewMprViews[index].dimension;
         }
-        console.log("changedPageindex", item);
         commit("SET_VIEW_DATA", {
           viewType: index,
           key: "changedPageindex",
           value: item,
         });
-        console.log(getters.viewsData);
       });
       try {
         await dispatch("UpdateIJK", ijk);
@@ -300,7 +296,6 @@ export default {
               nodule,
               viewType: view.viewIndex,
             });
-            console.log(annotation);
             requestAnimationFrame(() =>
               dispatch("addRectangleAnnotation", {
                 view,
@@ -327,11 +322,8 @@ export default {
             key: "scaleLength",
             value: Math.abs(point2x - point1x),
           });
-          console.log(getters.viewsData);
         });
         await dispatch("UpdateIJK", ijk);
-
-        console.log(ijk);
         ijk.forEach((item, index) => {
           dispatch("UpdateDisplay", {
             viewType: index,
@@ -341,8 +333,6 @@ export default {
       } catch (err) {
         console.log(err);
       }
-      console.log(state.viewMprViews);
-      console.log(getters.viewsData);
     },
     getAnnotationForView({ state }, { nodule, viewType }) {
       const { bbox } = nodule;
@@ -709,8 +699,6 @@ export default {
       });
     },
     handleMouseWheel({ commit, state, dispatch, getters }, { spinY, view }) {
-      console.log("handleMouseWheel");
-
       if (getters.viewsData[view.viewIndex].changedPageindex) {
         let newIndex;
         if (spinY > 0) {
@@ -817,7 +805,7 @@ export default {
       const image = reader.getOutputData();
       const view = state.viewMprViews[viewType]?.view;
       if (!view) {
-        console.error("View is not initialized for viewType:", viewType);
+        console.error("没有这个页面:", viewType);
         return;
       }
       view.image = image;
@@ -886,6 +874,7 @@ export default {
       camera.roll(getters.viewsData[viewType].cameraRotate);
       view.renderWindow.render();
     },
+
     addRectangleAnnotation({ commit, state }, { view, annotation, bboxindex }) {
       const { xmin, ymin, xmax, ymax, boundsmin, boundsmax } = annotation;
       const [worldpoint1, worldpoint2] = [
@@ -929,7 +918,16 @@ export default {
       view.view.renderWindow.render();
     },
 
-    async ChangeSlider({ dispatch }, { viewName, viewIndex, pageIndex }) {
+
+  // tools ===================================================================
+    /**
+     * 滚动条选择
+     * @param {number} viewIndex -  操作页面索引
+     * @param {number} pageIndex - 切换页面索引
+
+     */
+    async ChangeSlider({ dispatch }, {   viewIndex, pageIndex }) {
+      const viewName = VIEWDATA_NAMES[viewIndex]
       commit("SET_VIEW_DATA", {
         viewType: viewIndex,
         key: "changedPageindex",
@@ -942,6 +940,11 @@ export default {
         changedPageIndex: pageIndex,
       });
     },
+
+    /**
+     * 结节标记选择
+     * @param {number} bboxindex - 结节索引index
+     */
     async ChooseAnnotation({ state, dispatch, getters, commit }, bboxindex) {
       state.noduleInfo.focalDetailList.forEach(async (nodule) => {
         const { bbox, boxIndex } = nodule;
@@ -978,6 +981,12 @@ export default {
         }
       });
     },
+
+    /**
+     * 自动播放
+     * @param {number} viewType - 操作页面索引
+     * @param {number} time - 单片切换时间，单元毫秒
+     */
     AutoPlay({ commit, dispatch, state }, { viewType, time }) {
       if (state.autoPlayTimers[viewType].autoPlayTimer === null) {
         state.autoPlayTimers.forEach((timer) => {
@@ -1039,6 +1048,11 @@ export default {
         commit("CLEAR_AUTO_PLAY_TIMER", viewType);
       }
     },
+
+    /**
+     * 页面反向
+     * @param {number} viewType - 操作页面索引
+     */
     ReverseWindow({ commit, state }, viewType) {
       const view = state.viewMprViews[viewType].view;
       const viewdata = getters.viewsData[viewType];
@@ -1060,6 +1074,11 @@ export default {
         .setRGBTransferFunction(0, colorTransferFunction);
       view.interactor.render();
     },
+
+    /**
+     * 切片旋转
+     * @param {number} viewType - 操作页面索引
+     */
     RotateCamera({ commit, dispatch, state }, viewType) {
       commit("SET_VIEW_DATA", {
         viewType,
@@ -1069,8 +1088,10 @@ export default {
       dispatch("setupCamera", viewType);
     },
 
+    /**
+     * 重置视图
+     */
     resizeViews({ dispatch, state, getters, commit }) {
-      console.log("resizeViews");
       const ijk = [];
       ijk[VIEW_TYPES.AXIAL] =
         getters.viewsData[VIEW_TYPES.AXIAL].changedPageindex;
