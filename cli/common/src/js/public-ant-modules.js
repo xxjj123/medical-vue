@@ -15,7 +15,7 @@ import "./modules/baseModule";
 // 如果要引入旧版本的所有utils(包括TaUtils和Base),则需要引入下面的polyfill
 // import('./baseModule.polyfill.js')
 // 引入动态locale
-import { makeI18n } from "@yh/cli-internal-precompiled-locales";
+import {makeI18n} from "@yh/cli-internal-precompiled-locales";
 
 import PopoverEx from "@yh/ta404-ui/es/popover-ex";
 import "@yh/ta404-ui/es/popover-ex/style";
@@ -71,7 +71,7 @@ import "@/assets/less/style.less";
 // ----
 import "virtual:dynamicTheme";
 import "virtual:elderly";
-import { checkLogin } from "@common/js/crypto/crypto";
+import {checkLogin} from "@common/js/crypto/crypto";
 // 数据字典初始化
 import dict from "@yh/ta404-ui/es/_dict";
 // 适老化
@@ -93,4 +93,4 @@ Router.prototype.push = function push(location, onResolve, onReject) {
 };
 
 dict.init(Vue, store);
-export { Vue, store, taMixins, checkLogin, makeI18n };
+export {Vue, store, taMixins, checkLogin, makeI18n};

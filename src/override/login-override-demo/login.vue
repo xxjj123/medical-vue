@@ -30,14 +30,8 @@
           {{ $t("login.systemLogin") }}
           <span>{{ $t("login.systemLoginTips") }}</span>
         </div> -->
-            <login_src_login-form
-              ref="loginForm"
-              @modifyPasswordPaneCtr="modifyPasswordPaneCtr"
-            />
-            <div
-              v-if="this.openMockUser"
-              style="float: right; margin-right: 10px"
-            >
+            <login_src_login-form ref="loginForm" @modifyPasswordPaneCtr="modifyPasswordPaneCtr" />
+            <div v-if="this.openMockUser" style="float: right; margin-right: 10px">
               <a class="link-type" @click="mockUserLogin">模拟用户登录</a>
             </div>
           </div>
@@ -55,11 +49,7 @@
             </ta-divider>
           </template>
           <div style="text-align: left">
-            <ta-button
-              v-if="this.openSmsLogin"
-              type="link"
-              @click="showSmsLoginMethod"
-            >
+            <ta-button v-if="this.openSmsLogin" type="link" @click="showSmsLoginMethod">
               {{
                 showSmsLogin
                   ? $t("login.loginMode.userPwdLoginTips")
@@ -72,20 +62,10 @@
           </div>
         </div>
 
-        <ta-modal
-          :title="$t('login.changePassword')"
-          :visible="showModifyPasswordPane"
-          :footer="null"
-          :mask-closable="false"
-          :destroy-on-close="true"
-          width="390px"
-          :body-style="{ paddingBottom: '10px' }"
-          @cancel="modifyPasswordPaneCtr"
-        >
-          <login_src_modify-password
-            :show.sync="showModifyPasswordPane"
-            pass-state="1"
-          />
+        <ta-modal :title="$t('login.changePassword')" :visible="showModifyPasswordPane" :footer="null"
+          :mask-closable="false" :destroy-on-close="true" width="390px" :body-style="{paddingBottom: '10px'}"
+          @cancel="modifyPasswordPaneCtr">
+          <login_src_modify-password :show.sync="showModifyPasswordPane" pass-state="1" />
         </ta-modal>
 
         <footer>
@@ -97,7 +77,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import {mapGetters} from "vuex";
 
 import drawMixin from "./assets/js/mixins/drawMixin";
 
@@ -135,6 +115,9 @@ export default {
     // console.log("dynamicUrl_logo=", this.dynamicUrl_logo);
     // console.log("dynamicUrl_taimg=", this.dynamicUrl_taimg, import.meta.url);
   },
+  mounted() {
+    document.querySelector(".container1").style.display = "none";
+  },
   methods: {
     modifyPasswordPaneCtr() {
       this.showModifyPasswordPane = !this.showModifyPasswordPane;
@@ -151,8 +134,7 @@ export default {
 
 <style type="text/less" lang="less">
 // 正式互联网环境要改为class属性(.isRedirect)
-body {
-}
+body {}
 </style>
 
 <style scoped type="text/less" lang="less">
@@ -202,19 +184,22 @@ footer {
     font-size: 24px;
     color: @text-color;
 
-    > span {
+    >span {
       margin-left: 10px;
       font-size: 16px;
       color: @text-color-secondary;
     }
   }
 }
+
 .other-login {
   margin: 5px 0px;
-  > span {
+
+  >span {
     font-size: @font-size-base;
     color: @text-color;
-    > span {
+
+    >span {
       margin-left: 10px;
       font-size: @font-size-sm;
       color: @text-color-secondary;
@@ -225,8 +210,7 @@ footer {
 .login_container_cus {
   width: 443px;
   height: 441px;
-  background: transparent url(./assets/img/infoBg.png) no-repeat center center /
-    cover;
+  background: transparent url(./assets/img/infoBg.png) no-repeat center center / cover;
   padding-top: 89px;
 }
 
@@ -238,24 +222,25 @@ footer {
   // background-size: 100% 100%;
   background-position: center 76px;
   text-align: center;
+
   .mid_title {
     text-align: center;
     margin: 0 auto;
     padding-top: 17px;
+
     span {
       letter-spacing: 4px;
       text-indent: 27px;
       display: inline-block;
       font-family: "open_sanssemibold";
-      background: linear-gradient(
-        180deg,
-        #ffffff 0%,
-        #fffffffa 38%,
-        #31b0b3 100%
-      );
+      background: linear-gradient(180deg,
+          #ffffff 0%,
+          #fffffffa 38%,
+          #31b0b3 100%);
       -webkit-background-clip: text;
       color: transparent;
     }
+
     font-weight: 600;
     font-size: 44px;
     color: #ffffff;
@@ -273,6 +258,7 @@ footer {
   transform: translate(-50%, -50%);
   transform-origin: left top;
   overflow: hidden;
+
   .bg {
     position: relative;
     width: 100%;

@@ -1,57 +1,42 @@
 <template>
   <!-- {{ seriesInfo }} -->
   <div class="ViewBoard_panel">
-    <div
-      :class="[
-        'pic_views',
-        { pic_layout_3d: layout === '1' },
-        { pic_layout: layout === '2' },
-        { pic_layout_original: layout === '3' },
-      ]"
-    >
+    <div :class="[
+      'pic_views',
+      {pic_layout_3d: layout === '1'},
+      {pic_layout: layout === '2'},
+      {pic_layout_original: layout === '3'},
+    ]">
       <!-- {{ szckx_on }} -->
 
       <div class="side viewbox view-3d">
-        <div
-          class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue"
-          ref="View3DRef"
-        ></div>
+        <div class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue" ref="View3DRef"></div>
       </div>
-      <div
-        :class="[
-          'side viewbox view-axial bg-slate-500',
-          {
-            viewOriginal: layout === '3',
-          },
-        ]"
-      >
+      <div :class="[
+        'side viewbox view-axial bg-slate-500',
+        {
+          viewOriginal: layout === '3',
+        },
+      ]">
         <div class="relative view-item bg-slate-500" ref="ViewAxialRef">
-          <crossHair
-            v-if="AxialData.displayX && AxialData.displayY"
+          <crossHair v-if="AxialData.displayX && AxialData.displayY"
             class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none"
-            :crosshairData="axialCrosshairData"
-          />
+            :crosshairData="axialCrosshairData" />
+          <threeViewSecTool :TracheaName="`lung`"></threeViewSecTool>
         </div>
       </div>
       <div class="side viewbox view-coronal bg-slate-400">
         <div class="relative view-item bg-slate-400" ref="ViewCoronalRef">
-          <crossHair
-            v-if="CoronalData.displayX && CoronalData.displayY"
+          <crossHair v-if="CoronalData.displayX && CoronalData.displayY"
             class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
-            :crosshairData="coronalCrosshairData"
-          />
+            :crosshairData="coronalCrosshairData" />
         </div>
       </div>
       <div class="side viewbox view-sagittal bg-slate-600">
-        <div
-          class="relative view-item bg-slate-600 border-t-0.2 border-l-0.2 border-titleblue"
-          ref="ViewSagittalRef"
-        >
-          <crossHair
-            v-if="SagittalData.displayX && SagittalData.displayY"
+        <div class="relative view-item bg-slate-600 border-t-0.2 border-l-0.2 border-titleblue" ref="ViewSagittalRef">
+          <crossHair v-if="SagittalData.displayX && SagittalData.displayY"
             class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
-            :crosshairData="sagittalCrosshairData"
-          />
+            :crosshairData="sagittalCrosshairData" />
         </div>
       </div>
     </div>
@@ -67,7 +52,9 @@ import {
 
 import subScript from "@/picComps/home/subScript/subScript.vue";
 import crossHair from "@/picComps/home/subScript/crossHair.vue";
-import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
+import threeViewSecTool from "@/picComps/home/subScript/threeViewSecTool/index.vue";
+
+import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
 
 let btnStateGrp = {
   [`${ButtonNames.Ckcw}${suffix_name}`]: false,
@@ -103,6 +90,7 @@ export default {
   components: {
     subScript,
     crossHair,
+    threeViewSecTool,
   },
   computed: {
     ...mapState("viewInitStore", [
@@ -208,10 +196,12 @@ export default {
   width: 100%;
   height: 100%;
 }
+
 .pic_views {
   @media screen and (orientation: landscape) {
     grid-template-columns: 66.66% 33.34%;
   }
+
   width: 100%;
   height: 100%;
   display: grid;
@@ -225,6 +215,7 @@ export default {
 .viewbox {
   background-color: rgba(255, 255, 255, 0.242);
 }
+
 .view-item {
   // height: 320px;
   display: flex;
@@ -251,6 +242,7 @@ export default {
   position: relative;
   user-select: none;
 }
+
 .viewOriginal {
   background: rgb(0, 0, 0);
   border: 1px solid rgb(14, 17, 23);
@@ -263,7 +255,7 @@ export default {
 }
 
 .pic_layout {
-  & > div {
+  &>div {
     &:nth-child(1) {
       grid-area: ~"1/1/2/2";
       visibility: hidden;
@@ -279,6 +271,7 @@ export default {
       }
     }
   }
+
   .side {
     background: rgb(0, 0, 0);
     height: 100%;

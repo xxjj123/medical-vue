@@ -2,25 +2,64 @@
   // 保存代码时使用格式化工具对代码进行格式化
   "editor.formatOnSave": true,
   // 默认使用prettier作为格式化工具
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "mwilski.vetur",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
   // 开启eslint插件对扁平化配置的支持
   // "eslint.experimental.useFlatConfig": true,
   // 配置eslint插件校验的文件类型
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "vue"],
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue"
+  ],
   // 样式相关的规则不在IDE中进行提示（避免影响编码。保存代码时prettier会自动对代码进行格式化）
   "eslint.rules.customizations": [
-    { "rule": "style/*", "severity": "off" },
-    { "rule": "*-indent", "severity": "off" },
-    { "rule": "*-spacing", "severity": "off" },
-    { "rule": "*-spaces", "severity": "off" },
-    { "rule": "*-order", "severity": "off" },
-    { "rule": "*-dangle", "severity": "off" },
-    { "rule": "*-newline", "severity": "off" },
-    { "rule": "*quotes", "severity": "off" },
-    { "rule": "*semi", "severity": "off" },
-    { "rule": "prettier/prettier", "severity": "off" }
-  ]
+    {
+      "rule": "style/*",
+      "severity": "off"
+    },
+    {
+      "rule": "*-indent",
+      "severity": "off"
+    },
+    {
+      "rule": "*-spacing",
+      "severity": "off"
+    },
+    {
+      "rule": "*-spaces",
+      "severity": "off"
+    },
+    {
+      "rule": "*-order",
+      "severity": "off"
+    },
+    {
+      "rule": "*-dangle",
+      "severity": "off"
+    },
+    {
+      "rule": "*-newline",
+      "severity": "off"
+    },
+    {
+      "rule": "*quotes",
+      "severity": "off"
+    },
+    {
+      "rule": "*semi",
+      "severity": "off"
+    },
+    {
+      "rule": "prettier/prettier",
+      "severity": "off"
+    }
+  ],
+  "[vue]": {
+    "editor.defaultFormatter": "Vue.volar"
+  }
 }

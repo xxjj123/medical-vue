@@ -180,6 +180,8 @@ const _default: ViteCommonConfig = {
     ],
   },
   html: [
+    '!/node_modules/@yh/cli-pages-login/src/login.html',
+    '/src/override/login-override-demo/login.html',
     // 配置需要进行加载的html
     // 必须以/或!开头
     // 可以直接指定一个html文件的完整路径

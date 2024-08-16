@@ -18,7 +18,7 @@ import vtkCoordinate from "@kitware/vtk.js/Rendering/Core/Coordinate";
 import vtkColorTransferFunction from "@kitware/vtk.js/Rendering/Core/ColorTransferFunction";
 import throttle from "lodash/throttle";
 
-import { xhr_getSlice } from "@/api";
+import {xhr_getSlice} from "@/api";
 const coordinate = vtkCoordinate.newInstance();
 
 const VIEW_TYPES = {
@@ -47,7 +47,7 @@ const BBOX_LINEWIDTH = {
   DEFAULT: 1,
   SELECTED: 2,
 };
-function GetTureIJK({ viewType, ijk }) {
+function GetTureIJK({viewType, ijk}) {
   const newijkMap = {
     [VIEW_TYPES.AXIAL]: [ijk[0], ijk[1], ""],
     [VIEW_TYPES.SAGITTAL]: ["", ijk[0], ijk[1]],
@@ -65,7 +65,7 @@ export default {
       sagittalCount: "",
       imageCount: "",
     },
-    viewMprViews: Array.from({ length: 3 }, () => ({
+    viewMprViews: Array.from({length: 3}, () => ({
       viewIndex: null,
       viewName: null,
       view: null,
@@ -119,10 +119,10 @@ export default {
     },
     noduleInfo: {},
 
-    annotations: { value: [], index: new Set() },
+    annotations: {value: [], index: new Set()},
     picker: vtkPicker.newInstance(),
     mouseDown: false,
-    autoPlayTimers: Array.from({ length: 3 }, () => ({
+    autoPlayTimers: Array.from({length: 3}, () => ({
       viewIndex: null,
       autoPlayTimer: null,
     })),
@@ -142,13 +142,13 @@ export default {
       state.noduleInfo = noduleInfo;
     },
 
-    INIT_VIEW_MPR_VIEW(state, { viewType, data }) {
+    INIT_VIEW_MPR_VIEW(state, {viewType, data}) {
       state.viewMprViews[viewType] = data;
     },
-    SET_VIEW_MPR_VIEW(state, { viewType, key, value }) {
+    SET_VIEW_MPR_VIEW(state, {viewType, key, value}) {
       state.viewMprViews[viewType][key] = value;
     },
-    SET_VIEW_DATA(state, { viewType, key, value }) {
+    SET_VIEW_DATA(state, {viewType, key, value}) {
       const viewName = VIEWDATA_NAMES[viewType];
       if (!state[viewName]) {
         state[viewName] = {};
@@ -166,7 +166,7 @@ export default {
         `${annotation.viewIndex}-${annotation.bboxIndex}`,
       );
     },
-    UPDATE_AUTO_PLAY_TIMER(state, { viewType, timer }) {
+    UPDATE_AUTO_PLAY_TIMER(state, {viewType, timer}) {
       if (!state.autoPlayTimers) {
         state.autoPlayTimers = {};
       }
@@ -184,8 +184,8 @@ export default {
   },
   actions: {
     async InitView(
-      { dispatch, commit, state },
-      { container, viewName, viewType, slicingMode },
+      {dispatch, commit, state},
+      {container, viewName, viewType, slicingMode},
     ) {
       const data = await dispatch("InitMprView", {
         container,
@@ -202,15 +202,15 @@ export default {
       });
       data.sliceActor.getProperty().setColorWindow(1500);
       data.sliceActor.getProperty().setColorLevel(500);
-      commit("SET_VIEW_DATA", { viewType, key: "Ww", value: 1500 });
-      commit("SET_VIEW_DATA", { viewType, key: "Wl", value: 500 });
-      commit("SET_VIEW_DATA", { viewType, key: "viewName", value: viewName });
-      commit("SET_VIEW_DATA", { viewType, key: "viewIndex", value: viewType });
+      commit("SET_VIEW_DATA", {viewType, key: "Ww", value: 1500});
+      commit("SET_VIEW_DATA", {viewType, key: "Wl", value: 500});
+      commit("SET_VIEW_DATA", {viewType, key: "viewName", value: viewName});
+      commit("SET_VIEW_DATA", {viewType, key: "viewIndex", value: viewType});
     },
-    async InitMprView({ dispatch, commit }, { container, mode }) {
+    async InitMprView({dispatch, commit}, {container, mode}) {
       const grw = vtkGenericRenderWindow.newInstance();
       grw.setContainer(container);
-      const { width, height } = container.getBoundingClientRect();
+      const {width, height} = container.getBoundingClientRect();
       grw.resize(width, height);
 
       const interactorstyle = vtkInteractorStyleImage.newInstance();
@@ -240,7 +240,7 @@ export default {
       return obj;
     },
 
-    async InitAxialView({ dispatch }, container) {
+    async InitAxialView({dispatch}, container) {
       await dispatch("InitView", {
         container,
         viewName: VIEW_NAMES.AXIAL,
@@ -248,7 +248,7 @@ export default {
         slicingMode: vtkImageMapper.SlicingMode.K,
       });
     },
-    async InitCoronalView({ dispatch }, container) {
+    async InitCoronalView({dispatch}, container) {
       await dispatch("InitView", {
         container,
         viewName: VIEW_NAMES.CORONAL,
@@ -256,7 +256,7 @@ export default {
         slicingMode: vtkImageMapper.SlicingMode.I,
       });
     },
-    async InitSagittalView({ dispatch }, container) {
+    async InitSagittalView({dispatch}, container) {
       await dispatch("InitView", {
         container,
         viewName: VIEW_NAMES.SAGITTAL,
@@ -265,7 +265,7 @@ export default {
       });
     },
 
-    async InitSlice({ dispatch, state, getters, commit }) {
+    async InitSlice({dispatch, state, getters, commit}) {
       const dimensions = new Array(3);
       dimensions[VIEW_TYPES.SAGITTAL] = state.seriesInfo.sagittalCount;
       dimensions[VIEW_TYPES.CORONAL] = state.seriesInfo.coronalCount;
@@ -294,7 +294,7 @@ export default {
       try {
         await dispatch("UpdateIJK", ijk);
         state.viewMprViews.forEach((view, index) => {
-          dispatch("setupInteractor", { view, dimensions });
+          dispatch("setupInteractor", {view, dimensions});
           state.noduleInfo.focalDetailList.forEach(async (nodule) => {
             const annotation = await dispatch("getAnnotationForView", {
               nodule,
@@ -338,8 +338,8 @@ export default {
         console.log(err);
       }
     },
-    getAnnotationForView({ state }, { nodule, viewType }) {
-      const { bbox } = nodule;
+    getAnnotationForView({state}, {nodule, viewType}) {
+      const {bbox} = nodule;
       const [xmin, xmax, ymin, ymax, zmin, zmax] = bbox;
       const annotations = {
         [VIEW_TYPES.CORONAL]: {
@@ -369,7 +369,7 @@ export default {
       };
       return annotations[viewType];
     },
-    UpdateDisplay({ commit, state, dispatch }, { viewType, changedPageIndex }) {
+    UpdateDisplay({commit, state, dispatch}, {viewType, changedPageIndex}) {
       let pagex;
       let pagey;
       if (viewType == VIEW_TYPES.SAGITTAL) {
@@ -422,7 +422,7 @@ export default {
         });
       }
     },
-    UpdateDisplayValue({ commit, state }, { changedViewType, pagex, pagey }) {
+    UpdateDisplayValue({commit, state}, {changedViewType, pagex, pagey}) {
       const view = state.viewMprViews[changedViewType].view;
 
       const world = view.image.indexToWorld([pagex, pagey, 0]);
@@ -443,7 +443,7 @@ export default {
         value: ndcY,
       });
     },
-    async UpdateIJK({ dispatch, getters, commit }, ijk) {
+    async UpdateIJK({dispatch, getters, commit}, ijk) {
       await Promise.all([
         dispatch("updateSliceForView", {
           viewName: VIEW_NAMES.SAGITTAL,
@@ -464,15 +464,15 @@ export default {
         }),
       ]);
     },
-    async updateSliceForView({ dispatch }, { viewName, index, viewType }) {
+    async updateSliceForView({dispatch}, {viewName, index, viewType}) {
       if (index === "") return;
-      const arraybuffer = await dispatch("GetSlice", { viewName, index });
+      const arraybuffer = await dispatch("GetSlice", {viewName, index});
 
       if (arraybuffer) {
-        await dispatch("UpdateSlice", { arraybuffer, viewType, index });
+        await dispatch("UpdateSlice", {arraybuffer, viewType, index});
       }
     },
-    setupInteractor({ dispatch, state, commit }, { view, dimensions }) {
+    setupInteractor({dispatch, state, commit}, {view, dimensions}) {
       const dimension = dimensions[view.viewIndex];
       commit("SET_VIEW_DATA", {
         viewType: view.viewIndex,
@@ -481,16 +481,16 @@ export default {
       });
 
       view.view.interactor.onLeftButtonPress((event) => {
-        dispatch("handleMousePress", { event, view });
+        dispatch("handleMousePress", {event, view});
       });
       view.view.interactor.onMouseMove((event) =>
-        dispatch("handleMouseMove", { event, view }),
+        dispatch("handleMouseMove", {event, view}),
       );
       view.view.interactor.onLeftButtonRelease(() =>
         commit("SET_MOUSE_DOWN", false),
       );
       view.view.interactor.onMouseWheel((event) =>
-        dispatch("handleMouseWheel", { spinY: event.spinY, view }),
+        dispatch("handleMouseWheel", {spinY: event.spinY, view}),
       );
 
       view.view.interactor.onStartMouseWheel(() => {
@@ -501,8 +501,8 @@ export default {
       });
     },
     async handleMousePress(
-      { dispatch, commit, state, getters },
-      { event, view },
+      {dispatch, commit, state, getters},
+      {event, view},
     ) {
       state.autoPlayTimers.forEach((timer) => {
         clearInterval(timer.autoPlayTimer);
@@ -511,7 +511,7 @@ export default {
       view.view.interactor.getInteractorStyle().endWindowLevel();
 
       commit("SET_MOUSE_DOWN", true);
-      const { x, y } = event.position;
+      const {x, y} = event.position;
       state.picker.pick([x, y, 0], view.view.renderer);
       const pickedPositions = state.picker.getPickedPositions();
       if (pickedPositions.length > 0) {
@@ -531,18 +531,18 @@ export default {
             ) {
               const selectedAnnotation = annotation.bboxIndex;
               state.annotations.value.forEach((anno) => {
-                const color = BBOX_COLORS.DEFAULT
-                const lineWidth = BBOX_LINEWIDTH.DEFAULT
-                if(anno.bboxIndex === selectedAnnotation){
-                   color = BBOX_COLORS.SELECTED
-                   lineWidth = BBOX_LINEWIDTH.SELECTED
+                let color = BBOX_COLORS.DEFAULT
+                let lineWidth = BBOX_LINEWIDTH.DEFAULT
+                if (anno.bboxIndex === selectedAnnotation) {
+                  color = BBOX_COLORS.SELECTED
+                  lineWidth = BBOX_LINEWIDTH.SELECTED
                 }
                 anno.actor
                   .getProperty()
                   .setColor(
                     ...color
                   )
-                  anno.actor.getProperty().setLineWidth(lineWidth);
+                anno.actor.getProperty().setLineWidth(lineWidth);
 
               });
               view.view.renderWindow.render();
@@ -562,8 +562,8 @@ export default {
           ijk[0] +
           ijk[1] * view.view.image.getDimensions()[0] +
           ijk[2] *
-            view.view.image.getDimensions()[0] *
-            view.view.image.getDimensions()[1];
+          view.view.image.getDimensions()[0] *
+          view.view.image.getDimensions()[1];
         const pixelValue = imageScales.getTuple(pageindex);
 
         commit("SET_VIEW_DATA", {
@@ -613,8 +613,8 @@ export default {
         });
       }
     },
-    handleMouseMove({ commit, state, dispatch, getters }, { event, view }) {
-      const { x, y } = event.position;
+    handleMouseMove({commit, state, dispatch, getters}, {event, view}) {
+      const {x, y} = event.position;
       state.picker.pick([x, y, 0], view.view.renderer);
       const pickedPositions = state.picker.getPickedPositions();
       if (pickedPositions.length > 0) {
@@ -628,8 +628,8 @@ export default {
           ijk[0] +
           ijk[1] * view.view.image.getDimensions()[0] +
           ijk[2] *
-            view.view.image.getDimensions()[0] *
-            view.view.image.getDimensions()[1];
+          view.view.image.getDimensions()[0] *
+          view.view.image.getDimensions()[1];
         const pixelValue = imageScales.getTuple(pageindex);
         commit("SET_VIEW_DATA", {
           viewType: view.viewIndex,
@@ -685,7 +685,7 @@ export default {
         });
       }
     },
-    UpdateColorWindow({ state, commit }, value) {
+    UpdateColorWindow({state, commit}, value) {
       state.viewMprViews.forEach((view, objindex) => {
         commit("SET_VIEW_DATA", {
           viewType: view.viewIndex,
@@ -697,7 +697,7 @@ export default {
       });
     },
 
-    UpdateColorLevel({ state, commit }, value) {
+    UpdateColorLevel({state, commit}, value) {
       state.viewMprViews.forEach((view, objindex) => {
         commit("SET_VIEW_DATA", {
           viewType: view.viewIndex,
@@ -708,7 +708,7 @@ export default {
         view.view.interactor.render();
       });
     },
-    handleMouseWheel({ commit, state, dispatch, getters }, { spinY, view }) {
+    handleMouseWheel({commit, state, dispatch, getters}, {spinY, view}) {
       if (getters.viewsData[view.viewIndex].changedPageindex) {
         let newIndex;
         if (spinY > 0) {
@@ -779,17 +779,17 @@ export default {
       }
     },
     throttleUpdateSingleSlice: throttle(
-      ({ dispatch }, { viewName, viewType, index }) => {
+      ({dispatch}, {viewName, viewType, index}) => {
         requestAnimationFrame(() =>
-          dispatch("updateSliceForView", { viewName, index, viewType }),
+          dispatch("updateSliceForView", {viewName, index, viewType}),
         );
       },
       150,
     ),
-    throttleUpdateOtherSlice: throttle(({ dispatch }, { viewType, ijk }) => {
+    throttleUpdateOtherSlice: throttle(({dispatch}, {viewType, ijk}) => {
       requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
     }, 150),
-    async GetSlice({ dispatch, state }, { viewName, index }) {
+    async GetSlice({dispatch, state}, {viewName, index}) {
       try {
         const res = await xhr_getSlice({
           seriesId: state.seriesInfo.seriesId,
@@ -807,8 +807,8 @@ export default {
       }
     },
     async UpdateSlice(
-      { commit, dispatch, state },
-      { arraybuffer, viewType, index },
+      {commit, dispatch, state},
+      {arraybuffer, viewType, index},
     ) {
       const reader = vtkXMLImageDataReader.newInstance();
       reader.parseAsArrayBuffer(arraybuffer);
@@ -832,9 +832,9 @@ export default {
 
       view.renderWindow.render();
       state.viewMprViews[viewType].pageIndex = index;
-      commit("SET_VIEW_DATA", { viewType, key: "pageIndex", value: index });
+      commit("SET_VIEW_DATA", {viewType, key: "pageIndex", value: index});
     },
-    setupCamera({ commit, state, getters }, viewType) {
+    setupCamera({commit, state, getters}, viewType) {
       const view = state.viewMprViews[viewType].view;
       const image = state.viewMprViews[viewType].view.image;
 
@@ -865,7 +865,7 @@ export default {
           true,
         ),
       ];
-      const { width: containerWidth, height: containerHeight } = view.grw
+      const {width: containerWidth, height: containerHeight} = view.grw
         .getContainer()
         .getBoundingClientRect();
 
@@ -873,20 +873,20 @@ export default {
         containerWidth * Math.abs(point1[0] - point2[0]) <
           containerHeight * Math.abs(point1[1] - point2[1])
           ? Math.max(
-              1 / Math.abs(point1[0] - point2[0]),
-              1 / Math.abs(point1[1] - point2[1]),
-            )
+            1 / Math.abs(point1[0] - point2[0]),
+            1 / Math.abs(point1[1] - point2[1]),
+          )
           : Math.min(
-              1 / Math.abs(point1[0] - point2[0]),
-              1 / Math.abs(point1[1] - point2[1]),
-            ),
+            1 / Math.abs(point1[0] - point2[0]),
+            1 / Math.abs(point1[1] - point2[1]),
+          ),
       );
       camera.roll(getters.viewsData[viewType].cameraRotate);
       view.renderWindow.render();
     },
 
-    addRectangleAnnotation({ commit, state }, { view, annotation, bboxindex }) {
-      const { xmin, ymin, xmax, ymax, boundsmin, boundsmax } = annotation;
+    addRectangleAnnotation({commit, state}, {view, annotation, bboxindex}) {
+      const {xmin, ymin, xmax, ymax, boundsmin, boundsmax} = annotation;
       const [worldpoint1, worldpoint2] = [
         view.view.image.indexToWorld([xmin, ymin, 0]),
         view.view.image.indexToWorld([xmax, ymax, 0]),
@@ -929,21 +929,21 @@ export default {
     },
 
 
-  // tools ===================================================================
+    // tools ===================================================================
     /**
      * 滚动条选择
      * @param {number} viewIndex -  操作页面索引
      * @param {number} pageIndex - 切换页面索引
 
      */
-    async ChangeSlider({ dispatch }, {   viewIndex, pageIndex }) {
+    async ChangeSlider({dispatch}, {viewIndex, pageIndex}) {
       const viewName = VIEWDATA_NAMES[viewIndex]
       commit("SET_VIEW_DATA", {
         viewType: viewIndex,
         key: "changedPageindex",
         value: pageIndex,
       });
-      dispatch("throttleUpdateSingleSlice", { viewName, viewIndex, pageIndex });
+      dispatch("throttleUpdateSingleSlice", {viewName, viewIndex, pageIndex});
 
       dispatch("UpdateDisplay", {
         viewType: viewIndex,
@@ -955,12 +955,12 @@ export default {
      * 结节标记选择
      * @param {number} bboxindex - 结节索引index
      */
-    async ChooseAnnotation({ state, dispatch, getters, commit }, bboxindex) {
+    async ChooseAnnotation({state, dispatch, getters, commit}, bboxindex) {
       console.log("ChooseAnnotation")
       console.log(bboxindex)
 
       state.noduleInfo.focalDetailList.forEach(async (nodule) => {
-        const { bbox, boxIndex } = nodule;
+        const {bbox, boxIndex} = nodule;
         if (boxIndex === bboxindex) {
           const ijk = [
             Math.round((bbox[0] + bbox[1]) / 2),
@@ -968,18 +968,18 @@ export default {
             Math.round((bbox[4] + bbox[5]) / 2),
           ];
           state.annotations.value.forEach((anno) => {
-           let  color = BBOX_COLORS.DEFAULT
-           let lineWidth = BBOX_LINEWIDTH.DEFAULT
-            if(anno.bboxIndex === bboxindex){
-                   color = BBOX_COLORS.SELECTED
-                   lineWidth = BBOX_LINEWIDTH.SELECTED
-                }
-                anno.actor
-                  .getProperty()
-                  .setColor(
-                    ...color
-                  )
-                  anno.actor.getProperty().setLineWidth(lineWidth);
+            let color = BBOX_COLORS.DEFAULT
+            let lineWidth = BBOX_LINEWIDTH.DEFAULT
+            if (anno.bboxIndex === bboxindex) {
+              color = BBOX_COLORS.SELECTED
+              lineWidth = BBOX_LINEWIDTH.SELECTED
+            }
+            anno.actor
+              .getProperty()
+              .setColor(
+                ...color
+              )
+            anno.actor.getProperty().setLineWidth(lineWidth);
           });
           getters.viewsData.forEach((viewdata, index) => {
             commit("SET_VIEW_DATA", {
@@ -1005,7 +1005,7 @@ export default {
      * @param {number} viewType - 操作页面索引
      * @param {number} time - 单片切换时间，单元毫秒
      */
-    AutoPlay({ commit, dispatch, state }, { viewType, time }) {
+    AutoPlay({commit, dispatch, state}, {viewType, time}) {
       if (state.autoPlayTimers[viewType].autoPlayTimer === null) {
         state.autoPlayTimers.forEach((timer) => {
           clearInterval(timer.autoPlayTimer);
@@ -1061,7 +1061,7 @@ export default {
           });
         }, time); // 每秒打印一次
 
-        commit("UPDATE_AUTO_PLAY_TIMER", { viewType, timer });
+        commit("UPDATE_AUTO_PLAY_TIMER", {viewType, timer});
       } else {
         commit("CLEAR_AUTO_PLAY_TIMER", viewType);
       }
@@ -1071,7 +1071,7 @@ export default {
      * 页面反向
      * @param {number} viewType - 操作页面索引
      */
-    ReverseWindow({ commit, state }, viewType) {
+    ReverseWindow({commit, state}, viewType) {
       const view = state.viewMprViews[viewType].view;
       const viewdata = getters.viewsData[viewType];
       const colorTransferFunction = vtkColorTransferFunction.newInstance();
@@ -1097,7 +1097,7 @@ export default {
      * 切片旋转
      * @param {number} viewType - 操作页面索引
      */
-    RotateCamera({ commit, dispatch, state }, viewType) {
+    RotateCamera({commit, dispatch, state}, viewType) {
       commit("SET_VIEW_DATA", {
         viewType,
         key: "cameraRotate",
@@ -1109,7 +1109,7 @@ export default {
     /**
      * 重置视图
      */
-    resizeSliceViews({ dispatch, state, getters, commit }) {
+    resizeSliceViews({dispatch, state, getters, commit}) {
       const ijk = [];
       ijk[VIEW_TYPES.AXIAL] =
         getters.viewsData[VIEW_TYPES.AXIAL].changedPageindex;
@@ -1128,7 +1128,7 @@ export default {
       });
       state.viewMprViews.forEach((view) => {
         const container = view.view.grw.getContainer();
-        const { width, height } = container.getBoundingClientRect();
+        const {width, height} = container.getBoundingClientRect();
 
         view.view.grw.resize(width, height);
         view.view.renderWindow.render();
