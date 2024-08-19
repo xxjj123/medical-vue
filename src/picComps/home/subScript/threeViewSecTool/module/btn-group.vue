@@ -3,7 +3,8 @@
     <div class="btn_grp_item flex items-center">
       <template v-if="btnInfoItem && Object.keys(btnInfoItem).length > 0">
         <template v-for="(btn, key) in btnInfoItem">
-          <div :class="[`btn flex`, {selected: btn.on && btn.mode !== 'more'}, {ripple: btn.mode === 'more'}]"
+          <div
+            :class="[`btn flex`, {selected: btn.on && btn.mode !== 'more' && btn.mode !== 'other'}, {ripple: btn.mode === 'more' || btn.mode === 'other'}]"
             :key="`${key}_a`" @click.stop="handle_click(btn, key)">
             <div :class="['ifontyhpacs', {[`${btn.icon}`]: btn.icon && btn.icon !== ''}]">
             </div>
@@ -163,7 +164,7 @@ export default {
     }
 
     &.selected {
-      background: @primary-1;
+      background: @primary-color;
 
       .ifontyhpacs {
         color: #fff;

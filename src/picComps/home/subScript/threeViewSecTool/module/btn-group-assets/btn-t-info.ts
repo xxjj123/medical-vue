@@ -21,7 +21,7 @@ export const btnInfo = {
       altName: "旋转翻转",
       icon: "ico_pacsshuping",
       defaultIconIdx: "0",
-      mode: "more", // more 开启 select 控件
+      mode: "more", // more 开启 select 控件 ,other 也不会选中
       moreClickOn: true,
       dropdownIconDown: true, //false : 切换up
       child: [
@@ -44,6 +44,7 @@ export const btnInfo = {
       altName: "自动播放",
       icon: "ico_pacsbofang",
       defaultIconIdx: "0",
+      mode: "other",
       toggle: "2",// 2 对标 child 长度，代表根据这个数组下标顺序切换，直至切换到指定长度下标，循环切换
       child: [
         {
@@ -61,6 +62,7 @@ export const btnInfo = {
       icon: "ico_pacsquanping",
       defaultIconIdx: "0",
       toggle: "2",
+      mode: "other",
       child: [
         {
           altName: "全屏",
