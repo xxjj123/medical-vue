@@ -6,6 +6,20 @@
   "description": "医疗影像仿制科亚项目",
   "glyphs": [
     {
+      "icon_id": "959116",
+      "name": "上箭头",
+      "font_class": "shangjiantou1",
+      "unicode": "e64a",
+      "unicode_decimal": 58954
+    },
+    {
+      "icon_id": "959111",
+      "name": "下箭头",
+      "font_class": "xiajiantou",
+      "unicode": "e649",
+      "unicode_decimal": 58953
+    },
+    {
       "icon_id": "7312573",
       "name": "暂停",
       "font_class": "zanting-",

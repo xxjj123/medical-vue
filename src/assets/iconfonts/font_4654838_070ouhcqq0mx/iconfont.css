@@ -1,8 +1,8 @@
 @font-face {
   font-family: "ifontyhpacs"; /* Project id 4654838 */
-  src: url('iconfont.woff2?t=1723715269827') format('woff2'),
-       url('iconfont.woff?t=1723715269827') format('woff'),
-       url('iconfont.ttf?t=1723715269827') format('truetype');
+  src: url('iconfont.woff2?t=1723795204237') format('woff2'),
+       url('iconfont.woff?t=1723795204237') format('woff'),
+       url('iconfont.ttf?t=1723795204237') format('truetype');
 }
 
 .ifontyhpacs {
@@ -11,6 +11,14 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.ico_pacsshangjiantou1:before {
+  content: "\e64a";
+}
+
+.ico_pacsxiajiantou:before {
+  content: "\e649";
 }
 
 .ico_pacszanting-:before {

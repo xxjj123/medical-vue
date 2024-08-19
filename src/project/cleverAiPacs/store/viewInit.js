@@ -36,7 +36,8 @@ const VIEW_NAMES = {
 const VIEWDATA_NAMES = ["SagittalData", "CoronalData", "AxialData"];
 
 const VIEW_COLORS = {
-  BACKGROUND: [0.5, 0.5, 0.5],
+  // BACKGROUND: [0.5, 0.5, 0.5]
+  BACKGROUND: [0, 0, 0]
 };
 
 const BBOX_COLORS = {

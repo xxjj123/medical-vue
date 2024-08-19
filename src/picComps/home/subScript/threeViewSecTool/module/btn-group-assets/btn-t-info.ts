@@ -22,6 +22,8 @@ export const btnInfo = {
       icon: "ico_pacsshuping",
       defaultIconIdx: "0",
       mode: "more", // more 开启 select 控件
+      moreClickOn: true,
+      dropdownIconDown: true, //false : 切换up
       child: [
         {
           altName: "旋转90度",

@@ -18,11 +18,12 @@
           viewOriginal: layout === '3',
         },
       ]">
-        <div class="relative view-item bg-slate-500" ref="ViewAxialRef">
-          <crossHair v-if="AxialData.displayX && AxialData.displayY"
-            class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none"
-            :crosshairData="axialCrosshairData" />
-          <threeViewSecTool :TracheaName="`lung`"></threeViewSecTool>
+        <div class="relative view-item bg-slate-500">
+          <div class="relative view-item bg-slate-500" ref="ViewAxialRef">
+            <crossHair v-if="AxialData.displayX && AxialData.displayY" class="absolute top-0 h-full w-full left-0 z-1"
+              :crosshairData="axialCrosshairData" />
+          </div>
+          <threeViewSecTool class="absolute z-2" :TracheaName="`lung`"></threeViewSecTool>
         </div>
       </div>
       <div class="side viewbox view-coronal bg-slate-400">
