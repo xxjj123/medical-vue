@@ -55,6 +55,10 @@ import {btnKey, btnLungCodes, rotateChildBtnCodes, btnInfo} from "./btn-group-as
 import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
 
 
+import {
+  LayoutIcons,
+} from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
+
 export default {
   name: 'btn-group',
   props: {
@@ -78,7 +82,18 @@ export default {
         console.log("val----", val);
         console.log("this.btnInfoItemLocal;____", this.btnInfoItemLocal)
       },
-    }
+    },
+    ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
+    localSlice_CT_pic_layout: {
+      get() {
+        return this.slice_CT_pic_layout; // 从 Vuex 状态获取值
+      },
+      set(value) {
+        console.log("set___localSlice_CT_pic_layout", value);
+
+        // this.setSlice_CT_pic_layout(value); // 调用 mutation 更新 Vuex 状态
+      },
+    },
   },
   watch: {
     btnInfoItem: {
@@ -89,13 +104,38 @@ export default {
       },
       immediate: true,
       deep: true,
+    },
+    localSlice_CT_pic_layout: {
+      handler(nVal, oVal) {
+        const that = this;
+
+        console.log("localSlice_CT_pic_layout___btngroup-nVal, oVal", nVal, oVal);
+
+        switch (nVal) {
+          case LayoutIcons.LGGJST:
+            this.layout = "1";
+            // console.log("切换了");
+            break;
+          case LayoutIcons.MPR:
+            this.layout = "2";
+            break;
+          case LayoutIcons.YS:
+            this.layout = "3";
+            break;
+          default:
+            return void 0;
+        }
+
+      },
+      immediate: true
     }
   },
   data() {
     return {
       btnInfoItemLocal: [],
       current: "",
-      nextChildCurrent: ""
+      nextChildCurrent: "",
+      layout: -1,
     }
   },
   created() {
@@ -104,6 +144,7 @@ export default {
 
   },
   methods: {
+    ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
     ...mapActions("viewInitStore", ["ReverseWindow", "RotateCamera", "AutoPlay", "FlipHorizontal", "FlipVertical"]),
     handle_click_more(btn, index) {
       console.log("this.btnInfoItem==start", btn, index);
@@ -185,7 +226,23 @@ export default {
         }
           break;
         case btnLungCodes.SCREEN: {
+          console.log("this.slice_CT_pic_layout==SCREEN", this.slice_CT_pic_layout, "layout", this.layout);
+          if (this.layout == 3) {
 
+            console.log("this.layout_bak=", this.layout_bak);
+
+            this.SET_SLICE_CT_PIC_LAYOUT(this.layout_bak || LayoutIcons.LGGJST);
+          } else if (this.layout == 1) {
+            this.layout_bak = LayoutIcons.LGGJST;
+            console.log("this.layout_bak=", this.layout_bak);
+
+
+            this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.YS);
+          } else if (this.layout == 2) {
+            this.layout_bak = LayoutIcons.MPR;
+
+            this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.YS);
+          }
         }
           break;
         default:

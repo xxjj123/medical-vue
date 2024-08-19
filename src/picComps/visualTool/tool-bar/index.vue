@@ -2,163 +2,100 @@
   <div class="vsk-tool-bar flex flex-col">
     <!-- 视窗调整 -->
     <div :class="getClassName">
-      <div
-        class="pic mr-[5px] hover:cursor-pointer"
-        v-tooltip="{ title: '视窗调整', visible: true }"
-      ></div>
-      <div
-        class="h-[18px] flex items-center hover:cursor-pointer"
-        @click="handle_openTzg('1')"
-        v-popover:mypop1
-      >
-        <div
-          :class="[
-            'down_arrow  transform transition duration-300',
-            { 'rotate-180': rotated && current === '1' },
-          ]"
-        ></div>
+      <div class="pic mr-[5px] hover:cursor-pointer" v-tooltip="{title: '视窗调整', visible: true}"></div>
+      <div class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('1')" v-popover:mypop1>
+        <div :class="[
+          'down_arrow  transform transition duration-300',
+          {'rotate-180': rotated && current === '1'},
+        ]"></div>
       </div>
     </div>
     <!-- 窗宽窗位 -->
-    <div
-      :class="[
-        'boxBtn ckcw_icon flex justify-start items-center',
-        { on: ckcw_on },
-      ]"
-    >
-      <div
-        @click="handle_iconbtn(`ckcw`)"
-        class="pic mr-[5px] hover:cursor-pointer"
-        v-tooltip="{ title: '窗宽窗位', visible: true }"
-      ></div>
-      <div
-        v-popover:mypop2
-        class="h-[18px] flex items-center hover:cursor-pointer"
-        @click="handle_openTzg('2')"
-      >
-        <div
-          :class="[
-            'down_arrow  transform transition duration-300',
-            { 'rotate-180': rotated && current === '2' },
-          ]"
-        ></div>
+    <div :class="[
+      'boxBtn ckcw_icon flex justify-start items-center',
+      {on: ckcw_on},
+    ]">
+      <div @click="handle_iconbtn(`ckcw`)" class="pic mr-[5px] hover:cursor-pointer"
+        v-tooltip="{title: '窗宽窗位', visible: true}"></div>
+      <div v-popover:mypop2 class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('2')">
+        <div :class="[
+          'down_arrow  transform transition duration-300',
+          {'rotate-180': rotated && current === '2'},
+        ]"></div>
       </div>
     </div>
 
     <!-- 角标信息 -->
-    <div
-      :class="[
-        'boxBtn jbinfo_icon flex justify-start items-center',
-        {
-          on: jbinfo_on,
-        },
-      ]"
-    >
-      <div
-        @click="handle_iconbtn(`jbinfo`)"
-        class="pic mr-[5px] hover:cursor-pointer"
-        v-tooltip="{ title: '角标信息', visible: true }"
-      ></div>
+    <div :class="[
+      'boxBtn jbinfo_icon flex justify-start items-center',
+      {
+        on: jbinfo_on,
+      },
+    ]">
+      <div @click="handle_iconbtn(`jbinfo`)" class="pic mr-[5px] hover:cursor-pointer"
+        v-tooltip="{title: '角标信息', visible: true}"></div>
     </div>
 
     <!-- ai信息 -->
-    <div
-      :class="[
-        'boxBtn ainfo_icon flex justify-start items-center',
-        {
-          on: aiInfo_on,
-        },
-      ]"
-    >
-      <div
-        @click="handle_iconbtn(`aiInfo`)"
-        class="pic mr-[5px] hover:cursor-pointer"
-        v-tooltip="{ title: 'Ai信息', visible: true }"
-      ></div>
+    <div :class="[
+      'boxBtn ainfo_icon flex justify-start items-center',
+      {
+        on: aiInfo_on,
+      },
+    ]">
+      <div @click="handle_iconbtn(`aiInfo`)" class="pic mr-[5px] hover:cursor-pointer"
+        v-tooltip="{title: 'Ai信息', visible: true}"></div>
     </div>
 
     <!-- 十字参考线 -->
-    <div
-      :class="[
-        'boxBtn xline_icon flex justify-start items-center',
-        {
-          on: szckx_on,
-        },
-      ]"
-    >
-      <div
-        @click="handle_iconbtn(`szckx`)"
-        class="pic mr-[5px] hover:cursor-pointer"
-        v-tooltip="{ title: '十字参考线', visible: true }"
-      ></div>
+    <div :class="[
+      'boxBtn xline_icon flex justify-start items-center',
+      {
+        on: szckx_on,
+      },
+    ]">
+      <div @click="handle_iconbtn(`szckx`)" class="pic mr-[5px] hover:cursor-pointer"
+        v-tooltip="{title: '十字参考线', visible: true}"></div>
     </div>
 
     <!-- 密度投影模式 -->
-    <div
-      :class="[
-        `boxBtn mdty_icon flex justify-start items-center`,
-        { on: mdtyms_on },
-      ]"
-    >
-      <div
-        @click="handle_iconbtn(`mdtyms`)"
-        class="pic mr-[5px] hover:cursor-pointer"
-        v-tooltip="{ title: '密度投影模式', visible: true }"
-      ></div>
-      <div
-        v-popover:mypop3
-        class="h-[18px] flex items-center hover:cursor-pointer"
-        @click="handle_openTzg('3')"
-      >
-        <div
-          :class="[
-            'down_arrow  transform transition duration-300',
-            { 'rotate-180': rotated && current === '3' },
-          ]"
-        ></div>
+    <div :class="[
+      `boxBtn mdty_icon flex justify-start items-center`,
+      {on: mdtyms_on},
+    ]">
+      <div @click="handle_iconbtn(`mdtyms`)" class="pic mr-[5px] hover:cursor-pointer"
+        v-tooltip="{title: '密度投影模式', visible: true}"></div>
+      <div v-popover:mypop3 class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('3')">
+        <div :class="[
+          'down_arrow  transform transition duration-300',
+          {'rotate-180': rotated && current === '3'},
+        ]"></div>
       </div>
     </div>
 
     <!-- 平移模式 -->
-    <div
-      :class="[
-        'boxBtn py_icon flex justify-start items-center',
-        {
-          on: pyms_on,
-        },
-      ]"
-    >
-      <div
-        @click="handle_iconbtn(`pyms`)"
-        class="pic mr-[5px] hover:cursor-pointer"
-        v-tooltip="{ title: '平移模式', visible: true }"
-      ></div>
+    <div :class="[
+      'boxBtn py_icon flex justify-start items-center',
+      {
+        on: pyms_on,
+      },
+    ]">
+      <div @click="handle_iconbtn(`pyms`)" class="pic mr-[5px] hover:cursor-pointer"
+        v-tooltip="{title: '平移模式', visible: true}"></div>
     </div>
 
     <!-- ext -->
 
     <!-- -->
-    <ta-popover
-      ref="mypop1"
-      @after-leave="afterLeaveEvents"
-      :visible-arrow="true"
-      :offset="1"
-      :appendToBody="false"
-      :placement="`right`"
-      class="cus_poper sctz_pop"
-    >
+    <ta-popover ref="mypop1" @after-leave="afterLeaveEvents" :visible-arrow="true" :offset="1" :appendToBody="false"
+      :placement="`right`" class="cus_poper sctz_pop">
       <div slot="content" class="boxBtn_extSelect">
         <div class="group_tools flex flex-col">
-          <div
-            v-for="(it, idx) in view_window.list"
-            :key="idx"
-            :class="[
-              `h_row flex justify-start items-center ripple`,
-              { on: view_window.current === idx },
-            ]"
-            @click="handle_view_window_row(idx)"
-          >
-            <div :class="{ [`icon ${it.icon}`]: it.icon }"></div>
+          <div v-for="(it, idx) in view_window.list" :key="idx" :class="[
+            `h_row flex justify-start items-center ripple`,
+            {on: view_window.current === idx},
+          ]" @click="handle_view_window_row(idx)">
+            <div :class="{[`icon ${it.icon}`]: it.icon}"></div>
             <div class="txt">{{ it.name }}</div>
           </div>
         </div>
@@ -166,107 +103,53 @@
     </ta-popover>
 
     <!-- 窗体宽位 pop  -->
-    <ta-popover
-      ref="mypop2"
-      @after-leave="afterLeaveEvents"
-      :visible-arrow="true"
-      :offset="1"
-      :appendToBody="false"
-      :placement="`right`"
-      class="cus_poper ctkw_pop"
-    >
+    <ta-popover ref="mypop2" @after-leave="afterLeaveEvents" :visible-arrow="true" :offset="1" :appendToBody="false"
+      :placement="`right`" class="cus_poper ctkw_pop">
       <div slot="content" class="boxBtn_extSelect">
         <div class="title">窗体宽位</div>
         <div class="rowWin flex items-center">
           <div class="name">窗宽</div>
           <div class="silder">
-            <ta-slider
-              :min="1"
-              :max="4096"
-              :v-model="view_window.win_w"
-              @change="view_window.winW.onChange"
-              @afterChange="view_window.winW.onAfterChange"
-            />
+            <ta-slider :min="1" :max="4096" :v-model="view_window.win_w" @change="view_window.winW.onChange"
+              @afterChange="view_window.winW.onAfterChange" />
           </div>
           <div class="ipt">
-            <ta-input-number
-              :min="1"
-              :max="4096"
-              style="marginleft: 16px; width: 100px"
-              amountPre="HU"
-              :asAmount="true"
-              :alignRight="true"
-              :value="view_window.win_w"
-              v-model="view_window.win_w"
-            />
+            <ta-input-number :min="1" :max="4096" style="marginleft: 16px; width: 100px" amountPre="HU" :asAmount="true"
+              :alignRight="true" :value="view_window.win_w" v-model="view_window.win_w" />
           </div>
         </div>
         <div class="rowWin flex items-center">
           <div class="name">窗位</div>
           <div class="silder">
-            <ta-slider
-              :min="-1024"
-              :max="3071"
-              :v-model="view_window.win_holder"
-              @change="view_window.winHold.onChange"
-              @afterChange="view_window.winHold.onAfterChange"
-            />
+            <ta-slider :min="-1024" :max="3071" :v-model="view_window.win_holder" @change="view_window.winHold.onChange"
+              @afterChange="view_window.winHold.onAfterChange" />
           </div>
           <div class="ipt">
-            <ta-input-number
-              :min="-1024"
-              :max="3071"
-              style="marginleft: 16px; width: 100px"
-              amountPre="HU"
-              :asAmount="true"
-              :alignRight="true"
-              :value="view_window.win_holder"
-              v-model="view_window.win_holder"
-            />
+            <ta-input-number :min="-1024" :max="3071" style="marginleft: 16px; width: 100px" amountPre="HU"
+              :asAmount="true" :alignRight="true" :value="view_window.win_holder" v-model="view_window.win_holder" />
           </div>
         </div>
       </div>
     </ta-popover>
 
-    <ta-popover
-      ref="mypop3"
-      @after-leave="afterLeaveEvents"
-      :visible-arrow="true"
-      :offset="1"
-      :appendToBody="false"
-      :placement="`right`"
-      class="cus_poper mdtyms_pop"
-    >
+    <ta-popover ref="mypop3" @after-leave="afterLeaveEvents" :visible-arrow="true" :offset="1" :appendToBody="false"
+      :placement="`right`" class="cus_poper mdtyms_pop">
       <div slot="content" class="boxBtn_extSelect">
         <div class="title">密度投影模式</div>
-        <ta-radio-group
-          @change="(e) => mdtyms_conf.onChange(e)"
-          v-model="mdtyms_conf.value"
-        >
-          <ta-radio :style="mdtyms_conf.radioStyle" :value="1"
-            >最大密度投影（MIP）</ta-radio
-          >
-          <ta-radio :style="mdtyms_conf.radioStyle" :value="2"
-            >最小密度投影（MinP）</ta-radio
-          >
+        <ta-radio-group @change="(e) => mdtyms_conf.onChange(e)" v-model="mdtyms_conf.value">
+          <ta-radio :style="mdtyms_conf.radioStyle" :value="1">最大密度投影（MIP）</ta-radio>
+          <ta-radio :style="mdtyms_conf.radioStyle" :value="2">最小密度投影（MinP）</ta-radio>
         </ta-radio-group>
         <div class="ceng_row flex justify-around items-center">
           <div>
-            <span>层数</span><span>{{ mdtyms_conf.level }}</span
-            ><span>层</span>
+            <span>层数</span><span>{{ mdtyms_conf.level }}</span><span>层</span>
           </div>
           <div class="silder">
-            <ta-slider
-              :min="mdtyms_conf.silder.min"
-              :max="mdtyms_conf.silder.max"
-              v-model="mdtyms_conf.silder.barValue"
-              @change="mdtyms_conf.silder.change"
-              @afterChange="mdtyms_conf.silder.afterChange"
-            />
+            <ta-slider :min="mdtyms_conf.silder.min" :max="mdtyms_conf.silder.max" v-model="mdtyms_conf.silder.barValue"
+              @change="mdtyms_conf.silder.change" @afterChange="mdtyms_conf.silder.afterChange" />
           </div>
           <div>
-            <span>层厚</span><span>{{ mdtyms_conf.weight }}</span
-            ><span>{{ mdtyms_conf.unit }}</span>
+            <span>层厚</span><span>{{ mdtyms_conf.weight }}</span><span>{{ mdtyms_conf.unit }}</span>
           </div>
         </div>
       </div>
@@ -290,7 +173,7 @@ let btnStateGrp = {
   [`${ButtonNames.Pyms}${suffix_name}`]: false,
 };
 
-import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
+import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
 import TaUtils from "@yh/ta-utils";
 export default {
   name: "vsk-tool-bar",
@@ -301,8 +184,8 @@ export default {
         console.log("watch---mdtyms_conf.silder.barValue", nVal, oVal);
         console.log("Tautil----------", TaUtils);
 
-        const { silder } = this.mdtyms_conf;
-        const { barValue, multiplicand } = silder;
+        const {silder} = this.mdtyms_conf;
+        const {barValue, multiplicand} = silder;
         if (!!nVal || nVal !== "") {
           const mValue = TaUtils.multiply(barValue, multiplicand);
           const weight_value = TaUtils.commafy(mValue, {
@@ -346,7 +229,7 @@ export default {
       mdtyms_conf: {
         onChange: (ev) => {
           console.log("onChange___mdtyms_conf", ev, this.mdtyms_conf);
-          const { value } = this.mdtyms_conf;
+          const {value} = this.mdtyms_conf;
           let mode = "max";
           if (value === 1) {
             mode = "min";
@@ -398,7 +281,7 @@ export default {
             console.log("onChange1:", value, this.view_window);
             this.$set(this.view_window, "win_w", value);
             // 灰度
-            this.UpdateColorWindow_self({ ww: value });
+            this.UpdateColorWindow_self({ww: value});
             this.$forceUpdate();
           },
         },
@@ -411,7 +294,7 @@ export default {
             // 亮度
             console.log("onChange1:", value);
             this.$set(this.view_window, "win_holder", value);
-            this.UpdateColorLevel_self({ wl: value });
+            this.UpdateColorLevel_self({wl: value});
             this.$forceUpdate();
           },
         },
@@ -491,9 +374,10 @@ export default {
     },
     handle_view_window_row(idx) {
       this.view_window.current = idx;
-      const { current } = this.view_window;
+      const {current} = this.view_window;
       const row = this.view_window.list[current];
       this.view_window.curInput = row.icon;
+      console.log("row.icon==", row.icon);
 
       this.SET_SLICE_CT_PIC_LAYOUT(row.icon);
     },
@@ -513,16 +397,20 @@ export default {
   width: 18px;
   height: 18px;
 }
+
 .boxBtn {
   margin-bottom: 27px;
+
   &.on {
     .pic {
       .background-opacity(@primary-color, 0.5);
     }
   }
-  > .pic {
+
+  >.pic {
     padding: 5px;
     border-radius: 5px;
+
     &:after {
       content: "";
       display: block;
@@ -532,7 +420,7 @@ export default {
   }
 
   &.lggjst_icon {
-    > .pic {
+    >.pic {
       &:after {
         .lggjst();
       }
@@ -540,7 +428,7 @@ export default {
   }
 
   &.mpr_icon {
-    > .pic {
+    >.pic {
       &:after {
         .mpr();
       }
@@ -548,7 +436,7 @@ export default {
   }
 
   &.ys_icon {
-    > .pic {
+    >.pic {
       &:after {
         .ys();
       }
@@ -556,7 +444,7 @@ export default {
   }
 
   &.ckcw_icon {
-    > .pic {
+    >.pic {
       &:after {
         background-image: url(./assets/img/fanse.png);
       }
@@ -564,7 +452,7 @@ export default {
   }
 
   &.jbinfo_icon {
-    > .pic {
+    >.pic {
       &:after {
         background-image: url(./assets/img/jiaobiao.png);
       }
@@ -572,7 +460,7 @@ export default {
   }
 
   &.ainfo_icon {
-    > .pic {
+    >.pic {
       &:after {
         background-image: url(./assets/img/ai-fenxi.png);
       }
@@ -580,7 +468,7 @@ export default {
   }
 
   &.xline_icon {
-    > .pic {
+    >.pic {
       &:after {
         background-image: url(./assets/img/ckx.png);
       }
@@ -588,7 +476,7 @@ export default {
   }
 
   &.mdty_icon {
-    > .pic {
+    >.pic {
       &:after {
         background-image: url(./assets/img/md-ty.png);
       }
@@ -596,7 +484,7 @@ export default {
   }
 
   &.py_icon {
-    > .pic {
+    >.pic {
       &:after {
         background-image: url(./assets/img/pingyi-mod.png);
       }
@@ -611,52 +499,61 @@ export default {
   }
 }
 
-.boxBtn_extSelect {
-}
+.boxBtn_extSelect {}
+
 /deep/.sctz_pop {
-  > div {
+  >div {
     padding: 5px 10px;
   }
 }
+
 /* func-----------start-----------视窗切换按钮 */
 .lggjst() {
   & {
     background-image: url(./assets/img/lgt-ts.png);
   }
 }
+
 .mpr() {
   & {
     background-image: url(./assets/img/3d-lgt.png);
   }
 }
+
 .ys() {
   & {
     background-image: url(./assets/img/targetPic.png);
   }
 }
+
 /* func-----------end-----------视窗切换按钮 */
 
 .group_tools {
   .h_row {
     padding: 4px 5px;
     cursor: pointer;
+
     &.on {
       .background-opacity(@primary-color, 0.5);
       border-radius: 2px;
     }
+
     .icon {
       .func_bgCover();
       margin-right: 10px;
       width: 15px;
       height: 14px;
+
       &.lggjst {
         // background-image: url(./assets/img/lgt-ts.png);
         .lggjst();
       }
+
       &.mpr {
         // background-image: url(./assets/img/3d-lgt.png);
         .mpr();
       }
+
       &.ys {
         // background-image: url(./assets/img/targetPic.png);
         .ys();
@@ -679,6 +576,7 @@ export default {
   .name {
     margin-right: 10px;
   }
+
   .silder {
     width: 133px;
     margin-right: 5px;
@@ -693,19 +591,23 @@ export default {
 
 .ceng_row {
   font-size: 15px;
-  > div {
+
+  >div {
     &:first-child {
       width: 78px;
     }
-    &:nth-child(2) {
-    }
+
+    &:nth-child(2) {}
+
     &:nth-child(3) {
       width: 120px;
     }
   }
+
   span {
     margin-right: 2px;
   }
+
   .silder {
     width: 133px;
     margin-right: 5px;
