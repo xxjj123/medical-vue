@@ -1,8 +1,9 @@
 <template>
   <div class="threeViewSecTool">
+    <slot></slot>
     <dicomTags></dicomTags>
     <orientationTags></orientationTags>
-    <btnGroup :TracheaName="TracheaName !== '' ? TracheaName : 'lung'"></btnGroup>
+    <btnGroup :viewType="viewType" :TracheaName="TracheaName !== '' ? TracheaName : 'lung'"></btnGroup>
   </div>
 </template>
 
@@ -16,7 +17,10 @@ export default {
     TracheaName: {
       type: String,
       default: "" //lung ,heart, brain ,...
-    }
+    },
+    viewType: {
+      type: [String, Number],
+    },
 
   },
   components: {

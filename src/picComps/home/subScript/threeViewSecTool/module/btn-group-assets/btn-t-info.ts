@@ -1,8 +1,22 @@
-export const btnKey = {
-  "LUNG": "lung",
+// part it
+export enum btnKey {
+  LUNG = "lung",
   // ... todo other part
 }
-//
+//肺按钮细节代号
+export enum btnLungCodes {
+  REBACK = "reback",
+  XZFZ = "xzfz",
+  AUTOPLAY = "autoplay",
+  SCREEN = "screen",
+}
+// 旋转子按钮组代号
+export enum rotateChildBtnCodes {
+  ICO_PACSSHUPING = "ico_pacsshuping",
+  ICO_PACSSHUIPINGFANZHUAN = "ico_pacsshuipingfanzhuan",
+  ICO_PACSCHUIZHIFANZHUAN = "ico_pacschuizhifanzhuan",
+}
+
 /**
  * 默认包含 btn on <-> off 选中未选中切换效果，
  * 切换素材默认根据当前defaultIconIdx的元素进行样式切换，
@@ -13,11 +27,13 @@ export const btnKey = {
 export const btnInfo = {
   lung: [
     {
+      code: "reback",
       altName: "反向",
       icon: "ico_pacsshurushuchumokuai",
       on: false
     },
     {
+      code: "xzfz",
       altName: "旋转翻转",
       icon: "ico_pacsshuping",
       defaultIconIdx: "0",
@@ -41,6 +57,7 @@ export const btnInfo = {
       ]
     },
     {
+      code: "autoplay",
       altName: "自动播放",
       icon: "ico_pacsbofang",
       defaultIconIdx: "0",
@@ -58,6 +75,7 @@ export const btnInfo = {
       ]
     },
     {
+      code: "screen",
       altName: "全屏",
       icon: "ico_pacsquanping",
       defaultIconIdx: "0",

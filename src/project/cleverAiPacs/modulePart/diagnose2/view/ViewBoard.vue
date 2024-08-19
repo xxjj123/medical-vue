@@ -19,11 +19,12 @@
         },
       ]">
         <div class="relative view-item bg-slate-500">
-          <div class="relative view-item bg-slate-500" ref="ViewAxialRef">
-            <crossHair v-if="AxialData.displayX && AxialData.displayY" class="absolute top-0 h-full w-full left-0 z-1"
-              :crosshairData="axialCrosshairData" />
-          </div>
-          <threeViewSecTool class="absolute z-2" :TracheaName="`lung`"></threeViewSecTool>
+          <threeViewSecTool :viewType="AxialData.viewIndex" class="absolute z-2" :TracheaName="`lung`">
+            <div class="relative view-item bg-slate-500" ref="ViewAxialRef">
+              <crossHair v-if="AxialData.displayX && AxialData.displayY" class="absolute top-0 h-full w-full left-0 z-1"
+                :crosshairData="axialCrosshairData" />
+            </div>
+          </threeViewSecTool>
         </div>
       </div>
       <div class="side viewbox view-coronal bg-slate-400">
@@ -158,6 +159,13 @@ export default {
         });
       },
       immediate: true,
+    },
+    AxialData: {
+      handler(nVal, oVal) {
+        console.log("watch___AxialData", nVal, oVal);
+
+      },
+      immediate: true
     },
   },
 

@@ -840,6 +840,8 @@ export default {
       const image = state.viewMprViews[viewType].view.image;
 
       const camera = view.renderer.getActiveCamera();
+      console.log("camera-------------", camera);
+
       camera.setParallelProjection(true);
       const bounds = image.getBounds();
       const [centerX, centerY, centerZ] = [
@@ -883,6 +885,9 @@ export default {
           ),
       );
       camera.roll(getters.viewsData[viewType].cameraRotate);
+
+
+
       view.renderWindow.render();
     },
 
@@ -1006,7 +1011,7 @@ export default {
      * @param {number} viewType - 操作页面索引
      * @param {number} time - 单片切换时间，单元毫秒
      */
-    AutoPlay({commit, dispatch, state}, {viewType, time}) {
+    AutoPlay({commit, dispatch, state, getters}, {viewType, time}) {
       if (state.autoPlayTimers[viewType].autoPlayTimer === null) {
         state.autoPlayTimers.forEach((timer) => {
           clearInterval(timer.autoPlayTimer);
@@ -1025,6 +1030,7 @@ export default {
         });
 
         const timer = setInterval(() => {
+          // debugger;
           const newIndex =
             (getters.viewsData[view.viewIndex].changedPageindex %
               view.dimension) +
@@ -1072,7 +1078,7 @@ export default {
      * 页面反向
      * @param {number} viewType - 操作页面索引
      */
-    ReverseWindow({commit, state}, viewType) {
+    ReverseWindow({commit, state, getters}, viewType) {
       const view = state.viewMprViews[viewType].view;
       const viewdata = getters.viewsData[viewType];
       const colorTransferFunction = vtkColorTransferFunction.newInstance();
@@ -1095,10 +1101,42 @@ export default {
     },
 
     /**
+     * 水平翻转
+     * @param {number} viewType - 操作页面索引
+     */
+    FlipHorizontal({commit, dispatch, state, getters}, viewType) {
+      const view = state.viewMprViews[viewType].view;
+      const currentScale = view.sliceActor.getScale();
+      const newScaleX = currentScale[0] === 1 ? -1 : 1; // 切换X轴的翻转状态
+
+      view.sliceActor.setScale(newScaleX, currentScale[1], currentScale[2]);
+
+      console.log("currentScale=", currentScale);
+
+      dispatch("setupCamera", viewType);
+    },
+
+    /**
+     * 垂直翻转
+     * @param {number} viewType - 操作页面索引
+     */
+    FlipVertical({commit, dispatch, state, getters}, viewType) {
+      const view = state.viewMprViews[viewType].view;
+      const currentScale = view.sliceActor.getScale();
+      const newScaleY = currentScale[1] === 1 ? -1 : 1; // 切换Y轴的翻转状态
+
+      view.sliceActor.setScale(currentScale[0], newScaleY, currentScale[2]);
+
+      console.log("currentScale=", currentScale);
+
+      dispatch("setupCamera", viewType);
+    },
+
+    /**
      * 切片旋转
      * @param {number} viewType - 操作页面索引
      */
-    RotateCamera({commit, dispatch, state}, viewType) {
+    RotateCamera({commit, dispatch, state, getters}, viewType) {
       commit("SET_VIEW_DATA", {
         viewType,
         key: "cameraRotate",

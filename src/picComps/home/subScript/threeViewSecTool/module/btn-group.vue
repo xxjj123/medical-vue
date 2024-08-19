@@ -50,14 +50,21 @@
   </div>
 </template>
 <script lang='javascript'>
-import {btnKey, btnInfo} from "./btn-group-assets/btn-t-info";
+import {btnKey, btnLungCodes, rotateChildBtnCodes, btnInfo} from "./btn-group-assets/btn-t-info";
+
+import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
+
+
 export default {
   name: 'btn-group',
   props: {
     TracheaName: {
       type: String,
       default: "" //lung ,heart, brain ,...
-    }
+    },
+    viewType: {
+      type: [String, Number],
+    },
   },
   computed: {
     btnInfoItem: {
@@ -97,6 +104,7 @@ export default {
 
   },
   methods: {
+    ...mapActions("viewInitStore", ["ReverseWindow", "RotateCamera", "AutoPlay", "FlipHorizontal", "FlipVertical"]),
     handle_click_more(btn, index) {
       console.log("this.btnInfoItem==start", btn, index);
 
@@ -122,11 +130,16 @@ export default {
 
       console.log("btn", btn);
       const {child} = btn;
-      const selectIcon = child[dropCode]?.icon;
-      console.log("selectIcon_", selectIcon);
 
 
-      this.$set(this.btnInfoItem[index], "icon", selectIcon)
+      if (child) {
+        const selectIcon = child[dropCode]?.icon;
+        console.log("selectIcon_", selectIcon);
+
+
+        this.$set(this.btnInfoItem[index], "icon", selectIcon)
+      }
+
 
 
 
@@ -140,6 +153,49 @@ export default {
 
       this.$set(this.btnInfoItem[index], "on", !btn.on)
       this.current = index;
+
+      console.log("viewType==handle_click=", this.viewType);
+
+      const {code} = btn;
+
+      switch (code) {
+        case btnLungCodes.REBACK: {
+          this.ReverseWindow(this.viewType)
+        }
+          break;
+        case btnLungCodes.XZFZ: {
+
+          console.log("btn.icon==", btn.icon);
+
+
+          if (btn.icon === rotateChildBtnCodes.ICO_PACSSHUPING) {
+            this.RotateCamera(this.viewType)
+          } else if (btn.icon === rotateChildBtnCodes.ICO_PACSSHUIPINGFANZHUAN) {
+            this.FlipHorizontal(this.viewType)
+          } else if (btn.icon === rotateChildBtnCodes.ICO_PACSCHUIZHIFANZHUAN) {
+            this.FlipVertical(this.viewType)
+          }
+        }
+          break;
+        case btnLungCodes.AUTOPLAY: {
+          this.AutoPlay({
+            viewType: this.viewType,
+            time: 1000
+          })
+        }
+          break;
+        case btnLungCodes.SCREEN: {
+
+        }
+          break;
+        default:
+          return void 0;
+
+      }
+
+
+
+
 
       console.log("btnInfoItemLocal==", this.btnInfoItemLocal);
 
