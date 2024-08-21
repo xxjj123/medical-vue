@@ -90,6 +90,7 @@ export default {
   white-space: nowrap;
   text-shadow: rgb(0, 0, 0) 1px 1px 0px;
   margin-bottom: 1px;
+  color: #2cf66c;
 }
 
 .ruleLine {

@@ -4,9 +4,9 @@
       <div>R</div>
     </div>
     <div class="overlay2">
-      <div class="h-full flex flex-col justify-between items-stretch">
-        <div>S</div>
-        <div>I</div>
+      <div class="si_block h-full flex flex-col justify-between items-stretch">
+        <div class="top_btn">S</div>
+        <div class="bottom_btn">I</div>
       </div>
     </div>
 
@@ -42,6 +42,8 @@ export default {
 .orientaion-tags {
   user-select: none;
   pointer-events: none;
+  color: hsla(150, 84%, 70%, 0.986);
+  font-weight: 800;
 }
 
 .overlay1 {
@@ -69,7 +71,7 @@ export default {
   width: calc(50% - 20px);
   height: 100%;
   display: flex;
-  top: 0px;
+  top: -10px;
   left: calc(25% + 10px);
   text-align: center;
   align-items: flex-start;
@@ -78,6 +80,12 @@ export default {
   -webkit-box-pack: center;
   justify-content: center;
   transform-origin: center top;
+
+  .si_block {
+    .top_btn {}
+
+    .bottom_btn {}
+  }
 }
 
 .overlay3 {
