@@ -1,44 +1,21 @@
 <template>
   <div ref="container">
-    <svg
-      ref="svg"
-      class="absolute select-none pointer-events-none w-full h-full"
-    >
-      <line
-        :x1="0"
-        :y1="height - crosshairData.crosshair_y / screenRatio"
-        :x2="width"
-        :y2="height - crosshairData.crosshair_y / screenRatio"
-        stroke="blue"
-        :stroke-width="1.5 / screenRatio"
-        :stroke-dasharray="dashArray"
-        vector-effect="non-scaling-stroke"
-      />
-      <line
-        :x1="crosshairData.crosshair_x / screenRatio"
-        :y1="0"
-        :x2="crosshairData.crosshair_x / screenRatio"
-        :y2="height"
-        stroke="blue"
-        :stroke-width="1.5 / screenRatio"
-        :stroke-dasharray="dashArray"
-        vector-effect="non-scaling-stroke"
-      />
+    <svg ref="svg" class="absolute select-none pointer-events-none w-full h-full">
+      <line :x1="0" :y1="height - crosshairData.crosshair_y / screenRatio" :x2="width"
+        :y2="height - crosshairData.crosshair_y / screenRatio" stroke="#2cf66c" :stroke-width="1.5 / screenRatio"
+        :stroke-dasharray="dashArray" vector-effect="non-scaling-stroke" />
+      <line :x1="crosshairData.crosshair_x / screenRatio" :y1="0" :x2="crosshairData.crosshair_x / screenRatio"
+        :y2="height" stroke="#2cf66c" :stroke-width="1.5 / screenRatio" :stroke-dasharray="dashArray"
+        vector-effect="non-scaling-stroke" />
 
-      <line
-        :x1="10"
-        :y1="height - 30"
-        :x2="10 + crosshairData.scale_length / screenRatio"
-        :y2="height - 30"
-        stroke="yellow"
-        :stroke-width="3 / screenRatio"
-      />
+      <line :x1="10" :y1="height - 30" :x2="10 + crosshairData.scale_length / screenRatio" :y2="height - 30"
+        stroke="yellow" :stroke-width="3 / screenRatio" />
     </svg>
   </div>
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import {mapActions} from "vuex";
 
 export default {
   props: {
