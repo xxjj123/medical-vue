@@ -50,7 +50,7 @@
   </div>
 </template>
 <script lang='javascript'>
-import {btnKey, btnLungCodes, rotateChildBtnCodes, btnInfo} from "./btn-group-assets/btn-t-info";
+import {btnKey, btnLungCodes, rotateChildBtnCodes, autoPlayCodes, btnInfo} from "./btn-group-assets/btn-t-info";
 
 import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
 
@@ -136,6 +136,7 @@ export default {
       current: "",
       nextChildCurrent: "",
       layout: -1,
+      i: 0,
     }
   },
   created() {
@@ -145,6 +146,7 @@ export default {
   },
   methods: {
     ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
+    ...mapMutations("viewInitStore", ["CLEAR_AUTO_PLAY_TIMER"]),
     ...mapActions("viewInitStore", ["ReverseWindow", "RotateCamera", "AutoPlay", "FlipHorizontal", "FlipVertical"]),
     handle_click_more(btn, index) {
       console.log("this.btnInfoItem==start", btn, index);
@@ -219,10 +221,46 @@ export default {
         }
           break;
         case btnLungCodes.AUTOPLAY: {
-          this.AutoPlay({
-            viewType: this.viewType,
-            time: 1000
-          })
+          console.log("btnLungCodes.AUTOPLAY", btnLungCodes.AUTOPLAY);
+
+          const {icon, toggle, child} = btn;
+
+          // // 如果toggle小于child数组长度，确保游标不超过toggle
+          // if (toggle < child.length) {
+          //   btn.cursor = (btn.cursor + 1) % toggle;
+          // } else {
+          //   // 如果toggle大于等于child数组长度，允许游标遍历整个数组
+          //   btn.cursor = (btn.cursor + 1) % child.length;
+          // }
+
+          // // 更新当前图标为child数组中对应游标位置的图标
+          // this.$set(btn, "icon", child[btn.cursor].icon);
+
+
+
+
+          switch (icon) {
+            case autoPlayCodes.ICO_PACSBOFANG: {
+              console.log("icon----------start", icon, autoPlayCodes.ICO_PACSBOFANG);
+
+              this.AutoPlay({
+                viewType: this.viewType,
+                time: 60
+              })
+              this.$set(this.btnInfoItem[index], "icon", autoPlayCodes.ICO_PACSZANTING);
+            }
+              break;
+            case autoPlayCodes.ICO_PACSZANTING: {
+              this.CLEAR_AUTO_PLAY_TIMER(this.viewType)
+              this.$set(this.btnInfoItem[index], "icon", autoPlayCodes.ICO_PACSBOFANG);
+              // console.log("icon----------stop", icon, autoPlayCodes.ICO_PACSZANTING);
+            }
+              break;
+          }
+
+
+
+
         }
           break;
         case btnLungCodes.SCREEN: {

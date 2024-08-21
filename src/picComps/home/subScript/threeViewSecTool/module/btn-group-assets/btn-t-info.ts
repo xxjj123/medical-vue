@@ -17,6 +17,11 @@ export enum rotateChildBtnCodes {
   ICO_PACSCHUIZHIFANZHUAN = "ico_pacschuizhifanzhuan",
 }
 
+export enum autoPlayCodes {
+  ICO_PACSBOFANG = "ico_pacsbofang",
+  ICO_PACSZANTING = "ico_pacszanting-",
+}
+
 /**
  * 默认包含 btn on <-> off 选中未选中切换效果，
  * 切换素材默认根据当前defaultIconIdx的元素进行样式切换，
@@ -62,6 +67,8 @@ export const btnInfo = {
       icon: "ico_pacsbofang",
       defaultIconIdx: "0",
       mode: "other",
+      // 初始游标位置设为0
+      cursor: 0,
       toggle: "2",// 2 对标 child 长度，代表根据这个数组下标顺序切换，直至切换到指定长度下标，循环切换
       child: [
         {

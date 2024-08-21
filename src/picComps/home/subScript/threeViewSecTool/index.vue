@@ -1,8 +1,8 @@
 <template>
   <div class="threeViewSecTool">
     <slot></slot>
-    <dicomTags></dicomTags>
-    <orientationTags></orientationTags>
+    <dicomTags :datav="dicomTags_msg"></dicomTags>
+    <orientationTags :datav="orientationTags_msg"></orientationTags>
     <btnGroup :viewType="viewType" :TracheaName="TracheaName !== '' ? TracheaName : 'lung'"></btnGroup>
   </div>
 </template>
@@ -21,6 +21,14 @@ export default {
     viewType: {
       type: [String, Number],
     },
+    dicomTags_msg: {
+      type: Object,
+      default: () => ({})
+    },
+    orientationTags_msg: {
+      type: Object,
+      default: () => ({})
+    }
 
   },
   components: {

@@ -17,6 +17,7 @@ import vtkPicker from "@kitware/vtk.js/Rendering/Core/Picker";
 import vtkCoordinate from "@kitware/vtk.js/Rendering/Core/Coordinate";
 import vtkColorTransferFunction from "@kitware/vtk.js/Rendering/Core/ColorTransferFunction";
 import throttle from "lodash/throttle";
+import Vue from "vue";
 
 import {xhr_getSlice} from "@/api";
 const coordinate = vtkCoordinate.newInstance();
@@ -169,9 +170,10 @@ export default {
     },
     UPDATE_AUTO_PLAY_TIMER(state, {viewType, timer}) {
       if (!state.autoPlayTimers) {
-        state.autoPlayTimers = {};
+        state.autoPlayTimers[viewType].autoPlayTimer = null;
       }
-      state.autoPlayTimers[viewType] = timer;
+      state.autoPlayTimers[viewType].viewType = viewType;
+      state.autoPlayTimers[viewType].autoPlayTimer = timer;
     },
     CLEAR_AUTO_PLAY_TIMER(state, viewType) {
       if (state.autoPlayTimers[viewType]?.autoPlayTimer) {
@@ -792,6 +794,10 @@ export default {
     }, 150),
     async GetSlice({dispatch, state}, {viewName, index}) {
       try {
+        let loading = setInterval(() => {
+          Vue.prototype.$message.destroy();
+
+        }, 50)
         const res = await xhr_getSlice({
           seriesId: state.seriesInfo.seriesId,
           viewName: viewName,
@@ -799,6 +805,7 @@ export default {
         });
 
         if (res) {
+          clearInterval(loading)
           return res.data;
         } else {
           console.error("Request failed: No data returned");
@@ -1064,9 +1071,9 @@ export default {
           dispatch("throttleUpdateSingleSlice", {
             viewName: view.viewName,
             viewType: view.viewIndex,
-            newIndex,
+            index: newIndex,
           });
-        }, time); // 每秒打印一次
+        }, time || 60); // 每秒打印一次
 
         commit("UPDATE_AUTO_PLAY_TIMER", {viewType, timer});
       } else {

@@ -1,15 +1,15 @@
 import urlJson from "./collect-api";
-import { apiOps, testDevOps } from "./options";
-const { api, api2, api3, api5, api6 } = apiOps;
+import {apiOps, testDevOps} from "./options";
+const {api, api2, api3, api5, api6} = apiOps;
 
-const { Topbase, study, readwriteFsBase, cb, diagnose } = testDevOps;
+const {Topbase, study, readwriteFsBase, cb, diagnose} = testDevOps;
 
 import axios from "axios";
 import Vue from "vue";
 const instance = Vue.prototype;
 
 // import {getBaseURL} from "@/assets/js/utils";
-import { getBaseURL } from "@/assets/js/utils/url-toto.ts";
+import {getBaseURL} from "@/assets/js/utils/url-toto.ts";
 /**
  * TODO::这份文件的接口，先迎合-文佳搭建的spring-boot去返回，后续后端迁移至404后台写法，需改写~
  * ps：目前是从catch中才能捕获到值，先这么处理~
@@ -266,13 +266,21 @@ export const xhr_getNoduleInfo = (formData) => {
  * @returns
  */
 export const xhr_getSlice = (formData) => {
-  return Base.submit(null, {
-    url: diagnose + urlJson["getSlice"],
-    data: {
-      ...formData,
-    },
-    responseType: "arraybuffer",
-  });
+  return new Promise((resolve, reject) => {
+    try {
+      return Base.submit(null, {
+        url: diagnose + urlJson["getSlice"],
+        data: {
+          ...formData,
+        },
+        responseType: "arraybuffer",
+      }).then(res => {
+        resolve(res);
+      });
+    } catch (error) {
+      reject({error})
+    }
+  })
 };
 
 /* 山哥专属 end*/

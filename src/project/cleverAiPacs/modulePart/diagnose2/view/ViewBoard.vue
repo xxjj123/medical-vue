@@ -19,7 +19,8 @@
         },
       ]">
         <div class="relative view-item bg-slate-500">
-          <threeViewSecTool :viewType="AxialData.viewIndex" class="absolute z-2" :TracheaName="`lung`">
+          <threeViewSecTool :dicomTags_msg="AxialDataInfo" :viewType="AxialData.viewIndex" class="absolute z-2"
+            :TracheaName="`lung`">
             <div class="relative view-item bg-slate-500" ref="ViewAxialRef">
               <crossHair v-if="AxialData.displayX && AxialData.displayY" class="absolute top-0 h-full w-full left-0 z-1"
                 :crosshairData="axialCrosshairData" />
@@ -71,6 +72,17 @@ export default {
   name: "ViewBoard",
   data() {
     return {
+      AxialDataInfo: {
+        group: [{label: 'WW/WL', value: '1500/-500'}, {label: 'Image', value: '240/512'}],
+        verseTag: false,
+        scaleplate: {
+          unit: 'cm',
+          value: '1',
+          width: '16px',
+          verse: true
+        },
+        fixHere: 'leftTop'
+      },
       Axial: null, //轴切的 （原图）
       Coronal: null, //冠状的
       Sagittal: null, //矢状的
