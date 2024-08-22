@@ -37,22 +37,27 @@
         </div>
       </div>
       <div class="side viewbox view-coronal bg-slate-400">
-        <div class="relative view-item bg-slate-400" ref="ViewCoronalRef">
+        <div class="relative view-item bg-slate-400">
           <threeViewSecTool :dicomTags_msg="CoronalDataInfo" :viewType="CoronalData.viewIndex" class="absolute z-2"
             :TracheaName="`lung`">
-            <crossHair v-if="CoronalData.displayX && CoronalData.displayY"
-              class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
-              :crosshairData="coronalCrosshairData" />
+            <div class="relative view-item bg-slate-400" ref="ViewCoronalRef">
+              <crossHair v-if="CoronalData.displayX && CoronalData.displayY"
+                class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
+                :crosshairData="coronalCrosshairData" />
+
+            </div>
           </threeViewSecTool>
         </div>
       </div>
       <div class="side viewbox view-sagittal bg-slate-600">
-        <div class="relative view-item bg-slate-600 border-t-0.2 border-l-0.2 border-titleblue" ref="ViewSagittalRef">
+        <div class="relative view-item bg-slate-600 border-t-0.2 border-l-0.2 border-titleblue">
           <threeViewSecTool :dicomTags_msg="SagittalDataInfo" :viewType="SagittalData.viewIndex" class="absolute z-2"
             :TracheaName="`lung`">
-            <crossHair v-if="SagittalData.displayX && SagittalData.displayY"
-              class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
-              :crosshairData="sagittalCrosshairData" />
+            <div class="relative view-item bg-slate-600" ref="ViewSagittalRef">
+              <crossHair v-if="SagittalData.displayX && SagittalData.displayY"
+                class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
+                :crosshairData="sagittalCrosshairData" />
+            </div>
           </threeViewSecTool>
         </div>
       </div>
@@ -305,8 +310,8 @@ export default {
     initCompData_AxialDataInfo() {
       const {axialCount, coronalCount, sagittalCount} = this.seriesInfo;
       const {Ww, Wl, pageIndex, hu} = this.AxialData;
-      console.log("this.seriesInfo==", this.seriesInfo);
-      console.log("this.AxialData==", this.AxialData);
+      // console.log("this.seriesInfo==", this.seriesInfo);
+      // console.log("this.AxialData==", this.AxialData);
 
       let group = [
         {label: 'WW/WL', value: `${Ww}/-${Wl}`},
@@ -314,8 +319,8 @@ export default {
         {label: 'Thickness', value: `1.25mm`},
       ]
 
-      console.log("initCompData_AxialDataInfo_____series_map_dicom", this.series_map_dicom);
-      console.log("query-----", this.$route.query);
+      // console.log("initCompData_AxialDataInfo_____series_map_dicom", this.series_map_dicom);
+      // console.log("query-----", this.$route.query);
 
       const localDb = getStorage('#_st', 'studySelectItem', true)
 
