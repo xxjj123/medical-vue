@@ -29,5 +29,16 @@ export default {
   getSeriesInfo: "/getSeriesInfo",
   getSlice: "/getSlice",
 
+  /* lung nodule */
+  queryNodule: "/queryNodule",
+  queryOperate: "/queryOperate",
+  queryTextReport: "/queryTextReport",
+  saveManualDiagnosis: "/saveManualDiagnosis",
+  saveOperate: "/saveOperate",
+  updateNoduleLesion: "/updateNoduleLesion",
+  updateTextReport: "/updateTextReport",
+
+
+
   /* 山哥-----公司测试环境接口 end*/
 };

@@ -2,7 +2,7 @@ import urlJson from "./collect-api";
 import {apiOps, testDevOps} from "./options";
 const {api, api2, api3, api5, api6} = apiOps;
 
-const {Topbase, study, readwriteFsBase, cb, diagnose} = testDevOps;
+const {Topbase, study, readwriteFsBase, cb, diagnose, nodule} = testDevOps;
 
 import axios from "axios";
 import Vue from "vue";
@@ -576,3 +576,118 @@ export const isExit = (studyInstanceUID) =>
       studyInstanceUID: studyInstanceUID,
     },
   });
+
+
+
+/* ----------------------nodule----lung----api---start */
+/**
+ * 结节病变列表查询
+ * @param formData
+ * @returns
+ */
+export const xhr_queryNodule = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: nodule + urlJson["queryNodule"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/**
+ * 查询上次结节操作
+ * @param formData
+ * @returns
+ */
+export const xhr_queryOperate = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: nodule + urlJson["queryOperate"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/**
+ * 查询文本报告
+ * @param formData
+ * @returns
+ */
+export const xhr_queryTextReport = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: nodule + urlJson["queryTextReport"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
+
+/**
+ * 保存人工诊断结果
+ * @param formData
+ * @returns
+ */
+export const xhr_saveManualDiagnosis = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: nodule + urlJson["saveManualDiagnosis"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
+
+/**
+ * 保存本次结节操作
+ * @param formData
+ * @returns
+ */
+export const xhr_saveOperate = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: nodule + urlJson["saveOperate"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
+
+/**
+ * 更新结节病变信息
+ * @param formData
+ * @returns
+ */
+export const xhr_updateNoduleLesion = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: nodule + urlJson["updateNoduleLesion"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
+
+
+/**
+ * 更新文本报告
+ * @param formData
+ * @returns
+ */
+export const xhr_updateTextReport = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: nodule + urlJson["updateTextReport"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/* ----------------------nodule----lung----api---end */

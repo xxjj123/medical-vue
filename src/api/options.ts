@@ -13,4 +13,5 @@ export const testDevOps = {
   readwriteFsBase: `/fs`, //mod
   cb: `/callback`, //mod
   diagnose: `/diagnose`,
+  nodule: `/nodule`,
 };

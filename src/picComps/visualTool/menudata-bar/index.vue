@@ -4,17 +4,9 @@
     <div class="menuTopBox flex justify-between">
       <div class="sub_title">--</div>
       <div class="sub_tool flex items-center">
-        <div
-          @click="handle_shouchang"
-          class="flex hover:cursor-pointer justify-start items-center"
-        >
+        <div @click="handle_shouchang" class="flex hover:cursor-pointer justify-start items-center">
           <div class="icon ico_shouchang flex items-center">
-            <ta-icon
-              v-if="menuTopTool.collect === true"
-              :style="starOn_style"
-              type="star"
-              theme="filled"
-            />
+            <ta-icon v-if="menuTopTool.collect === true" :style="starOn_style" type="star" theme="filled" />
             <ta-icon v-else type="star" />
           </div>
           <div class="txt">收藏数据</div>
@@ -39,10 +31,7 @@
       </ta-tab-pane>
       <ta-tab-pane tab="肺炎" key="2">
         <!-- Content of Tab Pane 2 -->
-        <pneumonia-result
-          v-model="menuResult"
-          :cKey="'pneumonia'"
-        ></pneumonia-result>
+        <pneumonia-result v-model="menuResult" :cKey="'pneumonia'"></pneumonia-result>
       </ta-tab-pane>
       <ta-tab-pane tab="骨折" key="3">
         <!-- Content of Tab Pane 3 -->
@@ -50,10 +39,7 @@
       </ta-tab-pane>
       <ta-tab-pane tab="钙化积分" key="4">
         <!-- Content of Tab Pane 4 -->
-        <calcium-score-result
-          v-model="menuResult"
-          :cKey="'calcium'"
-        ></calcium-score-result>
+        <calcium-score-result v-model="menuResult" :cKey="'calcium'"></calcium-score-result>
       </ta-tab-pane>
     </ta-tabs>
   </div>
@@ -63,7 +49,7 @@ import noduleResult from "@/picComps/visualTool/menudata-bar/module/lung/nodule-
 import pneumoniaResult from "@/picComps/visualTool/menudata-bar/module/lung/pneumonia-result/index.vue";
 import fractureResult from "@/picComps/visualTool/menudata-bar/module/lung/fracture-result/index.vue";
 import calciumScoreResult from "@/picComps/visualTool/menudata-bar/module/lung/calcium-score-result/index.vue";
-import { mapState } from "vuex";
+import {mapState} from "vuex";
 
 export default {
   name: "menudata-bar",
@@ -78,6 +64,8 @@ export default {
     ...mapState("viewInitStore", ["noduleInfo"]),
     menuResult: {
       get() {
+        console.log("get-first----this.noduleInfo", this.noduleInfo);
+
         return this.noduleInfo;
       },
       set(val) {
@@ -118,6 +106,6 @@ export default {
     background: #979797 !important;
   }
 }
-.sub_tool {
-}
+
+.sub_tool {}
 </style>
