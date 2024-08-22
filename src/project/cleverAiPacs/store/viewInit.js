@@ -60,6 +60,13 @@ function GetTureIJK({viewType, ijk}) {
 export default {
   namespaced: true,
   state: {
+    // 选中行study信息，用于提取tags相关信息用
+    studies_selected: {},
+    /**
+     * { [computeSeriesId] : [] ,...}
+     *
+     */
+    series_map_dicom: {},
     seriesInfo: {
       seriesId: "",
       axialCount: "",
@@ -137,6 +144,12 @@ export default {
     ],
   },
   mutations: {
+    SET_STUDIES_SELECTED(state, payload) {
+      state.studies_selected = payload;
+    },
+    SET_SERIES_MAP_DICOM(state, payload) {
+      state.series_map_dicom = payload;
+    },
     SET_SERIES_INFO(state, seriesInfo) {
       state.seriesInfo = seriesInfo;
     },
@@ -847,7 +860,7 @@ export default {
       const image = state.viewMprViews[viewType].view.image;
 
       const camera = view.renderer.getActiveCamera();
-      console.log("camera-------------", camera);
+      // console.log("camera-------------", camera);
 
       camera.setParallelProjection(true);
       const bounds = image.getBounds();

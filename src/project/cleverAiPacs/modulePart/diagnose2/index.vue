@@ -85,10 +85,10 @@ export default {
       viewTheme: "",
       showsub: true,
       menuResult: [
-        { des: "nodule", title: "结节", comp: "nodule" },
-        { des: "pneumonia", title: "肺炎", comp: "pneumonia" },
-        { des: "frac", title: "骨折", comp: "pneumonia" },
-        { des: "calcium", title: "钙化积分", comp: "pneumonia" },
+        {des: "nodule", title: "结节", comp: "nodule"},
+        {des: "pneumonia", title: "肺炎", comp: "pneumonia"},
+        {des: "frac", title: "骨折", comp: "pneumonia"},
+        {des: "calcium", title: "钙化积分", comp: "pneumonia"},
       ],
       activeDiagnose: null,
       activeIndex: null,
@@ -138,10 +138,11 @@ export default {
     GetSeriesInfo(computeSeriesId) {
       console.log("GetSeriesInfo==");
       return new Promise(async (resolve, reject) => {
-        const result = await xhr_getSeriesInfo({ computeSeriesId });
+        const result = await xhr_getSeriesInfo({computeSeriesId});
         console.log(result);
         if (result.serviceSuccess) {
           let seriesInfo = result.data.resultData;
+          this.seriesInfo = seriesInfo;
           this.SET_SERIES_INFO(seriesInfo);
           this.InitSlice();
           console.log(seriesInfo);
@@ -150,7 +151,7 @@ export default {
     },
     Diagnose(computeSeriesId) {
       return new Promise(async (resolve, reject) => {
-        const result = await xhr_getNoduleInfo({ computeSeriesId });
+        const result = await xhr_getNoduleInfo({computeSeriesId});
         if (result.serviceSuccess) {
           console.log(result.data.resultData);
           this.SET_NODULE_INFO(result.data.resultData);
@@ -203,12 +204,12 @@ export default {
     },
   },
   created() {
-    this.actRun({ a: 1 });
+    this.actRun({a: 1});
 
     setTimeout(() => {
-      this.actRun({ a: 2 });
+      this.actRun({a: 2});
 
-      this.updateActRun({ q: 123123 });
+      this.updateActRun({q: 123123});
     }, 5000);
 
     // console.log("this.$router", this.$router);
@@ -220,14 +221,14 @@ export default {
       } else {
         // console.log("carplay-已存在");
       }
-      const { computeSeriesId } = this.$route.query;
+      const {computeSeriesId} = this.$route.query;
       this.Diagnose(computeSeriesId);
       this.GetSeriesInfo(computeSeriesId);
     });
 
     this.setClockUpdateDict();
   },
-  mounted() {},
+  mounted() { },
 };
 </script>
 <style lang="less" scoped>

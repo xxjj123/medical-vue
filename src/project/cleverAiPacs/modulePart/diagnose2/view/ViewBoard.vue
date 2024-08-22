@@ -1,6 +1,14 @@
 <template>
-  <!-- {{ seriesInfo }} -->
   <div class="ViewBoard_panel">
+    <!-- {{ seriesInfo }}
+    <br>
+    {{ AxialData }}
+    <br>
+    CoronalData:
+    {{ CoronalData }}
+    <br>
+    SagittalData:
+    {{ SagittalData }} -->
     <div :class="[
       'pic_views',
       {pic_layout_3d: layout === '1'},
@@ -68,13 +76,24 @@ let btnStateGrp = {
   [`${ButtonNames.Pyms}${suffix_name}`]: false,
 };
 console.log(btnStateGrp);
+
+import {getStorage, createWebStorage, } from '@yh/ta-utils'
+
 export default {
   name: "ViewBoard",
   data() {
     return {
       AxialDataInfo: {
         group: [{label: 'WW/WL', value: '1500/-500'}, {label: 'Image', value: '240/512'}],
-        verseTag: false,
+        verseTag: true,
+        HuShow: true,
+        HuVal: "",
+        SpaceShow: true,
+        SpacVal: "",
+        KvpShow: true,
+        KvpVal: "",
+        DimensionShow: true,
+        DimensionVal: "",
         scaleplate: {
           unit: 'cm',
           value: '1',
@@ -92,6 +111,9 @@ export default {
     };
   },
   props: {
+    // seriesInfo: {
+    //   type: Object,
+    // },
     theme: {
       type: String,
       default: "",
@@ -112,6 +134,9 @@ export default {
       "CoronalData",
       "SagittalData",
       "showCrosshair",
+      "seriesInfo",
+      "series_map_dicom",
+      "studies_selected",
     ]),
 
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
@@ -146,6 +171,16 @@ export default {
     },
   },
   watch: {
+    // seriesInfo: {
+    //   handler(nVal, oVal) {
+    //     console.log("seriesInfo__watch", nVal, oVal);
+    //     if (nVal) {
+
+    //     }
+    //   },
+    //   deep: true,
+    //   immediate: true,
+    // },
     localSlice_CT_pic_layout: {
       handler(nVal, oVal) {
         // console.log("watch___localSlice_CT_pic_layout:", nVal, oVal);
@@ -174,9 +209,12 @@ export default {
     },
     AxialData: {
       handler(nVal, oVal) {
-        console.log("watch___AxialData", nVal, oVal);
-
+        // console.log("watch___AxialData", nVal, oVal);
+        if (nVal) {
+          this.initCompData_AxialDataInfo();
+        }
       },
+      deep: true,
       immediate: true
     },
   },
@@ -192,18 +230,73 @@ export default {
     ...mapActions("view3DStore", ["Init3DView", "resize3DViews"]),
 
     ...mapActions("viewsStore", ["init3DView"]),
+    fnOnlod() {
+      this.initCompData_AxialDataInfo();
+    },
     resizeViews() {
       this.resize3DViews();
       this.resizeSliceViews();
-    },
-  },
 
+    },
+    initCompData_AxialDataInfo() {
+      const {axialCount, coronalCount, sagittalCount} = this.seriesInfo;
+      const {Ww, Wl, pageIndex, hu} = this.AxialData;
+      console.log("this.seriesInfo==", this.seriesInfo);
+      console.log("this.AxialData==", this.AxialData);
+
+      let group = [
+        {label: 'WW/WL', value: `${Ww}/-${Wl}`},
+        {label: 'Image', value: `${pageIndex}/${axialCount}`},
+        {label: 'Thickness', value: `1.25mm`},
+      ]
+
+      console.log("initCompData_AxialDataInfo_____series_map_dicom", this.series_map_dicom);
+      console.log("query-----", this.$route.query);
+
+      const localDb = getStorage('#_st', 'studySelectItem', true)
+
+      if (localDb) {
+        const storage = createWebStorage('#_st', {isLocal: true, })
+        const skItem = storage.get('studySelectItem')
+        if (skItem) {
+          this.$set(this.AxialDataInfo, "studies_selected", {...skItem});
+        } else {
+          throw new Error(`vuex+storge都不存在-studySelectItem`)
+        }
+      } else {
+        this.$set(this.AxialDataInfo, "studies_selected", this.studies_selected);
+      }
+
+
+      this.$set(this.AxialDataInfo, "group", group);
+
+      this.$set(this.AxialDataInfo, "KvpVal", '120');
+
+      this.$set(this.AxialDataInfo, "HuVal", hu);
+
+      this.$set(this.AxialDataInfo, "SpacVal", "0.96/0.96");
+
+      this.$set(this.AxialDataInfo, "DimensionVal", `${coronalCount}/${sagittalCount}`);
+
+    }
+  },
+  created() {
+    console.log("AxialData==", this.AxialData);
+    console.log("CoronalData==", this.CoronalData);
+    console.log("SagittalData==", this.SagittalData);
+
+  },
   mounted() {
     this.$nextTick(() => {
       this.Init3DView(this.$refs.View3DRef);
       this.InitAxialView(this.$refs.ViewAxialRef);
       this.InitCoronalView(this.$refs.ViewCoronalRef);
       this.InitSagittalView(this.$refs.ViewSagittalRef);
+      // window.addEventListener('load', this.fnOnlod)
+      setTimeout(() => {
+        this.fnOnlod();
+
+      }, 3000)
       window.addEventListener("resize", this.resizeViews);
     });
   },

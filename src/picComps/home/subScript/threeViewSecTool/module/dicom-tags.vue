@@ -15,16 +15,76 @@
         <div class="val">{{ it.value }}</div>
       </div>
     </template>
-    <template v-if="verseTag">
-      <div class="item_row flex ruleLine items-center">
-        <div class="label flex items-center">
-          <span>{{ scaleplate.value }}</span><span>{{ scaleplate.unit }}</span>
-        </div>
-        <div class="val mt-[3px]">
-          <i></i>
+    <template v-if="KvpShow">
+      <div class="KVP_block absolute leftBottom">
+        <div class="item_row flex">
+          <div class="label">kVp:</div>
+          <div class="val">{{ KvpVal }}</div>
         </div>
       </div>
     </template>
+    <template v-if="HuShow">
+      <div class="Hu_block absolute leftBottom">
+        <div class="item_row flex">
+          <div class="label">Hu:</div>
+          <div class="val">{{ HuVal }}</div>
+        </div>
+      </div>
+    </template>
+    <template v-if="SpaceShow">
+      <div class="spac_block absolute leftBottom">
+        <div class="item_row flex">
+          <div class="label">Spacing:</div>
+          <div class="val">{{ SpacVal }}</div>
+        </div>
+      </div>
+    </template>
+    <template v-if="DimensionShow">
+      <div class="dimension_block absolute leftBottom">
+        <div class="item_row flex">
+          <div class="label">Dimension:</div>
+          <div class="val">{{ DimensionVal }}</div>
+        </div>
+      </div>
+    </template>
+    <template v-if="verseTag">
+      <div class="absolute leftBottom">
+        <div class="item_row flex ruleLine items-center">
+          <div class="label flex items-center">
+            <span>{{ scaleplate.value }}</span><span>{{ scaleplate.unit }}</span>
+          </div>
+          <div class="val mt-[3px]">
+            <i></i>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template v-if="studies_selected">
+      <div class="tagsOther absolute rightTop">
+        <div class="item_row flex justify-end">
+          <div class="val">Hospital of hangzhou</div>
+        </div>
+
+        <div class="item_row flex justify-end">
+          <div class="val">{{ studies_selected.patientName }}</div>
+        </div>
+
+        <div class="item_row flex justify-end">
+          <div class="val">F&nbsp;{{ studies_selected.patientAge }}&nbsp;{{ studies_selected.patientId }}</div>
+        </div>
+
+        <div class="item_row flex justify-end">
+          <div class="val">{{ studies_selected.studyDateAndTime | dateTimeFormat }}</div>
+        </div>
+
+        <div class="item_row flex justify-end">
+          <div class="val">GE MEDICAL SYSTEMS</div>
+        </div>
+
+
+      </div>
+    </template>
+
   </div>
 </template>
 
@@ -41,6 +101,34 @@ export default {
     group() {
       return this.datav.group || [];
     },
+    studies_selected() {
+      let studies = this.datav.studies_selected;
+      return studies && Object.keys(studies).length > 0 ? studies : false
+    },
+    HuShow() {
+      return this.datav.HuShow || false;
+    },
+    HuVal() {
+      return this.datav.HuVal || '';
+    },
+    SpacVal() {
+      return this.datav.SpacVal || '';
+    },
+    SpaceShow() {
+      return this.datav.SpaceShow || false;
+    },
+    KvpShow() {
+      return this.datav.KvpShow || false;
+    },
+    KvpVal() {
+      return this.datav.KvpVal || '';
+    },
+    DimensionShow() {
+      return this.datav.DimensionShow || false;
+    },
+    DimensionVal() {
+      return this.datav.DimensionVal || '';
+    },
     verseTag() {
       return this.datav.verseTag || false;
     },
@@ -49,6 +137,11 @@ export default {
     },
     fixHere() {
       return this.datav.fixHere || 'leftTop';
+    }
+  },
+  filters: {
+    dateTimeFormat(value) {
+      return value.replaceAll('-', '')
     }
   },
   data() {
@@ -64,6 +157,10 @@ export default {
 <style lang='less' scoped>
 .dicom-tags {
   box-sizing: border-box;
+  user-select: none;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
 }
 
 .leftTop {
@@ -110,7 +207,7 @@ export default {
       display: block;
       width: 16px;
       position: relative;
-      border-bottom: 1px solid #fff;
+      border-bottom: 1px solid hsla(150, 84%, 70%, 0.986);
 
       &:before,
       &:after {
@@ -118,7 +215,7 @@ export default {
         display: inline-block;
         width: 1px;
         height: 3px;
-        background: #f7f8f7;
+        background: hsla(150, 84%, 70%, 0.986);
         position: absolute;
       }
 
@@ -137,5 +234,21 @@ export default {
       }
     }
   }
+}
+
+.KVP_block {
+  bottom: 57px;
+}
+
+.Hu_block {
+  bottom: 43px;
+}
+
+.spac_block {
+  bottom: 28px;
+}
+
+.dimension_block {
+  bottom: 10px;
 }
 </style>

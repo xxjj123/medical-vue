@@ -8,8 +8,8 @@
         :y2="height" stroke="#2cf66c" :stroke-width="2.5 / screenRatio" :stroke-dasharray="dashArray"
         vector-effect="non-scaling-stroke" />
 
-      <line :x1="10" :y1="height - 30" :x2="10 + crosshairData.scale_length / screenRatio" :y2="height - 30"
-        stroke="yellow" :stroke-width="3 / screenRatio" />
+      <!-- <line :x1="10" :y1="height - 30" :x2="10 + crosshairData.scale_length / screenRatio" :y2="height - 30"
+        stroke="yellow" :stroke-width="3 / screenRatio" /> -->
     </svg>
   </div>
 </template>
