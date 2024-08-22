@@ -38,16 +38,22 @@
       </div>
       <div class="side viewbox view-coronal bg-slate-400">
         <div class="relative view-item bg-slate-400" ref="ViewCoronalRef">
-          <crossHair v-if="CoronalData.displayX && CoronalData.displayY"
-            class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
-            :crosshairData="coronalCrosshairData" />
+          <threeViewSecTool :dicomTags_msg="CoronalDataInfo" :viewType="CoronalData.viewIndex" class="absolute z-2"
+            :TracheaName="`lung`">
+            <crossHair v-if="CoronalData.displayX && CoronalData.displayY"
+              class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
+              :crosshairData="coronalCrosshairData" />
+          </threeViewSecTool>
         </div>
       </div>
       <div class="side viewbox view-sagittal bg-slate-600">
         <div class="relative view-item bg-slate-600 border-t-0.2 border-l-0.2 border-titleblue" ref="ViewSagittalRef">
-          <crossHair v-if="SagittalData.displayX && SagittalData.displayY"
-            class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
-            :crosshairData="sagittalCrosshairData" />
+          <threeViewSecTool :dicomTags_msg="SagittalDataInfo" :viewType="SagittalData.viewIndex" class="absolute z-2"
+            :TracheaName="`lung`">
+            <crossHair v-if="SagittalData.displayX && SagittalData.displayY"
+              class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
+              :crosshairData="sagittalCrosshairData" />
+          </threeViewSecTool>
         </div>
       </div>
     </div>
@@ -83,6 +89,20 @@ export default {
   name: "ViewBoard",
   data() {
     return {
+      SagittalDataInfo: {
+        group: [{label: 'WW/WL', value: '1500/-500'}, {label: 'Image', value: '240/512'}],
+        verseTag: true,
+        HuShow: true,
+        HuVal: "",
+        fixHere: 'leftTop'
+      },
+      CoronalDataInfo: {
+        group: [{label: 'WW/WL', value: '1500/-500'}, {label: 'Image', value: '240/512'}],
+        verseTag: true,
+        HuShow: true,
+        HuVal: "",
+        fixHere: 'leftTop'
+      },
       AxialDataInfo: {
         group: [{label: 'WW/WL', value: '1500/-500'}, {label: 'Image', value: '240/512'}],
         verseTag: true,
@@ -217,6 +237,24 @@ export default {
       deep: true,
       immediate: true
     },
+    CoronalData: {
+      handler(nVal, oVal) {
+        if (nVal) {
+          this.initCompData_CoronalData();
+        }
+      },
+      deep: true,
+      immediate: true,
+    },
+    SagittalData: {
+      handler(nVal, oVal) {
+        if (nVal) {
+          this.initCompData_SagittalData();
+        }
+      },
+      deep: true,
+      immediate: true,
+    }
   },
 
   methods: {
@@ -236,6 +274,32 @@ export default {
     resizeViews() {
       this.resize3DViews();
       this.resizeSliceViews();
+
+    },
+    initCompData_SagittalData() {
+      const {Ww, Wl, pageIndex, dimension, hu} = this.SagittalData;
+      let group = [
+        {label: 'WW/WL', value: `${Ww}/-${Wl}`},
+        {label: 'Image', value: `${pageIndex}/${dimension}`},
+      ]
+      this.$set(this.SagittalDataInfo, "group", group);
+
+      this.$set(this.SagittalDataInfo, "HuVal", hu);
+
+
+    },
+    initCompData_CoronalData() {
+      const {Ww, Wl, pageIndex, dimension, hu} = this.CoronalData;
+
+      let group = [
+        {label: 'WW/WL', value: `${Ww}/-${Wl}`},
+        {label: 'Image', value: `${pageIndex}/${dimension}`},
+      ]
+      this.$set(this.CoronalDataInfo, "group", group);
+
+      this.$set(this.CoronalDataInfo, "HuVal", hu);
+
+
 
     },
     initCompData_AxialDataInfo() {
