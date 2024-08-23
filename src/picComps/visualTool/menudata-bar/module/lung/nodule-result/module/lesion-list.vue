@@ -26,9 +26,10 @@
       <!-- :checkbox-config="{
           trigger: 'row',
         }" -->
-      <ta-big-table :size="tableConfig.size" :row-style="rowStyle" highlight-hover-row height="200"
-        :columns="tableConfig.tableColumns" :data="tableConfig.tableData" @checkbox-all="selectAllEvent"
-        @checkbox-change="selectChangeEvent" :edit-config="{trigger: 'click'}" @cell-click="handleCellClick">
+      <ta-big-table :size="tableConfig.size" @current-change="handleTableCurrentChange" :row-style="rowStyle"
+        highlight-hover-row height="200" :columns="tableConfig.tableColumns" :data="tableConfig.tableData"
+        @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent" :edit-config="{trigger: 'click'}"
+        @cell-click="handleCellClick">
         <template #risk="{row}">
           <span class="ml-[10px]">{{ row.risk }}</span><br />
           <div v-if="row.risk == 1">
@@ -787,10 +788,14 @@ export default {
       );
     },
     selectAllEvent(ev) {
-      // console.log("selectAllEvent___", ev);
+      console.log("selectAllEvent___", ev);
     },
     selectChangeEvent(ev) {
-      // console.log("selectChangeEvent___", ev);
+      console.log("selectChangeEvent___", ev);
+    },
+    handleTableCurrentChange({row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event}) {
+      console.log("handleTableCurrentChange:row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event --", row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event);
+
     },
     afterLeaveEvents() { },
     onCheckAllChange({e, index}) {
