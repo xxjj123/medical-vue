@@ -3,27 +3,17 @@
     <div class="table_bar flex justify-between">
       <div class="tit">病变列表</div>
       <div class="btn_grp flex items-center">
-        <ta-dropdown
-          :trigger="['click']"
-          class="flex justify-start items-center mr-[10px]"
-        >
+        <ta-dropdown :trigger="['click']" class="flex justify-start items-center mr-[10px]">
           <a href="javascript:;">
             {{ sort_condition.type_select.showValue }}
             <ta-icon type="down" />
           </a>
           <ta-menu slot="overlay" @click="handleMenuClick">
-            <ta-menu-item
-              v-for="(item, index) in sort_condition.type_select.list"
-              :key="`${index}_${item.value}`"
-            >
-              {{ item.label }}</ta-menu-item
-            >
+            <ta-menu-item v-for="(item, index) in sort_condition.type_select.list" :key="`${index}_${item.value}`">
+              {{ item.label }}</ta-menu-item>
           </ta-menu>
         </ta-dropdown>
-        <ta-dropdown
-          :trigger="['click']"
-          class="flex justify-start items-center"
-        >
+        <ta-dropdown :trigger="['click']" class="flex justify-start items-center">
           <a href="javascript:;" v-popover:mypop>
             {{ sort_condition.tumorType_select.showValue }}
             <ta-icon type="down" />
@@ -36,20 +26,11 @@
       <!-- :checkbox-config="{
           trigger: 'row',
         }" -->
-      <ta-big-table
-        :size="tableConfig.size"
-        highlight-hover-row
-        height="200"
-        :columns="tableConfig.tableColumns"
-        :data="tableConfig.tableData"
-        @checkbox-all="selectAllEvent"
-        @checkbox-change="selectChangeEvent"
-        :edit-config="{ trigger: 'click' }"
-        @cell-click="handleCellClick"
-      >
-        <template #risk="{ row }">
-          <span class="ml-[10px]">{{ row.risk }}</span
-          ><br />
+      <ta-big-table :size="tableConfig.size" :row-style="rowStyle" highlight-hover-row height="200"
+        :columns="tableConfig.tableColumns" :data="tableConfig.tableData" @checkbox-all="selectAllEvent"
+        @checkbox-change="selectChangeEvent" :edit-config="{trigger: 'click'}" @cell-click="handleCellClick">
+        <template #risk="{row}">
+          <span class="ml-[10px]">{{ row.risk }}</span><br />
           <div v-if="row.risk == 1">
             <span class="levelTag">低危</span>
           </div>
@@ -60,44 +41,38 @@
             <span class="levelTag text-red-500">高危</span>
           </div>
         </template>
-        <template #volume="{ row }">
+        <template #volume="{row}">
           <div class="h1 im_block">
             <span class="mr-[5px]">IM</span><span>{{ row.IM_VAL }}</span>
           </div>
           <div class="h2 volumn_block">
-            <span class="mr-[5px]">{{ row.volume }}</span
-            ><span>mm³</span>
+            <span class="mr-[5px]">{{ row.volume }}</span><span>mm³</span>
           </div>
         </template>
-        <template #CHENGJI_VAL="{ row }">
+        <template #CHENGJI_VAL="{row}">
           <div class="h1 cj_block">
-            <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span
-            ><span>前内基底段</span>
+            <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>前内基底段</span>
           </div>
           <div class="h2 cjVal_block">
             <span>{{ row.CHENGJI_VAL }}</span>
           </div>
         </template>
-        <template #mean="{ row }">
+        <template #mean="{row}">
           <div class="h1 mean_block">
             <span>肿块</span>
           </div>
           <div class="h2 meanVal_block">
-            <span>{{ row.mean }}</span
-            ><span>HU</span>
+            <span>{{ row.mean }}</span><span>HU</span>
           </div>
         </template>
 
         <!-- edit holder begin-->
-        <template #CHENGJI_ROLE="{ row, column }">
+        <template #CHENGJI_ROLE="{row, column}">
           <div class="h1 cj_block">
             <!-- <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span
             ><span>前内基底段</span> -->
-            <ta-dropdown
-              :trigger="['click']"
-              class="flex justify-start items-center mr-[10px]"
-              :getPopupContainer="setPopupContainer"
-            >
+            <ta-dropdown :trigger="['click']" class="flex justify-start items-center mr-[10px]"
+              :getPopupContainer="setPopupContainer">
               <a href="javascript:;">
                 {{ lungLobeDropDown.showValue }}
                 <!-- {{ sort_condition.type_select.showValue }} -->
@@ -106,29 +81,20 @@
               <ta-menu slot="overlay" @click="handleMenuClick_lungList">
                 <template v-if="column.property === 'CHENGJI_VAL'">
                   <template v-for="(item, index) in lungLobeDropDown.list">
-                    <template
-                      v-if="
-                        item.childs &&
-                        Array.isArray(item.childs) &&
-                        item.childs.length > 0
-                      "
-                    >
-                      <ta-sub-menu
-                        :title="item.label"
-                        :key="`${index}_${item.value}`"
-                      >
-                        <ta-menu-item
-                          v-for="(child, subIndex) in item.childs"
-                          :key="`${subIndex}_${child.value}`"
-                        >
+                    <template v-if="
+                      item.childs &&
+                      Array.isArray(item.childs) &&
+                      item.childs.length > 0
+                    ">
+                      <ta-sub-menu :title="item.label" :key="`${index}_${item.value}`">
+                        <ta-menu-item v-for="(child, subIndex) in item.childs" :key="`${subIndex}_${child.value}`">
                           {{ child.label }}
                         </ta-menu-item>
                       </ta-sub-menu>
                     </template>
                     <template v-else>
                       <ta-menu-item :key="`${item.value}`">
-                        {{ item.label }}</ta-menu-item
-                      >
+                        {{ item.label }}</ta-menu-item>
                     </template>
                   </template>
                 </template>
@@ -140,32 +106,24 @@
           </div>
         </template>
 
-        <template #MEAN_EDIT="{ row, column }">
+        <template #MEAN_EDIT="{row, column}">
           <div class="h1 mean_block">
-            <ta-dropdown
-              :trigger="['click']"
-              class="flex justify-start items-center mr-[10px]"
-              :getPopupContainer="setPopupContainer"
-            >
+            <ta-dropdown :trigger="['click']" class="flex justify-start items-center mr-[10px]"
+              :getPopupContainer="setPopupContainer">
               <a href="javascript:;">
                 {{ noduleTypeDropDown.showValue }}
                 <ta-icon type="down" />
               </a>
               <ta-menu slot="overlay" @click="handleMenuClick_noduleList">
                 <template v-if="column.property === 'mean'">
-                  <ta-menu-item
-                    v-for="(item, index) in noduleTypeDropDown.list"
-                    :key="`${index}_${item.value}`"
-                  >
-                    {{ item.label }}</ta-menu-item
-                  >
+                  <ta-menu-item v-for="(item, index) in noduleTypeDropDown.list" :key="`${index}_${item.value}`">
+                    {{ item.label }}</ta-menu-item>
                 </template>
               </ta-menu>
             </ta-dropdown>
           </div>
           <div class="h2 meanVal_block">
-            <span>{{ row.mean }}</span
-            ><span>HU</span>
+            <span>{{ row.mean }}</span><span>HU</span>
           </div>
         </template>
         <!-- edit holder end-->
@@ -173,94 +131,45 @@
     </div>
 
     <div class="analytic_semantic_description">
-      <anaSemanticDesBlock
-        :bookItems.sync="anaSecDesConf.bookItems"
-        :title="anaSecDesConf.title"
-      >
-        <filmInputState
-          slot="searchBar"
-          v-model="filmIpt_curItem"
-          :typec="`dropdown`"
-          :selectCurIdx="`0`"
-          :optionNum="`1`"
-          @cb-click="handle_filmIptClick"
-        ></filmInputState>
+      <anaSemanticDesBlock :bookItems.sync="anaSecDesConf.bookItems" :title="anaSecDesConf.title">
+        <filmInputState slot="searchBar" v-model="filmIpt_curItem" :typec="`dropdown`" :selectCurIdx="`0`"
+          :optionNum="`1`" @cb-click="handle_filmIptClick"></filmInputState>
       </anaSemanticDesBlock>
     </div>
 
     <div class="analytic_semantic_description">
-      <anaSemanticDesBlock
-        :bookItems.sync="anaSecDesConf_1.bookItems"
-        :title="anaSecDesConf_1.title"
-      >
-        <filmInputState
-          slot="searchBar"
-          v-model="filmIpt_curItem_1"
-          :typec="`dropdown`"
-          :selectCurIdx="`1`"
-          :optionNum="`2`"
-          @cb-click="handle_filmIptClick"
-        ></filmInputState>
+      <anaSemanticDesBlock :bookItems.sync="anaSecDesConf_1.bookItems" :title="anaSecDesConf_1.title">
+        <filmInputState slot="searchBar" v-model="filmIpt_curItem_1" :typec="`dropdown`" :selectCurIdx="`1`"
+          :optionNum="`2`" @cb-click="handle_filmIptClick"></filmInputState>
       </anaSemanticDesBlock>
     </div>
 
     <!-- ext -->
-    <ta-popover
-      ref="mypop"
-      @after-leave="afterLeaveEvents"
-      :visible-arrow="true"
-      :offset="1"
-      :appendToBody="true"
-      :placement="`bottom`"
-      class="cus_poper"
-    >
+    <ta-popover ref="mypop" @after-leave="afterLeaveEvents" :visible-arrow="true" :offset="1" :appendToBody="true"
+      :placement="`bottom`" class="cus_poper">
       <div slot="content" class="boxBtn_extSelect">
         <ta-form-model :layout="'vertical'" :model="form">
-          <template
-            v-for="(item, index) in sort_condition.tumorType_select.searchPanel"
-          >
+          <template v-for="(item, index) in sort_condition.tumorType_select.searchPanel">
             <ta-form-model-item :key="index" :label="item.title">
-              <ta-checkbox
-                :indeterminate="item.allSelect.indeterminate"
-                @change="(e) => onCheckAllChange({ e, index })"
-                :checked="item.allSelect.checkAll"
-              >
+              <ta-checkbox :indeterminate="item.allSelect.indeterminate" @change="(e) => onCheckAllChange({e, index})"
+                :checked="item.allSelect.checkAll">
                 全部
               </ta-checkbox>
-              <ta-checkbox-group
-                :options="item.list"
-                @change="(val) => onChange({ val, index })"
-                :value="index === 0 ? form[`type`] : form[`type${index}`]"
-              />
+              <ta-checkbox-group :options="item.list" @change="(val) => onChange({val, index})"
+                :value="index === 0 ? form[`type`] : form[`type${index}`]" />
               <br />
-              <ta-checkbox
-                v-if="index === 2"
-                :indeterminate="majorAxis.indeterminate"
-                @change="(ev) => majorAxis.onCheckAllChange({ ev })"
-                :checked="majorAxis.checkAll"
-                class="check_block_area"
-              >
+              <ta-checkbox v-if="index === 2" :indeterminate="majorAxis.indeterminate"
+                @change="(ev) => majorAxis.onCheckAllChange({ev})" :checked="majorAxis.checkAll"
+                class="check_block_area">
                 <div class="flex">
                   <div>
-                    <ta-input-number
-                      :min="1"
-                      :max="35"
-                      style="width: 77px"
-                      v-model="majorAxis.start_value"
-                      placeholder="最小值"
-                      @change="majorAxis.begin_onChange"
-                    />
+                    <ta-input-number :min="1" :max="35" style="width: 77px" v-model="majorAxis.start_value"
+                      placeholder="最小值" @change="majorAxis.begin_onChange" />
                   </div>
                   <div>-</div>
                   <div>
-                    <ta-input-number
-                      :min="1"
-                      :max="55"
-                      style="width: 77px"
-                      placeholder="最大值"
-                      v-model="majorAxis.end_value"
-                      @change="majorAxis.end_onChange"
-                    />mm
+                    <ta-input-number :min="1" :max="55" style="width: 77px" placeholder="最大值"
+                      v-model="majorAxis.end_value" @change="majorAxis.end_onChange" />mm
                   </div>
                 </div>
               </ta-checkbox>
@@ -281,8 +190,8 @@
 <script lang="jsx">
 import anaSemanticDesBlock from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/index.vue";
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
-import { CodeSandboxOutline } from "@yh/icons-svg";
-import { mapActions } from "vuex";
+import {CodeSandboxOutline} from "@yh/icons-svg";
+import {mapActions} from "vuex";
 // 病理部位标志
 const LESION_PART_SITE = {
   CALCIUM: "calcium", //钙化
@@ -465,13 +374,13 @@ export default {
       },
       majorAxis: {
         // indeterminate: false,
-        onCheckAllChange: ({ ev }) => {
+        onCheckAllChange: ({ev}) => {
           console.log("onCheckAllChange--mg", ev, ev.target.checked);
           let isChecked = ev.target.checked;
           if (isChecked) {
             this.$set(this.majorAxis, "checkAll", true);
             console.log("this.form---", this.form);
-            const { type2 } = this.form;
+            const {type2} = this.form;
             if (type2 && type2.length > 0) {
               this.$delete(this.form, "type2");
               const row2 = this.sort_condition.tumorType_select.searchPanel[2];
@@ -483,8 +392,8 @@ export default {
           }
         },
         checkAll: false,
-        begin_onChange: () => {},
-        end_onChange: () => {},
+        begin_onChange: () => { },
+        end_onChange: () => { },
         start_value: "",
         end_value: "",
       },
@@ -729,6 +638,23 @@ export default {
     setPopupContainer(trigger) {
       return trigger.parentElement;
     },
+    rowStyle({row, rowIndex}) {
+      console.log("rowStyle_____", row, rowIndex);
+      if (this.tableCurrentIdx) {
+        if ([this.tableCurrentIdx].includes(rowIndex)) {
+          return {
+            background: "#1A2028"
+          }
+
+        } else {
+          return {};
+        }
+      } else {
+        return {};
+      }
+
+
+    },
     handleCellClick({
       row,
       rowIndex,
@@ -740,15 +666,18 @@ export default {
       triggerCheckbox,
       $event,
     }) {
-      console.log(row);
+      console.log("handleCellClick--row", row, "row.boxIndex", row.boxIndex);
       const bboxindex = row.boxIndex;
       this.ChooseAnnotation(bboxindex);
+
+      this.tableCurrentIdx = rowIndex;
+
       // console.log(
       //   " row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event ", row,
       //   rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event);
-      const { property } = column;
+      const {property} = column;
       // if(property === 'CHENGJI_VAL'){
-      const { lobe, lobeSegment } = row;
+      const {lobe, lobeSegment} = row;
       const mark = this.$api.getLungSide(lobe);
       if (mark === "left") {
         this.$api.query_humen_boot_data().then((item) => {
@@ -772,7 +701,7 @@ export default {
         });
       }
       // }else if(property === 'mean'){
-      const { type } = row;
+      const {type} = row;
       // console.log("type===",type);
       this.$api.query_humen_boot_data().then((item) => {
         // console.log("item-----",item);
@@ -792,8 +721,8 @@ export default {
     async init_lesionPanelSearchBar() {
       const item = await this.init_select("LESION_LIST_TYPE");
       const LESION_LIST_TYPE = this.$ut.serializeDropdownList(item);
-      const { type_select, tumorType_select } = this.sort_condition;
-      const { searchPanel } = tumorType_select;
+      const {type_select, tumorType_select} = this.sort_condition;
+      const {searchPanel} = tumorType_select;
       const lex = searchPanel[0];
       const typeAll = searchPanel[1];
       const longSer = searchPanel[2];
@@ -850,12 +779,12 @@ export default {
       return selectValues;
     },
     handle_filmIptClick(ev) {
-      // console.log(
-      //   "handle_filmIptClick___",
-      //   ev,
-      //   "filmIpt_curItem",
-      //   this.filmIpt_curItem
-      // );
+      console.log(
+        "handle_filmIptClick___",
+        ev,
+        "filmIpt_curItem",
+        this.filmIpt_curItem
+      );
     },
     selectAllEvent(ev) {
       // console.log("selectAllEvent___", ev);
@@ -863,8 +792,8 @@ export default {
     selectChangeEvent(ev) {
       // console.log("selectChangeEvent___", ev);
     },
-    afterLeaveEvents() {},
-    onCheckAllChange({ e, index }) {
+    afterLeaveEvents() { },
+    onCheckAllChange({e, index}) {
       let isChecked = e.target.checked;
       // console.log("isChecked=", isChecked);
       const typeArr =
@@ -899,7 +828,7 @@ export default {
       }
       this.$set(allSelect, "indeterminate", false);
     },
-    onChange({ val, index }) {
+    onChange({val, index}) {
       // console.log("onChange-----", val, index);
       const typeArr =
         this.sort_condition.tumorType_select.searchPanel[index].list;
@@ -968,7 +897,7 @@ export default {
     },
     handleMenuClick(e) {
       // console.log("click:handleMenuClick:", e);
-      const { key } = e;
+      const {key} = e;
       const keyFindArr = key.split("_");
       // console.log("keyFindArr=", keyFindArr);
       const idx = keyFindArr[0];
@@ -1010,7 +939,7 @@ export default {
           // console.log("vm,obj----CHENGJI_VAL", vm, obj);
           let CHENGJI = "";
           if (obj.ellipsoidAxis) {
-            const { major, least } = obj.ellipsoidAxis;
+            const {major, least} = obj.ellipsoidAxis;
             CHENGJI = `${major} x ${least}`;
           }
           return CHENGJI;
@@ -1082,7 +1011,7 @@ export default {
 
       this.processJsonData(jsonData).then(() => {
         //finding 所见，diagnosis 诊断
-        const { finding, diagnosis } = tableItem;
+        const {finding, diagnosis} = tableItem;
         // console.log("finding",finding);
         const arr_find = finding.split("\n");
         // console.log("arr_find",arr_find);
@@ -1117,6 +1046,7 @@ export default {
 </script>
 <style lang="less" scoped>
 body {
+
   // .cus_poper {
   .el-popover {
     &.el-popper {
@@ -1137,8 +1067,8 @@ body {
 
 /deep/ .ant-checkbox-wrapper {
   &.check_block_area {
-    > .ant-checkbox {
-      & + span {
+    >.ant-checkbox {
+      &+span {
         display: inline-block;
       }
     }
@@ -1146,6 +1076,7 @@ body {
 }
 
 .table_container {
+
   // box-sizing: border-box;
   // margin-right: -20px; /* 预留滚动条宽度 */
   // padding-right: 20px; /* 预留滚动条宽度 */

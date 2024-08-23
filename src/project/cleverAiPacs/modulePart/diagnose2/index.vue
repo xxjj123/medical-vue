@@ -48,6 +48,7 @@ import {
   getSysDict,
   xhr_getNoduleInfo,
   xhr_getSeriesInfo,
+  xhr_queryNodule,
 } from "@/api";
 
 import JSZip from "jszip";
@@ -156,6 +157,10 @@ export default {
           console.log(result.data.resultData);
           //TODO: wait turn new api
           this.SET_NODULE_INFO(result.data.resultData);
+          //结节病变列表查询
+          const newRes = await xhr_queryNodule({computeSeriesId: "1825804835303624706"})
+          console.log("newRes====", newRes);
+
           this.menubarShow = true;
         } else {
           console.log("xhr_getNoduleInfo失败");
