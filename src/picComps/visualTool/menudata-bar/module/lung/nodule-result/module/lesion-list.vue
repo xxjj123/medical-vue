@@ -26,10 +26,10 @@
       <!-- :checkbox-config="{
           trigger: 'row',
         }" -->
-      <ta-big-table :size="tableConfig.size" @current-change="handleTableCurrentChange" :row-style="rowStyle"
-        highlight-hover-row height="200" :columns="tableConfig.tableColumns" :data="tableConfig.tableData"
-        @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent" :edit-config="{trigger: 'click'}"
-        @cell-click="handleCellClick">
+      <ta-big-table ref="tableLungNodule" :size="tableConfig.size" @current-change="handleTableCurrentChange"
+        highlight-current-row :keyboard-config="{isArrow: true}" height="200" :columns="tableConfig.tableColumns"
+        :data="tableConfig.tableData" @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent"
+        :edit-config="{trigger: 'click'}" @cell-click="handleCellClick">
         <template #risk="{row}">
           <span class="ml-[10px]">{{ row.risk }}</span><br />
           <div v-if="row.risk == 1">
@@ -673,6 +673,11 @@ export default {
 
       this.tableCurrentIdx = rowIndex;
 
+      this.$refs.tableLungNodule.setCurrentRow(row);
+
+      console.log("this.$refs.tableLungNodule==", this.$refs.tableLungNodule);
+
+
       // console.log(
       //   " row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event ", row,
       //   rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event);
@@ -1033,19 +1038,19 @@ export default {
 
     // 表格初始化
     this.init_tableData();
-    this.$nextTick(() => {
-      document
-        .querySelector(".nodule_lesion-list")
-        .addEventListener("mouseover", function () {
-          this.style.overflow = "auto"; // 获得焦点时显示滚动条
-        });
+    /*    this.$nextTick(() => {
+         document
+           .querySelector(".nodule_lesion-list")
+           .addEventListener("mouseover", function () {
+             this.style.overflow = "auto"; // 获得焦点时显示滚动条
+           });
 
-      document
-        .querySelector(".nodule_lesion-list")
-        .addEventListener("mouseout", function () {
-          this.style.overflow = "hidden"; // 失去焦点时隐藏滚动条
-        });
-    });
+         document
+           .querySelector(".nodule_lesion-list")
+           .addEventListener("mouseout", function () {
+             this.style.overflow = "hidden"; // 失去焦点时隐藏滚动条
+           });
+       }); */
   },
 };
 </script>
@@ -1117,6 +1122,14 @@ body {
     height: 0;
     width: 20px;
     /* 预留滚动条宽度 */
+  }
+}
+
+.table_container {
+  /deep/.vxe-body--row {
+    &.row--current {
+      background: rgba(100, 100, 100, 0.797);
+    }
   }
 }
 </style>
