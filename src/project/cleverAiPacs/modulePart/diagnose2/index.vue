@@ -154,6 +154,7 @@ export default {
         const result = await xhr_getNoduleInfo({computeSeriesId});
         if (result.serviceSuccess) {
           console.log(result.data.resultData);
+          //TODO: wait turn new api
           this.SET_NODULE_INFO(result.data.resultData);
           this.menubarShow = true;
         } else {
