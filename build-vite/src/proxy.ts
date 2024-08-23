@@ -31,7 +31,8 @@ export function buildProxy() {
       rewrite: (path: string) => path.replace(/^\/ta404\/api\//, '')
     },
     ['^/ta404/api5/']: {
-      target: 'http://192.168.1.4:39600/',
+      // target: 'http://192.168.1.4:39600/',
+      target: 'http://192.168.1.142:39600/',//xwj
       changeOrigin: true,
       rewrite: (path: string) => path.replace(/^\/ta404\/api5\//, '')
     },
@@ -41,7 +42,8 @@ export function buildProxy() {
       rewrite: (path: string) => path.replace(/^\/ta404\/api3\//, '')
     },
     ["^/ta404/api6/"]: {
-      target: "http://192.168.1.4:39625/",
+      // target: "http://192.168.1.4:39625/",
+      target: "http://192.168.1.142:39625/",//xwj
       changeOrigin: true,
       rewrite: (path6) => path6.replace(/^\/ta404\/api6\//, ""),
     },
