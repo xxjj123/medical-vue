@@ -1,26 +1,44 @@
 body {
   .ant-pagination {
     .ant-pagination-item-link {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: #5F6060;
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-color: #5F6060 !important;
       border-width: 0.5px;
       border-style: solid;
     }
 
     .ant-pagination-item-active {
       // background: rgba(255, 255, 255, 0.05);
-      background: @primary-color;
-      color: #fff;
-      border-color: @primary-color;
+
+      a {
+        color: #fff !important;
+        background: @primary-color  !important;
+      }
+
+      border-color: @primary-color  !important;
       border-width: 0.5px;
       border-style: solid;
     }
 
+    li {
+      overflow: hidden;
+    }
+
     .ant-pagination-item {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: #5F6060;
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-color: #5F6060 !important;
       border-width: 0.5px;
       border-style: solid;
+
+
+
+      // a {
+      //   color: #999999 !important;
+      // }
+
+      &.ant-pagination-disabled a {
+        color: inherit !important;
+      }
     }
 
     .ant-pagination-jump-next {
