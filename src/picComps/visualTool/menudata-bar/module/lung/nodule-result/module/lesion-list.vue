@@ -31,20 +31,20 @@
         :data="tableConfig.tableData" @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent"
         :edit-config="{trigger: 'click'}" @cell-click="handleCellClick">
         <template #risk="{row}">
-          <span class="ml-[10px]">{{ row.risk }}</span><br />
-          <div v-if="row.risk == 1">
+          <span class="ml-[10px]">{{ row.riskCode }}</span><br />
+          <div v-if="row.riskCode == 1">
             <span class="levelTag">低危</span>
           </div>
-          <div v-if="row.risk == 2">
+          <div v-if="row.riskCode == 2">
             <span class="levelTag text-green-500">中危</span>
           </div>
-          <div v-if="row.risk == 3">
+          <div v-if="row.riskCode == 3">
             <span class="levelTag text-red-500">高危</span>
           </div>
         </template>
         <template #volume="{row}">
           <div class="h1 im_block">
-            <span class="mr-[5px]">IM</span><span>{{ row.IM_VAL }}</span>
+            <span class="mr-[5px]">IM</span><span>{{ row.im }}</span>
           </div>
           <div class="h2 volumn_block">
             <span class="mr-[5px]">{{ row.volume }}</span><span>mm³</span>
@@ -52,10 +52,11 @@
         </template>
         <template #CHENGJI_VAL="{row}">
           <div class="h1 cj_block">
-            <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>前内基底段</span>
+            <!-- <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>前内基底段</span> -->
+            <span>{{ row.lobeSegment | noduleAreaName }}</span>
           </div>
           <div class="h2 cjVal_block">
-            <span>{{ row.CHENGJI_VAL }}</span>
+            <span>{{ row.ellipsoidAxisMajor }}x{{ row.ellipsoidAxisLeast }}mm</span>
           </div>
         </template>
         <template #mean="{row}">
@@ -63,7 +64,7 @@
             <span>肿块</span>
           </div>
           <div class="h2 meanVal_block">
-            <span>{{ row.mean }}</span><span>HU</span>
+            <span>{{ row.ctMeasuresMean }}</span><span>HU</span>
           </div>
         </template>
 
@@ -193,6 +194,7 @@ import anaSemanticDesBlock from "@/picComps/visualTool/menudata-bar/module/lung/
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
 import {CodeSandboxOutline} from "@yh/icons-svg";
 import {mapActions} from "vuex";
+import Vue from 'vue';
 // 病理部位标志
 const LESION_PART_SITE = {
   CALCIUM: "calcium", //钙化
@@ -238,6 +240,45 @@ export default {
       },
       immediate: true,
     },
+  },
+  filters: {
+    noduleAreaName: (value, arg) => {
+      console.log("value, arg----", value, arg);
+      Vue.prototype.$api.query_humen_boot_data().then((item) => {
+        console.log("item===", item);
+        const rowSelectItem = Vue.prototype.$api.findObjectByValue(
+          item,
+          "lung.segments",
+          value.toString(),
+        )[0];
+
+      })
+
+      // return new Promise((resolve, reject) => {
+      // let that = this;
+      // // let str = ``;
+
+      // // arg 是传递给过滤器的参数
+      // // return
+      // let str = Vue.prototype.$api.query_humen_boot_data().then((item) => {
+      //   const rowSelectItem = Vue.prototype.$api.findObjectByValue(
+      //     item,
+      //     "lung.segments",
+      //     value.toString(),
+      //   )[0];
+      //   console.log("rowSelectItem1=", rowSelectItem);
+      //   const {label, name} = rowSelectItem;
+      //   that.lungLobeDropDown.showValue = `${label} / ${name}`;
+      //   return `${label} / ${name}`;
+      //   // str =
+      //   // `${label} / ${name}`;
+      //   // resolve(`${label} / ${name}`);
+      // });
+
+      // return str;
+
+      // })
+    }
   },
   data() {
     return {
@@ -325,7 +366,7 @@ export default {
             type: {
               type: "checkbox",
             },
-            field: "risk", //危险级别
+            field: "riskCode", //危险级别
             title: "全部",
             width: "65",
             customRender: {
@@ -925,7 +966,7 @@ export default {
 
     // 应用 customizeJson 和 策略
     async processJsonData(jsonData) {
-      const customData = {
+      /* const customData = {
         IM_VAL: (vm, obj) => {
           // debugger;
           // 根据vm和obj计算IM_VAL的值
@@ -954,17 +995,18 @@ export default {
           }
           return CHENGJI;
         },
-      };
+      }; */
 
-      const customizedData = this.$ut.customizeJson(jsonData, customData);
+      /* const customizedData = this.$ut.customizeJson(jsonData, customData); */
       // console.log("customizedData----",customizedData);
       // console.log("JSON.stringify(customizedData)---",JSON.stringify(customizedData));
       // 根据需要使用 customizedData
-      const propertiesToSearch = ["CHENGJI_VAL", "IM_VAL"];
-      const tableData = this.$ut.transformData(
-        customizedData,
-        propertiesToSearch,
-      );
+      // old --
+      /*  const propertiesToSearch = ["CHENGJI_VAL", "IM_VAL"];
+       const tableData = this.$ut.transformData(
+         customizedData,
+         propertiesToSearch,
+       ); */
 
       // console.log("tableData__", tableData);
       // console.log("tableData__JSON.st",JSON.stringify(tableData));
@@ -972,7 +1014,11 @@ export default {
       // const filledData  = this.$ut.fillMissingValues(["CHENGJI_VAL", "IM_VAL"],customizedData)
       // console.log("filledData==",filledData);
 
-      this.tableConfig.tableData = tableData;
+      // this.tableConfig.tableData = tableData; //old 赋值
+
+      // new 方式接口赋值：2024-08-26
+      const {noduleLesionList} = this.menuResult;
+      this.tableConfig.tableData = noduleLesionList;
 
       // 初始化edit模式小组件的数据源
       this.$api.query_humen_boot_data().then((item) => {

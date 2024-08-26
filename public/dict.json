@@ -286,6 +286,68 @@
               }
             ]
           },
+          "rightLungTop": {
+            "label": "右肺上叶",
+            "segments": [{
+                "label": "肺段",
+                "name": "尖段",
+                "value": "3"
+              },
+              {
+                "label": "肺段",
+                "name": "后段",
+                "value": "2"
+              },
+              {
+                "label": "肺段",
+                "name": "前段",
+                "value": "1"
+              }
+            ]
+          },
+          "rightLungBottom": {
+            "label": "右肺下叶",
+            "segments": [{
+                "label": "肺段",
+                "name": "背段",
+                "value": "10"
+              },
+              {
+                "label": "肺段",
+                "name": "外基底段",
+                "value": "9"
+              },
+              {
+                "label": "肺段",
+                "name": "后基底段",
+                "value": "8"
+              },
+              {
+                "label": "肺段",
+                "name": "前基底段",
+                "value": "7"
+              },
+              {
+                "label": "肺段",
+                "name": "内基底段",
+                "value": "6"
+              }
+            ]
+          },
+          "rightLungCenter": {
+            "label": "右肺中叶",
+            "segments": [{
+                "label": "肺段",
+                "name": "内侧段",
+                "value": "4"
+              },
+              {
+                "label": "肺段",
+                "name": "外侧段",
+                "value": "5"
+              }
+            ]
+          },
           "leftLung": {
             "label": "左肺",
             "segments": [{
@@ -310,7 +372,7 @@
               },
               {
                 "label": "肺段",
-                "name": "下叶内前基底段",
+                "name": "下叶前内基底段",
                 "value": "15"
               },
               {
@@ -329,8 +391,147 @@
                 "value": "18"
               }
             ]
+          },
+          "leftLungTop": {
+            "label": "左肺上叶",
+            "segments": [{
+                "label": "肺段",
+                "name": "前段",
+                "value": "13"
+              },
+              {
+                "label": "肺段",
+                "name": "尖后段",
+                "value": "14"
+              },
+              {
+                "label": "肺段",
+                "name": "上舌段",
+                "value": "11"
+              },
+              {
+                "label": "肺段",
+                "name": "下舌段",
+                "value": "12"
+              }
+            ]
+          },
+          "leftLungBottom": {
+            "label": "左肺下叶",
+            "segments": [{
+                "label": "肺段",
+                "name": "背段",
+                "value": "18"
+              },
+              {
+                "label": "肺段",
+                "name": "前内基底段",
+                "value": "15"
+              },
+              {
+                "label": "肺段",
+                "name": "外基底段",
+                "value": "17"
+              },
+              {
+                "label": "肺段",
+                "name": "后基底段",
+                "value": "16"
+              }
+            ]
           }
-        }
+        },
+        "segments": [{
+            "label": "右肺上叶",
+            "name": "尖段",
+            "value": "3"
+          },
+          {
+            "label": "右肺上叶",
+            "name": "后段",
+            "value": "2"
+          },
+          {
+            "label": "右肺上叶",
+            "name": "前段",
+            "value": "1"
+          },
+          {
+            "label": "右肺下叶",
+            "name": "背段",
+            "value": "10"
+          },
+          {
+            "label": "右肺下叶",
+            "name": "外基底段",
+            "value": "9"
+          },
+          {
+            "label": "右肺下叶",
+            "name": "后基底段",
+            "value": "8"
+          },
+          {
+            "label": "右肺下叶",
+            "name": "前基底段",
+            "value": "7"
+          },
+          {
+            "label": "右肺下叶",
+            "name": "内基底段",
+            "value": "6"
+          },
+          {
+            "label": "右肺中叶",
+            "name": "内侧段",
+            "value": "4"
+          },
+          {
+            "label": "右肺中叶",
+            "name": "外侧段",
+            "value": "5"
+          },
+          {
+            "label": "左肺上叶",
+            "name": "前段",
+            "value": "13"
+          },
+          {
+            "label": "左肺上叶",
+            "name": "尖后段",
+            "value": "14"
+          },
+          {
+            "label": "左肺上叶",
+            "name": "上舌段",
+            "value": "11"
+          },
+          {
+            "label": "左肺上叶",
+            "name": "下舌段",
+            "value": "12"
+          },
+          {
+            "label": "左肺下叶",
+            "name": "背段",
+            "value": "18"
+          },
+          {
+            "label": "左肺下叶",
+            "name": "前内基底段",
+            "value": "15"
+          },
+          {
+            "label": "左肺下叶",
+            "name": "外基底段",
+            "value": "17"
+          },
+          {
+            "label": "左肺下叶",
+            "name": "后基底段",
+            "value": "16"
+          }
+        ]
       },
       "coronaryArtery": {
         "segment": {
