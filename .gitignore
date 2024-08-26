@@ -21,5 +21,4 @@ es
 *.sln
 *.zip
 *.7z
-*.rar
 pnpm-lock.yaml

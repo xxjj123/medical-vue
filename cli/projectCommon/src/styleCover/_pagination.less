@@ -2,17 +2,17 @@ body {
   .ant-pagination {
     .ant-pagination-item-link {
       background: rgba(255, 255, 255, 0.05) !important;
-      border-color: @pageBorder_color  !important;
+      border-color: #5F6060 !important;
       border-width: 0.5px;
       border-style: solid;
     }
 
     .ant-pagination-item-active {
       // background: rgba(255, 255, 255, 0.05);
+      background: @primary-color  !important;
 
       a {
         color: #fff !important;
-        background: @primary-color  !important;
       }
 
       border-color: @primary-color  !important;
@@ -20,18 +20,11 @@ body {
       border-style: solid;
     }
 
-    li {
-      overflow: hidden;
-    }
-
     .ant-pagination-item {
       background: rgba(255, 255, 255, 0.05) !important;
-      border-color: @pageBorder_color;
+      border-color: #5F6060 !important;
       border-width: 0.5px;
       border-style: solid;
-
-
-
       // a {
       //   color: #999999 !important;
       // }
@@ -60,14 +53,6 @@ body {
 
     .ant-pagination-disabled .ant-pagination-item-link {
       color: inherit;
-    }
-
-
-    .ant-pagination-size-changer-input-box {
-      .ant-pagination-size-changer-input {
-        border-color: @pageBorder_color;
-        margin-right: 10px;
-      }
     }
 
   }
