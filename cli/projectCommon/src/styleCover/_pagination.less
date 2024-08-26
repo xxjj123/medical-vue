@@ -2,7 +2,7 @@ body {
   .ant-pagination {
     .ant-pagination-item-link {
       background: rgba(255, 255, 255, 0.05) !important;
-      border-color: #5F6060 !important;
+      border-color: @pageBorder_color  !important;
       border-width: 0.5px;
       border-style: solid;
     }
@@ -26,7 +26,7 @@ body {
 
     .ant-pagination-item {
       background: rgba(255, 255, 255, 0.05) !important;
-      border-color: #5F6060 !important;
+      border-color: @pageBorder_color;
       border-width: 0.5px;
       border-style: solid;
 
@@ -60,6 +60,14 @@ body {
 
     .ant-pagination-disabled .ant-pagination-item-link {
       color: inherit;
+    }
+
+
+    .ant-pagination-size-changer-input-box {
+      .ant-pagination-size-changer-input {
+        border-color: @pageBorder_color;
+        margin-right: 10px;
+      }
     }
 
   }
