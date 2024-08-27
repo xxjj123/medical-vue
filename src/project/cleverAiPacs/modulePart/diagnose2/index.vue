@@ -158,8 +158,8 @@ export default {
           //TODO: wait turn new api
           this.SET_NODULE_INFO(result.data.resultData);
           //结节病变列表查询
-          const newRes = await xhr_queryNodule({computeSeriesId: "1825804835303624706"})
-          console.log("newRes====", newRes);
+          // const newRes = await xhr_queryNodule({computeSeriesId: "1825804835303624706"})
+          // console.log("newRes====", newRes);
 
           this.menubarShow = true;
         } else {
