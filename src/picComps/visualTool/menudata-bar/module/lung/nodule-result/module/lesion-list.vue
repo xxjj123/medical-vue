@@ -53,7 +53,8 @@
         <template #CHENGJI_VAL="{row}">
           <div class="h1 cj_block">
             <!-- <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>前内基底段</span> -->
-            <span>{{ row.lobeSegment | noduleAreaName }}</span>
+            <span>{{ row.lobeSegment.label }}</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>{{
+              row.lobeSegment.name }}</span>
           </div>
           <div class="h2 cjVal_block">
             <span>{{ row.ellipsoidAxisMajor }}x{{ row.ellipsoidAxisLeast }}mm</span>
@@ -61,7 +62,7 @@
         </template>
         <template #mean="{row}">
           <div class="h1 mean_block">
-            <span>肿块</span>
+            <span>{{ row.type.name }}</span>
           </div>
           <div class="h2 meanVal_block">
             <span>{{ row.ctMeasuresMean }}</span><span>HU</span>
@@ -102,6 +103,7 @@
                 </template>
               </ta-menu>
             </ta-dropdown>
+            <div>{{ lungLobeDropDown.colstrValue }}</div>
           </div>
           <div class="h2 cjVal_block">
             <span>{{ row.CHENGJI_VAL }}</span>
@@ -125,7 +127,7 @@
             </ta-dropdown>
           </div>
           <div class="h2 meanVal_block">
-            <span>{{ row.mean }}</span><span>HU</span>
+            <span>{{ row.ctMeasuresMean }}</span><span>HU</span>
           </div>
         </template>
         <!-- edit holder end-->
@@ -241,45 +243,20 @@ export default {
       immediate: true,
     },
   },
-  filters: {
-    noduleAreaName: (value, arg) => {
-      console.log("value, arg----", value, arg);
-      Vue.prototype.$api.query_humen_boot_data().then((item) => {
+  /*   filters: {
+      noduleAreaName: async (value, arg) => {
+        console.log("value, arg----", value, arg);
+        const item = await Vue.prototype.$api.query_humen_boot_data();
         console.log("item===", item);
         const rowSelectItem = Vue.prototype.$api.findObjectByValue(
           item,
           "lung.segments",
           value.toString(),
         )[0];
-
-      })
-
-      // return new Promise((resolve, reject) => {
-      // let that = this;
-      // // let str = ``;
-
-      // // arg 是传递给过滤器的参数
-      // // return
-      // let str = Vue.prototype.$api.query_humen_boot_data().then((item) => {
-      //   const rowSelectItem = Vue.prototype.$api.findObjectByValue(
-      //     item,
-      //     "lung.segments",
-      //     value.toString(),
-      //   )[0];
-      //   console.log("rowSelectItem1=", rowSelectItem);
-      //   const {label, name} = rowSelectItem;
-      //   that.lungLobeDropDown.showValue = `${label} / ${name}`;
-      //   return `${label} / ${name}`;
-      //   // str =
-      //   // `${label} / ${name}`;
-      //   // resolve(`${label} / ${name}`);
-      // });
-
-      // return str;
-
-      // })
-    }
-  },
+        console.log("rowSelectItem==", rowSelectItem)
+        return `${label} / ${value}`;
+      }
+    }, */
   data() {
     return {
       nodule_type: [],
@@ -405,7 +382,7 @@ export default {
           {
             field: "mean",
             title: "", //断层扫描/层组 ctMeasures.mean HU
-            width: "85",
+            width: "115",
             editRender: {},
             customRender: {
               default: "mean",
@@ -473,6 +450,7 @@ export default {
       // 肺部dropdown数据
       lungLobeDropDown: {
         showValue: "",
+        colstrValue: "1.1x2.2mm",
         list: [
           {
             label: "左肺",
@@ -680,6 +658,15 @@ export default {
     setPopupContainer(trigger) {
       return trigger.parentElement;
     },
+    async noduleAreaName(val) {
+      const item = await this.$api.query_humen_boot_data();
+      const rowSelectItem = this.$api.findObjectByValue(item, "lung.segments", val.toString())[0];
+      console.log("rowSelectItem==", rowSelectItem);
+      const {label, value} = rowSelectItem;
+      return `${label} / ${value}`;
+      // 假设你更新了某个数据属性来反映结果
+      // this.label = `${rowSelectItem.label} / ${value}`;
+    },
     rowStyle({row, rowIndex}) {
       console.log("rowStyle_____", row, rowIndex);
       if (this.tableCurrentIdx) {
@@ -725,26 +712,38 @@ export default {
       const {property} = column;
       // if(property === 'CHENGJI_VAL'){
       const {lobe, lobeSegment} = row;
+
+      console.log("lobe, lobeSegment----", lobe, lobeSegment);
+
+
+
+
       const mark = this.$api.getLungSide(lobe);
+
+      console.log("mark----", mark);
+
       if (mark === "left") {
         this.$api.query_humen_boot_data().then((item) => {
           const rowSelectItem = this.$api.findObjectByValue(
             item,
-            "lung.segment.leftLung.segments",
-            lobeSegment.toString(),
+            "lung.segments",
+            lobeSegment.value.toString(),
           )[0];
-          // console.log("rowSelectItem=",rowSelectItem);
-          this.lungLobeDropDown.showValue = `左肺 / ${rowSelectItem.name}`;
+          console.log("rowSelectItem=....", rowSelectItem);
+          this.lungLobeDropDown.showValue = `${rowSelectItem.label} / ${rowSelectItem.name}`;
+
+          this.lungLobeDropDown.colstrValue = `${row.ellipsoidAxisMajor}x${row.ellipsoidAxisLeast}mm`
         });
       } else if (mark === "right") {
         this.$api.query_humen_boot_data().then((item) => {
           const rowSelectItem = this.$api.findObjectByValue(
             item,
-            "lung.segment.rightLung.segments",
-            lobeSegment.toString(),
+            "lung.segments",
+            lobeSegment.value.toString(),
           )[0];
-          // console.log("rowSelectItem1=",rowSelectItem);
-          this.lungLobeDropDown.showValue = `右肺 / ${rowSelectItem.name}`;
+          console.log("rowSelectItem=....", rowSelectItem);
+          this.lungLobeDropDown.showValue = `${rowSelectItem.label} / ${rowSelectItem.name}`;
+          this.lungLobeDropDown.colstrValue = `${row.ellipsoidAxisMajor}x${row.ellipsoidAxisLeast}mm`
         });
       }
       // }else if(property === 'mean'){
@@ -755,7 +754,7 @@ export default {
         const rowSelectItem = this.$api.findObjectByValue(
           item,
           "lung.noduleType",
-          type.toString(),
+          type.value.toString(),
         )[0];
         // console.log("rowSelectItem-mean=",rowSelectItem);
         this.noduleTypeDropDown.showValue = `${rowSelectItem.name}`;
@@ -1018,7 +1017,25 @@ export default {
 
       // new 方式接口赋值：2024-08-26
       const {noduleLesionList} = this.menuResult;
-      this.tableConfig.tableData = noduleLesionList;
+
+      console.log("noduleLesionList===", JSON.stringify(noduleLesionList));
+
+      const processedData_lobe = this.$api.processLungItems.call(this, noduleLesionList, ['lobeSegment']).then(async (item) => {
+
+        console.log("item----", item);
+        const processedData_type = await this.$api.processLungItems.call(this, item, ['type'], 'noduleType')
+
+        console.log("processedData_type=", processedData_type);
+        this.tableConfig.tableData = processedData_type;
+
+
+      })
+
+      // console.log("processedData_lobe==", processedData_lobe);
+      // console.log("processedData_type==", processedData_type);
+
+      // this.tableConfig.tableData = noduleLesionList;
+      // this.tableConfig.tableData = processedData;
 
       // 初始化edit模式小组件的数据源
       this.$api.query_humen_boot_data().then((item) => {

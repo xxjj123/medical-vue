@@ -1,4 +1,4 @@
-import { Vue, store } from "@common/js/public-ant-modules";
+import {Vue, store} from "@common/js/public-ant-modules";
 
 const instance = Vue.prototype;
 
@@ -8,7 +8,7 @@ export function select_codeTable_type_group(type) {
     let vuexData = localStorage.getItem("carplay");
     // console.log("ins---vuexData:", vuexData, type);
     const vData = JSON.parse(vuexData);
-    const { sysInfoOther } = vData;
+    const {sysInfoOther} = vData;
     if (sysInfoOther) {
       let group = sysInfoOther.filter((v, k) => {
         // console.log("v----", v, "k---", k);
@@ -42,6 +42,44 @@ export function query_humen_boot_data() {
       reject(error);
     }
   });
+}
+
+/**
+ * 处理lung-结节项目-相关json字段，其它情况不做处理，返回数据本源
+ * @param dataSource
+ * @param keys
+ * @param subKeyName lung 下层的索引 切换不同的查询组合
+ * @returns
+ */
+export async function processLungItems(dataSource, keys, subKeyName = 'segments') {
+  // 假设 this.$api.findObjectByValue 和 query_humen_boot_data 已经定义在组件中
+  const processedItems = dataSource.map(item => {
+    // 首先获取基础数据
+    const baseData = {...item};
+
+    // 然后根据提供的 keys 处理每个字段
+    keys.forEach(async key => {
+      if (key in item) {
+        const value = item[key];
+        console.log("value=", value);
+
+        const itemData = await query_humen_boot_data(); // 假设这是异步操作，这里先同步调用
+        console.log("itemData==", itemData);
+        const pathStr = `lung.${subKeyName}`;
+        console.log("pathStr=", pathStr);
+
+        const rowSelectItem = findObjectByValue(itemData, pathStr, value.toString())[0];
+        console.log("rowSelectItem-->", rowSelectItem);
+        if (rowSelectItem) {
+          baseData[key] = rowSelectItem; // 将处理结果赋值回 baseData 对象
+        }
+      }
+    });
+
+    return baseData;
+  });
+
+  return processedItems;
 }
 
 /**
