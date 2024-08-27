@@ -26,10 +26,12 @@ export default {
     };
   },
   mounted() {
-    this.initScene();
-    this.onWindowResize(); // 确保初始加载时画布填满容器
+    this.$nextTick(() => {
+      this.initScene();
 
-    window.addEventListener("resize", this.onWindowResize);
+      window.addEventListener("resize", this.onWindowResize);
+    })
+
   },
   computed: {
     ...mapState("viewInitStore", ["seriesInfo"]),
@@ -107,11 +109,11 @@ export default {
     },
     load3D() {
       this.download3D();
+      this.onWindowResize()
     },
     loadModel(arraybuffer) {
       const loader = new GLTFLoader();
       loader.parse(arraybuffer, "", (gltf) => {
-        console.log(gltf);
         this.model = gltf.scene;
         this.model.rotation.x = Math.PI / 2;
         console.log(this.model.rotation);

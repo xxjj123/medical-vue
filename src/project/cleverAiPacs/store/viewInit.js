@@ -154,8 +154,11 @@ export default {
       state.seriesInfo = seriesInfo;
     },
     SET_NODULE_INFO(state, noduleInfo) {
+      console.log(noduleInfo)
       state.noduleInfo = noduleInfo;
       state.noduleInfo.focalDetailList = []
+      // state.noduleInfo.noduleLesionList = []
+
     },
 
     INIT_VIEW_MPR_VIEW(state, {viewType, data}) {
@@ -177,6 +180,7 @@ export default {
       state.mouseDown = value;
     },
     ADD_ANNOTATION(state, annotation) {
+      console.log(annotation)
       state.annotations.value.push(annotation);
       state.annotations.index.add(
         `${annotation.viewIndex}-${annotation.bboxIndex}`,
@@ -313,16 +317,18 @@ export default {
         await dispatch("UpdateIJK", ijk);
         state.viewMprViews.forEach((view, index) => {
           dispatch("setupInteractor", {view, dimensions});
-          state.noduleInfo.focalDetailList.forEach(async (nodule) => {
+          state.noduleInfo.noduleLesionList.forEach(async (nodule) => {
+            console.log(nodule)
             const annotation = await dispatch("getAnnotationForView", {
               nodule,
               viewType: view.viewIndex,
             });
+            console.log("annotation",annotation)
             requestAnimationFrame(() =>
               dispatch("addRectangleAnnotation", {
                 view,
                 annotation,
-                bboxindex: nodule.boxIndex,
+                bboxindex: nodule.id,
               }),
             );
           });
@@ -357,8 +363,9 @@ export default {
       }
     },
     getAnnotationForView({state}, {nodule, viewType}) {
-      const {bbox} = nodule;
-      const [xmin, xmax, ymin, ymax, zmin, zmax] = bbox;
+      const {points} = nodule;
+
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
       const annotations = {
         [VIEW_TYPES.CORONAL]: {
           xmin: xmin,
@@ -482,6 +489,7 @@ export default {
         }),
       ]);
     },
+
     async updateSliceForView({dispatch}, {viewName, index, viewType}) {
       if (index === "") return;
       const arraybuffer = await dispatch("GetSlice", {viewName, index});
@@ -548,10 +556,11 @@ export default {
               annotation.worldpoint2[1] > pickedY
             ) {
               const selectedAnnotation = annotation.bboxIndex;
+              console.log(selectedAnnotation)
               state.annotations.value.forEach((anno) => {
                 let color = BBOX_COLORS.DEFAULT
                 let lineWidth = BBOX_LINEWIDTH.DEFAULT
-                if (anno.bboxIndex === selectedAnnotation) {
+                if (anno.bboxIndex == selectedAnnotation) {
                   color = BBOX_COLORS.SELECTED
                   lineWidth = BBOX_LINEWIDTH.SELECTED
                 }
@@ -799,7 +808,7 @@ export default {
     throttleUpdateSingleSlice: throttle(
       ({dispatch}, {viewName, viewType, index}) => {
         requestAnimationFrame(() =>
-          dispatch("updateSliceForView", {viewName, index, viewType}),
+           dispatch("updateSliceForView", {viewName, index, viewType}),
         );
       },
       200,
@@ -988,9 +997,14 @@ export default {
       console.log("ChooseAnnotation")
       console.log(bboxindex)
 
-      state.noduleInfo.focalDetailList.forEach(async (nodule) => {
-        const {bbox, boxIndex} = nodule;
-        if (boxIndex === bboxindex) {
+      state.noduleInfo.noduleLesionList.forEach(async (nodule) => {
+        const {points, id} = nodule;
+        const bbox = points.split(",").map(Number)
+        console.log("id",id)
+        console.log("bboxindex",bboxindex)
+        console.log(id==bboxindex)
+        if (id == bboxindex) {
+          console.log("找到了")
           const ijk = [
             Math.round((bbox[0] + bbox[1]) / 2),
             Math.round((bbox[2] + bbox[3]) / 2),
