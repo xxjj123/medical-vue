@@ -13,3 +13,16 @@ export enum PATIENT_LABOPTIONS {
 export function isPatientOptionValid(option: string): boolean {
   return Object.values(PATIENT_LABOPTIONS).includes(option);
 }
+
+/**
+ * type_select select
+ */
+export enum SortOption {
+  Default = "1",
+  Risk = "2",
+  IM = "3",
+  LobeSegment = "4",
+  Length = "5",
+  Volume = "6",
+  Type = "7"
+}

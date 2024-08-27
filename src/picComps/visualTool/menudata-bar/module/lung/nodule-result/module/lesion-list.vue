@@ -29,7 +29,7 @@
       <ta-big-table ref="tableLungNodule" :size="tableConfig.size" @current-change="handleTableCurrentChange"
         highlight-current-row :keyboard-config="{isArrow: true}" height="200" :columns="tableConfig.tableColumns"
         :data="tableConfig.tableData" @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent"
-        :edit-config="{trigger: 'click'}" @cell-click="handleCellClick">
+        :edit-config="{trigger: 'click'}" @cell-click="handleCellClick" :sort-config="tableConfig.sortConfig">
         <template #risk="{row}">
           <span class="ml-[10px]">{{ row.riskCode }}</span><br />
           <div v-if="row.riskCode == 1">
@@ -197,6 +197,9 @@ import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/commo
 import {CodeSandboxOutline} from "@yh/icons-svg";
 import {mapActions} from "vuex";
 import Vue from 'vue';
+import {SortOption} from "@/assets/js/utils/dicom/select";
+
+
 // 病理部位标志
 const LESION_PART_SITE = {
   CALCIUM: "calcium", //钙化
@@ -286,6 +289,11 @@ export default {
       },
       tableConfig: {
         size: "small",
+        sortConfig: {
+          trigger: 'default',
+          defaultSort: {field: 'riskCode', order: 'asc'},
+          orders: ['desc', 'asc', null]
+        },
         tableData: [
           {
             risk: "1",
@@ -346,6 +354,7 @@ export default {
             field: "riskCode", //危险级别
             title: "全部",
             width: "65",
+            sortable: true,
             customRender: {
               default: "risk",
               // default: ({ row }) => {
@@ -946,18 +955,74 @@ export default {
       }
     },
     handleMenuClick(e) {
-      // console.log("click:handleMenuClick:", e);
+      console.log("click:handleMenuClick:", e);
       const {key} = e;
       const keyFindArr = key.split("_");
-      // console.log("keyFindArr=", keyFindArr);
-      const idx = keyFindArr[0];
+      console.log("keyFindArr=", keyFindArr);
+      console.log("this.sort_condition.type_select.list==", this.sort_condition.type_select.list);
 
-      const row = this.sort_condition.type_select.list[idx];
-      // console.log("sort_condition.type_select==row", row);
-      this.sort_condition.type_select.showValue = row.label;
+      // return
+      // const idx = keyFindArr[0];
+      const idx = keyFindArr[1];
+      const row = this.sort_condition.type_select.list.filter(item => item.value === idx)[0]
+      // const row = this.sort_condition.type_select.list[idx];
+
+      console.log("sort_condition.type_select==row", row);
+
+      const {label, value} = row;
+
+      this.sort_condition.type_select.showValue = label;
+
+      switch (value) {
+        case SortOption.Default: {
+
+        }
+          break;
+        case SortOption.Risk: {
+          const riskCode_col = this.$refs.tableLungNodule.getSortColumns('riskCode')[0];
+          console.log("riskCode_col___", riskCode_col);
+          const {order} = riskCode_col;
+
+          console.log("order==", order);
+
+          if(order === 'desc'){
+            this.$refs.tableLungNodule.sort('riskCode', 'asc');
+          }else if(order === 'asc'){
+            this.$refs.tableLungNodule.sort('riskCode', 'desc');
+          }else{
+            this.$refs.tableLungNodule.sort('riskCode', 'asc');
+          }
+          console.log("SortOption.Risk==", SortOption.Risk);
+        }
+          break;
+        case SortOption.IM: {
+
+        }
+          break;
+        case SortOption.LobeSegment: {
+
+        }
+          break;
+        case SortOption.Length: {
+
+        }
+          break;
+        case SortOption.Volume: {
+
+        }
+          break;
+        case SortOption.Type: {
+
+        }
+          break;
+        default:
+          return void 0;
+      }
     },
     handleMenuClick_lungList(e) {
       // console.log("handleMenuClick_lungList",e);
+
+
     },
     handleMenuClick_noduleList(e) {
       // console.log("handleMenuClick_noduleList",e);
@@ -1038,25 +1103,25 @@ export default {
       // this.tableConfig.tableData = processedData;
 
       // 初始化edit模式小组件的数据源
-      this.$api.query_humen_boot_data().then((item) => {
-        // console.log("query_humen_boot_data", item);
-        const nodule_type = this.$api.getPropertyArray(item, "lung.noduleType");
-        const left_lung = this.$api.getPropertyArray(
-          item,
-          "lung.segment.leftLung.segments",
-        );
-        const right_lung = this.$api.getPropertyArray(
-          item,
-          "lung.segment.rightLung.segments",
-        );
-        // console.log("nodule_type-", nodule_type);
-        // console.log("left_lung-", left_lung);
-        this.nodule_type = nodule_type;
-        this.left_lung = left_lung;
-        this.right_lung = right_lung;
+      /*  this.$api.query_humen_boot_data().then((item) => {
+         // console.log("query_humen_boot_data", item);
+         const nodule_type = this.$api.getPropertyArray(item, "lung.noduleType");
+         const left_lung = this.$api.getPropertyArray(
+           item,
+           "lung.segment.leftLung.segments",
+         );
+         const right_lung = this.$api.getPropertyArray(
+           item,
+           "lung.segment.rightLung.segments",
+         );
+         // console.log("nodule_type-", nodule_type);
+         // console.log("left_lung-", left_lung);
+         this.nodule_type = nodule_type;
+         this.left_lung = left_lung;
+         this.right_lung = right_lung;
 
-        // console.log("right_lung-", right_lung);
-      });
+         // console.log("right_lung-", right_lung);
+       }); */
     },
     init_tableData() {
       // const item = this.menuResult.result;
@@ -1101,19 +1166,19 @@ export default {
 
     // 表格初始化
     this.init_tableData();
-    /*    this.$nextTick(() => {
-         document
-           .querySelector(".nodule_lesion-list")
-           .addEventListener("mouseover", function () {
-             this.style.overflow = "auto"; // 获得焦点时显示滚动条
-           });
+    this.$nextTick(() => {
+      document
+        .querySelector(".nodule_lesion-list")
+        .addEventListener("mouseover", function () {
+          this.style.overflow = "auto"; // 获得焦点时显示滚动条
+        });
 
-         document
-           .querySelector(".nodule_lesion-list")
-           .addEventListener("mouseout", function () {
-             this.style.overflow = "hidden"; // 失去焦点时隐藏滚动条
-           });
-       }); */
+      document
+        .querySelector(".nodule_lesion-list")
+        .addEventListener("mouseout", function () {
+          this.style.overflow = "hidden"; // 失去焦点时隐藏滚动条
+        });
+    });
   },
 };
 </script>
