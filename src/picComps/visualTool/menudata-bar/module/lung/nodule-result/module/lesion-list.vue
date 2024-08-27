@@ -215,6 +215,9 @@ import Vue from 'vue';
 import {SortOption} from "@/assets/js/utils/dicom/select";
 
 
+
+import {xhr_updateNoduleLesion} from "@/api/index";
+
 // 病理部位标志
 const LESION_PART_SITE = {
   CALCIUM: "calcium", //钙化
@@ -261,22 +264,11 @@ export default {
       immediate: true,
     },
   },
-  /*   filters: {
-      noduleAreaName: async (value, arg) => {
-        console.log("value, arg----", value, arg);
-        const item = await Vue.prototype.$api.query_humen_boot_data();
-        console.log("item===", item);
-        const rowSelectItem = Vue.prototype.$api.findObjectByValue(
-          item,
-          "lung.segments",
-          value.toString(),
-        )[0];
-        console.log("rowSelectItem==", rowSelectItem)
-        return `${label} / ${value}`;
-      }
-    }, */
+
   data() {
     return {
+      lunglistSelectRow: {},//结节改变中转数据
+      noduleTypeListSelectRow: {},//类型结节-中转
       nodule_type: [],
       left_lung: [],
       right_lung: [],
@@ -774,6 +766,15 @@ export default {
 
 
     },
+    validateObject(obj) {
+      // 检查是否为对象且不是null
+      if (typeof obj === 'object' && obj !== null && Object.keys(obj).length > 0) {
+        // 检查对象是否有label和value属性
+        return 'label' in obj && 'value' in obj;
+      }
+      // 如果对象为空或不包含label和value属性，返回false
+      return false;
+    },
     handleCellClick({
       row,
       rowIndex,
@@ -794,6 +795,21 @@ export default {
       this.$refs.tableLungNodule.setCurrentRow(row);
 
       console.log("this.$refs.tableLungNodule==", this.$refs.tableLungNodule);
+
+      if (this.validateObject(this.lunglistSelectRow)) {
+
+      }
+
+      let param = {};
+
+      param = {
+
+      }
+
+      xhr_updateNoduleLesion(param).then(result => {
+        console.log("xhr_updateNoduleLesion___", result);
+
+      })
 
 
       // console.log(
@@ -836,23 +852,16 @@ export default {
           this.lungLobeDropDown.colstrValue = `${row.ellipsoidAxisMajor}x${row.ellipsoidAxisLeast}mm`
         });
       }
-      // }else if(property === 'mean'){
       const {type} = row;
-      // console.log("type===",type);
       this.$api.query_humen_boot_data().then((item) => {
-        // console.log("item-----",item);
         const rowSelectItem = this.$api.findObjectByValue(
           item,
           "lung.noduleType",
           type.value.toString(),
         )[0];
-        // console.log("rowSelectItem-mean=",rowSelectItem);
         this.noduleTypeDropDown.showValue = `${rowSelectItem.name}`;
       });
 
-      // }
-
-      // this.tableData[rowIndex]
     },
     async init_lesionPanelSearchBar() {
       const item = await this.init_select("LESION_LIST_TYPE");
@@ -1281,12 +1290,49 @@ export default {
       }
     },
     handleMenuClick_lungList(e) {
-      // console.log("handleMenuClick_lungList",e);
+      console.log("handleMenuClick_lungList", e);
+      const {key} = e;
+      const arr = key.split("_");
+      const code = arr[arr.length - 1];
+
+      this.$api.query_humen_boot_data().then(async item => {
+        const rowSelectItem = await this.$api.findObjectByValue(item, "lung.segments", code.toString())[0];
+
+
+        console.log("rowSelectItem__lungNodule---", rowSelectItem);
+
+
+        this.lunglistSelectRow = {lobeSegment: rowSelectItem};
+
+
+
+      })
+
+
+
 
 
     },
     handleMenuClick_noduleList(e) {
-      // console.log("handleMenuClick_noduleList",e);
+      console.log("handleMenuClick_noduleList", e);
+      const {key} = e;
+      const arr = key.split("_");
+      const code = arr[arr.length - 1];
+
+      this.$api.query_humen_boot_data().then(async item => {
+        const rowSelectItem = await this.$api.findObjectByValue(item, "lung.noduleType", code.toString())[0];
+
+
+        console.log("rowSelectItem__lungNodule---", rowSelectItem);
+
+
+        this.noduleTypeListSelectRow = {type: rowSelectItem};
+
+
+      })
+
+
+
     },
 
     // 应用 customizeJson 和 策略
