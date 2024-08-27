@@ -26,10 +26,11 @@
       <!-- :checkbox-config="{
           trigger: 'row',
         }" -->
-      <ta-big-table ref="tableLungNodule" :size="tableConfig.size" @current-change="handleTableCurrentChange"
-        highlight-current-row :keyboard-config="{isArrow: true}" height="200" :columns="tableConfig.tableColumns"
-        :data="tableConfig.tableData" @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent"
-        :edit-config="{trigger: 'click'}" @cell-click="handleCellClick" :sort-config="tableConfig.sortConfig">
+      <ta-big-table class="lung_table_custom" ref="tableLungNodule" :size="tableConfig.size"
+        @current-change="handleTableCurrentChange" highlight-current-row :keyboard-config="{isArrow: true}" height="200"
+        :columns="tableConfig.tableColumns" :data="tableConfig.tableData" @checkbox-all="selectAllEvent"
+        @checkbox-change="selectChangeEvent" :edit-config="{trigger: 'click'}" @cell-click="handleCellClick"
+        :sort-config="tableConfig.sortConfig">
         <template #risk="{row}">
           <span class="ml-[10px]">{{ row.riskCode }}</span><br />
           <div v-if="row.riskCode == 1">
@@ -45,6 +46,7 @@
         <template #lobeSegmentSort="{row}">
           <div v-show="false">-{{ row }}-</div>
         </template>
+
         <template #volume="{row}">
           <div class="h1 im_block">
             <span class="mr-[5px]">IM</span><span>{{ row.im }}</span>
@@ -71,6 +73,16 @@
             <span>{{ row.ctMeasuresMean }}</span><span>HU</span>
           </div>
         </template>
+        <template #typeSort="{row}">
+          <div v-show="false">-{{ row }}-</div>
+        </template>
+        <template #im="{row}">
+          <div v-show="false">-{{ row }}-</div>
+        </template>
+        <template #ellipsoidAxisMajor="{row}">
+          <div v-show="false">-{{ row }}-</div>
+        </template>
+
 
         <!-- edit holder begin-->
         <template #CHENGJI_ROLE="{row, column}">
@@ -394,10 +406,54 @@ export default {
             }
           },
           {
+            field: "typeSort",
+            title: "",
+            sortable: true,
+            type: {
+              type: "seq",
+            },
+            orderIndex: "0",
+            orderAsc: ['asc', 'desc', null],
+            width: '0.1',
+            customRender: {
+              default: "typeSort"
+            }
+          },
+          {
+            field: "im",
+            title: "",
+            sortable: true,
+            type: {
+              type: "seq",
+            },
+            orderIndex: "0",
+            orderAsc: ['asc', 'desc', null],
+            width: '0.1',
+            customRender: {
+              default: "im"
+            }
+          },
+          {
+            field: "ellipsoidAxisMajor",
+            title: "",
+            sortable: true,
+            type: {
+              type: "seq",
+            },
+            orderIndex: "0",
+            orderAsc: ['asc', 'desc', null],
+            width: '0.1',
+            customRender: {
+              default: "ellipsoidAxisMajor"
+            }
+          },
+          {
             field: "volume",
             title: "", //ellipsoidAxis major * least mm
             width: "76",
-            // sortable: true,
+            sortable: true,
+            orderIndex: "0",
+            orderAsc: ['asc', 'desc', null],
             customRender: {
               default: "volume",
             },
@@ -422,6 +478,7 @@ export default {
               edit: "MEAN_EDIT",
             },
           },
+
         ],
       },
       majorAxis: {
@@ -999,7 +1056,34 @@ export default {
 
       switch (value) {
         case SortOption.Default: {
+          let that = this;
+          const riskCode_col = this.$refs.tableLungNodule.getColumnByField('im');
+          console.log("riskCode_col++++", riskCode_col);
 
+          const lobeSegmentSort_col = this.tableConfig.tableColumns[3]
+
+          function get_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[3];
+            const {orderIndex} = col;
+            return orderIndex;
+          }
+
+          function next_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[3];
+            const idx = get_lobeSegmentSort_col_index();
+            col.orderIndex = (parseInt(idx, 10) + 1) % col.orderAsc.length;
+            return col.orderIndex;
+          }
+
+          const orderIndex = next_lobeSegmentSort_col_index();
+          const order = that.tableConfig.tableColumns[3].orderAsc[orderIndex];
+
+          this.$refs.tableLungNodule.sort('im', 'desc');
+
+
+
+
+          console.log("SortOption.IM=默认=", SortOption.IM);
         }
           break;
         case SortOption.Risk: {
@@ -1020,7 +1104,39 @@ export default {
         }
           break;
         case SortOption.IM: {
+          let that = this;
+          const riskCode_col = this.$refs.tableLungNodule.getColumnByField('im');
+          console.log("riskCode_col++++", riskCode_col);
 
+          const lobeSegmentSort_col = this.tableConfig.tableColumns[3]
+
+          function get_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[3];
+            const {orderIndex} = col;
+            return orderIndex;
+          }
+
+          function next_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[3];
+            const idx = get_lobeSegmentSort_col_index();
+            col.orderIndex = (parseInt(idx, 10) + 1) % col.orderAsc.length;
+            return col.orderIndex;
+          }
+
+          const orderIndex = next_lobeSegmentSort_col_index();
+          const order = that.tableConfig.tableColumns[3].orderAsc[orderIndex];
+
+          if (order === 'desc') {
+            this.$refs.tableLungNodule.sort('im', 'asc');
+          } else if (order === 'asc') {
+            this.$refs.tableLungNodule.sort('im', 'desc');
+          } else {
+            this.$refs.tableLungNodule.sort('im', 'asc');
+          }
+
+
+
+          console.log("SortOption.IM==", SortOption.IM);
         }
           break;
         case SortOption.LobeSegment: {
@@ -1056,14 +1172,107 @@ export default {
         }
           break;
         case SortOption.Length: {
+          let that = this;
+          const riskCode_col = this.$refs.tableLungNodule.getColumnByField('im');
+          console.log("riskCode_col++++", riskCode_col);
 
+          const lobeSegmentSort_col = this.tableConfig.tableColumns[4]
+
+          function get_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[4];
+            const {orderIndex} = col;
+            return orderIndex;
+          }
+
+          function next_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[4];
+            const idx = get_lobeSegmentSort_col_index();
+            col.orderIndex = (parseInt(idx, 10) + 1) % col.orderAsc.length;
+            return col.orderIndex;
+          }
+
+          const orderIndex = next_lobeSegmentSort_col_index();
+          const order = that.tableConfig.tableColumns[4].orderAsc[orderIndex];
+
+          if (order === 'desc') {
+            this.$refs.tableLungNodule.sort('ellipsoidAxisMajor', 'asc');
+          } else if (order === 'asc') {
+            this.$refs.tableLungNodule.sort('ellipsoidAxisMajor', 'desc');
+          } else {
+            this.$refs.tableLungNodule.sort('ellipsoidAxisMajor', 'asc');
+          }
+
+
+
+          console.log("SortOption.Length==", SortOption.Length);
         }
           break;
         case SortOption.Volume: {
+          let that = this;
+          const riskCode_col = this.$refs.tableLungNodule.getColumnByField('volume');
+          console.log("riskCode_col++++", riskCode_col);
 
+          const lobeSegmentSort_col = this.tableConfig.tableColumns[5]
+
+          function get_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[5];
+            const {orderIndex} = col;
+            return orderIndex;
+          }
+
+          function next_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[5];
+            const idx = get_lobeSegmentSort_col_index();
+            col.orderIndex = (parseInt(idx, 10) + 1) % col.orderAsc.length;
+            return col.orderIndex;
+          }
+
+          const orderIndex = next_lobeSegmentSort_col_index();
+          const order = that.tableConfig.tableColumns[5].orderAsc[orderIndex];
+
+          if (order === 'desc') {
+            this.$refs.tableLungNodule.sort('volume', 'asc');
+          } else if (order === 'asc') {
+            this.$refs.tableLungNodule.sort('volume', 'desc');
+          } else {
+            this.$refs.tableLungNodule.sort('volume', 'asc');
+          }
+
+
+
+          console.log("SortOption.Volume==", SortOption.Volume);
         }
           break;
         case SortOption.Type: {
+          let that = this;
+          const riskCode_col = this.$refs.tableLungNodule.getColumnByField('typeSort');
+
+          const lobeSegmentSort_col = this.tableConfig.tableColumns[2]
+
+          function get_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[2];
+            const {orderIndex} = col;
+            return orderIndex;
+          }
+
+          function next_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[2];
+            const idx = get_lobeSegmentSort_col_index();
+            col.orderIndex = (parseInt(idx, 10) + 1) % col.orderAsc.length;
+            return col.orderIndex;
+          }
+
+          const orderIndex = next_lobeSegmentSort_col_index();
+          const order = that.tableConfig.tableColumns[2].orderAsc[orderIndex];
+
+          if (order === 'desc') {
+            this.$refs.tableLungNodule.sort('typeSort', 'asc');
+          } else if (order === 'asc') {
+            this.$refs.tableLungNodule.sort('typeSort', 'desc');
+          } else {
+            this.$refs.tableLungNodule.sort('typeSort', 'asc');
+          }
+          console.log("SortOption.Type==", SortOption.Type);
 
         }
           break;
@@ -1313,6 +1522,25 @@ body {
     &.row--current {
       background: rgba(100, 100, 100, 0.797);
     }
+  }
+}
+
+.lung_table_custom {
+
+  /deep/table {
+    // display: none;
+    thead {
+      th {
+        &[data-colid='col_17'] {
+          // background: red;
+
+          .vxe-cell--sort {
+            visibility: hidden;
+          }
+        }
+      }
+    }
+
   }
 }
 </style>
