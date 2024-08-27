@@ -42,6 +42,9 @@
             <span class="levelTag text-red-500">高危</span>
           </div>
         </template>
+        <template #lobeSegmentSort="{row}">
+          <div v-show="false">-{{ row }}-</div>
+        </template>
         <template #volume="{row}">
           <div class="h1 im_block">
             <span class="mr-[5px]">IM</span><span>{{ row.im }}</span>
@@ -51,7 +54,7 @@
           </div>
         </template>
         <template #CHENGJI_VAL="{row}">
-          <div class="h1 cj_block">
+          <div v-if="row.lobeSegment" class="h1 cj_block">
             <!-- <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>前内基底段</span> -->
             <span>{{ row.lobeSegment.label }}</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>{{
               row.lobeSegment.name }}</span>
@@ -289,6 +292,12 @@ export default {
       },
       tableConfig: {
         size: "small",
+        showHiddenOrSortColumn: {
+          // disabledControlCol: (column) => {
+          //   console.log("showHiddenOrSortColumn_disabledControlCol", column);
+          //   return column.type === 'lobeSegmentSort';
+          // }
+        },
         sortConfig: {
           trigger: 'default',
           defaultSort: {field: 'riskCode', order: 'asc'},
@@ -371,9 +380,24 @@ export default {
           //   width: "60",
           // },
           {
+            field: "lobeSegmentSort",
+            title: "",
+            sortable: true,
+            type: {
+              type: "seq",
+            },
+            orderIndex: "0",
+            orderAsc: ['asc', 'desc', null],
+            width: '0.1',
+            customRender: {
+              default: "lobeSegmentSort"
+            }
+          },
+          {
             field: "volume",
             title: "", //ellipsoidAxis major * least mm
             width: "76",
+            // sortable: true,
             customRender: {
               default: "volume",
             },
@@ -985,11 +1009,11 @@ export default {
 
           console.log("order==", order);
 
-          if(order === 'desc'){
+          if (order === 'desc') {
             this.$refs.tableLungNodule.sort('riskCode', 'asc');
-          }else if(order === 'asc'){
+          } else if (order === 'asc') {
             this.$refs.tableLungNodule.sort('riskCode', 'desc');
-          }else{
+          } else {
             this.$refs.tableLungNodule.sort('riskCode', 'asc');
           }
           console.log("SortOption.Risk==", SortOption.Risk);
@@ -1000,7 +1024,35 @@ export default {
         }
           break;
         case SortOption.LobeSegment: {
+          let that = this;
+          const riskCode_col = this.$refs.tableLungNodule.getColumnByField('lobeSegmentSort');
 
+          const lobeSegmentSort_col = this.tableConfig.tableColumns[1]
+
+          function get_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[1];
+            const {orderIndex} = col;
+            return orderIndex;
+          }
+
+          function next_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[1];
+            const idx = get_lobeSegmentSort_col_index();
+            col.orderIndex = (parseInt(idx, 10) + 1) % col.orderAsc.length;
+            return col.orderIndex;
+          }
+
+          const orderIndex = next_lobeSegmentSort_col_index();
+          const order = that.tableConfig.tableColumns[1].orderAsc[orderIndex];
+
+          if (order === 'desc') {
+            this.$refs.tableLungNodule.sort('lobeSegmentSort', 'asc');
+          } else if (order === 'asc') {
+            this.$refs.tableLungNodule.sort('lobeSegmentSort', 'desc');
+          } else {
+            this.$refs.tableLungNodule.sort('lobeSegmentSort', 'asc');
+          }
+          console.log("SortOption.LobeSegment==", SortOption.LobeSegment);
         }
           break;
         case SortOption.Length: {
@@ -1178,6 +1230,9 @@ export default {
         .addEventListener("mouseout", function () {
           this.style.overflow = "hidden"; // 失去焦点时隐藏滚动条
         });
+
+
+      // this.$refs.tableLungNodule.hideColumn(this.$refs.tableLungNodule.getColumnByField('lobeSegmentSort'));
     });
   },
 };
