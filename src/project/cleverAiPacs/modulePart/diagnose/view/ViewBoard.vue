@@ -1,27 +1,20 @@
 <template>
   <div class="ViewBoard_panel">
-    <div
-      :class="[
-        'pic_views',
-        { pic_layout_3d: layout === '1' },
-        { pic_layout: layout === '2' },
-        { pic_layout_original: layout === '3' },
-      ]"
-    >
+    <div :class="[
+      'pic_views',
+      { pic_layout_3d: layout === '1' },
+      { pic_layout: layout === '2' },
+      { pic_layout_original: layout === '3' },
+    ]">
       <div class="side viewbox view-3d">
-        <div
-          class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue"
-          ref="View3DRef"
-        ></div>
+        <div class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue" ref="View3DRef"></div>
       </div>
-      <div
-        :class="[
-          'side viewbox view-axial bg-slate-500',
-          {
-            viewOriginal: layout === '3',
-          },
-        ]"
-      >
+      <div :class="[
+        'side viewbox view-axial bg-slate-500',
+        {
+          viewOriginal: layout === '3',
+        },
+      ]">
         <div class="relative view-item bg-slate-500" ref="ViewAxialRef">
           <subScript v-show="showsub" v-model="Axial" />
         </div>
@@ -32,10 +25,7 @@
         </div>
       </div>
       <div class="side viewbox view-sagittal bg-slate-600">
-        <div
-          class="relative view-item bg-slate-600 border-t-0.2 border-l-0.2 border-titleblue"
-          ref="ViewSagittalRef"
-        >
+        <div class="relative view-item bg-slate-600 border-t-0.2 border-l-0.2 border-titleblue" ref="ViewSagittalRef">
           <subScript v-show="showsub" v-model="Sagittal" />
         </div>
       </div>
@@ -149,7 +139,7 @@ export default {
   mounted() {
     this.$nextTick(() => {
       // console.log("this.$refs.View3DRef=", this.$refs.View3DRef);
-      this.init3DView(this.$refs.View3DRef);
+      // this.init3DView(this.$refs.View3DRef);
       this.initCoronalView(this.$refs.ViewCoronalRef);
       this.initAxialView(this.$refs.ViewAxialRef);
       this.initSagittalView(this.$refs.ViewSagittalRef);
@@ -166,10 +156,12 @@ export default {
   width: 100%;
   height: 100%;
 }
+
 .pic_views {
   @media screen and (orientation: landscape) {
     grid-template-columns: 66.66% 33.34%;
   }
+
   width: 100%;
   height: 100%;
   display: grid;
@@ -183,6 +175,7 @@ export default {
 .viewbox {
   background-color: rgba(255, 255, 255, 0.242);
 }
+
 .view-item {
   // height: 320px;
   display: flex;
@@ -209,6 +202,7 @@ export default {
   position: relative;
   user-select: none;
 }
+
 .viewOriginal {
   background: rgb(0, 0, 0);
   border: 1px solid rgb(14, 17, 23);
@@ -221,7 +215,7 @@ export default {
 }
 
 .pic_layout {
-  & > div {
+  &>div {
     &:nth-child(1) {
       grid-area: ~"1/1/2/2";
       visibility: hidden;
@@ -237,6 +231,7 @@ export default {
       }
     }
   }
+
   .side {
     background: rgb(0, 0, 0);
     height: 100%;

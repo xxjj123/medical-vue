@@ -9,16 +9,19 @@
     <br>
     SagittalData:
     {{ SagittalData }} -->
+
     <div :class="[
       'pic_views',
-      {pic_layout_3d: layout === '1'},
-      {pic_layout: layout === '2'},
-      {pic_layout_original: layout === '3'},
+      { pic_layout_3d: layout === '1' },
+      { pic_layout: layout === '2' },
+      { pic_layout_original: layout === '3' },
     ]">
       <!-- {{ szckx_on }} -->
 
       <div class="side viewbox view-3d">
-        <div class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue" ref="View3DRef"></div>
+        <!-- <div class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue" ref="View3DRef"></div> -->
+        <view3D ref="view3DRef" :seriesId="sagittalCrosshairData" />
+
       </div>
       <div :class="[
         'side viewbox view-axial bg-slate-500',
@@ -75,8 +78,9 @@ import {
 import subScript from "@/picComps/home/subScript/subScript.vue";
 import crossHair from "@/picComps/home/subScript/crossHair.vue";
 import threeViewSecTool from "@/picComps/home/subScript/threeViewSecTool/index.vue";
+import view3D from "@/picComps/viewTemplate/view3D.vue";
 
-import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
+import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
 let btnStateGrp = {
   [`${ButtonNames.Ckcw}${suffix_name}`]: false,
@@ -88,28 +92,28 @@ let btnStateGrp = {
 };
 console.log(btnStateGrp);
 
-import {getStorage, createWebStorage, } from '@yh/ta-utils'
+import { getStorage, createWebStorage, } from '@yh/ta-utils'
 
 export default {
   name: "ViewBoard",
   data() {
     return {
       SagittalDataInfo: {
-        group: [{label: 'WW/WL', value: '1500/-500'}, {label: 'Image', value: '240/512'}],
+        group: [{ label: 'WW/WL', value: '1500/-500' }, { label: 'Image', value: '240/512' }],
         verseTag: true,
         HuShow: true,
         HuVal: "",
         fixHere: 'leftTop'
       },
       CoronalDataInfo: {
-        group: [{label: 'WW/WL', value: '1500/-500'}, {label: 'Image', value: '240/512'}],
+        group: [{ label: 'WW/WL', value: '1500/-500' }, { label: 'Image', value: '240/512' }],
         verseTag: true,
         HuShow: true,
         HuVal: "",
         fixHere: 'leftTop'
       },
       AxialDataInfo: {
-        group: [{label: 'WW/WL', value: '1500/-500'}, {label: 'Image', value: '240/512'}],
+        group: [{ label: 'WW/WL', value: '1500/-500' }, { label: 'Image', value: '240/512' }],
         verseTag: true,
         HuShow: true,
         HuVal: "",
@@ -151,7 +155,7 @@ export default {
   components: {
     subScript,
     crossHair,
-    threeViewSecTool,
+    threeViewSecTool, view3D
   },
   computed: {
     ...mapState("viewInitStore", [
@@ -196,16 +200,7 @@ export default {
     },
   },
   watch: {
-    // seriesInfo: {
-    //   handler(nVal, oVal) {
-    //     console.log("seriesInfo__watch", nVal, oVal);
-    //     if (nVal) {
 
-    //     }
-    //   },
-    //   deep: true,
-    //   immediate: true,
-    // },
     localSlice_CT_pic_layout: {
       handler(nVal, oVal) {
         // console.log("watch___localSlice_CT_pic_layout:", nVal, oVal);
@@ -234,7 +229,6 @@ export default {
     },
     AxialData: {
       handler(nVal, oVal) {
-        // console.log("watch___AxialData", nVal, oVal);
         if (nVal) {
           this.initCompData_AxialDataInfo();
         }
@@ -242,6 +236,7 @@ export default {
       deep: true,
       immediate: true
     },
+
     CoronalData: {
       handler(nVal, oVal) {
         if (nVal) {
@@ -270,22 +265,22 @@ export default {
       "InitSlice",
       "resizeSliceViews",
     ]),
-    ...mapActions("view3DStore", ["Init3DView", "resize3DViews"]),
+    // ...mapActions("view3DStore", ["Init3DView", "resize3DViews"]),
 
-    ...mapActions("viewsStore", ["init3DView"]),
+    // ...mapActions("viewsStore", ["init3DView"]),
     fnOnlod() {
       this.initCompData_AxialDataInfo();
     },
     resizeViews() {
-      this.resize3DViews();
+      // this.resize3DViews();
       this.resizeSliceViews();
 
     },
     initCompData_SagittalData() {
-      const {Ww, Wl, pageIndex, dimension, hu} = this.SagittalData;
+      const { Ww, Wl, changedPageindex, dimension, hu } = this.SagittalData;
       let group = [
-        {label: 'WW/WL', value: `${Ww}/-${Wl}`},
-        {label: 'Image', value: `${pageIndex}/${dimension}`},
+        { label: 'WW/WL', value: `${Ww}/-${Wl}` },
+        { label: 'Image', value: `${changedPageindex}/${dimension}` },
       ]
       this.$set(this.SagittalDataInfo, "group", group);
 
@@ -294,11 +289,11 @@ export default {
 
     },
     initCompData_CoronalData() {
-      const {Ww, Wl, pageIndex, dimension, hu} = this.CoronalData;
+      const { Ww, Wl, changedPageindex, dimension, hu } = this.CoronalData;
 
       let group = [
-        {label: 'WW/WL', value: `${Ww}/-${Wl}`},
-        {label: 'Image', value: `${pageIndex}/${dimension}`},
+        { label: 'WW/WL', value: `${Ww}/-${Wl}` },
+        { label: 'Image', value: `${changedPageindex}/${dimension}` },
       ]
       this.$set(this.CoronalDataInfo, "group", group);
 
@@ -308,15 +303,15 @@ export default {
 
     },
     initCompData_AxialDataInfo() {
-      const {axialCount, coronalCount, sagittalCount} = this.seriesInfo;
-      const {Ww, Wl, pageIndex, hu} = this.AxialData;
+      const { axialCount, coronalCount, sagittalCount } = this.seriesInfo;
+      const { Ww, Wl, changedPageindex, hu } = this.AxialData;
       // console.log("this.seriesInfo==", this.seriesInfo);
       // console.log("this.AxialData==", this.AxialData);
 
       let group = [
-        {label: 'WW/WL', value: `${Ww}/-${Wl}`},
-        {label: 'Image', value: `${pageIndex}/${axialCount}`},
-        {label: 'Thickness', value: `1.25mm`},
+        { label: 'WW/WL', value: `${Ww}/-${Wl}` },
+        { label: 'Image', value: `${changedPageindex}/${axialCount}` },
+        { label: 'Thickness', value: `1.25mm` },
       ]
 
       // console.log("initCompData_AxialDataInfo_____series_map_dicom", this.series_map_dicom);
@@ -325,10 +320,10 @@ export default {
       const localDb = getStorage('#_st', 'studySelectItem', true)
 
       if (localDb) {
-        const storage = createWebStorage('#_st', {isLocal: true, })
+        const storage = createWebStorage('#_st', { isLocal: true, })
         const skItem = storage.get('studySelectItem')
         if (skItem) {
-          this.$set(this.AxialDataInfo, "studies_selected", {...skItem});
+          this.$set(this.AxialDataInfo, "studies_selected", { ...skItem });
         } else {
           throw new Error(`vuex+storge都不存在-studySelectItem`)
         }
@@ -357,7 +352,7 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
-      this.Init3DView(this.$refs.View3DRef);
+      // this.Init3DView(this.$refs.View3DRef);
       this.InitAxialView(this.$refs.ViewAxialRef);
       this.InitCoronalView(this.$refs.ViewCoronalRef);
       this.InitSagittalView(this.$refs.ViewSagittalRef);

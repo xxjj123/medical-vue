@@ -283,6 +283,22 @@ export const xhr_getSlice = (formData) => {
   })
 };
 
+/**
+ * seriesComputeId
+ *
+ * @param formData
+ * @returns
+ */
+export const xhr_getModel3d = (formData) => {
+  return Base.submit(null, {
+    url: diagnose + urlJson["getModel3d"],
+    data: {
+      ...formData,
+    },
+    responseType: "arraybuffer",
+  });
+};
+
 /* 山哥专属 end*/
 
 // 获取诊断结果

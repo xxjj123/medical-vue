@@ -28,6 +28,7 @@ export default {
   getNoduleInfo: "/getNoduleInfo", //获取结节信息
   getSeriesInfo: "/getSeriesInfo",
   getSlice: "/getSlice",
+  getModel3d: "/getModel3d",
 
   /* lung nodule */
   queryNodule: "/queryNodule",

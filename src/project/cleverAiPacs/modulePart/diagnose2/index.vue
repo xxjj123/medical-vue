@@ -152,13 +152,15 @@ export default {
     },
     async Diagnose(computeSeriesId) {
       return new Promise(async (resolve, reject) => {
-        //结节病变列表查询
-        const result = await xhr_queryNodule({computeSeriesId})
-        console.log("newRes====", result);
+        const result = await xhr_queryNodule({computeSeriesId});
         if (result.serviceSuccess) {
           console.log(result.data.resultData);
           //TODO: wait turn new api
           this.SET_NODULE_INFO(result.data.resultData);
+          //结节病变列表查询
+          const newRes = await xhr_queryNodule({computeSeriesId: "1825804835303624706"})
+          console.log("newRes====", newRes);
+
           this.menubarShow = true;
         } else {
           console.log("xhr_queryNodule失败");

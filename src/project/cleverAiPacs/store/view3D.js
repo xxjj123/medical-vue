@@ -1,109 +1,128 @@
-import vtkFullScreenRenderWindow from "@kitware/vtk.js/Rendering/Misc/FullScreenRenderWindow";
-import vtkOrientationMarkerWidget from "@kitware/vtk.js/Interaction/Widgets/OrientationMarkerWidget";
-import vtkAnnotatedCubeActor from "@kitware/vtk.js/Rendering/Core/AnnotatedCubeActor";
-
-const VIEW_COLORS = {
-  BACKGROUND: [0, 0, 0],
-};
-
-const getAnnotatedCube = () => {
-  const cube = vtkAnnotatedCubeActor.newInstance();
-  cube.setDefaultStyle({
-    text: "F", // 通用前面文字
-    fontStyle: "bold",
-    fontFamily: "Arial",
-    fontColor: "black",
-    fontSizeScale: (res) => res / 2.2,
-    faceRotation: 0,
-    edgeThickness: 0.05,
-    edgeColor: "black",
-    resolution: 400,
-  });
-  // 设置每个面的标签，确保其与标准医学方向一致
-  cube.setXPlusFaceProperty({
-    text: "L",
-  }); // 左（Left）
-  cube.setXMinusFaceProperty({
-    text: "R",
-  }); // 右（Right）
-  cube.setYPlusFaceProperty({
-    text: "A",
-  }); // 前（Anterior）
-  cube.setYMinusFaceProperty({
-    text: "P",
-  }); // 后（Posterior）
-  cube.setZPlusFaceProperty({
-    text: "S",
-  }); // 上（Superior）
-  cube.setZMinusFaceProperty({
-    text: "I",
-  }); // 下（Inferior）
-  return cube;
-};
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { xhr_getModel3d } from "@/api";
 
 export default {
   namespaced: true,
   state: {
-    view3D: {},
+    scene: null,
+    camera: null,
+    renderer: null,
+    controls: null,
+    model: null,
   },
-  getters: {},
   mutations: {
-    INIT_3D_VIEW(state, payload) {
-      const { fullw } = payload;
-      // debugger;
-      const renderWindow = fullw.getRenderWindow();
-      const renderer = fullw.getRenderer();
-      // 使用Vue.set来确保新属性是响应式的
-      state.view3D.renderWindow = renderWindow;
-      state.view3D.renderer = renderer;
-
-      state.view3D.fullw = fullw;
-      const oriencube = getAnnotatedCube();
-      const interactor = state.view3D.renderWindow.getInteractor();
-      const orientationWidget = vtkOrientationMarkerWidget.newInstance({
-        actor: oriencube,
-        interactor,
-      });
-      orientationWidget.setEnabled(true);
-      orientationWidget.setViewportCorner(
-        vtkOrientationMarkerWidget.Corners.BOTTOM_LEFT,
-      );
-      orientationWidget.setViewportSize(0.1);
-      orientationWidget.setMinPixelSize(80);
-      orientationWidget.setMaxPixelSize(100);
-
-      const camera = state.view3D.renderer.getActiveCamera();
-      camera.setPosition(0, -1, 0);
-      camera.setFocalPoint(0, 0, 0);
-      camera.setViewUp(0, 0, 1);
-      camera.zoom(1.5);
-
-      // 将orientationWidget添加到state.view3D中
-      state.view3D.orientationWidget = orientationWidget;
-    },
+    SET_SCENE(state, scene) { state.scene = scene; },
+    SET_CAMERA(state, camera) { state.camera = camera; },
+    SET_RENDERER(state, renderer) { state.renderer = renderer; },
+    SET_CONTROLS(state, controls) { state.controls = controls; },
+    SET_MODEL(state, model) { state.model = model; },
   },
   actions: {
-    async Init3DView({ commit ,dispatch }, container) {
-      const fullw = vtkFullScreenRenderWindow.newInstance({
-        container: container,
-        background: VIEW_COLORS.BACKGROUND,
-      });
+    initScene({ commit }, container) {
+      console.log(container)
+      const { scene, camera, renderer, controls } = initializeThree(container);
+      commit("SET_SCENE", scene);
+      commit("SET_CAMERA", camera);
+      commit("SET_RENDERER", renderer);
+      commit("SET_CONTROLS", controls);
 
-      // console.log("fullw___", fullw);
-      // debugger;
-
-      // 调用mutation更新state
-      commit("INIT_3D_VIEW", {
-        fullw,
-      });
-      dispatch("resize3DViews") ;
+      window.addEventListener("resize", () => resizeHandler(container, camera, renderer));
+      animate(renderer, scene, camera, controls);
     },
-    resize3DViews({ dispatch, state, getters, commit }) {
-      const container = state.view3D.fullw.getContainer();
-      const { width, height } = container.getBoundingClientRect();
 
-      state.view3D.fullw.resize(width, height);
-      state.view3D.renderWindow.render();
+    async loadModel({ state, commit }, seriesId) {
+      try {
+        const model = await loadGLTFModel(state, seriesId);
+        state.scene.add(model);
+        commit("SET_MODEL", model);
+      } catch (error) {
+        console.error("Failed to load model:", error);
+      }
     },
   },
 };
+
+function initializeThree(container) {
+  console.log(container)
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+
+  const scene = new THREE.Scene();
+
+  const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+  camera.position.set(0, 0, 5);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(width, height);
+  renderer.setClearColor(0x000000);
+  container.appendChild(renderer.domElement);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.25;
+  controls.screenSpacePanning = true;
+  controls.maxPolarAngle = Math.PI;
+  controls.minPolarAngle = 0;
+
+  const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+  scene.add(ambientLight);
+
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+  directionalLight.position.set(5, 5, 5);
+  scene.add(directionalLight);
+
+  return { scene, camera, renderer, controls };
+}
+
+function resizeHandler(container, camera, renderer) {
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(width, height);
+}
+
+function animate(renderer, scene, camera, controls) {
+  function render() {
+    requestAnimationFrame(render);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  render();
+}
+
+async function loadGLTFModel(state, seriesId) {
+  const res = await xhr_getModel3d({ seriesId });
+  if (!res || !res.data) {
+    throw new Error("No data returned");
+  }
+
+  return new Promise((resolve, reject) => {
+    const loader = new GLTFLoader();
+    loader.parse(res.data, "", (gltf) => {
+      const model = gltf.scene;
+      model.rotation.x = Math.PI / 2;
+
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+
+      model.position.x -= center.x;
+      model.position.y -= center.y;
+      model.position.z -= center.z;
+
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = state.camera.fov * (Math.PI / 180);
+      const cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+      state.camera.position.z = cameraZ * 1.6;
+
+      state.camera.lookAt(new THREE.Vector3(0, 0, 0));
+      state.controls.target.copy(new THREE.Vector3(0, 0, 0));
+      state.controls.update();
+
+      resolve(model);
+    }, reject);
+  });
+}

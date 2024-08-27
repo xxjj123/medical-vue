@@ -155,6 +155,7 @@ export default {
     },
     SET_NODULE_INFO(state, noduleInfo) {
       state.noduleInfo = noduleInfo;
+      state.noduleInfo.focalDetailList = []
     },
 
     INIT_VIEW_MPR_VIEW(state, {viewType, data}) {
@@ -286,6 +287,7 @@ export default {
       dimensions[VIEW_TYPES.SAGITTAL] = state.seriesInfo.sagittalCount;
       dimensions[VIEW_TYPES.CORONAL] = state.seriesInfo.coronalCount;
       dimensions[VIEW_TYPES.AXIAL] = state.seriesInfo.axialCount;
+      console.log(dimensions)
 
       const ijk = dimensions.map((d) => Math.round(d / 2) + 1);
 
@@ -800,12 +802,13 @@ export default {
           dispatch("updateSliceForView", {viewName, index, viewType}),
         );
       },
-      150,
+      200,
     ),
     throttleUpdateOtherSlice: throttle(({dispatch}, {viewType, ijk}) => {
       requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
-    }, 150),
+    }, 200),
     async GetSlice({dispatch, state}, {viewName, index}) {
+
       try {
         let loading = setInterval(() => {
           Vue.prototype.$message.destroy();

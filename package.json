@@ -24,7 +24,7 @@
   "dependencies": {
     "@cornerstonejs/dicom-image-loader": "^1.77.12",
     "@itk-wasm/dicom": "6.0.1",
-    "@kitware/vtk.js": "^32.0.0",
+    "@kitware/vtk.js": "30.10.0",
     "@vueuse/core": "^10.5.0",
     "@yh/icons-svg": "^4.0.1",
     "@yh/ta-utils": "^3.0.152",
@@ -41,6 +41,7 @@
     "jszip": "3.10.1",
     "moment": "~2.29.4",
     "postcss": "^8.4.31",
+    "three": "^0.167.1",
     "uuid": "9.0.1",
     "vue": "2.7.16",
     "vue-bus": "^1.2.1",
