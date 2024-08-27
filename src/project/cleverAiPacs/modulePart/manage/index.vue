@@ -83,7 +83,7 @@
           </ta-big-table-column>
           <ta-big-table-column field="algorithmType" title="算法类型" width="140">
             <template #default="{}">
-              <ta-tag color="blue">自动</ta-tag>
+              <template>自动</template>
             </template>
           </ta-big-table-column>
 
@@ -138,19 +138,19 @@
           </ta-big-table-column>
           <ta-big-table-column field="algorithmType" title="算法类型">
             <template #default="{}">
-              <ta-tag color="blue">自动</ta-tag>
+              自动
             </template>
           </ta-big-table-column>
           <ta-big-table-column field="computeStatus" title="计算状态">
             <template #default="{row}">
-              <ta-tag v-if="row.computeStatus === '3'" color="#87cdfc">计算成功</ta-tag>
-              <ta-tag v-if="row.computeStatus === '2'" color="#e7ee33">计算中</ta-tag>
-              <ta-tag v-if="row.computeStatus === '1'" color="#e7ee33">等待计算</ta-tag>
+              <ta-tag v-if="row.computeStatus === '3'" color="rgba(0,175,176,0.15)">计算成功</ta-tag>
+              <ta-tag v-if="row.computeStatus === '2'" color="rgba(0,175,176,0.15)">计算中</ta-tag>
+              <ta-tag v-if="row.computeStatus === '1'" color="rgba(0,175,176,0.15)">等待计算</ta-tag>
             </template>
           </ta-big-table-column>
           <ta-big-table-column field="ctrlState" title="操作状态">
             <template #default="{}">
-              <ta-tag color="#f37c32">正常解析</ta-tag>
+              正常解析
             </template>
           </ta-big-table-column>
           <ta-big-table-column field="ctrlDoctor" title="操作医师">
@@ -236,12 +236,14 @@
               </ta-big-table-column>
               <ta-big-table-column field="state" title="状态">
                 <template #default="{row}">
-                  <ta-tag v-if="row.state === '1'" color="green">上传成功</ta-tag>
+                  <template v-if="row.state === '1'">
+                    上传成功
+                  </template>
                 </template>
               </ta-big-table-column>
               <ta-big-table-column field="mathtype" title="算法类型">
                 <template #default="{row}">
-                  <ta-tag v-if="row.mathtype === '1'" color="blue">自动</ta-tag>
+                  <template v-if="row.mathtype === '1'">自动</template>
                 </template>
               </ta-big-table-column>
             </ta-big-table>
