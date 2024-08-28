@@ -150,14 +150,16 @@
     </div>
 
     <div class="analytic_semantic_description">
-      <anaSemanticDesBlock :bookItems.sync="anaSecDesConf.bookItems" :title="anaSecDesConf.title">
+      <anaSemanticDesBlock :bookItems.sync="anaSecDesConf.bookItems" :selectVal="filmIpt_curItem"
+        :title="anaSecDesConf.title">
         <filmInputState slot="searchBar" v-model="filmIpt_curItem" :typec="`dropdown`" :selectCurIdx="`0`"
           :optionNum="`1`" @cb-click="handle_filmIptClick_yxsj"></filmInputState>
       </anaSemanticDesBlock>
     </div>
 
     <div class="analytic_semantic_description">
-      <anaSemanticDesBlock :bookItems.sync="anaSecDesConf_1.bookItems" :title="anaSecDesConf_1.title">
+      <anaSemanticDesBlock :bookItems.sync="anaSecDesConf_1.bookItems" :selectVal="filmIpt_curItem_1"
+        :title="anaSecDesConf_1.title">
         <filmInputState slot="searchBar" v-model="filmIpt_curItem_1" :typec="`dropdown`" :selectCurIdx="`1`"
           :optionNum="`2`" @cb-click="handle_filmIptClick_yxzd"></filmInputState>
       </anaSemanticDesBlock>

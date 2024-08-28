@@ -18,7 +18,7 @@
     </div>
     <div class="context_book">
       <div class="item_book" v-for="(item, index) in resultBookItems" :key="index">
-        {{ item }}
+        <div class="item_row">{{ item }}</div>
       </div>
     </div>
   </div>
@@ -38,6 +38,9 @@
 export default {
   name: "ana-semantic-des-block",
   props: {
+    selectVal: {
+      type: [Object],
+    },
     title: {
       type: String,
       default: "",
@@ -57,6 +60,15 @@ export default {
         // return val;
       },
     },
+  },
+  watch: {
+    selectVal: {
+      handler(nVal, oVal) {
+        console.log("selectVal________", nVal, oVal);
+
+      },
+      immediate: false,
+    }
   },
   data() {
     return {
@@ -116,6 +128,8 @@ export default {
 .context_book {
   .item_book {
     margin: 10px 0 10px 0;
+
+    .item_row {}
   }
 }
 </style>
