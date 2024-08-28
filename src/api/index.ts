@@ -683,6 +683,8 @@ export const xhr_updateNoduleLesion = (formData) => {
   return Base.submit(null, {
     // url: api5 + Topbase + study + urlJson['addFavorite'],
     url: nodule + urlJson["updateNoduleLesion"],
+    autoQs: false,
+    // isFormData: true,
     data: {
       ...formData,
     },

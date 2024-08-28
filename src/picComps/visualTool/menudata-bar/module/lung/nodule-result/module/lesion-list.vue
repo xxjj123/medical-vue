@@ -263,10 +263,31 @@ export default {
       },
       immediate: true,
     },
+    lunglistSelectRow: {
+      handler(nVal, oVal) {
+        console.log("watch____lunglistSelectRow", nVal, oVal);
+        if (nVal) {
+          const valState = this.validateObject(nVal.lobeSegment);
+          console.log("valState", valState)
+        }
+      },
+      immediate: true
+    },
+    noduleTypeListSelectRow: {
+      handler(nVal, oVal) {
+        console.log("watch____noduleTypeListSelectRow", nVal, oVal);
+        if (nVal) {
+          const valState = this.validateObject(nVal.type);
+          console.log("valState", valState)
+        }
+      },
+      immediate: true
+    }
   },
 
   data() {
     return {
+      NoduleLesion_row: {},//临时用
       lunglistSelectRow: {},//结节改变中转数据
       noduleTypeListSelectRow: {},//类型结节-中转
       nodule_type: [],
@@ -740,14 +761,11 @@ export default {
     setPopupContainer(trigger) {
       return trigger.parentElement;
     },
-    async noduleAreaName(val) {
-      const item = await this.$api.query_humen_boot_data();
-      const rowSelectItem = this.$api.findObjectByValue(item, "lung.segments", val.toString())[0];
-      console.log("rowSelectItem==", rowSelectItem);
-      const {label, value} = rowSelectItem;
-      return `${label} / ${value}`;
-      // 假设你更新了某个数据属性来反映结果
-      // this.label = `${rowSelectItem.label} / ${value}`;
+
+    reset_cache_selectedNodule() {
+      // this.NoduleLesion_row = {};
+      this.lunglistSelectRow = {};
+      this.noduleTypeListSelectRow = {};
     },
     rowStyle({row, rowIndex}) {
       console.log("rowStyle_____", row, rowIndex);
@@ -794,30 +812,58 @@ export default {
 
       this.$refs.tableLungNodule.setCurrentRow(row);
 
+      this.NoduleLesion_row = row;
+
+
       console.log("this.$refs.tableLungNodule==", this.$refs.tableLungNodule);
 
-      if (this.validateObject(this.lunglistSelectRow)) {
+      console.log("this.validateObject(this.lunglistSelectRow)", this.lunglistSelectRow, this.validateObject(this.lunglistSelectRow.lobeSegment))
+      console.log("this.validateObject(this.noduleTypeListSelectRow)", this.noduleTypeListSelectRow, this.validateObject(this.noduleTypeListSelectRow.type))
+      if (this.validateObject(this.lunglistSelectRow.lobeSegment)) {
 
+        this.$set(this.NoduleLesion_row, "lobeSegment", this.lunglistSelectRow.lobeSegment.value)
+
+
+        let param = {};
+        param = {
+          ...this.NoduleLesion_row,
+          type: typeof this.NoduleLesion_row.type === 'object' ? this.NoduleLesion_row.type.value : typeof this.NoduleLesion_row.type === 'string' ? this.NoduleLesion_row.type : undefined,
+        }
+
+        console.log("param___param__lung", this.NoduleLesion_row)
+        xhr_updateNoduleLesion(param).then(result => {
+          console.log("xhr_updateNoduleLesion__lung", result);
+          this.reset_cache_selectedNodule();
+
+          this.$message.success(`更新数据成功`)
+        })
       } else {
 
       }
 
-      if (this.validateObject(this.noduleTypeListSelectRow)) {
+      if (this.validateObject(this.noduleTypeListSelectRow.type)) {
+        this.$set(this.NoduleLesion_row, "type", this.noduleTypeListSelectRow.type.value)
 
+        console.log("this.NoduleLesion_row==this.NoduleLesion_row", this.NoduleLesion_row)
+        let param = {};
+        param = {
+          ...this.NoduleLesion_row,
+          lobeSegment: typeof this.NoduleLesion_row.lobeSegment === 'object' ? this.NoduleLesion_row.lobeSegment.value : typeof this.NoduleLesion_row.lobeSegment === 'string' ? this.NoduleLesion_row.lobeSegment : undefined,
+        }
+
+        console.log("param___param__type", this.NoduleLesion_row)
+        xhr_updateNoduleLesion(param).then(result => {
+          console.log("xhr_updateNoduleLesion___type", result);
+          this.reset_cache_selectedNodule();
+
+          this.$message.success(`更新数据成功`)
+
+        })
       } else {
 
       }
 
-      let param = {};
 
-      param = {
-
-      }
-
-      xhr_updateNoduleLesion(param).then(result => {
-        console.log("xhr_updateNoduleLesion___", result);
-
-      })
 
 
       // console.log(
@@ -869,6 +915,9 @@ export default {
         )[0];
         this.noduleTypeDropDown.showValue = `${rowSelectItem.name}`;
       });
+
+
+      // this.NoduleLesion_row = {};
 
     },
     async init_lesionPanelSearchBar() {
@@ -1335,6 +1384,9 @@ export default {
 
 
         this.noduleTypeListSelectRow = {type: rowSelectItem};
+
+
+        console.log("this.noduleTypeListSelectRow--", this.noduleTypeListSelectRow)
 
 
       })
