@@ -17,11 +17,7 @@
       </div>
     </div>
     <div class="context_book">
-      <div
-        class="item_book"
-        v-for="(item, index) in resultBookItems"
-        :key="index"
-      >
+      <div class="item_book" v-for="(item, index) in resultBookItems" :key="index">
         {{ item }}
       </div>
     </div>
@@ -88,6 +84,9 @@ export default {
   },
   created() {
     this.init_resultBookItems();
+
+
+    console.log("this.$slots.searchBar:::", this.$slots.searchBar)
   },
 };
 </script>
@@ -97,8 +96,10 @@ export default {
   margin-bottom: 14px;
   margin-top: 20px;
 }
+
 .copyIcon {
   cursor: pointer;
+
   .pic {
     .func_bgCover();
     background-image: url(./assets/img/copy.png);
@@ -106,6 +107,7 @@ export default {
     height: 14px;
     margin-right: 2px;
   }
+
   .txt {
     font-size: 14px;
   }

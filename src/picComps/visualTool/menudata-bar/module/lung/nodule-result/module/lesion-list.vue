@@ -152,14 +152,14 @@
     <div class="analytic_semantic_description">
       <anaSemanticDesBlock :bookItems.sync="anaSecDesConf.bookItems" :title="anaSecDesConf.title">
         <filmInputState slot="searchBar" v-model="filmIpt_curItem" :typec="`dropdown`" :selectCurIdx="`0`"
-          :optionNum="`1`" @cb-click="handle_filmIptClick"></filmInputState>
+          :optionNum="`1`" @cb-click="handle_filmIptClick_yxsj"></filmInputState>
       </anaSemanticDesBlock>
     </div>
 
     <div class="analytic_semantic_description">
       <anaSemanticDesBlock :bookItems.sync="anaSecDesConf_1.bookItems" :title="anaSecDesConf_1.title">
         <filmInputState slot="searchBar" v-model="filmIpt_curItem_1" :typec="`dropdown`" :selectCurIdx="`1`"
-          :optionNum="`2`" @cb-click="handle_filmIptClick"></filmInputState>
+          :optionNum="`2`" @cb-click="handle_filmIptClick_yxzd"></filmInputState>
       </anaSemanticDesBlock>
     </div>
 
@@ -939,7 +939,7 @@ export default {
       const selectValues = await this.$api.select_codeTable_type_group(type);
       return selectValues;
     },
-    handle_filmIptClick(ev) {
+    handle_filmIptClick_yxsj(ev) {
       console.log(
         "handle_filmIptClick___",
         ev,
@@ -947,11 +947,21 @@ export default {
         this.filmIpt_curItem
       );
     },
+    handle_filmIptClick_yxzd(ev) {
+      console.log(
+        "handle_filmIptClick___",
+        ev,
+        "filmIpt_curItem_1",
+        this.filmIpt_curItem_1
+      );
+    },
     selectAllEvent(ev) {
       console.log("selectAllEvent___", ev);
     },
     selectChangeEvent(ev) {
       console.log("selectChangeEvent___", ev);
+      const {selection} = ev;
+      console.log("selection===:", selection);
     },
     handleTableCurrentChange({row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event}) {
       console.log("handleTableCurrentChange:row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event --", row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event);
