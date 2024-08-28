@@ -14,6 +14,10 @@ export let suffix_name = `_on`;
 export const toggleButtonState = (name: string, state: {[key: string]: boolean}) => {
   // debugger
   state[`${name}${suffix_name}`] = !state[`${name}${suffix_name}`];
+
+  console.log("state====toggleButtonState", state);
+
+  return state[`${name}${suffix_name}`]
 };
 
 

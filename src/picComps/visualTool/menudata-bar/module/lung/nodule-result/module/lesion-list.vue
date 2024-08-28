@@ -798,6 +798,14 @@ export default {
 
       if (this.validateObject(this.lunglistSelectRow)) {
 
+      } else {
+
+      }
+
+      if (this.validateObject(this.noduleTypeListSelectRow)) {
+
+      } else {
+
       }
 
       let param = {};

@@ -333,6 +333,7 @@ export default {
         case ButtonNames.Ckcw:
           {
             toggleButtonState(ButtonNames.Ckcw, this);
+            console.log("this[ButtonNames.Ckcw]____", ButtonNames.Ckcw, this[`${ButtonNames.Ckcw}_on`]);
           }
           break;
         case ButtonNames.Mdtyms:
