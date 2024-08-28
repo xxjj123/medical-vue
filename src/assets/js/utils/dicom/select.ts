@@ -26,3 +26,19 @@ export enum SortOption {
   Volume = "6",
   Type = "7"
 }
+
+
+// 所见
+export const LungTemplateEnum = {
+  TEMP1: '{{lobeSegment}} 见{{type}},【{{im}}/{{imageCount}}】,大小约{{ellipsoidAxisMajor}}mm x {{ellipsoidAxisLeast}}mm，体积约{{volume}}mm³，平均CT值约{{ctMeasuresMean}}HU。',//1
+  TEMP2: '双肺见多发结节，其中最大者【{{im}}/{{imageCount}}】，大小约{{ellipsoidAxisMajor}}mm x {{ellipsoidAxisLeast}}mm， 体积约{{volume}}mm³，平均CT值约{{ctMeasuresMean}}HU。',//1
+  TEMP3: '{{lobeSegment}} 【{{im}}/{{imageCount}}】 见{{type}},大小约{{ellipsoidAxisMajor}}mm x {{ellipsoidAxisLeast}}mm，体积约{{volume}}mm³，平均CT值约{{ctMeasuresMean}}HU。',//1-limit or more-limit
+  TEMP4: '，较大者大小约{{ellipsoidAxisMajor}}mm x {{ellipsoidAxisLeast}}mm，体积约{{volume}}mm³，平均CT值约{{ctMeasuresMean}}HU。',//汇总-模版前缀-动画插入格式：（左肺上叶前段【50/209】、右肺上叶前段【83/209】见2个实性结节，）
+};
+
+// 诊断
+export const LungTemplateDiagnoseEnum = {
+  TEMP1: '多发结节',//select 无，前缀拼接格式（xxxx前段、xxx后段）
+
+}
+

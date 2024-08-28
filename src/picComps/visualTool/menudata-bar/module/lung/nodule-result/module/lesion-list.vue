@@ -215,6 +215,7 @@ import {CodeSandboxOutline} from "@yh/icons-svg";
 import {mapActions} from "vuex";
 import Vue from 'vue';
 import {SortOption} from "@/assets/js/utils/dicom/select";
+import {mapState} from "vuex";
 
 
 
@@ -242,6 +243,7 @@ export default {
     },
   },
   computed: {
+    ...mapState("viewInitStore", ["noduleInfo"]),
     menuResult: {
       get() {
         return this.value;
@@ -963,10 +965,12 @@ export default {
     selectChangeEvent(ev) {
       console.log("selectChangeEvent___", ev);
       const {selection} = ev;
-      console.log("selection===:", selection);
+      console.log("selection===:", JSON.stringify(selection));
     },
     handleTableCurrentChange({row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event}) {
       console.log("handleTableCurrentChange:row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event --", row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event);
+
+
 
     },
     afterLeaveEvents() { },
@@ -1561,6 +1565,8 @@ export default {
     },
   },
   created() {
+
+    console.log("noduleInfo====",this.noduleInfo);
     // console.log("lesion-list:this.menuResult", this.menuResult);
     // this.init_select_LesionList();
     this.init_lesionPanelSearchBar();
