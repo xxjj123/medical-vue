@@ -56,7 +56,7 @@
           </div>
         </template>
         <template #CHENGJI_VAL="{row}">
-          <div v-if="row.lobeSegment" class="h1 cj_block">
+          <div class="h1 cj_block">
             <!-- <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>前内基底段</span> -->
             <span>{{ row.lobeSegment.label }}</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>{{
               row.lobeSegment.name }}</span>
@@ -819,49 +819,8 @@ export default {
 
       console.log("this.validateObject(this.lunglistSelectRow)", this.lunglistSelectRow, this.validateObject(this.lunglistSelectRow.lobeSegment))
       console.log("this.validateObject(this.noduleTypeListSelectRow)", this.noduleTypeListSelectRow, this.validateObject(this.noduleTypeListSelectRow.type))
-      if (this.validateObject(this.lunglistSelectRow.lobeSegment)) {
-
-        this.$set(this.NoduleLesion_row, "lobeSegment", this.lunglistSelectRow.lobeSegment.value)
 
 
-        let param = {};
-        param = {
-          ...this.NoduleLesion_row,
-          type: typeof this.NoduleLesion_row.type === 'object' ? this.NoduleLesion_row.type.value : typeof this.NoduleLesion_row.type === 'string' ? this.NoduleLesion_row.type : undefined,
-        }
-
-        console.log("param___param__lung", this.NoduleLesion_row)
-        xhr_updateNoduleLesion(param).then(result => {
-          console.log("xhr_updateNoduleLesion__lung", result);
-          this.reset_cache_selectedNodule();
-
-          this.$message.success(`更新数据成功`)
-        })
-      } else {
-
-      }
-
-      if (this.validateObject(this.noduleTypeListSelectRow.type)) {
-        this.$set(this.NoduleLesion_row, "type", this.noduleTypeListSelectRow.type.value)
-
-        console.log("this.NoduleLesion_row==this.NoduleLesion_row", this.NoduleLesion_row)
-        let param = {};
-        param = {
-          ...this.NoduleLesion_row,
-          lobeSegment: typeof this.NoduleLesion_row.lobeSegment === 'object' ? this.NoduleLesion_row.lobeSegment.value : typeof this.NoduleLesion_row.lobeSegment === 'string' ? this.NoduleLesion_row.lobeSegment : undefined,
-        }
-
-        console.log("param___param__type", this.NoduleLesion_row)
-        xhr_updateNoduleLesion(param).then(result => {
-          console.log("xhr_updateNoduleLesion___type", result);
-          this.reset_cache_selectedNodule();
-
-          this.$message.success(`更新数据成功`)
-
-        })
-      } else {
-
-      }
 
 
 
@@ -1347,7 +1306,7 @@ export default {
       }
     },
     handleMenuClick_lungList(e) {
-      console.log("handleMenuClick_lungList", e);
+      console.log("handleMenuClick_lungList", e, "this.tableCurrentIdx", this.tableCurrentIdx, "this.tableConfig.tableData", this.tableConfig.tableData, "this.NoduleLesion_row ", this.NoduleLesion_row);
       const {key} = e;
       const arr = key.split("_");
       const code = arr[arr.length - 1];
@@ -1361,8 +1320,38 @@ export default {
 
         this.lunglistSelectRow = {lobeSegment: rowSelectItem};
 
+        console.log("this.lunglistSelectRow---handleMenuClick_after:", this.lunglistSelectRow, "this.tableConfig.tableData[this.tableCurrentIdx]", this.tableConfig.tableData[this.tableCurrentIdx])
+
+        // 同步最新表格数据
+        this.$set(this.tableConfig.tableData[this.tableCurrentIdx], 'lobeSegment', rowSelectItem);
+        // 同步edit状态下的对应行数据回显内容
+        this.lungLobeDropDown.showValue = `${rowSelectItem.label} / ${rowSelectItem.name}`;
+        // this.reset_cache_selectedNodule();
 
 
+        if (this.validateObject(this.lunglistSelectRow.lobeSegment)) {
+
+          // this.$set(this.NoduleLesion_row, "lobeSegment", this.lunglistSelectRow.lobeSegment.value)
+
+
+          let param = {};
+          param = {
+            ...this.NoduleLesion_row,
+            lobeSegment: this.lunglistSelectRow.lobeSegment.value,
+            type: typeof this.NoduleLesion_row.type === 'object' ? this.NoduleLesion_row.type.value : typeof this.NoduleLesion_row.type === 'string' ? this.NoduleLesion_row.type : undefined,
+          }
+
+          console.log("param___param__lung", this.NoduleLesion_row)
+          xhr_updateNoduleLesion(param).then(result => {
+            console.log("xhr_updateNoduleLesion__lung", result);
+            //  this.reset_cache_selectedNodule();
+            setTimeout(() => {
+              this.$message.success(`更新数据成功`)
+            }, 500)
+          })
+        } else {
+
+        }
       })
 
 
@@ -1371,7 +1360,7 @@ export default {
 
     },
     handleMenuClick_noduleList(e) {
-      console.log("handleMenuClick_noduleList", e);
+      console.log("handleMenuClick_noduleList", e, "this.tableCurrentIdx", this.tableCurrentIdx, "this.tableConfig.tableData", this.tableConfig.tableData);
       const {key} = e;
       const arr = key.split("_");
       const code = arr[arr.length - 1];
@@ -1388,6 +1377,39 @@ export default {
 
         console.log("this.noduleTypeListSelectRow--", this.noduleTypeListSelectRow)
 
+        console.log("this.noduleTypeListSelectRow---handleMenuClick_after:", this.noduleTypeListSelectRow)
+
+
+        // 同步最新表格数据
+        this.$set(this.tableConfig.tableData[this.tableCurrentIdx], 'type', rowSelectItem);
+        // 同步edit状态下的对应行数据回显内容
+        this.lungLobeDropDown.showValue = `${rowSelectItem.name}`;
+        // this.reset_cache_selectedNodule();
+
+
+        if (this.validateObject(this.noduleTypeListSelectRow.type)) {
+          // this.$set(this.NoduleLesion_row, "type", this.noduleTypeListSelectRow.type.value)
+
+          console.log("this.NoduleLesion_row==this.NoduleLesion_row", this.NoduleLesion_row)
+          let param = {};
+          param = {
+            ...this.NoduleLesion_row,
+            type: this.noduleTypeListSelectRow.type.value,
+            lobeSegment: typeof this.NoduleLesion_row.lobeSegment === 'object' ? this.NoduleLesion_row.lobeSegment.value : typeof this.NoduleLesion_row.lobeSegment === 'string' ? this.NoduleLesion_row.lobeSegment : undefined,
+          }
+
+          console.log("param___param__type", this.NoduleLesion_row)
+          xhr_updateNoduleLesion(param).then(result => {
+            console.log("xhr_updateNoduleLesion___type", result);
+            // this.reset_cache_selectedNodule();
+            setTimeout(() => {
+              this.$message.success(`更新数据成功`)
+            }, 500)
+
+          })
+        } else {
+
+        }
 
       })
 
