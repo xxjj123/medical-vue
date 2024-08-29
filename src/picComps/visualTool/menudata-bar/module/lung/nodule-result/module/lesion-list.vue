@@ -26,11 +26,12 @@
       <!-- :checkbox-config="{
           trigger: 'row',
         }" -->
-      <ta-big-table ref="tableLungNodule" :size="tableConfig.size" @current-change="handleTableCurrentChange"
-        highlight-current-row :keyboard-config="{ isArrow: true }" height="200" :columns="tableConfig.tableColumns"
-        :data="tableConfig.tableData" @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent"
-        :edit-config="{ trigger: 'click' }" @cell-click="handleCellClick">
-        <template #risk="{ row }">
+      <ta-big-table class="lung_table_custom" ref="tableLungNodule" :size="tableConfig.size"
+        @current-change="handleTableCurrentChange" highlight-current-row :keyboard-config="{isArrow: true}" height="200"
+        :columns="tableConfig.tableColumns" :data="tableConfig.tableData" @checkbox-all="selectAllEvent"
+        @checkbox-change="selectChangeEvent" :edit-config="{trigger: 'click'}" @cell-click="handleCellClick"
+        :sort-config="tableConfig.sortConfig">
+        <template #risk="{row}">
           <span class="ml-[10px]">{{ row.riskCode }}</span><br />
           <div v-if="row.riskCode == 1">
             <span class="levelTag">低危</span>
@@ -42,7 +43,11 @@
             <span class="levelTag text-red-500">高危</span>
           </div>
         </template>
-        <template #volume="{ row }">
+        <template #lobeSegmentSort="{row}">
+          <div v-show="false">-{{ row }}-</div>
+        </template>
+
+        <template #volume="{row}">
           <div class="h1 im_block">
             <span class="mr-[5px]">IM</span><span>{{ row.im }}</span>
           </div>
@@ -50,8 +55,8 @@
             <span class="mr-[5px]">{{ row.volume }}</span><span>mm³</span>
           </div>
         </template>
-        <template #CHENGJI_VAL="{ row }">
-          <div class="h1 cj_block">
+        <template #CHENGJI_VAL="{row}">
+          <div v-if="row.lobeSegment" class="h1 cj_block">
             <!-- <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>前内基底段</span> -->
             <span>{{ row.lobeSegment.label }}</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>{{
               row.lobeSegment.name }}</span>
@@ -60,7 +65,7 @@
             <span>{{ row.ellipsoidAxisMajor }}x{{ row.ellipsoidAxisLeast }}mm</span>
           </div>
         </template>
-        <template #mean="{ row }">
+        <template #mean="{row}">
           <div class="h1 mean_block">
             <span>{{ row.type.name }}</span>
           </div>
@@ -68,9 +73,19 @@
             <span>{{ row.ctMeasuresMean }}</span><span>HU</span>
           </div>
         </template>
+        <template #typeSort="{row}">
+          <div v-show="false">-{{ row }}-</div>
+        </template>
+        <template #im="{row}">
+          <div v-show="false">-{{ row }}-</div>
+        </template>
+        <template #ellipsoidAxisMajor="{row}">
+          <div v-show="false">-{{ row }}-</div>
+        </template>
+
 
         <!-- edit holder begin-->
-        <template #CHENGJI_ROLE="{ row, column }">
+        <template #CHENGJI_ROLE="{row, column}">
           <div class="h1 cj_block">
             <!-- <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span
             ><span>前内基底段</span> -->
@@ -110,7 +125,7 @@
           </div>
         </template>
 
-        <template #MEAN_EDIT="{ row, column }">
+        <template #MEAN_EDIT="{row, column}">
           <div class="h1 mean_block">
             <ta-dropdown :trigger="['click']" class="flex justify-start items-center mr-[10px]"
               :getPopupContainer="setPopupContainer">
@@ -155,15 +170,15 @@
         <ta-form-model :layout="'vertical'" :model="form">
           <template v-for="(item, index) in sort_condition.tumorType_select.searchPanel">
             <ta-form-model-item :key="index" :label="item.title">
-              <ta-checkbox :indeterminate="item.allSelect.indeterminate" @change="(e) => onCheckAllChange({ e, index })"
+              <ta-checkbox :indeterminate="item.allSelect.indeterminate" @change="(e) => onCheckAllChange({e, index})"
                 :checked="item.allSelect.checkAll">
                 全部
               </ta-checkbox>
-              <ta-checkbox-group :options="item.list" @change="(val) => onChange({ val, index })"
+              <ta-checkbox-group :options="item.list" @change="(val) => onChange({val, index})"
                 :value="index === 0 ? form[`type`] : form[`type${index}`]" />
               <br />
               <ta-checkbox v-if="index === 2" :indeterminate="majorAxis.indeterminate"
-                @change="(ev) => majorAxis.onCheckAllChange({ ev })" :checked="majorAxis.checkAll"
+                @change="(ev) => majorAxis.onCheckAllChange({ev})" :checked="majorAxis.checkAll"
                 class="check_block_area">
                 <div class="flex">
                   <div>
@@ -194,9 +209,12 @@
 <script lang="jsx">
 import anaSemanticDesBlock from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/index.vue";
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
-import { CodeSandboxOutline } from "@yh/icons-svg";
-import { mapActions } from "vuex";
+import {CodeSandboxOutline} from "@yh/icons-svg";
+import {mapActions} from "vuex";
 import Vue from 'vue';
+import {SortOption} from "@/assets/js/utils/dicom/select";
+
+
 // 病理部位标志
 const LESION_PART_SITE = {
   CALCIUM: "calcium", //钙化
@@ -286,6 +304,17 @@ export default {
       },
       tableConfig: {
         size: "small",
+        showHiddenOrSortColumn: {
+          // disabledControlCol: (column) => {
+          //   console.log("showHiddenOrSortColumn_disabledControlCol", column);
+          //   return column.type === 'lobeSegmentSort';
+          // }
+        },
+        sortConfig: {
+          trigger: 'default',
+          defaultSort: {field: 'riskCode', order: 'asc'},
+          orders: ['desc', 'asc', null]
+        },
         tableData: [
           {
             risk: "1",
@@ -346,6 +375,7 @@ export default {
             field: "riskCode", //危险级别
             title: "全部",
             width: "65",
+            sortable: true,
             customRender: {
               default: "risk",
               // default: ({ row }) => {
@@ -362,9 +392,68 @@ export default {
           //   width: "60",
           // },
           {
+            field: "lobeSegmentSort",
+            title: "",
+            sortable: true,
+            type: {
+              type: "seq",
+            },
+            orderIndex: "0",
+            orderAsc: ['asc', 'desc', null],
+            width: '0.1',
+            customRender: {
+              default: "lobeSegmentSort"
+            }
+          },
+          {
+            field: "typeSort",
+            title: "",
+            sortable: true,
+            type: {
+              type: "seq",
+            },
+            orderIndex: "0",
+            orderAsc: ['asc', 'desc', null],
+            width: '0.1',
+            customRender: {
+              default: "typeSort"
+            }
+          },
+          {
+            field: "im",
+            title: "",
+            sortable: true,
+            type: {
+              type: "seq",
+            },
+            orderIndex: "0",
+            orderAsc: ['asc', 'desc', null],
+            width: '0.1',
+            customRender: {
+              default: "im"
+            }
+          },
+          {
+            field: "ellipsoidAxisMajor",
+            title: "",
+            sortable: true,
+            type: {
+              type: "seq",
+            },
+            orderIndex: "0",
+            orderAsc: ['asc', 'desc', null],
+            width: '0.1',
+            customRender: {
+              default: "ellipsoidAxisMajor"
+            }
+          },
+          {
             field: "volume",
             title: "", //ellipsoidAxis major * least mm
             width: "76",
+            sortable: true,
+            orderIndex: "0",
+            orderAsc: ['asc', 'desc', null],
             customRender: {
               default: "volume",
             },
@@ -389,17 +478,18 @@ export default {
               edit: "MEAN_EDIT",
             },
           },
+
         ],
       },
       majorAxis: {
         // indeterminate: false,
-        onCheckAllChange: ({ ev }) => {
+        onCheckAllChange: ({ev}) => {
           console.log("onCheckAllChange--mg", ev, ev.target.checked);
           let isChecked = ev.target.checked;
           if (isChecked) {
             this.$set(this.majorAxis, "checkAll", true);
             console.log("this.form---", this.form);
-            const { type2 } = this.form;
+            const {type2} = this.form;
             if (type2 && type2.length > 0) {
               this.$delete(this.form, "type2");
               const row2 = this.sort_condition.tumorType_select.searchPanel[2];
@@ -662,12 +752,12 @@ export default {
       const item = await this.$api.query_humen_boot_data();
       const rowSelectItem = this.$api.findObjectByValue(item, "lung.segments", val.toString())[0];
       console.log("rowSelectItem==", rowSelectItem);
-      const { label, value } = rowSelectItem;
+      const {label, value} = rowSelectItem;
       return `${label} / ${value}`;
       // 假设你更新了某个数据属性来反映结果
       // this.label = `${rowSelectItem.label} / ${value}`;
     },
-    rowStyle({ row, rowIndex }) {
+    rowStyle({row, rowIndex}) {
       console.log("rowStyle_____", row, rowIndex);
       if (this.tableCurrentIdx) {
         if ([this.tableCurrentIdx].includes(rowIndex)) {
@@ -709,9 +799,9 @@ export default {
       // console.log(
       //   " row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event ", row,
       //   rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event);
-      const { property } = column;
+      const {property} = column;
       // if(property === 'CHENGJI_VAL'){
-      const { lobe, lobeSegment } = row;
+      const {lobe, lobeSegment} = row;
 
       console.log("lobe, lobeSegment----", lobe, lobeSegment);
 
@@ -747,7 +837,7 @@ export default {
         });
       }
       // }else if(property === 'mean'){
-      const { type } = row;
+      const {type} = row;
       // console.log("type===",type);
       this.$api.query_humen_boot_data().then((item) => {
         // console.log("item-----",item);
@@ -767,8 +857,8 @@ export default {
     async init_lesionPanelSearchBar() {
       const item = await this.init_select("LESION_LIST_TYPE");
       const LESION_LIST_TYPE = this.$ut.serializeDropdownList(item);
-      const { type_select, tumorType_select } = this.sort_condition;
-      const { searchPanel } = tumorType_select;
+      const {type_select, tumorType_select} = this.sort_condition;
+      const {searchPanel} = tumorType_select;
       const lex = searchPanel[0];
       const typeAll = searchPanel[1];
       const longSer = searchPanel[2];
@@ -838,12 +928,12 @@ export default {
     selectChangeEvent(ev) {
       console.log("selectChangeEvent___", ev);
     },
-    handleTableCurrentChange({ row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event }) {
+    handleTableCurrentChange({row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event}) {
       console.log("handleTableCurrentChange:row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event --", row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event);
 
     },
     afterLeaveEvents() { },
-    onCheckAllChange({ e, index }) {
+    onCheckAllChange({e, index}) {
       let isChecked = e.target.checked;
       // console.log("isChecked=", isChecked);
       const typeArr =
@@ -878,7 +968,7 @@ export default {
       }
       this.$set(allSelect, "indeterminate", false);
     },
-    onChange({ val, index }) {
+    onChange({val, index}) {
       // console.log("onChange-----", val, index);
       const typeArr =
         this.sort_condition.tumorType_select.searchPanel[index].list;
@@ -946,18 +1036,254 @@ export default {
       }
     },
     handleMenuClick(e) {
-      // console.log("click:handleMenuClick:", e);
-      const { key } = e;
+      console.log("click:handleMenuClick:", e);
+      const {key} = e;
       const keyFindArr = key.split("_");
-      // console.log("keyFindArr=", keyFindArr);
-      const idx = keyFindArr[0];
+      console.log("keyFindArr=", keyFindArr);
+      console.log("this.sort_condition.type_select.list==", this.sort_condition.type_select.list);
 
-      const row = this.sort_condition.type_select.list[idx];
-      // console.log("sort_condition.type_select==row", row);
-      this.sort_condition.type_select.showValue = row.label;
+      // return
+      // const idx = keyFindArr[0];
+      const idx = keyFindArr[1];
+      const row = this.sort_condition.type_select.list.filter(item => item.value === idx)[0]
+      // const row = this.sort_condition.type_select.list[idx];
+
+      console.log("sort_condition.type_select==row", row);
+
+      const {label, value} = row;
+
+      this.sort_condition.type_select.showValue = label;
+
+      switch (value) {
+        case SortOption.Default: {
+          let that = this;
+          const riskCode_col = this.$refs.tableLungNodule.getColumnByField('im');
+          console.log("riskCode_col++++", riskCode_col);
+
+          const lobeSegmentSort_col = this.tableConfig.tableColumns[3]
+
+          function get_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[3];
+            const {orderIndex} = col;
+            return orderIndex;
+          }
+
+          function next_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[3];
+            const idx = get_lobeSegmentSort_col_index();
+            col.orderIndex = (parseInt(idx, 10) + 1) % col.orderAsc.length;
+            return col.orderIndex;
+          }
+
+          const orderIndex = next_lobeSegmentSort_col_index();
+          const order = that.tableConfig.tableColumns[3].orderAsc[orderIndex];
+
+          this.$refs.tableLungNodule.sort('im', 'desc');
+
+
+
+
+          console.log("SortOption.IM=默认=", SortOption.IM);
+        }
+          break;
+        case SortOption.Risk: {
+          const riskCode_col = this.$refs.tableLungNodule.getSortColumns('riskCode')[0];
+          console.log("riskCode_col___", riskCode_col);
+          const {order} = riskCode_col;
+
+          console.log("order==", order);
+
+          if (order === 'desc') {
+            this.$refs.tableLungNodule.sort('riskCode', 'asc');
+          } else if (order === 'asc') {
+            this.$refs.tableLungNodule.sort('riskCode', 'desc');
+          } else {
+            this.$refs.tableLungNodule.sort('riskCode', 'asc');
+          }
+          console.log("SortOption.Risk==", SortOption.Risk);
+        }
+          break;
+        case SortOption.IM: {
+          let that = this;
+          const riskCode_col = this.$refs.tableLungNodule.getColumnByField('im');
+          console.log("riskCode_col++++", riskCode_col);
+
+          const lobeSegmentSort_col = this.tableConfig.tableColumns[3]
+
+          function get_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[3];
+            const {orderIndex} = col;
+            return orderIndex;
+          }
+
+          function next_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[3];
+            const idx = get_lobeSegmentSort_col_index();
+            col.orderIndex = (parseInt(idx, 10) + 1) % col.orderAsc.length;
+            return col.orderIndex;
+          }
+
+          const orderIndex = next_lobeSegmentSort_col_index();
+          const order = that.tableConfig.tableColumns[3].orderAsc[orderIndex];
+
+          if (order === 'desc') {
+            this.$refs.tableLungNodule.sort('im', 'asc');
+          } else if (order === 'asc') {
+            this.$refs.tableLungNodule.sort('im', 'desc');
+          } else {
+            this.$refs.tableLungNodule.sort('im', 'asc');
+          }
+
+
+
+          console.log("SortOption.IM==", SortOption.IM);
+        }
+          break;
+        case SortOption.LobeSegment: {
+          let that = this;
+          const riskCode_col = this.$refs.tableLungNodule.getColumnByField('lobeSegmentSort');
+
+          const lobeSegmentSort_col = this.tableConfig.tableColumns[1]
+
+          function get_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[1];
+            const {orderIndex} = col;
+            return orderIndex;
+          }
+
+          function next_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[1];
+            const idx = get_lobeSegmentSort_col_index();
+            col.orderIndex = (parseInt(idx, 10) + 1) % col.orderAsc.length;
+            return col.orderIndex;
+          }
+
+          const orderIndex = next_lobeSegmentSort_col_index();
+          const order = that.tableConfig.tableColumns[1].orderAsc[orderIndex];
+
+          if (order === 'desc') {
+            this.$refs.tableLungNodule.sort('lobeSegmentSort', 'asc');
+          } else if (order === 'asc') {
+            this.$refs.tableLungNodule.sort('lobeSegmentSort', 'desc');
+          } else {
+            this.$refs.tableLungNodule.sort('lobeSegmentSort', 'asc');
+          }
+          console.log("SortOption.LobeSegment==", SortOption.LobeSegment);
+        }
+          break;
+        case SortOption.Length: {
+          let that = this;
+          const riskCode_col = this.$refs.tableLungNodule.getColumnByField('im');
+          console.log("riskCode_col++++", riskCode_col);
+
+          const lobeSegmentSort_col = this.tableConfig.tableColumns[4]
+
+          function get_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[4];
+            const {orderIndex} = col;
+            return orderIndex;
+          }
+
+          function next_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[4];
+            const idx = get_lobeSegmentSort_col_index();
+            col.orderIndex = (parseInt(idx, 10) + 1) % col.orderAsc.length;
+            return col.orderIndex;
+          }
+
+          const orderIndex = next_lobeSegmentSort_col_index();
+          const order = that.tableConfig.tableColumns[4].orderAsc[orderIndex];
+
+          if (order === 'desc') {
+            this.$refs.tableLungNodule.sort('ellipsoidAxisMajor', 'asc');
+          } else if (order === 'asc') {
+            this.$refs.tableLungNodule.sort('ellipsoidAxisMajor', 'desc');
+          } else {
+            this.$refs.tableLungNodule.sort('ellipsoidAxisMajor', 'asc');
+          }
+
+
+
+          console.log("SortOption.Length==", SortOption.Length);
+        }
+          break;
+        case SortOption.Volume: {
+          let that = this;
+          const riskCode_col = this.$refs.tableLungNodule.getColumnByField('volume');
+          console.log("riskCode_col++++", riskCode_col);
+
+          const lobeSegmentSort_col = this.tableConfig.tableColumns[5]
+
+          function get_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[5];
+            const {orderIndex} = col;
+            return orderIndex;
+          }
+
+          function next_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[5];
+            const idx = get_lobeSegmentSort_col_index();
+            col.orderIndex = (parseInt(idx, 10) + 1) % col.orderAsc.length;
+            return col.orderIndex;
+          }
+
+          const orderIndex = next_lobeSegmentSort_col_index();
+          const order = that.tableConfig.tableColumns[5].orderAsc[orderIndex];
+
+          if (order === 'desc') {
+            this.$refs.tableLungNodule.sort('volume', 'asc');
+          } else if (order === 'asc') {
+            this.$refs.tableLungNodule.sort('volume', 'desc');
+          } else {
+            this.$refs.tableLungNodule.sort('volume', 'asc');
+          }
+
+
+
+          console.log("SortOption.Volume==", SortOption.Volume);
+        }
+          break;
+        case SortOption.Type: {
+          let that = this;
+          const riskCode_col = this.$refs.tableLungNodule.getColumnByField('typeSort');
+
+          const lobeSegmentSort_col = this.tableConfig.tableColumns[2]
+
+          function get_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[2];
+            const {orderIndex} = col;
+            return orderIndex;
+          }
+
+          function next_lobeSegmentSort_col_index() {
+            const col = that.tableConfig.tableColumns[2];
+            const idx = get_lobeSegmentSort_col_index();
+            col.orderIndex = (parseInt(idx, 10) + 1) % col.orderAsc.length;
+            return col.orderIndex;
+          }
+
+          const orderIndex = next_lobeSegmentSort_col_index();
+          const order = that.tableConfig.tableColumns[2].orderAsc[orderIndex];
+
+          if (order === 'desc') {
+            this.$refs.tableLungNodule.sort('typeSort', 'asc');
+          } else if (order === 'asc') {
+            this.$refs.tableLungNodule.sort('typeSort', 'desc');
+          } else {
+            this.$refs.tableLungNodule.sort('typeSort', 'asc');
+          }
+          console.log("SortOption.Type==", SortOption.Type);
+
+        }
+          break;
+        default:
+          return void 0;
+      }
     },
     handleMenuClick_lungList(e) {
       // console.log("handleMenuClick_lungList",e);
+
+
     },
     handleMenuClick_noduleList(e) {
       // console.log("handleMenuClick_noduleList",e);
@@ -1016,7 +1342,7 @@ export default {
       // this.tableConfig.tableData = tableData; //old 赋值
 
       // new 方式接口赋值：2024-08-26
-      const { noduleLesionList } = this.menuResult;
+      const {noduleLesionList} = this.menuResult;
 
       const processedData_lobe = this.$api.processLungItems.call(this, noduleLesionList, ['lobeSegment']).then(async (item) => {
 
@@ -1036,25 +1362,25 @@ export default {
       // this.tableConfig.tableData = processedData;
 
       // 初始化edit模式小组件的数据源
-      this.$api.query_humen_boot_data().then((item) => {
-        // console.log("query_humen_boot_data", item);
-        const nodule_type = this.$api.getPropertyArray(item, "lung.noduleType");
-        const left_lung = this.$api.getPropertyArray(
-          item,
-          "lung.segment.leftLung.segments",
-        );
-        const right_lung = this.$api.getPropertyArray(
-          item,
-          "lung.segment.rightLung.segments",
-        );
-        // console.log("nodule_type-", nodule_type);
-        // console.log("left_lung-", left_lung);
-        this.nodule_type = nodule_type;
-        this.left_lung = left_lung;
-        this.right_lung = right_lung;
+      /*  this.$api.query_humen_boot_data().then((item) => {
+         // console.log("query_humen_boot_data", item);
+         const nodule_type = this.$api.getPropertyArray(item, "lung.noduleType");
+         const left_lung = this.$api.getPropertyArray(
+           item,
+           "lung.segment.leftLung.segments",
+         );
+         const right_lung = this.$api.getPropertyArray(
+           item,
+           "lung.segment.rightLung.segments",
+         );
+         // console.log("nodule_type-", nodule_type);
+         // console.log("left_lung-", left_lung);
+         this.nodule_type = nodule_type;
+         this.left_lung = left_lung;
+         this.right_lung = right_lung;
 
-        // console.log("right_lung-", right_lung);
-      });
+         // console.log("right_lung-", right_lung);
+       }); */
     },
     init_tableData() {
       // const item = this.menuResult.result;
@@ -1082,7 +1408,7 @@ export default {
 
       this.processJsonData(jsonData).then(() => {
         //finding 所见，diagnosis 诊断
-        const { finding, diagnosis } = tableItem;
+        const {finding, diagnosis} = tableItem;
         // console.log("finding",finding);
         const arr_find = finding.split("\n");
         // console.log("arr_find",arr_find);
@@ -1099,19 +1425,22 @@ export default {
 
     // 表格初始化
     this.init_tableData();
-    /*    this.$nextTick(() => {
-         document
-           .querySelector(".nodule_lesion-list")
-           .addEventListener("mouseover", function () {
-             this.style.overflow = "auto"; // 获得焦点时显示滚动条
-           });
+    this.$nextTick(() => {
+      document
+        .querySelector(".nodule_lesion-list")
+        .addEventListener("mouseover", function () {
+          this.style.overflow = "auto"; // 获得焦点时显示滚动条
+        });
 
-         document
-           .querySelector(".nodule_lesion-list")
-           .addEventListener("mouseout", function () {
-             this.style.overflow = "hidden"; // 失去焦点时隐藏滚动条
-           });
-       }); */
+      document
+        .querySelector(".nodule_lesion-list")
+        .addEventListener("mouseout", function () {
+          this.style.overflow = "hidden"; // 失去焦点时隐藏滚动条
+        });
+
+
+      // this.$refs.tableLungNodule.hideColumn(this.$refs.tableLungNodule.getColumnByField('lobeSegmentSort'));
+    });
   },
 };
 </script>
@@ -1191,6 +1520,25 @@ body {
     &.row--current {
       background: rgba(100, 100, 100, 0.797);
     }
+  }
+}
+
+.lung_table_custom {
+
+  /deep/table {
+    // display: none;
+    thead {
+      th {
+        &[data-colid='col_17'] {
+          // background: red;
+
+          .vxe-cell--sort {
+            visibility: hidden;
+          }
+        }
+      }
+    }
+
   }
 }
 </style>

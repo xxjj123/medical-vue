@@ -162,6 +162,8 @@ export default {
     },
     SET_NODULE_INFO(state, noduleInfo) {
       state.noduleInfo = noduleInfo;
+      console.log("state.noduleInfo==", state.noduleInfo);
+
       state.noduleInfo.focalDetailList = []
       // state.noduleInfo.noduleLesionList = []
 
