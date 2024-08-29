@@ -150,8 +150,8 @@
     </div>
 
     <div class="analytic_semantic_description">
-      <anaSemanticDesBlock :bookItems.sync="anaSecDesConf.bookItems" :selectVal="filmIpt_curItem"
-        :title="anaSecDesConf.title">
+      <anaSemanticDesBlock :bookItems.sync="anaSecDesConf.bookItems" :selection.sync="selection"
+        :selectVal.sync="filmIpt_curItem" :title="anaSecDesConf.title" :current.sync="tableCurrentIdx">
         <filmInputState slot="searchBar" v-model="filmIpt_curItem" :typec="`dropdown`" :selectCurIdx="`0`"
           :optionNum="`1`" @cb-click="handle_filmIptClick_yxsj"></filmInputState>
       </anaSemanticDesBlock>
@@ -214,7 +214,7 @@ import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/commo
 import {CodeSandboxOutline} from "@yh/icons-svg";
 import {mapActions} from "vuex";
 import Vue from 'vue';
-import {SortOption} from "@/assets/js/utils/dicom/select";
+import {SortOption, LungTemplateEnum, LungTemplateDiagnoseEnum} from "@/assets/js/utils/dicom/select";
 import {mapState} from "vuex";
 
 
@@ -257,7 +257,35 @@ export default {
   watch: {
     filmIpt_curItem: {
       handler(nVal, oVal) {
-        // console.log("watch-----filmIpt_curItem", nVal, oVal);
+        console.log("watch-----filmIpt_curItem", nVal, oVal);
+        if (nVal) {
+          const {value} = nVal;
+          if (value === '0') {
+
+          } else if (value === '1') {
+
+          } else if (value === '2') {
+
+          } else if (value === '3') {
+
+          } else if (value === '4') {
+
+          }
+        }
+      },
+      immediate: true,
+    },
+    filmIpt_curItem_1: {
+      handler(nVal, oVal) {
+        console.log("watch-----filmIpt_curItem1", nVal, oVal);
+        if (nVal) {
+          const {value} = nVal;
+          if (value === '') {
+
+          } else if (value === '1') {
+
+          }
+        }
       },
       immediate: true,
     },
@@ -291,6 +319,8 @@ export default {
 
   data() {
     return {
+      selection: [],
+      tableCurrentIdx: -1,
       NoduleLesion_row: {},//临时用
       lunglistSelectRow: {},//结节改变中转数据
       noduleTypeListSelectRow: {},//类型结节-中转
@@ -808,12 +838,12 @@ export default {
       triggerCheckbox,
       $event,
     }) {
-      console.log("handleCellClick--row", row, "row.boxIndex", row.boxIndex);
       const bboxindex = row.id;
       this.ChooseAnnotation(bboxindex);
 
       this.tableCurrentIdx = rowIndex;
 
+      console.log("handleCellClick--row", row, "row.boxIndex", row.boxIndex, "this.tableCurrentIdx", this.tableCurrentIdx);
       this.$refs.tableLungNodule.setCurrentRow(row);
 
       this.NoduleLesion_row = row;
@@ -965,7 +995,9 @@ export default {
     selectChangeEvent(ev) {
       console.log("selectChangeEvent___", ev);
       const {selection} = ev;
-      console.log("selection===:", JSON.stringify(selection));
+      console.log("selection===:", JSON.stringify(selection), "this.tableCurrentIdx", this.tableCurrentIdx);
+
+      this.selection = selection;
     },
     handleTableCurrentChange({row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event}) {
       console.log("handleTableCurrentChange:row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event --", row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event);
@@ -1566,7 +1598,7 @@ export default {
   },
   created() {
 
-    console.log("noduleInfo====",this.noduleInfo);
+    console.log("noduleInfo====", this.noduleInfo);
     // console.log("lesion-list:this.menuResult", this.menuResult);
     // this.init_select_LesionList();
     this.init_lesionPanelSearchBar();

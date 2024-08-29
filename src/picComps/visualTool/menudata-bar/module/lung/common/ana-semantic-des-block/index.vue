@@ -49,6 +49,13 @@ export default {
       type: Array,
       default: () => [],
     },
+    current: {
+      type: [String, Number],
+    },
+    selection: {
+      type: Array,
+      default: () => [],
+    },
   },
   computed: {
     resultBookItems: {
@@ -60,11 +67,59 @@ export default {
         // return val;
       },
     },
+    currentNum: {
+      get() {
+        return this.current;
+      },
+      set(val) {
+        this.$emit("update:current", val);
+      }
+    },
+    selectValue: {
+      get() {
+        return this.selectVal;
+      },
+      set(val) {
+        this.$emit("update:selectVal", val);
+      }
+    },
+    selectionValue: {
+      get() {
+        return this.selection;
+      },
+      set(val) {
+        return val;
+      }
+    }
   },
   watch: {
-    selectVal: {
+    currentNum: {
       handler(nVal, oVal) {
-        console.log("selectVal________", nVal, oVal);
+        console.log("currentNum_______", nVal, oVal);
+
+      },
+      immediate: false,
+    },
+    selectValue: {
+      handler(nVal, oVal) {
+        console.log("selectValue________", nVal, oVal);
+
+      },
+      immediate: false,
+    },
+    resultBookItems: {
+      handler(nVal, oVal) {
+        console.log("resultBookItems___________", nVal, oVal);
+
+      },
+      immediate: false,
+    },
+    selectionValue: {
+      handler(nVal, oVal) {
+        console.log("watch____selectionValue___nVal, oVal", nVal, oVal);
+        console.log("this,currentNum", this.currentNum);
+
+        // this.resultBookItems = ['1\n', '2\n'];//test
 
       },
       immediate: false,

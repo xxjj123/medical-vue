@@ -39,6 +39,5 @@ export const LungTemplateEnum = {
 // 诊断
 export const LungTemplateDiagnoseEnum = {
   TEMP1: '多发结节',//select 无，前缀拼接格式（xxxx前段、xxx后段）
-
 }
 
