@@ -14,10 +14,7 @@
       </template>
       <template v-else>
         <div class="breadMenu flex justify-start items-center">
-          <div
-            class="left_arrow hover:cursor-pointer mr-[13px]"
-            @click="back()"
-          ></div>
+          <div class="left_arrow hover:cursor-pointer mr-[13px]" @click="back()"></div>
           <div class="back_page hover:cursor-pointer" @click="back()">
             {{ breadItem.prevName }}
           </div>
@@ -37,37 +34,25 @@
       </div>
       <div>
         <div class="group_btns flex items-center justify-start">
-          <div
+          <!-- <div
             class="ripple keyborard_icon mr-[41px] hover:cursor-pointer"
             @click="handle_keyborard_banner"
-          ></div>
-          <div
-            v-popover:mypop
-            @click="toggleRotation"
-            class="ripple userGrps flex items-center justify-start hover:cursor-pointer"
-          >
+          ></div> -->
+          <div v-popover:mypop @click="toggleRotation"
+            class="ripple userGrps flex items-center justify-start hover:cursor-pointer">
             <div class="ripple user_icon mr-[10px]"></div>
-            <div
-              :class="[
-                'btn_more transform transition duration-300',
-                { 'rotate-180': rotated },
-              ]"
-            ></div>
+            <div :class="[
+              'btn_more transform transition duration-300',
+              { 'rotate-180': rotated },
+            ]"></div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- ext -->
-    <ta-popover
-      ref="mypop"
-      @after-leave="afterLeaveEvents"
-      :visible-arrow="false"
-      :offset="10"
-      style="background: #000"
-      :appendToBody="false"
-      class="cus_poper"
-    >
+    <ta-popover ref="mypop" @after-leave="afterLeaveEvents" :visible-arrow="false" :offset="10" style="background: #000"
+      :appendToBody="false" class="cus_poper">
       <div slot="content" class="user_out_box">
         <div class="flex justify-start items-end">
           <div class="flex justify-start items-center">
@@ -194,6 +179,7 @@ export default {
     font-size: 16px;
     color: #ffffff;
   }
+
   .h2 {
     font-size: 12px;
     color: #ffffff;
@@ -227,11 +213,13 @@ export default {
 
 .user_out_box {
   background-color: @input-bg;
+
   .text_user {
     color: #fff;
     margin-right: 20px;
   }
 }
+
 body {
   .cus_poper {
     /deep/ .el-popover {

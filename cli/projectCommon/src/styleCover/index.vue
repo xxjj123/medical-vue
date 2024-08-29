@@ -10,80 +10,46 @@
           <ta-col :span="20">
             <ta-form-model :layout="'inline'" :model="form">
               <ta-form-model-item label="检查时间">
-                <ta-select
-                  defaultValue="custom"
-                  style="width: 120px"
-                  @change="handleChange_jstime"
-                  :options="options_querytime"
-                  :options-key="optionsKey"
-                />
+                <ta-select defaultValue="custom" style="width: 120px" @change="handleChange_jstime"
+                  :options="options_querytime" :options-key="optionsKey" />
               </ta-form-model-item>
               <ta-form-model-item>
                 <div class="custom_pickerDeepBlue">
-                  <ta-range-picker
-                    @change="onChange"
-                    :value="form.rangeDate"
-                    :allow-one="true"
-                    :getCalendarContainer="(trigger) => trigger.parentElement"
-                  />
+                  <ta-range-picker @change="onChange" :value="form.rangeDate" :allow-one="true"
+                    :getCalendarContainer="(trigger) => trigger.parentElement" />
                 </div>
               </ta-form-model-item>
               <ta-form-model-item label="患者信息">
                 <ta-input-group compact>
-                  <ta-select
-                    defaultValue="jch"
-                    @change="handleChange_hzinfo"
-                    :options="options_patientInfo"
-                    :options-key="optionsKey_patientInfo"
-                  >
+                  <ta-select defaultValue="jch" @change="handleChange_hzinfo" :options="options_patientInfo"
+                    :options-key="optionsKey_patientInfo">
                   </ta-select>
                   <ta-input style="width: 100px" />
                 </ta-input-group>
               </ta-form-model-item>
               <ta-form-model-item label="算法类型">
-                <ta-select
-                  defaultValue=""
-                  style="width: 120px"
-                  @change="handleChange_sdlx"
-                  :options="options_suanfa"
-                  :options-key="optionsKey_suafa"
-                >
+                <ta-select defaultValue="" style="width: 120px" @change="handleChange_sdlx" :options="options_suanfa"
+                  :options-key="optionsKey_suafa">
                 </ta-select>
               </ta-form-model-item>
               <ta-form-model-item label="计算状态">
-                <ta-select
-                  defaultValue=""
-                  style="width: 120px"
-                  @change="handleChange_jszt"
-                  :options="options_jszt"
-                  :options-key="optionsKey_jszt"
-                >
+                <ta-select defaultValue="" style="width: 120px" @change="handleChange_jszt" :options="options_jszt"
+                  :options-key="optionsKey_jszt">
                 </ta-select>
               </ta-form-model-item>
               <ta-form-model-item>
                 <ta-button type="primary" class="mr-[8px]">查询</ta-button>
                 <ta-button>重置</ta-button>
-                <ta-button @click="goto_workplatform">跳转</ta-button>
+                <!-- <ta-button @click="goto_workplatform">跳转</ta-button> -->
               </ta-form-model-item>
             </ta-form-model>
           </ta-col>
           <ta-col>
             <div class="btn_ctrl flex justify-start">
-              <ta-button
-                class="aghost__border-grey-1 flex items-center mr-[12px]"
-                type="solid"
-                :ghost="true"
-                ><i class="ico_star mr-[5px]"></i
-                ><span>我的收藏</span></ta-button
-              >
-              <ta-button
-                class="aghost__border-grey-1 flex items-center"
-                type="solid"
-                :ghost="true"
-                @click="handle_openfiledraw"
-                ><i class="ico_upd mr-[5px]"></i
-                ><span>上传文件</span></ta-button
-              >
+              <ta-button class="aghost__border-grey-1 flex items-center mr-[12px]" type="solid" :ghost="true"><i
+                  class="ico_star mr-[5px]"></i><span>我的收藏</span></ta-button>
+              <ta-button class="aghost__border-grey-1 flex items-center" type="solid" :ghost="true"
+                @click="handle_openfiledraw"><i class="ico_upd mr-[5px]"></i><span>上传文件</span></ta-button>
             </div>
           </ta-col>
         </ta-row>
@@ -96,81 +62,33 @@
           :data="tableData"
           :columns="tableColumns"
         > -->
-        <ta-big-table
-          ref="xTable"
-          height="auto"
-          auto-resize
-          :data="tableData"
-          highlight-hover-row
-          border="inner"
-        >
-          <ta-big-table-column
-            field="is-collect"
-            title="#"
-            width="60"
-            fixed="left"
-          >
+        <ta-big-table ref="xTable" height="auto" auto-resize :data="tableData" highlight-hover-row border="inner">
+          <ta-big-table-column field="is-collect" title="#" width="60" fixed="left">
             <template #default="{ row, rowIndex }">
-              <div
-                class="hover:cursor-pointer"
-                @click="handle_star(row, rowIndex)"
-              >
-                <ta-icon
-                  v-if="row.collect === 1"
-                  :style="starOn_style"
-                  type="star"
-                  theme="filled"
-                />
+              <div class="hover:cursor-pointer" @click="handle_star(row, rowIndex)">
+                <ta-icon v-if="row.collect === 1" :style="starOn_style" type="star" theme="filled" />
                 <ta-icon v-else type="star" />
               </div>
             </template>
           </ta-big-table-column>
-          <ta-big-table-column
-            field="examinationId"
-            title="检查号"
-            width="150"
-            fixed="left"
-          >
+          <ta-big-table-column field="examinationId" title="检查号" width="150" fixed="left">
           </ta-big-table-column>
-          <ta-big-table-column
-            field="patientId"
-            title="患者ID"
-            width="120"
-            fixed="left"
-          >
+          <ta-big-table-column field="patientId" title="患者ID" width="120" fixed="left">
           </ta-big-table-column>
-          <ta-big-table-column
-            field="patientName"
-            title="患者姓名"
-            width="130"
-            fixed="left"
-          >
+          <ta-big-table-column field="patientName" title="患者姓名" width="130" fixed="left">
           </ta-big-table-column>
           <ta-big-table-column field="age" title="年龄" width="70">
           </ta-big-table-column>
-          <ta-big-table-column
-            field="examinationTime"
-            title="检查时间"
-            width="180"
-          >
+          <ta-big-table-column field="examinationTime" title="检查时间" width="180">
           </ta-big-table-column>
-          <ta-big-table-column
-            field="examinationDescription"
-            title="检查描述"
-            min-width="150"
-          >
+          <ta-big-table-column field="examinationDescription" title="检查描述" min-width="150">
           </ta-big-table-column>
           <ta-big-table-column field="seriesCount" title="序列数" width="130">
           </ta-big-table-column>
           <ta-big-table-column field="mathType" title="算法类型" width="140">
           </ta-big-table-column>
 
-          <ta-big-table-column
-            fixed="right"
-            field="operate"
-            title="操作"
-            width="320"
-          >
+          <ta-big-table-column fixed="right" field="operate" title="操作" width="320">
             <template #default="{ row, rowIndex }">
               <ta-row type="flex" justify="space-around">
                 <ta-col :span="18">
@@ -186,13 +104,8 @@
                   </a>
                 </ta-col>
                 <ta-col>
-                  <ta-icon
-                    type="close-circle"
-                    :style="{ color: '#959b9b' }"
-                    theme="filled"
-                    class="hover:cursor-pointer"
-                    @click="handle_delRow(row, rowIndex)"
-                  />
+                  <ta-icon type="close-circle" :style="{ color: '#959b9b' }" theme="filled" class="hover:cursor-pointer"
+                    @click="handle_delRow(row, rowIndex)" />
                 </ta-col>
               </ta-row>
             </template>
@@ -205,39 +118,18 @@
               :data-source.sync="tableData"
               :params="userPageParams"
             /> -->
-            <ta-pagination
-              style="text-align: right"
-              sizeChangeInput
-              showSizeChanger
-              :pageSize.sync="pageSizeInput"
-              @showSizeChange="onShowSizeChange"
-              :defaultCurrent="3"
-              :total="500"
-            />
+            <ta-pagination style="text-align: right" sizeChangeInput showSizeChanger :pageSize.sync="pageSizeInput"
+              @showSizeChange="onShowSizeChange" :defaultCurrent="3" :total="500" />
           </template>
         </ta-big-table>
       </div>
       <div class="analysis_result_listbox">
-        <ta-big-table
-          ref="xTable_anaRes"
-          height="auto"
-          highlight-hover-row
-          auto-resize
-          :data="tableData_anaRes"
-          border="inner"
-        >
+        <ta-big-table ref="xTable_anaRes" height="auto" highlight-hover-row auto-resize :data="tableData_anaRes"
+          border="inner">
           <ta-big-table-column field="is-collect" title="#" width="60">
             <template #default="{ row, rowIndex }">
-              <div
-                class="hover:cursor-pointer"
-                @click="handle_star_subTable(row, rowIndex)"
-              >
-                <ta-icon
-                  v-if="row.collect === 1"
-                  :style="starOn_style"
-                  type="star"
-                  theme="filled"
-                />
+              <div class="hover:cursor-pointer" @click="handle_star_subTable(row, rowIndex)">
+                <ta-icon v-if="row.collect === 1" :style="starOn_style" type="star" theme="filled" />
                 <ta-icon v-else type="star" />
               </div>
             </template>
@@ -252,9 +144,7 @@
           </ta-big-table-column>
           <ta-big-table-column field="compactState" title="计算状态">
             <template #default="{ row }">
-              <ta-tag v-if="row.compactState === '1'" color="cyan"
-                >计算成功</ta-tag
-              >
+              <ta-tag v-if="row.compactState === '1'" color="cyan">计算成功</ta-tag>
             </template>
           </ta-big-table-column>
           <ta-big-table-column field="ctrlState" title="操作状态">
@@ -264,12 +154,7 @@
           </ta-big-table-column>
           <ta-big-table-column field="ctrlDoctor" title="操作医师">
           </ta-big-table-column>
-          <ta-big-table-column
-            fixed="right"
-            field="operate"
-            title="操作"
-            width="320"
-          >
+          <ta-big-table-column fixed="right" field="operate" title="操作" width="320">
             <template #default="{ row, rowIndex }">
               <ta-row type="flex" justify="space-around">
                 <ta-col :span="18">
@@ -283,13 +168,8 @@
                   </a>
                 </ta-col>
                 <ta-col>
-                  <ta-icon
-                    type="close-circle"
-                    :style="{ color: '#959b9b' }"
-                    theme="filled"
-                    class="hover:cursor-pointer"
-                    @click="handle_delRow_subTable(row, rowIndex)"
-                  />
+                  <ta-icon type="close-circle" :style="{ color: '#959b9b' }" theme="filled" class="hover:cursor-pointer"
+                    @click="handle_delRow_subTable(row, rowIndex)" />
                 </ta-col>
               </ta-row>
             </template>
@@ -298,17 +178,9 @@
       </div>
     </div>
 
-    <ta-drawer
-      :title="fileDraw.title"
-      :headerHeight="fileDraw.headerHeight"
-      placement="right"
-      :width="fileDraw.width"
-      :headerStyle="fileDraw.headerStyle"
-      :bodyStyle="fileDraw.bodyStyle"
-      :wrapStyle="fileDraw.wrapStyle"
-      @close="fileDraw.onClose"
-      :visible="fileDraw.visible"
-    >
+    <ta-drawer :title="fileDraw.title" :headerHeight="fileDraw.headerHeight" placement="right" :width="fileDraw.width"
+      :headerStyle="fileDraw.headerStyle" :bodyStyle="fileDraw.bodyStyle" :wrapStyle="fileDraw.wrapStyle"
+      @close="fileDraw.onClose" :visible="fileDraw.visible">
       <ta-spin :spinning="spinning">
         <div class="custom_panel">
           <div class="custom_title pb-[20px]">上传数据</div>
@@ -316,9 +188,7 @@
             <!-- <div
               class="upload_box flex flex-col items-center justify-center border border-dashed border-white pt-[50px] pb-[50px]"
             > -->
-            <div
-              class="upload_box border border-dashed border-white pt-[50px] pb-[50px]"
-            >
+            <div class="upload_box border border-dashed border-white pt-[50px] pb-[50px]">
               <!-- <ta-upload
                 :file-list="uploadObj.fileList"
                 :before-upload="uploadObj.beforeUpload"
@@ -329,22 +199,11 @@
                 >
               </ta-upload> -->
 
-              <ta-upload-dragger
-                name="file"
-                :multiple="false"
-                webkitdirectory
-                directory
-                :showUploadList="false"
-                @change="uploadObj.handleChange"
-                :file-list="uploadObj.fileList"
-                :before-upload="uploadObj.beforeUpload"
-                :remove="uploadObj.handleRemove"
-                style="background: transparent"
-              >
+              <ta-upload-dragger name="file" :multiple="false" webkitdirectory directory :showUploadList="false"
+                @change="uploadObj.handleChange" :file-list="uploadObj.fileList" :before-upload="uploadObj.beforeUpload"
+                :remove="uploadObj.handleRemove" style="background: transparent">
                 <div class="ant-upload-drag-icon">
-                  <ta-button type="primary" icon="upload" class="mb-4"
-                    >上传数据</ta-button
-                  >
+                  <ta-button type="primary" icon="upload" class="mb-4">上传数据</ta-button>
                   <!-- <input
                     type="file"
                     webkitdirectory
@@ -376,14 +235,8 @@
         <div class="custom_panel">
           <div class="custom_title pb-[20px] pt-[20px]">数据列表</div>
           <div class="custom_context highBox">
-            <ta-big-table
-              ref="xTable_upload_anaRes"
-              height="auto"
-              highlight-hover-row
-              auto-resize
-              :data="tableData_upload_anaRes"
-              border="inner"
-            >
+            <ta-big-table ref="xTable_upload_anaRes" height="auto" highlight-hover-row auto-resize
+              :data="tableData_upload_anaRes" border="inner">
               <ta-big-table-column field="Accession_Number" title="检查号">
               </ta-big-table-column>
               <ta-big-table-column field="Patient_ID" title="患者ID">
@@ -396,9 +249,7 @@
               </ta-big-table-column>
               <ta-big-table-column field="state" title="状态">
                 <template #default="{ row }">
-                  <ta-tag v-if="row.state === '1'" color="green"
-                    >上传成功</ta-tag
-                  >
+                  <ta-tag v-if="row.state === '1'" color="green">上传成功</ta-tag>
                 </template>
               </ta-big-table-column>
               <ta-big-table-column field="mathtype" title="算法类型">
@@ -479,9 +330,9 @@ export default {
       },
     ];
     return {
-      algorMathSelectConfig:{
-        show:true,
-        confirmLoading:false,
+      algorMathSelectConfig: {
+        show: true,
+        confirmLoading: false,
         onOk: async (e) => {
           console.log("onOk", e);
           const { fileList } = this.uploadObj;
@@ -521,30 +372,30 @@ export default {
 
 
 
-            const content = zip.generateAsync({ type: 'blob',compression: 'DEFLATE' }).then((blob) => {
+            const content = zip.generateAsync({ type: 'blob', compression: 'DEFLATE' }).then((blob) => {
               console.log("merge--zip-blob:", blob);
 
-               // 获取当前时间戳并格式化
+              // 获取当前时间戳并格式化
               const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
               const zipFileName = `archive-${timestamp}.zip`;
 
               const zipFile = new File([blob], zipFileName, { type: blob.type });
               console.log("zipFile=", zipFile);
 
-                /* api文件测试用 start*/
-               // 创建一个指向 Blob 的 URL
+              /* api文件测试用 start*/
+              // 创建一个指向 Blob 的 URL
               //  const url = URL.createObjectURL(blob);
-                // 创建一个下载链接
-                // const link = document.createElement('a');
+              // 创建一个下载链接
+              // const link = document.createElement('a');
               //  link.href = url;
-                // link.download = 'archive.zip'; // 设置下载文件的名称
-                // 触发点击事件以开始下载
-                // document.body.appendChild(link);
-                // link.click();
-                // 下载完成后，撤销 URL 并清理锚点
-                // document.body.removeChild(link);
-                // URL.revokeObjectURL(url);
-                /* api文件测试用 end*/
+              // link.download = 'archive.zip'; // 设置下载文件的名称
+              // 触发点击事件以开始下载
+              // document.body.appendChild(link);
+              // link.click();
+              // 下载完成后，撤销 URL 并清理锚点
+              // document.body.removeChild(link);
+              // URL.revokeObjectURL(url);
+              /* api文件测试用 end*/
 
               xhr_uploadDicom({
                 algorithmConfig: `[{}]`,
@@ -552,27 +403,27 @@ export default {
               })
                 .then((item) => {
                   console.log("xhr_uploadDicom___item:", item);
-                  this.$set(this.tableData_upload_anaRes,0,{
+                  this.$set(this.tableData_upload_anaRes, 0, {
                     ...this.tableData_upload_anaRes[0],
-                    state:"1",
-                    mathtype:"1",
+                    state: "1",
+                    mathtype: "1",
                   })
                   this.$box.update({ visible: false });
                 });
             });
           }
         },
-        onCancel:(e)=>{
-          console.log("onCancel",e);
+        onCancel: (e) => {
+          console.log("onCancel", e);
           // this.algorMathSelectConfig.show = false;
           // console.log("this.$box==onCancel",this.$box);
 
 
 
-          this.$box.update({visible:false})
+          this.$box.update({ visible: false })
         },
       },
-      spinning:false,
+      spinning: false,
       uploadObj: {
         fileList: [],
         size: 0,
@@ -639,13 +490,13 @@ export default {
             this.tags = await readDicomTags(fileOne);
             console.log("tags____", tags, this.tags.tags);
             try {
-            /* 参考：  {
-            Accession_Number: "2021010203011",
-            Patient_ID: "123123123",
-            Study_Instance_UID: "1.2.3..3.1.123123123123",
-            Series_Description: "1.25mm CHEST",
-            mathType: "auto", //1:肺炎 2:肺结节 3:骨折 4：非门控钙化积分 （预设）
-          }, */
+              /* 参考：  {
+              Accession_Number: "2021010203011",
+              Patient_ID: "123123123",
+              Study_Instance_UID: "1.2.3..3.1.123123123123",
+              Series_Description: "1.25mm CHEST",
+              mathType: "auto", //1:肺炎 2:肺结节 3:骨折 4：非门控钙化积分 （预设）
+            }, */
 
               this.$ut
                 .convertDicomTags(this.tags, dicomTagsDescriptions)
@@ -653,17 +504,17 @@ export default {
                   console.log("sysDicomTagInfo=", sysDicomTagInfo);
                   this.$message.success(`序列 解析完成`, 10);
 
-                  const fieldsToMap = ["Accession_Number", "Patient_ID", "Study_Instance_UID","Series_Description"];
+                  const fieldsToMap = ["Accession_Number", "Patient_ID", "Study_Instance_UID", "Series_Description"];
 
-                  const mappedValues = this.$ut.mapDicomTagsToValues(sysDicomTagInfo,fieldsToMap)
+                  const mappedValues = this.$ut.mapDicomTagsToValues(sysDicomTagInfo, fieldsToMap)
 
-                  console.log("mappedValues==",mappedValues);
+                  console.log("mappedValues==", mappedValues);
                   this.mappedValues = mappedValues;
                   this.spinning = false;
-                  const { show,onOk,onCancel } = this.algorMathSelectConfig
-                 this.$box =  this.$confirm({
+                  const { show, onOk, onCancel } = this.algorMathSelectConfig
+                  this.$box = this.$confirm({
                     title: "算法类型选择",
-                    icon:false,
+                    icon: false,
                     // 建议使用这种方式传入content值，这里可以写原生HTML标签
                     // 或vue组件也可以以标签的形式在这里引入
                     // 写法与vue文件的template 完全一致，
@@ -674,18 +525,18 @@ export default {
                       <div class="btn_group flex">
                         <div class="w-full flex justify-end">
                           <div>
-                            <ta-button on-click={(e)=>onCancel(e)}>取消</ta-button>
-                            <ta-button on-click={(e)=>onOk(e)} type="primary">上传</ta-button>
+                            <ta-button on-click={(e) => onCancel(e)}>取消</ta-button>
+                            <ta-button on-click={(e) => onOk(e)} type="primary">上传</ta-button>
                           </div>
                         </div>
                       </div>
                     ),
-                    okText:"上传",
-                    zoomable:true,
-                    confirmLoading:this.algorMathSelectConfig.confirmLoading,
-                    width:"calc(1358 / 1920 * 100vw)",
-                    keyboard:false,
-                    visible:this.algorMathSelectConfig.show,
+                    okText: "上传",
+                    zoomable: true,
+                    confirmLoading: this.algorMathSelectConfig.confirmLoading,
+                    width: "calc(1358 / 1920 * 100vw)",
+                    keyboard: false,
+                    visible: this.algorMathSelectConfig.show,
                   });
                 });
             } catch (error) {
@@ -1192,7 +1043,7 @@ export default {
     });
   },
   mounted() {
-    this.$refs.gridPager.loadData((data) => {});
+    this.$refs.gridPager.loadData((data) => { });
   },
 };
 </script>
@@ -1207,6 +1058,7 @@ export default {
   width: 100%;
   height: 100vh;
   background-color: @theme_backBg;
+
   .headerTop {
     z-index: 2;
     position: fixed;
@@ -1214,6 +1066,7 @@ export default {
     left: 0;
     width: 100vw;
   }
+
   .contentMain {
     background-color: @theme_backBg;
     height: calc(100% - 81px);
@@ -1228,6 +1081,7 @@ export default {
     .func_bgCover();
     background-image: url(@/assets/images/manage/btn/star.png);
   }
+
   .ico_upd {
     width: 15px;
     height: 15px;
@@ -1255,27 +1109,34 @@ export default {
 /* 当屏幕宽度小于1920px时应用的样式 */
 @media only screen and (max-width: 1919px) {
   .tableBox {
-    min-height: calc(100% - 400px); /* 适配稍小的屏幕，减少高度 */
+    min-height: calc(100% - 400px);
+    /* 适配稍小的屏幕，减少高度 */
   }
 }
 
 /* 当屏幕宽度小于1366px时应用的样式 */
 @media only screen and (max-width: 1365px) {
   .tableBox {
-    min-height: calc(100% - 390px); /* 进一步适配更小的屏幕 */
+    min-height: calc(100% - 390px);
+    /* 进一步适配更小的屏幕 */
   }
+
   .analysis_result_listbox {
-    min-height: 250px; /* 减小列表框的最小高度 */
+    min-height: 250px;
+    /* 减小列表框的最小高度 */
   }
 }
 
 /* 特定于笔记本分辨率的样式 */
 @media only screen and (min-width: 1367px) and (max-width: 1919px) {
   .tableBox {
-    min-height: calc(100% - 395px); /* 适配笔记本屏幕 */
+    min-height: calc(100% - 395px);
+    /* 适配笔记本屏幕 */
   }
+
   .analysis_result_listbox {
-    min-height: 200px; /* 适配笔记本屏幕的列表框最小高度 */
+    min-height: 200px;
+    /* 适配笔记本屏幕的列表框最小高度 */
   }
 }
 

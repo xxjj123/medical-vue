@@ -4,9 +4,9 @@
     <PacsPageHeader :bread="true" :filmModeBtn="true">
       <template slot="filmModeCtrl">
         <filmBar @changeColor="changeColor"></filmBar>
-        <div class="fixFileMuil">
+        <!-- <div class="fixFileMuil">
           <input ref="Fileinput" type="file" multiple @change="handleFile" />
-        </div>
+        </div> -->
       </template>
     </PacsPageHeader>
     <div class="main">
