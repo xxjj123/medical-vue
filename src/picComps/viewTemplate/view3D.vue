@@ -1,9 +1,7 @@
 <template>
 
   <div>
-    <div>
-      <div ref="sceneContainer" class="h-full w-full"></div>
-    </div>
+    <div ref="sceneContainer" class="h-full w-full"></div>
   </div>
 </template>
 
@@ -26,12 +24,8 @@ export default {
     };
   },
   mounted() {
-    this.$nextTick(() => {
-      this.initScene();
-
-      window.addEventListener("resize", this.onWindowResize);
-    })
-
+    this.initScene();
+    window.addEventListener("resize", this.onWindowResize);
   },
   computed: {
     ...mapState("viewInitStore", ["seriesInfo"]),
@@ -39,7 +33,8 @@ export default {
   watch: {
     seriesInfo: {
       handler(nVal, oVal) {
-        if (nVal) {
+        console.log("nVal, oVal", nVal, oVal)
+        if (nVal && nVal.seriesId) {
           this.download3D(nVal.seriesId);
         }
       },
@@ -100,6 +95,8 @@ export default {
             this.loadModel(arraybuffer);
             console.log(arraybuffer);
           }
+          this.onWindowResize()
+
         } else {
           console.error("Request failed: No data returned");
         }
@@ -109,14 +106,12 @@ export default {
     },
     load3D() {
       this.download3D();
-      this.onWindowResize()
     },
     loadModel(arraybuffer) {
       const loader = new GLTFLoader();
       loader.parse(arraybuffer, "", (gltf) => {
         this.model = gltf.scene;
         this.model.rotation.x = Math.PI / 2;
-        console.log(this.model.rotation);
 
         // 计算模型的包围盒
         const box = new THREE.Box3().setFromObject(this.model);

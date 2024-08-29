@@ -1018,8 +1018,6 @@ export default {
       // new 方式接口赋值：2024-08-26
       const { noduleLesionList } = this.menuResult;
 
-      console.log("noduleLesionList===", JSON.stringify(noduleLesionList));
-
       const processedData_lobe = this.$api.processLungItems.call(this, noduleLesionList, ['lobeSegment']).then(async (item) => {
 
         console.log("item----", item);

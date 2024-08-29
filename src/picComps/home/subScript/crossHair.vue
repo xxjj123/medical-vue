@@ -1,5 +1,5 @@
 <template>
-  <div ref="container">
+  <div v-show="szckxButtonState" ref="container">
     <svg ref="svg" class="absolute select-none pointer-events-none w-full h-full">
       <line :x1="0" :y1="height - crosshairData.crosshair_y / screenRatio" :x2="width"
         :y2="height - crosshairData.crosshair_y / screenRatio" stroke="#2cf66c" :stroke-width="2.5 / screenRatio"
@@ -15,8 +15,11 @@
 </template>
 
 <script>
-import {mapActions} from "vuex";
+import { mapActions, mapState } from "vuex";
+import {
+  ButtonNames, suffix_name
 
+} from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 export default {
   props: {
     crosshairData: {
@@ -33,6 +36,10 @@ export default {
     };
   },
   computed: {
+    ...mapState("toolBarStore", {
+      szckxButtonState: state => state[`${ButtonNames.Szckx}${suffix_name}`],
+
+    }),
     dashArray() {
       return `${5 / this.screenRatio},${5 / this.screenRatio}`;
     },
@@ -72,7 +79,6 @@ export default {
   mounted() {
     this.$nextTick(() => {
       this.updateDimensions();
-      console.log(this.crosshairData);
     });
     this.resizeObserver = new ResizeObserver(this.updateDimensions);
     if (this.$refs.container) {

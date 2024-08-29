@@ -2,11 +2,8 @@ import urlJson from "./collect-api";
 import {apiOps, testDevOps} from "./options";
 const {api, api2, api3, api5, api6} = apiOps;
 
-const {Topbase, study, readwriteFsBase, cb, diagnose, nodule} = testDevOps;
+const {Topbase, study, readwriteFsBase, cb, diagnose, nodule,image} = testDevOps;
 
-import axios from "axios";
-import Vue from "vue";
-const instance = Vue.prototype;
 
 // import {getBaseURL} from "@/assets/js/utils";
 import {getBaseURL} from "@/assets/js/utils/url-toto.ts";
@@ -269,7 +266,8 @@ export const xhr_getSlice = (formData) => {
   return new Promise((resolve, reject) => {
     try {
       return Base.submit(null, {
-        url: diagnose + urlJson["getSlice"],
+
+        url: image + urlJson["downloadSlice"],
         data: {
           ...formData,
         },

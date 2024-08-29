@@ -135,13 +135,6 @@ export default {
       viewIndex: null,
       autoPlayTimer: null,
     })),
-    noduleDiagnoseState:{
-      colorWindow:null,
-      colorLevel:null,
-      isPan:false
-    }
-
-
   },
   getters: {
     viewsData: (state) => [
@@ -160,7 +153,7 @@ export default {
     SET_SERIES_INFO(state, seriesInfo) {
       state.seriesInfo = seriesInfo;
     },
-    SET_NODULE_INFO(state, noduleInfo) {
+    SET_NODULE_INFO(state, noduleInfo) { 
       state.noduleInfo = noduleInfo;
       state.noduleInfo.focalDetailList = []
       // state.noduleInfo.noduleLesionList = []
@@ -207,10 +200,6 @@ export default {
         autoPlayTimer: null,
       };
     },
-    SET_NODULE_DIAGNOSE_DATA(state, { key, value}) {
-      state.noduleDiagnoseState[key] = value;
-    },
-
   },
   actions: {
     async InitView(
@@ -230,10 +219,10 @@ export default {
           view: data,
         },
       });
-      // data.sliceActor.getProperty().setColorWindow(1500);
-      // data.sliceActor.getProperty().setColorLevel(500);
-      // commit("SET_VIEW_DATA", {viewType, key: "Ww", value: 1500});
-      // commit("SET_VIEW_DATA", {viewType, key: "Wl", value: 500});
+      data.sliceActor.getProperty().setColorWindow(1500);
+      data.sliceActor.getProperty().setColorLevel(500);
+      commit("SET_VIEW_DATA", {viewType, key: "Ww", value: 1500});
+      commit("SET_VIEW_DATA", {viewType, key: "Wl", value: 500});
       commit("SET_VIEW_DATA", {viewType, key: "viewName", value: viewName});
       commit("SET_VIEW_DATA", {viewType, key: "viewIndex", value: viewType});
     },
@@ -263,7 +252,6 @@ export default {
       obj.renderWindow.setInteractor(obj.interactor);
       obj.interactor.initialize();
       obj.interactor.bindEvents(container);
-      // view.view.interactor.getInteractorStyle().endWindowLevel();
       obj.interactor.setInteractorStyle(interactorstyle);
       obj.sliceActor.setMapper(obj.sliceMapper);
       obj.renderer.addActor(obj.sliceActor);
@@ -515,22 +503,11 @@ export default {
       });
 
       view.view.interactor.onLeftButtonPress((event) => {
-        if (!state.noduleDiagnoseState.isPan) {
-          dispatch("handleMousePress", {event, view});
-        }else{
-          view.view.interactor.getInteractorStyle().startPan()
-          console.log(view.view.interactor.getInteractorStyle())
-        }
+        dispatch("handleMousePress", {event, view});
       });
-      view.view.interactor.onMouseMove((event) => {
-        if (!state.noduleDiagnoseState.isPan) {
-          dispatch("handleMouseMove", {event, view});
-        }else{
-          dispatch("resizeSliceViews");
-        }
-      });
-
-
+      view.view.interactor.onMouseMove((event) =>
+        dispatch("handleMouseMove", {event, view}),
+      );
       view.view.interactor.onLeftButtonRelease(() =>
         commit("SET_MOUSE_DOWN", false),
       );
@@ -553,7 +530,7 @@ export default {
         clearInterval(timer.autoPlayTimer);
         timer.autoPlayTimer = null;
       });
-
+      view.view.interactor.getInteractorStyle().endWindowLevel();
 
       commit("SET_MOUSE_DOWN", true);
       const {x, y} = event.position;
@@ -660,8 +637,6 @@ export default {
       }
     },
     handleMouseMove({commit, state, dispatch, getters}, {event, view}) {
-      view.view.interactor.getInteractorStyle().endWindowLevel();
-
       const {x, y} = event.position;
       state.picker.pick([x, y, 0], view.view.renderer);
       const pickedPositions = state.picker.getPickedPositions();
@@ -734,7 +709,6 @@ export default {
       }
     },
     UpdateColorWindow({state, commit}, value) {
-      console.log("UpdateColorWindow")
       state.viewMprViews.forEach((view, objindex) => {
         commit("SET_VIEW_DATA", {
           viewType: view.viewIndex,
@@ -747,15 +721,13 @@ export default {
     },
 
     UpdateColorLevel({state, commit}, value) {
-      console.log("UpdateColorLevel")
-
       state.viewMprViews.forEach((view, objindex) => {
         commit("SET_VIEW_DATA", {
           viewType: view.viewIndex,
           key: "Wl",
           value: value,
         });
-        view.view.sliceActor.getProperty().setColorLevel(value+1000);
+        view.view.sliceActor.getProperty().setColorLevel(value);
         view.view.interactor.render();
       });
     },
@@ -1018,13 +990,17 @@ export default {
      * @param {number} bboxindex - 结节索引index
      */
     async ChooseAnnotation({state, dispatch, getters, commit}, bboxindex) {
-
+      console.log("ChooseAnnotation")
+      console.log(bboxindex)
 
       state.noduleInfo.noduleLesionList.forEach(async (nodule) => {
         const {points, id} = nodule;
         const bbox = points.split(",").map(Number)
-
+        console.log("id",id)
+        console.log("bboxindex",bboxindex)
+        console.log(id==bboxindex)
         if (id == bboxindex) {
+          console.log("找到了")
           const ijk = [
             Math.round((bbox[0] + bbox[1]) / 2),
             Math.round((bbox[2] + bbox[3]) / 2),
@@ -1201,45 +1177,6 @@ export default {
       });
       dispatch("setupCamera", viewType);
     },
-    // 改变平移
-    ChangePan({dispatch, state, getters, commit}) {
-      if(state.noduleDiagnoseState.isPan){
-        state.viewMprViews.forEach((view, objindex) => {
-          console.log(view)
-          dispatch("setupCamera", view.viewIndex);
-          view.view.renderWindow.render()
-
-        })
-
-
-        commit("SET_NODULE_DIAGNOSE_DATA", {
-          key: "isPan",
-          value: false,
-        });
-      }else{
-        state.viewMprViews.forEach((view, objindex) => {
-          commit("SET_NODULE_DIAGNOSE_DATA", {
-            key: "isPan",
-            value: true,
-          });
-
-          const interactorStyle = vtkInteractorStyleImage.newInstance();
-          interactorStyle.setInteractionMode("IMAGE_PAN");
-
-          // 确保新的 InteractorStyle 被正确设置并激活
-          view.view.interactor.setInteractorStyle(interactorStyle);
-          view.view.interactor.getInteractorStyle().modified();
-
-          view.view.interactor.initialize();
-          view.view.interactor.bindEvents(view.view.grw.getContainer());
-          view.view.interactor.start();
-          view.view.renderWindow.render();
-        });
-      }
-      dispatch("resizeSliceViews")
-
-    }
-,
 
     /**
      * 重置视图

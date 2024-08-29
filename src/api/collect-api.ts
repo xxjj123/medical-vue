@@ -27,7 +27,7 @@ export default {
   push: "/push", //ai结果推送
   getNoduleInfo: "/getNoduleInfo", //获取结节信息
   getSeriesInfo: "/getSeriesInfo",
-  getSlice: "/getSlice",
+  downloadSlice: "/downloadSlice",
   getModel3d: "/getModel3d",
 
   /* lung nodule */

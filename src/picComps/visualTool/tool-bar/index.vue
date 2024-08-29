@@ -2,25 +2,25 @@
   <div class="vsk-tool-bar flex flex-col">
     <!-- 视窗调整 -->
     <div :class="getClassName">
-      <div class="pic mr-[5px] hover:cursor-pointer" v-tooltip="{title: '视窗调整', visible: true}"></div>
+      <div class="pic mr-[5px] hover:cursor-pointer" v-tooltip="{ title: '视窗调整', visible: true }"></div>
       <div class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('1')" v-popover:mypop1>
         <div :class="[
           'down_arrow  transform transition duration-300',
-          {'rotate-180': rotated && current === '1'},
+          { 'rotate-180': rotated && current === '1' },
         ]"></div>
       </div>
     </div>
     <!-- 窗宽窗位 -->
     <div :class="[
       'boxBtn ckcw_icon flex justify-start items-center',
-      {on: ckcw_on},
+      { on: ckcw_on },
     ]">
       <div @click="handle_iconbtn(`ckcw`)" class="pic mr-[5px] hover:cursor-pointer"
-        v-tooltip="{title: '窗宽窗位', visible: true}"></div>
+        v-tooltip="{ title: '窗宽窗位', visible: true }"></div>
       <div v-popover:mypop2 class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('2')">
         <div :class="[
           'down_arrow  transform transition duration-300',
-          {'rotate-180': rotated && current === '2'},
+          { 'rotate-180': rotated && current === '2' },
         ]"></div>
       </div>
     </div>
@@ -33,7 +33,7 @@
       },
     ]">
       <div @click="handle_iconbtn(`jbinfo`)" class="pic mr-[5px] hover:cursor-pointer"
-        v-tooltip="{title: '角标信息', visible: true}"></div>
+        v-tooltip="{ title: '角标信息', visible: true }"></div>
     </div>
 
     <!-- ai信息 -->
@@ -44,7 +44,7 @@
       },
     ]">
       <div @click="handle_iconbtn(`aiInfo`)" class="pic mr-[5px] hover:cursor-pointer"
-        v-tooltip="{title: 'Ai信息', visible: true}"></div>
+        v-tooltip="{ title: 'Ai信息', visible: true }"></div>
     </div>
 
     <!-- 十字参考线 -->
@@ -55,20 +55,20 @@
       },
     ]">
       <div @click="handle_iconbtn(`szckx`)" class="pic mr-[5px] hover:cursor-pointer"
-        v-tooltip="{title: '十字参考线', visible: true}"></div>
+        v-tooltip="{ title: '十字参考线', visible: true }"></div>
     </div>
 
     <!-- 密度投影模式 -->
     <div :class="[
       `boxBtn mdty_icon flex justify-start items-center`,
-      {on: mdtyms_on},
+      { on: mdtyms_on },
     ]">
       <div @click="handle_iconbtn(`mdtyms`)" class="pic mr-[5px] hover:cursor-pointer"
-        v-tooltip="{title: '密度投影模式', visible: true}"></div>
+        v-tooltip="{ title: '密度投影模式', visible: true }"></div>
       <div v-popover:mypop3 class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('3')">
         <div :class="[
           'down_arrow  transform transition duration-300',
-          {'rotate-180': rotated && current === '3'},
+          { 'rotate-180': rotated && current === '3' },
         ]"></div>
       </div>
     </div>
@@ -81,7 +81,7 @@
       },
     ]">
       <div @click="handle_iconbtn(`pyms`)" class="pic mr-[5px] hover:cursor-pointer"
-        v-tooltip="{title: '平移模式', visible: true}"></div>
+        v-tooltip="{ title: '平移模式', visible: true }"></div>
     </div>
 
     <!-- ext -->
@@ -93,9 +93,9 @@
         <div class="group_tools flex flex-col">
           <div v-for="(it, idx) in view_window.list" :key="idx" :class="[
             `h_row flex justify-start items-center ripple`,
-            {on: view_window.current === idx},
+            { on: view_window.current === idx },
           ]" @click="handle_view_window_row(idx)">
-            <div :class="{[`icon ${it.icon}`]: it.icon}"></div>
+            <div :class="{ [`icon ${it.icon}`]: it.icon }"></div>
             <div class="txt">{{ it.name }}</div>
           </div>
         </div>
@@ -110,7 +110,7 @@
         <div class="rowWin flex items-center">
           <div class="name">窗宽</div>
           <div class="silder">
-            <ta-slider :min="1" :max="4096" :v-model="view_window.win_w" @change="view_window.winW.onChange"
+            <ta-slider :min="1" :max="4096" v-model="view_window.win_w" @change="view_window.winW.onChange"
               @afterChange="view_window.winW.onAfterChange" />
           </div>
           <div class="ipt">
@@ -121,7 +121,7 @@
         <div class="rowWin flex items-center">
           <div class="name">窗位</div>
           <div class="silder">
-            <ta-slider :min="-1024" :max="3071" :v-model="view_window.win_holder" @change="view_window.winHold.onChange"
+            <ta-slider :min="-1024" :max="3071" v-model="view_window.win_holder" @change="view_window.winHold.onChange"
               @afterChange="view_window.winHold.onAfterChange" />
           </div>
           <div class="ipt">
@@ -173,7 +173,7 @@ let btnStateGrp = {
   [`${ButtonNames.Pyms}${suffix_name}`]: false,
 };
 
-import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
+import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 import TaUtils from "@yh/ta-utils";
 export default {
   name: "vsk-tool-bar",
@@ -184,8 +184,8 @@ export default {
         console.log("watch---mdtyms_conf.silder.barValue", nVal, oVal);
         console.log("Tautil----------", TaUtils);
 
-        const {silder} = this.mdtyms_conf;
-        const {barValue, multiplicand} = silder;
+        const { silder } = this.mdtyms_conf;
+        const { barValue, multiplicand } = silder;
         if (!!nVal || nVal !== "") {
           const mValue = TaUtils.multiply(barValue, multiplicand);
           const weight_value = TaUtils.commafy(mValue, {
@@ -202,9 +202,39 @@ export default {
       },
       immediate: true,
     },
+    "view_window.win_w": {
+      handler(nVal, oVal) {
+        console.log(nVal)
+        if (nVal) {
+          this.UpdateColorWindow(nVal)
+          this.SET_NODULE_DIAGNOSE_DATA({
+            key: "colorWindow",
+            value: nVal
+          })
+        }
+      },
+      immediate: true
+
+    },
+    "view_window.win_holder": {
+      handler(nVal, oVal) {
+        console.log(nVal)
+        if (nVal) {
+          this.UpdateColorLevel(nVal)
+          this.SET_NODULE_DIAGNOSE_DATA({
+            key: "colorLevel",
+            value: nVal
+          })
+        }
+      },
+      immediate: true
+
+    },
+
   },
   computed: {
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
+    ...mapState("viewInitStore", ["noduleDiagnoseState"]),
     // view-layout布局
     getClassName() {
       const classList = ["boxBtn flex justify-start items-center"];
@@ -223,13 +253,14 @@ export default {
   created() {
     console.log("===this.ckcw_on==", this.ckcw_on, ButtonNames.Ckcw);
     console.log("dicomdicomdicomdicomdicomdicomdicom", dicom);
+
   },
   data() {
     return {
       mdtyms_conf: {
         onChange: (ev) => {
           console.log("onChange___mdtyms_conf", ev, this.mdtyms_conf);
-          const {value} = this.mdtyms_conf;
+          const { value } = this.mdtyms_conf;
           let mode = "max";
           if (value === 1) {
             mode = "min";
@@ -260,9 +291,6 @@ export default {
           },
         },
       },
-      // ------------
-      // ckcw_on: false,
-      // mdtyms_on: false,
       ...btnStateGrp,
       // -----------
       rotated: false,
@@ -274,28 +302,31 @@ export default {
         win_holder: 1, //"1",
         winW: {
           onChange: (value) => {
-            console.log("onChange:", value);
-            this.$set(this.view_window, "win_w", value);
+            // console.log("onChange:", value);
+            // this.$set(this.view_window, "win_w", value);
           },
           onAfterChange: (value) => {
-            console.log("onChange1:", value, this.view_window);
-            this.$set(this.view_window, "win_w", value);
-            // 灰度
-            this.UpdateColorWindow_self({ww: value});
-            this.$forceUpdate();
+            // this.UpdateColorWindow(value)
+            // console.log("onChange1:", value, this.view_window);
+            // this.$set(this.view_window, "win_w", value);
+            // // 灰度
+            // this.UpdateColorWindow_self({ ww: value });
+            // this.$forceUpdate();
           },
         },
         winHold: {
           onChange: (value) => {
-            console.log("onChange:", value);
-            this.$set(this.view_window, "win_holder", value);
+            // console.log("onChange:", value);
+            // this.$set(this.view_window, "win_holder", value);
           },
           onAfterChange: (value) => {
-            // 亮度
-            console.log("onChange1:", value);
-            this.$set(this.view_window, "win_holder", value);
-            this.UpdateColorLevel_self({wl: value});
-            this.$forceUpdate();
+            // // 亮度
+            // console.log("onChange1:", value);
+            // this.UpdateColorLevel(value)
+
+            // this.$set(this.view_window, "win_holder", value);
+            // this.UpdateColorLevel_self({ wl: value });
+            // this.$forceUpdate();
           },
         },
         current: 0,
@@ -316,8 +347,20 @@ export default {
       },
     };
   },
+  created() {
+    this.$nextTick(() => {
+      requestAnimationFrame(() => {
+        this.view_window.win_w = 1500
+        this.view_window.win_holder = -500
+      })
+
+    })
+
+  },
   methods: {
-    ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
+    ...mapMutations("viewInitStore", ["SET_NODULE_DIAGNOSE_DATA"]),
+    ...mapActions("viewInitStore", ["UpdateColorWindow", "UpdateColorLevel", "ChangePan"]),
+    ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT", "TOGGLE_BUTTON_STATE"]),
     ...mapActions("toolsStore", [
       "toggleUpdateCrossHair",
       "toggleUpdateStartPan",
@@ -332,11 +375,15 @@ export default {
       switch (name) {
         case ButtonNames.Ckcw:
           {
+            this.TOGGLE_BUTTON_STATE(ButtonNames.Ckcw)
             toggleButtonState(ButtonNames.Ckcw, this);
+
+            console.log()
           }
           break;
         case ButtonNames.Mdtyms:
           {
+            this.TOGGLE_BUTTON_STATE(ButtonNames.Mdtyms)
             toggleButtonState(ButtonNames.Mdtyms, this);
             // 密度投影
             console.log();
@@ -345,16 +392,19 @@ export default {
         // 其他按钮的逻辑...
         case ButtonNames.Jbinfo:
           {
+            this.TOGGLE_BUTTON_STATE(ButtonNames.Jbinfo)
             toggleButtonState(ButtonNames.Jbinfo, this);
           }
           break;
         case ButtonNames.AiInfo:
           {
+            this.TOGGLE_BUTTON_STATE(ButtonNames.AiInfo)
             toggleButtonState(ButtonNames.AiInfo, this);
           }
           break;
         case ButtonNames.Szckx:
           {
+            this.TOGGLE_BUTTON_STATE(ButtonNames.Szckx)
             toggleButtonState(ButtonNames.Szckx, this);
             // 十字参考线
             this.toggleUpdateCrossHair(!!this.szckx_on);
@@ -363,8 +413,10 @@ export default {
           break;
         case ButtonNames.Pyms:
           {
+            this.TOGGLE_BUTTON_STATE(ButtonNames.Pyms)
             toggleButtonState(ButtonNames.Pyms, this);
-            this.toggleUpdateStartPan(!!this.pyms_on);
+            this.ChangePan();
+            // this.toggleUpdateStartPan(!!this.pyms_on);
             console.log("// 平移模式=", !!this.pyms_on);
           }
           break;
@@ -374,7 +426,7 @@ export default {
     },
     handle_view_window_row(idx) {
       this.view_window.current = idx;
-      const {current} = this.view_window;
+      const { current } = this.view_window;
       const row = this.view_window.list[current];
       this.view_window.curInput = row.icon;
       console.log("row.icon==", row.icon);
@@ -389,6 +441,11 @@ export default {
     afterLeaveEvents() {
       this.rotated = !this.rotated;
     },
+    changeColor(ww, wl) {
+      this.view_window.win_w = ww
+      this.view_window.win_holder = wl
+
+    }
   },
 };
 </script>

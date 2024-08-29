@@ -34,8 +34,9 @@ export default {
       state.slice_CT_pic_layout = layout;
     },
     TOGGLE_BUTTON_STATE(state, buttonName) {
-      state.buttonStates[`${buttonName}${suffix_name}`] =
-        !state.buttonStates[`${buttonName}${suffix_name}`];
+      console.log(`${buttonName}${suffix_name}`)
+      state[`${buttonName}${suffix_name}`] =
+        !state[`${buttonName}${suffix_name}`];
     },
   },
   actions: {},

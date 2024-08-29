@@ -14,4 +14,6 @@ export const testDevOps = {
   cb: `/callback`, //mod
   diagnose: `/diagnose`,
   nodule: `/nodule`,
+  image: `/image`,
+
 };

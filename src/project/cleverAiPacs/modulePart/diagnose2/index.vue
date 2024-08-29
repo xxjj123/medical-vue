@@ -3,7 +3,7 @@
     <!-- diagnose_page -->
     <PacsPageHeader :bread="true" :filmModeBtn="true">
       <template slot="filmModeCtrl">
-        <filmBar></filmBar>
+        <filmBar @changeColor="changeColor"></filmBar>
         <div class="fixFileMuil">
           <input ref="Fileinput" type="file" multiple @change="handleFile" />
         </div>
@@ -12,7 +12,7 @@
     <div class="main">
       <div class="pacs_container">
         <div class="toolBar">
-          <vskToolbar></vskToolbar>
+          <vskToolbar ref="vskToolbarRef"></vskToolbar>
         </div>
         <div>
           <ViewBoard :seriesInfo="seriesInfo"></ViewBoard>
@@ -149,6 +149,10 @@ export default {
           console.log(seriesInfo);
         }
       });
+    },
+    changeColor(colorwindow, colrlevel) {
+      console.log("colorwindow,colrlevel", colorwindow, colrlevel)
+      this.$refs.vskToolbarRef.changeColor(colorwindow, colrlevel)
     },
     async Diagnose(computeSeriesId) {
       return new Promise(async (resolve, reject) => {

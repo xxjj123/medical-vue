@@ -1,14 +1,5 @@
 <template>
   <div class="ViewBoard_panel">
-    <!-- {{ seriesInfo }}
-    <br>
-    {{ AxialData }}
-    <br>
-    CoronalData:
-    {{ CoronalData }}
-    <br>
-    SagittalData:
-    {{ SagittalData }} -->
 
     <div :class="[
       'pic_views',
@@ -16,11 +7,10 @@
       { pic_layout: layout === '2' },
       { pic_layout_original: layout === '3' },
     ]">
-      <!-- {{ szckx_on }} -->
 
       <div class="side viewbox view-3d">
         <!-- <div class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue" ref="View3DRef"></div> -->
-        <view3D ref="view3DRef" :seriesId="sagittalCrosshairData" />
+        <view3D class="h-full w-full" ref="view3DRef" :seriesId="sagittalCrosshairData" />
 
       </div>
       <div :class="[
@@ -90,7 +80,6 @@ let btnStateGrp = {
   [`${ButtonNames.Szckx}${suffix_name}`]: false,
   [`${ButtonNames.Pyms}${suffix_name}`]: false,
 };
-console.log(btnStateGrp);
 
 import { getStorage, createWebStorage, } from '@yh/ta-utils'
 
@@ -135,7 +124,7 @@ export default {
       Coronal: null, //冠状的
       Sagittal: null, //矢状的
       ...btnStateGrp,
-      szckx_on: btnStateGrp[`${ButtonNames.Szckx}${suffix_name}`],
+
       layout: "1", //1:肋骨高级图布局（pic_layout_3d） 2:mpr布局（pic_layout）3:原图（pic_layout_original）
     };
   },
@@ -169,6 +158,13 @@ export default {
     ]),
 
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
+    ...mapState("toolBarStore", {
+      ckcwButtonState: state => state[`${ButtonNames.Ckcw}${suffix_name}`],
+      szckxButtonState: state => state[`${ButtonNames.Szckx}${suffix_name}`],
+
+    }),
+
+
     localSlice_CT_pic_layout: {
       get() {
         return this.slice_CT_pic_layout; // 从 Vuex 状态获取值
@@ -227,6 +223,7 @@ export default {
       },
       immediate: true,
     },
+
     AxialData: {
       handler(nVal, oVal) {
         if (nVal) {
@@ -348,6 +345,9 @@ export default {
     console.log("AxialData==", this.AxialData);
     console.log("CoronalData==", this.CoronalData);
     console.log("SagittalData==", this.SagittalData);
+
+
+
 
   },
   mounted() {

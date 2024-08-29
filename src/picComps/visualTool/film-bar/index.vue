@@ -1,20 +1,15 @@
 <template>
   <div class="vsk_film_bar">
     <div class="button-group flex">
-      <button
-        v-for="(button, index) in buttons"
-        :key="index"
-        :class="[
-          'button',
-          'flex-1',
-          'ripple',
-          { active: activeIndex === index },
-        ]"
-        @click="activate(index)"
-      >
+      <button v-for="(button, index) in buttons" :key="index" :class="[
+        'button',
+        'flex-1',
+        'ripple',
+        { active: activeIndex === index },
+      ]" @click="activate(index)">
         {{ button.name }}
       </button>
-      <div class="background" :style="backgroundStyle"></div>
+      <div class="background" v-if="activeIndex != null" :style="backgroundStyle"></div>
     </div>
   </div>
 </template>
@@ -41,7 +36,7 @@ export default {
   name: "film-bar",
   data() {
     return {
-      activeIndex: 0,
+      activeIndex: null,
       buttons: [
         {
           name: "肺窗",
@@ -58,12 +53,40 @@ export default {
       ],
     };
   },
+  created() {
+    this.$nextTick(() => {
+      this.activeIndex = 0
+      this.activate(activeIndex)
+    })
+  },
   computed: {
     backgroundStyle() {
       return {
         transform: `translateX(${this.activeIndex * 100}%)`,
       };
     },
+    ...mapState("viewInitStore", ["noduleDiagnoseState"]),
+  },
+  watch: {
+    noduleDiagnoseState: {
+      handler(nVal, oVal) {
+        let colorWindow = nVal.colorWindow
+        let colorLevel = nVal.colorLevel
+
+        if (winCtrl.lung.ww == colorWindow && winCtrl.lung.wl == colorLevel) {
+          this.activate(0)
+        } else if (winCtrl.mediastinal.ww == colorWindow && winCtrl.mediastinal.wl == colorLevel) {
+
+          this.activate(1)
+        } else if (winCtrl.bone.ww == colorWindow && winCtrl.bone.wl == colorLevel) {
+          this.activate(2)
+        } else {
+          this.activeIndex = null
+        }
+      },
+      deep: true,
+      immediate: true,
+    }
   },
   methods: {
     ...mapActions("viewInitStore", ["UpdateColorWindow", "UpdateColorLevel"]),
@@ -75,8 +98,7 @@ export default {
       console.log("kaishiUpdateColorLevel");
       const { tag } = this.buttons[this.activeIndex];
       const { ww, wl } = winCtrl[tag];
-      this.UpdateColorWindow({ ww });
-      this.UpdateColorLevel({ wl });
+      this.$emit('changeColor', ww, wl)
     },
     activate(index) {
       this.activeIndex = index;
@@ -103,7 +125,8 @@ export default {
   cursor: pointer;
   min-width: 70px;
   max-width: 260px;
-  z-index: 2; /* Ensure buttons are above the background */
+  z-index: 2;
+  /* Ensure buttons are above the background */
 }
 
 .background {
