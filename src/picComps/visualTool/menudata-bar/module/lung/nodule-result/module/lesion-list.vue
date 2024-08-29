@@ -56,7 +56,7 @@
           </div>
         </template>
         <template #CHENGJI_VAL="{row}">
-          <div v-if="row.lobeSegment" class="h1 cj_block">
+          <div class="h1 cj_block">
             <!-- <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>前内基底段</span> -->
             <span>{{ row.lobeSegment.label }}</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>{{
               row.lobeSegment.name }}</span>
@@ -150,16 +150,18 @@
     </div>
 
     <div class="analytic_semantic_description">
-      <anaSemanticDesBlock :bookItems.sync="anaSecDesConf.bookItems" :title="anaSecDesConf.title">
+      <anaSemanticDesBlock :bookItems.sync="anaSecDesConf.bookItems" :selection.sync="selection"
+        :selectVal.sync="filmIpt_curItem" :title="anaSecDesConf.title" :current.sync="tableCurrentIdx">
         <filmInputState slot="searchBar" v-model="filmIpt_curItem" :typec="`dropdown`" :selectCurIdx="`0`"
-          :optionNum="`1`" @cb-click="handle_filmIptClick"></filmInputState>
+          :optionNum="`1`" @cb-click="handle_filmIptClick_yxsj"></filmInputState>
       </anaSemanticDesBlock>
     </div>
 
     <div class="analytic_semantic_description">
-      <anaSemanticDesBlock :bookItems.sync="anaSecDesConf_1.bookItems" :title="anaSecDesConf_1.title">
+      <anaSemanticDesBlock :bookItems.sync="anaSecDesConf_1.bookItems" :selectVal="filmIpt_curItem_1"
+        :title="anaSecDesConf_1.title">
         <filmInputState slot="searchBar" v-model="filmIpt_curItem_1" :typec="`dropdown`" :selectCurIdx="`1`"
-          :optionNum="`2`" @cb-click="handle_filmIptClick"></filmInputState>
+          :optionNum="`2`" @cb-click="handle_filmIptClick_yxzd"></filmInputState>
       </anaSemanticDesBlock>
     </div>
 
@@ -212,8 +214,12 @@ import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/commo
 import {CodeSandboxOutline} from "@yh/icons-svg";
 import {mapActions} from "vuex";
 import Vue from 'vue';
-import {SortOption} from "@/assets/js/utils/dicom/select";
+import {SortOption, LungTemplateEnum, LungTemplateDiagnoseEnum} from "@/assets/js/utils/dicom/select";
+import {mapState} from "vuex";
 
+
+
+import {xhr_updateNoduleLesion} from "@/api/index";
 
 // 病理部位标志
 const LESION_PART_SITE = {
@@ -237,6 +243,7 @@ export default {
     },
   },
   computed: {
+    ...mapState("viewInitStore", ["noduleInfo"]),
     menuResult: {
       get() {
         return this.value;
@@ -250,7 +257,35 @@ export default {
   watch: {
     filmIpt_curItem: {
       handler(nVal, oVal) {
-        // console.log("watch-----filmIpt_curItem", nVal, oVal);
+        console.log("watch-----filmIpt_curItem", nVal, oVal);
+        if (nVal) {
+          const {value} = nVal;
+          if (value === '0') {
+
+          } else if (value === '1') {
+
+          } else if (value === '2') {
+
+          } else if (value === '3') {
+
+          } else if (value === '4') {
+
+          }
+        }
+      },
+      immediate: true,
+    },
+    filmIpt_curItem_1: {
+      handler(nVal, oVal) {
+        console.log("watch-----filmIpt_curItem1", nVal, oVal);
+        if (nVal) {
+          const {value} = nVal;
+          if (value === '') {
+
+          } else if (value === '1') {
+
+          }
+        }
       },
       immediate: true,
     },
@@ -260,23 +295,35 @@ export default {
       },
       immediate: true,
     },
+    lunglistSelectRow: {
+      handler(nVal, oVal) {
+        console.log("watch____lunglistSelectRow", nVal, oVal);
+        if (nVal) {
+          const valState = this.validateObject(nVal.lobeSegment);
+          console.log("valState", valState)
+        }
+      },
+      immediate: true
+    },
+    noduleTypeListSelectRow: {
+      handler(nVal, oVal) {
+        console.log("watch____noduleTypeListSelectRow", nVal, oVal);
+        if (nVal) {
+          const valState = this.validateObject(nVal.type);
+          console.log("valState", valState)
+        }
+      },
+      immediate: true
+    }
   },
-  /*   filters: {
-      noduleAreaName: async (value, arg) => {
-        console.log("value, arg----", value, arg);
-        const item = await Vue.prototype.$api.query_humen_boot_data();
-        console.log("item===", item);
-        const rowSelectItem = Vue.prototype.$api.findObjectByValue(
-          item,
-          "lung.segments",
-          value.toString(),
-        )[0];
-        console.log("rowSelectItem==", rowSelectItem)
-        return `${label} / ${value}`;
-      }
-    }, */
+
   data() {
     return {
+      selection: [],
+      tableCurrentIdx: -1,
+      NoduleLesion_row: {},//临时用
+      lunglistSelectRow: {},//结节改变中转数据
+      noduleTypeListSelectRow: {},//类型结节-中转
       nodule_type: [],
       left_lung: [],
       right_lung: [],
@@ -748,14 +795,11 @@ export default {
     setPopupContainer(trigger) {
       return trigger.parentElement;
     },
-    async noduleAreaName(val) {
-      const item = await this.$api.query_humen_boot_data();
-      const rowSelectItem = this.$api.findObjectByValue(item, "lung.segments", val.toString())[0];
-      console.log("rowSelectItem==", rowSelectItem);
-      const {label, value} = rowSelectItem;
-      return `${label} / ${value}`;
-      // 假设你更新了某个数据属性来反映结果
-      // this.label = `${rowSelectItem.label} / ${value}`;
+
+    reset_cache_selectedNodule() {
+      // this.NoduleLesion_row = {};
+      this.lunglistSelectRow = {};
+      this.noduleTypeListSelectRow = {};
     },
     rowStyle({row, rowIndex}) {
       console.log("rowStyle_____", row, rowIndex);
@@ -774,6 +818,15 @@ export default {
 
 
     },
+    validateObject(obj) {
+      // 检查是否为对象且不是null
+      if (typeof obj === 'object' && obj !== null && Object.keys(obj).length > 0) {
+        // 检查对象是否有label和value属性
+        return 'label' in obj && 'value' in obj;
+      }
+      // 如果对象为空或不包含label和value属性，返回false
+      return false;
+    },
     handleCellClick({
       row,
       rowIndex,
@@ -785,15 +838,25 @@ export default {
       triggerCheckbox,
       $event,
     }) {
-      console.log("handleCellClick--row", row, "row.boxIndex", row.boxIndex);
       const bboxindex = row.id;
       this.ChooseAnnotation(bboxindex);
 
       this.tableCurrentIdx = rowIndex;
 
+      console.log("handleCellClick--row", row, "row.boxIndex", row.boxIndex, "this.tableCurrentIdx", this.tableCurrentIdx);
       this.$refs.tableLungNodule.setCurrentRow(row);
 
+      this.NoduleLesion_row = row;
+
+
       console.log("this.$refs.tableLungNodule==", this.$refs.tableLungNodule);
+
+      console.log("this.validateObject(this.lunglistSelectRow)", this.lunglistSelectRow, this.validateObject(this.lunglistSelectRow.lobeSegment))
+      console.log("this.validateObject(this.noduleTypeListSelectRow)", this.noduleTypeListSelectRow, this.validateObject(this.noduleTypeListSelectRow.type))
+
+
+
+
 
 
       // console.log(
@@ -836,23 +899,19 @@ export default {
           this.lungLobeDropDown.colstrValue = `${row.ellipsoidAxisMajor}x${row.ellipsoidAxisLeast}mm`
         });
       }
-      // }else if(property === 'mean'){
       const {type} = row;
-      // console.log("type===",type);
       this.$api.query_humen_boot_data().then((item) => {
-        // console.log("item-----",item);
         const rowSelectItem = this.$api.findObjectByValue(
           item,
           "lung.noduleType",
           type.value.toString(),
         )[0];
-        // console.log("rowSelectItem-mean=",rowSelectItem);
         this.noduleTypeDropDown.showValue = `${rowSelectItem.name}`;
       });
 
-      // }
 
-      // this.tableData[rowIndex]
+      // this.NoduleLesion_row = {};
+
     },
     async init_lesionPanelSearchBar() {
       const item = await this.init_select("LESION_LIST_TYPE");
@@ -914,7 +973,7 @@ export default {
       const selectValues = await this.$api.select_codeTable_type_group(type);
       return selectValues;
     },
-    handle_filmIptClick(ev) {
+    handle_filmIptClick_yxsj(ev) {
       console.log(
         "handle_filmIptClick___",
         ev,
@@ -922,14 +981,28 @@ export default {
         this.filmIpt_curItem
       );
     },
+    handle_filmIptClick_yxzd(ev) {
+      console.log(
+        "handle_filmIptClick___",
+        ev,
+        "filmIpt_curItem_1",
+        this.filmIpt_curItem_1
+      );
+    },
     selectAllEvent(ev) {
       console.log("selectAllEvent___", ev);
     },
     selectChangeEvent(ev) {
       console.log("selectChangeEvent___", ev);
+      const {selection} = ev;
+      console.log("selection===:", JSON.stringify(selection), "this.tableCurrentIdx", this.tableCurrentIdx);
+
+      this.selection = selection;
     },
     handleTableCurrentChange({row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event}) {
       console.log("handleTableCurrentChange:row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event --", row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event);
+
+
 
     },
     afterLeaveEvents() { },
@@ -1281,12 +1354,115 @@ export default {
       }
     },
     handleMenuClick_lungList(e) {
-      // console.log("handleMenuClick_lungList",e);
+      console.log("handleMenuClick_lungList", e, "this.tableCurrentIdx", this.tableCurrentIdx, "this.tableConfig.tableData", this.tableConfig.tableData, "this.NoduleLesion_row ", this.NoduleLesion_row);
+      const {key} = e;
+      const arr = key.split("_");
+      const code = arr[arr.length - 1];
+
+      this.$api.query_humen_boot_data().then(async item => {
+        const rowSelectItem = await this.$api.findObjectByValue(item, "lung.segments", code.toString())[0];
+
+
+        console.log("rowSelectItem__lungNodule---", rowSelectItem);
+
+
+        this.lunglistSelectRow = {lobeSegment: rowSelectItem};
+
+        console.log("this.lunglistSelectRow---handleMenuClick_after:", this.lunglistSelectRow, "this.tableConfig.tableData[this.tableCurrentIdx]", this.tableConfig.tableData[this.tableCurrentIdx])
+
+        // 同步最新表格数据
+        this.$set(this.tableConfig.tableData[this.tableCurrentIdx], 'lobeSegment', rowSelectItem);
+        // 同步edit状态下的对应行数据回显内容
+        this.lungLobeDropDown.showValue = `${rowSelectItem.label} / ${rowSelectItem.name}`;
+        // this.reset_cache_selectedNodule();
+
+
+        if (this.validateObject(this.lunglistSelectRow.lobeSegment)) {
+
+          // this.$set(this.NoduleLesion_row, "lobeSegment", this.lunglistSelectRow.lobeSegment.value)
+
+
+          let param = {};
+          param = {
+            ...this.NoduleLesion_row,
+            lobeSegment: this.lunglistSelectRow.lobeSegment.value,
+            type: typeof this.NoduleLesion_row.type === 'object' ? this.NoduleLesion_row.type.value : typeof this.NoduleLesion_row.type === 'string' ? this.NoduleLesion_row.type : undefined,
+          }
+
+          console.log("param___param__lung", this.NoduleLesion_row)
+          xhr_updateNoduleLesion(param).then(result => {
+            console.log("xhr_updateNoduleLesion__lung", result);
+            //  this.reset_cache_selectedNodule();
+            setTimeout(() => {
+              this.$message.success(`更新数据成功`)
+            }, 500)
+          })
+        } else {
+
+        }
+      })
+
+
+
 
 
     },
     handleMenuClick_noduleList(e) {
-      // console.log("handleMenuClick_noduleList",e);
+      console.log("handleMenuClick_noduleList", e, "this.tableCurrentIdx", this.tableCurrentIdx, "this.tableConfig.tableData", this.tableConfig.tableData);
+      const {key} = e;
+      const arr = key.split("_");
+      const code = arr[arr.length - 1];
+
+      this.$api.query_humen_boot_data().then(async item => {
+        const rowSelectItem = await this.$api.findObjectByValue(item, "lung.noduleType", code.toString())[0];
+
+
+        console.log("rowSelectItem__lungNodule---", rowSelectItem);
+
+
+        this.noduleTypeListSelectRow = {type: rowSelectItem};
+
+
+        console.log("this.noduleTypeListSelectRow--", this.noduleTypeListSelectRow)
+
+        console.log("this.noduleTypeListSelectRow---handleMenuClick_after:", this.noduleTypeListSelectRow)
+
+
+        // 同步最新表格数据
+        this.$set(this.tableConfig.tableData[this.tableCurrentIdx], 'type', rowSelectItem);
+        // 同步edit状态下的对应行数据回显内容
+        this.lungLobeDropDown.showValue = `${rowSelectItem.name}`;
+        // this.reset_cache_selectedNodule();
+
+
+        if (this.validateObject(this.noduleTypeListSelectRow.type)) {
+          // this.$set(this.NoduleLesion_row, "type", this.noduleTypeListSelectRow.type.value)
+
+          console.log("this.NoduleLesion_row==this.NoduleLesion_row", this.NoduleLesion_row)
+          let param = {};
+          param = {
+            ...this.NoduleLesion_row,
+            type: this.noduleTypeListSelectRow.type.value,
+            lobeSegment: typeof this.NoduleLesion_row.lobeSegment === 'object' ? this.NoduleLesion_row.lobeSegment.value : typeof this.NoduleLesion_row.lobeSegment === 'string' ? this.NoduleLesion_row.lobeSegment : undefined,
+          }
+
+          console.log("param___param__type", this.NoduleLesion_row)
+          xhr_updateNoduleLesion(param).then(result => {
+            console.log("xhr_updateNoduleLesion___type", result);
+            // this.reset_cache_selectedNodule();
+            setTimeout(() => {
+              this.$message.success(`更新数据成功`)
+            }, 500)
+
+          })
+        } else {
+
+        }
+
+      })
+
+
+
     },
 
     // 应用 customizeJson 和 策略
@@ -1419,6 +1595,8 @@ export default {
     },
   },
   created() {
+
+    console.log("noduleInfo====", this.noduleInfo);
     // console.log("lesion-list:this.menuResult", this.menuResult);
     // this.init_select_LesionList();
     this.init_lesionPanelSearchBar();

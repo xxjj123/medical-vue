@@ -377,8 +377,7 @@ export default {
           {
             this.TOGGLE_BUTTON_STATE(ButtonNames.Ckcw)
             toggleButtonState(ButtonNames.Ckcw, this);
-
-            console.log()
+            console.log("this[ButtonNames.Ckcw]____", ButtonNames.Ckcw, this[`${ButtonNames.Ckcw}_on`]);
           }
           break;
         case ButtonNames.Mdtyms:

@@ -17,12 +17,8 @@
       </div>
     </div>
     <div class="context_book">
-      <div
-        class="item_book"
-        v-for="(item, index) in resultBookItems"
-        :key="index"
-      >
-        {{ item }}
+      <div class="item_book" v-for="(item, index) in resultBookItems" :key="index">
+        <div class="item_row">{{ item }}</div>
       </div>
     </div>
   </div>
@@ -42,11 +38,21 @@
 export default {
   name: "ana-semantic-des-block",
   props: {
+    selectVal: {
+      type: [Object],
+    },
     title: {
       type: String,
       default: "",
     },
     bookItems: {
+      type: Array,
+      default: () => [],
+    },
+    current: {
+      type: [String, Number],
+    },
+    selection: {
       type: Array,
       default: () => [],
     },
@@ -61,6 +67,63 @@ export default {
         // return val;
       },
     },
+    currentNum: {
+      get() {
+        return this.current;
+      },
+      set(val) {
+        this.$emit("update:current", val);
+      }
+    },
+    selectValue: {
+      get() {
+        return this.selectVal;
+      },
+      set(val) {
+        this.$emit("update:selectVal", val);
+      }
+    },
+    selectionValue: {
+      get() {
+        return this.selection;
+      },
+      set(val) {
+        return val;
+      }
+    }
+  },
+  watch: {
+    currentNum: {
+      handler(nVal, oVal) {
+        console.log("currentNum_______", nVal, oVal);
+
+      },
+      immediate: false,
+    },
+    selectValue: {
+      handler(nVal, oVal) {
+        console.log("selectValue________", nVal, oVal);
+
+      },
+      immediate: false,
+    },
+    resultBookItems: {
+      handler(nVal, oVal) {
+        console.log("resultBookItems___________", nVal, oVal);
+
+      },
+      immediate: false,
+    },
+    selectionValue: {
+      handler(nVal, oVal) {
+        console.log("watch____selectionValue___nVal, oVal", nVal, oVal);
+        console.log("this,currentNum", this.currentNum);
+
+        // this.resultBookItems = ['1\n', '2\n'];//test
+
+      },
+      immediate: false,
+    }
   },
   data() {
     return {
@@ -88,6 +151,9 @@ export default {
   },
   created() {
     this.init_resultBookItems();
+
+
+    console.log("this.$slots.searchBar:::", this.$slots.searchBar)
   },
 };
 </script>
@@ -97,8 +163,10 @@ export default {
   margin-bottom: 14px;
   margin-top: 20px;
 }
+
 .copyIcon {
   cursor: pointer;
+
   .pic {
     .func_bgCover();
     background-image: url(./assets/img/copy.png);
@@ -106,6 +174,7 @@ export default {
     height: 14px;
     margin-right: 2px;
   }
+
   .txt {
     font-size: 14px;
   }
@@ -114,6 +183,8 @@ export default {
 .context_book {
   .item_book {
     margin: 10px 0 10px 0;
+
+    .item_row {}
   }
 }
 </style>
