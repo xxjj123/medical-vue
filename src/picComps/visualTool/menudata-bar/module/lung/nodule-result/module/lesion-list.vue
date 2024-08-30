@@ -26,8 +26,9 @@
       <!-- :checkbox-config="{
           trigger: 'row',
         }" -->
+      {{ }}
       <ta-big-table class="lung_table_custom" ref="tableLungNodule" :size="tableConfig.size" row-id="id"
-        :checkbox-config="{ checkMethod: checCheckboxkMethod2, trigger: 'row', checkRowKeys: defaultSelecteRows }"
+        :checkbox-config="{ trigger: 'click', checkRowKeys: defaultSelecteRows }"
         @current-change="handleTableCurrentChange" highlight-current-row :keyboard-config="{ isArrow: true }"
         height="200" :columns="tableConfig.tableColumns" :data="tableConfig.tableData" @checkbox-all="selectAllEvent"
         @checkbox-change="selectChangeEvent" :edit-config="{ trigger: 'click' }" @cell-click="handleCellClick"
@@ -864,11 +865,20 @@ export default {
       triggerCheckbox,
       $event,
     }) {
-      const bboxindex = row.id;
-      this.ChooseAnnotation(bboxindex);
+
+
 
       this.tableCurrentIdx = rowIndex;
-      this.selectedNoduleId = row.id;
+
+      console.log(this.tableCurrentIdx)
+
+      const currentid = this.$refs.tableLungNodule.getCurrentRecord().id
+      if (currentid !== this.selectedNoduleId) {
+        const bboxindex = row.id;
+
+        this.ChooseAnnotation(bboxindex);
+        this.selectedNoduleId = row.id;
+      }
 
       console.log("handleCellClick--row", row, "row.boxIndex", row.boxIndex, "this.tableCurrentIdx", this.tableCurrentIdx);
 
@@ -1731,6 +1741,7 @@ body {
   /deep/.vxe-body--row {
     &.row--current {
       background: rgba(100, 100, 100, 0.797);
+
     }
   }
 }
