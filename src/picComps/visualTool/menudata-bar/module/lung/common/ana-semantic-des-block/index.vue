@@ -18,7 +18,7 @@
     </div>
     <div class="context_book">
       <div class="item_book" v-for="(item, index) in resultBookItems" :key="index">
-        <div class="item_row">{{ item }}</div>
+        <div class="item_row" :class="item.id == currentNum ? 'selected' : ''">{{ item.desc }}</div>
       </div>
     </div>
   </div>
@@ -35,6 +35,9 @@
  * 6、标题
  * ...
  */
+
+import { SortOption, LungTemplateEnum, LungTemplateDiagnoseEnum, mapObjectToTemplate } from "@/assets/js/utils/dicom/select";
+
 export default {
   name: "ana-semantic-des-block",
   props: {
@@ -60,6 +63,7 @@ export default {
   computed: {
     resultBookItems: {
       get() {
+        console.log("bookItems", this.bookItems)
         return this.bookItems;
       },
       set(val) {
@@ -109,6 +113,7 @@ export default {
     },
     resultBookItems: {
       handler(nVal, oVal) {
+        // this.resultBookItems_data = resultBookItems
         console.log("resultBookItems___________", nVal, oVal);
 
       },
@@ -116,13 +121,21 @@ export default {
     },
     selectionValue: {
       handler(nVal, oVal) {
-        console.log("watch____selectionValue___nVal, oVal", nVal, oVal);
-        console.log("this,currentNum", this.currentNum);
+        console.log("selectionValue.watch____selectionValue___nVal, oVal", nVal);
+        console.log("selectionValue.this,currentNum", this.currentNum);
+        let resultBookItems = []
+        nVal.forEach((item) => {
+          console.log(item)
+          const resultBookItem = mapObjectToTemplate(item, LungTemplateEnum.TEMP1)
+          resultBookItems.push({ id: item.id, desc: resultBookItem })
+        })
+        console.log("resultBookItems", resultBookItems)
+        this.resultBookItems = resultBookItems
 
         // this.resultBookItems = ['1\n', '2\n'];//test
 
       },
-      immediate: false,
+      immediate: true,
     }
   },
   data() {
@@ -139,18 +152,23 @@ export default {
       //   `右肺上叶前段【78/259】见磨玻璃性结节，大小约4.9mmx3.7mm，体积约51.0mm³，平均CT值约-634.0HU。`,
       // ];
     },
-    init_resultBookItems() {
-      this.resultBookItems_data = [
-        `右肺上叶前段【39/259】见混合性结节，大小约13.8mmx8.3mm，体积约649.3mm³，平均CT值约-277.6HU`,
-        `左肺上叶前段【63/259】见磨玻璃性结节，大小约4.6mmx2.4mm，体积约28.9mm³，平均CT值约-702.2HU。`,
-        `左肺上叶前段【78/259】见磨玻璃性结节，大小约6.3mmx2.8mm，体积约49.6mm³，平均CT值约-529.3HU。`,
-        `右肺上叶前段【78/259】见磨玻璃性结节，大小约4.9mmx3.7mm，体积约51.0mm³，平均CT值约-634.0HU。`,
-      ];
-      // console.log(" this.resultBookItems=", this.resultBookItems);
-    },
+    // init_resultBookItems() {
+
+
+    //   console.log("init_resultBookItems")
+
+
+    //   this.resultBookItems_data = [
+    //     // `右肺上叶前段【39/259】见混合性结节，大小约13.8mmx8.3mm，体积约649.3mm³，平均CT值约-277.6HU`,
+    //     // `左肺上叶前段【63/259】见磨玻璃性结节，大小约4.6mmx2.4mm，体积约28.9mm³，平均CT值约-702.2HU。`,
+    //     // `左肺上叶前段【78/259】见磨玻璃性结节，大小约6.3mmx2.8mm，体积约49.6mm³，平均CT值约-529.3HU。`,
+    //     // `右肺上叶前段【78/259】见磨玻璃性结节，大小约4.9mmx3.7mm，体积约51.0mm³，平均CT值约-634.0HU。`,
+    //   ];
+    //   // console.log(" this.resultBookItems=", this.resultBookItems);
+    // },
   },
   created() {
-    this.init_resultBookItems();
+    // this.init_resultBookItems();
 
 
     console.log("this.$slots.searchBar:::", this.$slots.searchBar)
@@ -186,5 +204,9 @@ export default {
 
     .item_row {}
   }
+}
+
+.selected {
+  color: yellow;
 }
 </style>

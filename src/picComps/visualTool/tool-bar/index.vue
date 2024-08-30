@@ -250,11 +250,11 @@ export default {
       return classList;
     },
   },
-  created() {
-    console.log("===this.ckcw_on==", this.ckcw_on, ButtonNames.Ckcw);
-    console.log("dicomdicomdicomdicomdicomdicomdicom", dicom);
+  // created() {
+  //   console.log("===this.ckcw_on==", this.ckcw_on, ButtonNames.Ckcw);
+  //   console.log("dicomdicomdicomdicomdicomdicomdicom", dicom);
 
-  },
+  // },
   data() {
     return {
       mdtyms_conf: {

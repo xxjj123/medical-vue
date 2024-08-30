@@ -1202,6 +1202,8 @@ export default {
         value: (getters.viewsData[viewType].cameraRotate - 90) % 360,
       });
       dispatch("setupCamera", viewType);
+      dispatch("resizeSliceViews");
+
     },
     // 改变平移
     ChangePan({dispatch, state, getters, commit}) {
@@ -1210,10 +1212,7 @@ export default {
           console.log(view)
           dispatch("setupCamera", view.viewIndex);
           view.view.renderWindow.render()
-
         })
-
-
         commit("SET_NODULE_DIAGNOSE_DATA", {
           key: "isPan",
           value: false,
