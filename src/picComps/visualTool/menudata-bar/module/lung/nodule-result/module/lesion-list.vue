@@ -1782,11 +1782,27 @@ body {
   height: calc(100vh - 253px);
 
   .content_main {
-    // height: calc(100vh - 155px);
+    height: calc(100vh - 155px);
+    width: 100%;
+    flex: 1 1 0%;
+    overflow-y: scroll;
+    /* 允许垂直滚动 */
+    padding-right: 16px;
+    /* 留出空间给滚动条，确保内容不被覆盖 */
+    box-sizing: content-box;
+    /* 使内边距不包含在滚动区域内 */
+    margin-right: -16px;
+    /* 使用负边距拉出滚动条 */
   }
 
   .btn_cxt {
     width: 100%;
+    height: 60px;
+    padding: 23px 0px 0px 0px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
 
     // height: auto;
     .report_item_bar {

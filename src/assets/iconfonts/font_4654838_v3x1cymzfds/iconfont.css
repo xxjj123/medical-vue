@@ -1,0 +1,87 @@
+@font-face {
+  font-family: "ifontyhpacs"; /* Project id 4654838 */
+  src: url('iconfont.woff2?t=1725013045810') format('woff2'),
+       url('iconfont.woff?t=1725013045810') format('woff'),
+       url('iconfont.ttf?t=1725013045810') format('truetype');
+}
+
+.ifontyhpacs {
+  font-family: "ifontyhpacs" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ico_pacsfuzhi:before {
+  content: "\e61b";
+}
+
+.ico_pacsgz-edit:before {
+  content: "\e60a";
+}
+
+.ico_pacszhongzhi1:before {
+  content: "\e605";
+}
+
+.ico_pacsshangjiantou1:before {
+  content: "\e64a";
+}
+
+.ico_pacsxiajiantou:before {
+  content: "\e649";
+}
+
+.ico_pacszanting-:before {
+  content: "\e604";
+}
+
+.ico_pacszanting:before {
+  content: "\e632";
+}
+
+.ico_pacsbofang:before {
+  content: "\e72b";
+}
+
+.ico_pacstuichuquanping:before {
+  content: "\e66f";
+}
+
+.ico_pacsquanping:before {
+  content: "\e670";
+}
+
+.ico_pacschuizhifanzhuan:before {
+  content: "\e661";
+}
+
+.ico_pacsshuipingfanzhuan:before {
+  content: "\e629";
+}
+
+.ico_pacsgl-pauseSquare24:before {
+  content: "\ea6d";
+}
+
+.ico_pacsxuanzhuan:before {
+  content: "\e65e";
+}
+
+.ico_pacszhongzhi:before {
+  content: "\e6bb";
+}
+
+.ico_pacsshipinbofangliang:before {
+  content: "\e606";
+}
+
+.ico_pacsshuping:before {
+  content: "\e963";
+}
+
+.ico_pacsshurushuchumokuai:before {
+  content: "\e6c1";
+}
+

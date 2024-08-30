@@ -24,10 +24,7 @@
           <ViewBoard></ViewBoard>
         </div>
         <div class="menu_data">
-          <menudataBar
-            v-if="menubarShow"
-            :noduleInfo="noduleInfo"
-          ></menudataBar>
+          <menudataBar v-if="menubarShow" :noduleInfo="noduleInfo"></menudataBar>
         </div>
       </div>
     </div>
@@ -106,10 +103,10 @@ export default {
       viewTheme: "",
       showsub: true,
       menuResult: [
-        { des: "nodule", title: "结节", comp: "nodule" },
-        { des: "pneumonia", title: "肺炎", comp: "pneumonia" },
-        { des: "frac", title: "骨折", comp: "pneumonia" },
-        { des: "calcium", title: "钙化积分", comp: "pneumonia" },
+        {des: "nodule", title: "结节", comp: "nodule"},
+        {des: "pneumonia", title: "肺炎", comp: "pneumonia"},
+        {des: "frac", title: "骨折", comp: "pneumonia"},
+        {des: "calcium", title: "钙化积分", comp: "pneumonia"},
       ],
       activeDiagnose: null,
       activeIndex: null,
@@ -174,7 +171,7 @@ export default {
     },
     Diagnose(computeSeriesId) {
       return new Promise(async (resolve, reject) => {
-        const result = await xhr_getNoduleInfo({ computeSeriesId });
+        const result = await xhr_getNoduleInfo({computeSeriesId});
         if (result.serviceSuccess) {
           this.menubarShow = true;
         }
@@ -275,13 +272,13 @@ export default {
     this.SET_HELLOVIEWS("hello world~");
     // console.log("helloViews==", this.helloViews);
     // console.log("combinedState==", this.combinedState);
-    this.actRun({ a: 1 });
+    this.actRun({a: 1});
 
     setTimeout(() => {
       this.SET_HELLOVIEWS("WWWW~");
-      this.actRun({ a: 2 });
+      this.actRun({a: 2});
 
-      this.updateActRun({ q: 123123 });
+      this.updateActRun({q: 123123});
     }, 5000);
 
     // console.log("this.$router", this.$router);
@@ -293,7 +290,7 @@ export default {
       } else {
         // console.log("carplay-已存在");
       }
-      const { computeSeriesId } = this.$route.query;
+      const {computeSeriesId} = this.$route.query;
       this.Diagnose(computeSeriesId);
     });
 
@@ -319,7 +316,7 @@ export default {
         });
     }); */
   },
-  mounted() {},
+  mounted() { },
 };
 </script>
 <style lang="less" scoped>
@@ -341,7 +338,7 @@ export default {
   display: grid;
   grid-template-columns: 85px calc(100% - 505px) 420px;
   grid-template-rows: 100%;
-  background: rgba(104, 102, 102, 0.774);
+  // background: rgba(104, 102, 102, 0.774);
 }
 
 .toolBar {
