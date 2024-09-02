@@ -48,8 +48,8 @@ export function buildProxy() {
       rewrite: (path6) => path6.replace(/^\/ta404\/api6\//, ""),
     },
     ["^/api7/"]: {
-      target: "http://localhost:8080/",
-      // target: "http://192.168.1.142:39625/",//xwj
+      // target: "http://localhost:8080/",
+      target: "http://192.168.1.4:39600/",//xwj
       changeOrigin: true,
       rewrite: (path6) => path6.replace(/^\/api7\//, ""),
     },

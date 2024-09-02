@@ -38,6 +38,8 @@
 
 import { SortOption, mapObjectListToFindingTemplate, mapObjectListToDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
 import { mapState } from "vuex";
+import ClipboardJS from 'clipboard';
+
 
 export default {
   name: "ana-semantic-des-block",
@@ -155,8 +157,11 @@ export default {
   },
   methods: {
     handle_copy() {
+      console.log("开始打印啦")
       var clipboard = new ClipboardJS('.btn');
+      console.log(clipboard)
       clipboard.on('success', function (e) {
+
         console.log('文本已成功复制:', e.text);
       });
       clipboard.on('error', function (e) {

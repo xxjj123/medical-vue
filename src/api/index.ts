@@ -257,60 +257,58 @@ export const xhr_getNoduleInfo = (formData) => {
   });
 };
 
-/**
- * seriesComputeId
- *
- * @param formData
- * @returns
- */
-export const xhr_getSlice = (formData) => {
-  return new Promise((resolve, reject) => {
-    try {
-      return Base.submit(null, {
-        url: image + urlJson["downloadSlice"],
-        data: {
-          ...formData,
-        },
-        responseType: "arraybuffer",
-      }).then(res => {
-        resolve(res);
-      });
-    } catch (error) {
-      reject({error})
-    }
-  })
-};
-
-/*
-*
-* @param formData
-* @returns */
-
-
-// export const xhr_getSlice = async (formData2) => {
-//   try {
-//     const formData = new FormData()
-//     formData.append('seriesId', '1824363122761199618')
-//     formData.append('viewName', formData2.viewName)
-//     formData.append('viewIndex', formData2.viewIndex)
-
-//     const response = await axios.post(
-//       '/api7/mids-api/callback/getVtislice',
-//       formData,
-//       {
-//         headers: {
-//           Connection: 'keep-alive'
+// /**
+//  * seriesComputeId
+//  *
+//  * @param formData
+//  * @returns
+//  */
+// export const xhr_getSlice = (formData) => {
+//   return new Promise((resolve, reject) => {
+//     try {
+//       return Base.submit(null, {
+//         url: image + urlJson["downloadSlice"],
+//         data: {
+//           ...formData,
 //         },
-//         responseType: 'arraybuffer' // This ensures the response is treated as an ArrayBuffer
-//       }
-//     )
+//         responseType: "arraybuffer",
+//       }).then(res => {
+//         resolve(res);
+//       });
+//     } catch (error) {
+//       reject({error})
+//     }
+//   })
+// };
 
-//     return response
-//   } catch (error) {
-//     console.error('Error downloading the file', error)
-//     throw error
-//   }
-// }
+// /*
+// *
+// * @param formData
+// * @returns */
+
+
+export const xhr_getSlice = async (formData2) => {
+  try {
+    const formData = new FormData()
+    formData.append('seriesId', formData2.seriesId)
+    formData.append('viewName', formData2.viewName)
+    formData.append('viewIndex', formData2.viewIndex)
+
+    const response = await axios.post(
+      '/api7/mids-api/image/downloadSlice',
+      formData,
+      {
+
+        responseType: 'arraybuffer' // This ensures the response is treated as an ArrayBuffer
+      }
+    )
+
+    return response
+  } catch (error) {
+    console.error('Error downloading the file', error)
+    throw error
+  }
+}
 
 /**
  * seriesComputeId
