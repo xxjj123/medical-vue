@@ -34,12 +34,12 @@
         </div>
       </div>
       <div class="film_useBtn flex">
-        <ta-button type="primary">打印报告</ta-button>
-        <ta-button type="primary">下载报告</ta-button>
+        <ta-button type="primary" @click="printPreview">打印报告</ta-button>
+        <ta-button type="primary" @click="fnPrint">下载报告</ta-button>
       </div>
     </div>
     <div class="content_main">
-      <div class="a4-template">
+      <div class="a4-template" ref="printableArea">
         <!-- <div class="editable-text" contenteditable="true" style="top: 50px; left: 50px; width: 200px; height: 100px;">
           Editable text here...
         </div> -->
@@ -74,7 +74,7 @@
                   <div class="itemInput flex">
                     <div class="keyName font-bold">姓名：</div>
                     <div class="value">
-                      <input type="text" v-model="paperObj.patientInfo.name" class="custom_input ">
+                      <input type="text" disabled v-model="paperObj.patientInfo.name" class="custom_input ">
                     </div>
                   </div>
                   <div class="itemInput flex sex">
@@ -137,12 +137,23 @@
         </div>
       </div>
     </div>
+
+
+    <iframe id="printFrame" style="display: none;"></iframe>
   </ta-modal>
 
 
 
 </template>
 <script lang='javascript'>
+
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+function forceReflow(element) {
+  element.style.display = 'none';
+  element.offsetHeight; // 触发重绘
+  element.style.display = '';
+}
 export default {
   name: 'report-modal',
   props: {
@@ -183,6 +194,158 @@ export default {
     },
   },
   methods: {
+    async printPreview() {
+      try {
+        const element = this.$refs.printableArea;
+
+        // 强制重新渲染 textarea
+        const textareas = element.querySelectorAll('textarea');
+        textareas.forEach(textarea => forceReflow(textarea));
+
+        // 调整 textarea 高度以适应内容
+        textareas.forEach(textarea => {
+          textarea.style.height = 'auto'; // 使 textarea 高度自适应
+          textarea.style.height = `${textarea.scrollHeight}px`; // 设置为实际内容高度
+        });
+
+        // 使用 html2canvas 生成画布
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          logging: true,
+          backgroundColor: null,
+          scrollX: 0,
+          scrollY: 0,
+          width: element.scrollWidth,
+          height: element.scrollHeight,
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 210;
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+
+        // 创建打印内容
+        const printFrame = document.createElement('iframe');
+        printFrame.style.position = 'absolute';
+        printFrame.style.width = '0';
+        printFrame.style.height = '0';
+        printFrame.style.border = 'none';
+        document.body.appendChild(printFrame);
+
+        const doc = printFrame.contentWindow.document;
+        doc.open();
+        doc.write(`
+      <html>
+      <head>
+        <title>打印预览</title>
+        <style>
+          @page {
+            size: A4;
+            margin: 0;
+          }
+          @media print {
+            body {
+              margin: 0;
+            }
+            img {
+              width: ${imgWidth}mm;
+              height: auto;
+            }
+            textarea {
+              height: auto !important;
+              overflow: visible !important;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <img src="${imgData}" />
+      </body>
+      </html>
+    `);
+        doc.close();
+
+        // 打印
+        printFrame.contentWindow.focus();
+        printFrame.contentWindow.print();
+      } catch (error) {
+        console.error('Error generating print preview:', error);
+      }
+    },
+
+
+
+
+
+    async fnPrint() {
+      try {
+        const element = this.$refs.printableArea;
+
+        // 创建一个样式元素，用于移除 input 和 textarea 的样式
+        const style = document.createElement('style');
+        style.textContent = `
+                    input, textarea {
+                        border: none !important;
+                        background: transparent !important;
+                        box-shadow: none !important;
+                        outline: none !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        font-size: inherit !important;
+                        line-height: 1.8 !important;
+                    }
+                    .a4-template {
+                        border: none !important;
+                        box-shadow: none !important;
+                    }
+                `;
+        document.head.appendChild(style);
+
+        // 等待样式添加到 DOM 中
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        // 使用 html2canvas 进行截图
+        const canvas = await html2canvas(element, {
+          scale: 2, // 提高图像分辨率
+          useCORS: true, // 允许跨域请求
+          logging: true, // 启用日志以调试
+          backgroundColor: null // 透明背景
+        });
+        const imgData = canvas.toDataURL('image/png');
+
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const imgWidth = 210; // A4纸的宽度
+        const pageHeight = 297; // A4纸的高度
+        const imgHeight = canvas.height * imgWidth / canvas.width; // 图像高度
+
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        // 添加第一页的图像
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        // 添加额外的页面（如果需要）
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+
+        pdf.save('download.pdf');
+
+        // 移除临时样式
+        document.head.removeChild(style);
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+      }
+    },
     showModal() {
       this.modalVisible = true;
     },
@@ -208,13 +371,23 @@ export default {
 .paper_main {
   padding: 0 21px;
 
+  /deep/input:disabled {
+    background-color: transparent;
+    /* 灰色背景 */
+    color: #1a1818;
+    /* 灰色文字 */
+    cursor: not-allowed;
+    /* 禁用时的鼠标指针 */
+    border: 1px solid transparent !important;
+  }
+
   .content_wrapper {
     height: calc(100vh - 155px - 55px);
     overflow: auto;
   }
 
   .custom_textarea {
-    border: 1px solid @primary-color !important;
+    border: 1px solid @primary-color;
     width: 100%;
   }
 }
@@ -286,7 +459,7 @@ export default {
     .custom_input {
       width: 110px;
 
-      border: 1px solid @primary-color !important;
+      border: 1px solid @primary-color;
 
       /* 灰色边框 */
       &.hidd_holder {
@@ -297,6 +470,26 @@ export default {
 
 
   }
+}
+
+textarea {
+  overflow: visible;
+  resize: none;
+  /* 禁止调整大小以防止超出边界 */
+  height: auto;
+  /* 高度自适应 */
+}
+
+/* 临时样式，用于处理打印预览的样式 */
+.print-preview-styles input,
+.print-preview-styles textarea {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: 1.8 !important;
 }
 
 .content_main {
@@ -322,13 +515,106 @@ export default {
     overflow: auto;
   }
 
+  .a4-template {
+    width: 210mm;
+    /* A4 width */
+    height: 297mm;
+    /* A4 height */
+    border: none;
+    background: #fff;
+  }
+
+  input,
+  textarea {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: inherit;
+    line-height: 1.8 !important;
+    /* 设置行高 */
+  }
+
+  &.ca_hiddenBorderbug {}
+
+  /* print.css */
   @media print {
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    img {
+      width: 100%;
+      /* 让图像适应页面宽度 */
+      height: auto;
+      /* 保持图像的高度自动适应 */
+      display: block;
+      margin: 0;
+      border: none;
+      padding: 0;
+    }
+
+    body * {
+      visibility: hidden;
+      /* 隐藏页面上的所有元素 */
+    }
+
+    .a4-template,
+    .a4-template * {
+      visibility: visible;
+      /* 只显示 .a4-template 区域的内容 */
+    }
+
+    .a4-template {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+    }
+
+
     .a4-template {
       width: 210mm;
+      /* A4 width */
       height: 297mm;
-      border: 1px solid #000;
+      /* A4 height */
+      border: none;
       background: #fff;
     }
+
+    input,
+    textarea {
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      outline: none;
+      padding: 0;
+      margin: 0;
+      font-size: inherit;
+      line-height: 1.8;
+      /* 设置行高 */
+    }
+
+    html,
+    body {
+      width: 210mm;
+      /* A4 宽度约为 210mm */
+      height: 297mm;
+      /* A4 高度约为 297mm */
+      margin: 0;
+      padding: 0;
+      background: #FFF;
+    }
+
+    /* 根据需要添加更多样式 */
   }
 
   @media screen {
