@@ -153,7 +153,8 @@
 
     <div class="analytic_semantic_description">
       <anaSemanticDesBlock :bookItems.sync="anaSecDesConf.bookItems" :selection.sync="selection"
-        :selectVal.sync="filmIpt_curItem" :title="anaSecDesConf.title" :current.sync="selectedNoduleId">
+        :blockMode="anaSecDesConf.mode" :selectVal.sync="filmIpt_curItem" :title="anaSecDesConf.title"
+        :current.sync="selectedNoduleId">
         <filmInputState slot="searchBar" v-model="filmIpt_curItem" :typec="`dropdown`" :selectCurIdx="`0`"
           :optionNum="`1`" @cb-click="handle_filmIptClick_yxsj"></filmInputState>
       </anaSemanticDesBlock>
@@ -161,8 +162,8 @@
 
     <div class="analytic_semantic_description">
       <anaSemanticDesBlock :bookItems.sync="anaSecDesConf_1.bookItems" :selectVal="filmIpt_curItem_1"
-        :title="anaSecDesConf_1.title">
-        <filmInputState slot="searchBar" v-model="filmIpt_curItem_1" :typec="`dropdown`" :selectCurIdx="`1`"
+        :blockMode="anaSecDesConf_1.mode" :title="anaSecDesConf_1.title" :selection.sync="selection">
+        <filmInputState slot="searchBar" v-model="filmIpt_curItem_1" :typec="`dropdown`" :selectCurIdx="`0`"
           :optionNum="`2`" @cb-click="handle_filmIptClick_yxzd"></filmInputState>
       </anaSemanticDesBlock>
     </div>
@@ -208,7 +209,6 @@
         </div>
       </div>
     </ta-popover>
-    <button @click="Qx">全选</button>
   </div>
 </template>
 <script lang="jsx">
@@ -217,7 +217,7 @@ import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/commo
 import { CodeSandboxOutline } from "@yh/icons-svg";
 import { mapActions } from "vuex";
 import Vue from 'vue';
-import { SortOption, LungTemplateEnum, LungTemplateDiagnoseEnum } from "@/assets/js/utils/dicom/select";
+import { SortOption } from "@/assets/js/utils/dicom/select";
 import { mapState } from "vuex";
 
 
@@ -353,6 +353,7 @@ export default {
       filmIpt_curItem_1: null,
       anaSecDesConf: {
         title: "影像所见",
+        mode: "finding",
         bookItems: [
           // `右肺上叶前段【39/259】见混合性结节，大小约13.8mmx8.3mm，体积约649.3mm³，平均CT值约-277.6HU`,
           // `左肺上叶前段【63/259】见磨玻璃性结节，大小约4.6mmx2.4mm，体积约28.9mm³，平均CT值约-702.2HU。`,
@@ -362,6 +363,7 @@ export default {
       },
       anaSecDesConf_1: {
         title: "影像诊断",
+        mode: "diagnose",
         bookItems: [
           // `右肺上叶后段见肿块, 约3.0mmx1.6mm。`,
           // `右肺中叶外侧段见肿块, 约7.1mmx2.8mm。`,
@@ -814,10 +816,6 @@ export default {
     };
   },
   methods: {
-    Qx() {
-      this.$refs.tableLungNodule.setAllCheckboxRow(true)
-      this.selectChangeEvent(this.$refs.tableLungNodule)
-    },
     ...mapActions("viewInitStore", ["ChooseAnnotation"]),
     setPopupContainer(trigger) {
       return trigger.parentElement;
@@ -866,14 +864,15 @@ export default {
       $event,
     }) {
 
+      console.log()
 
 
       this.tableCurrentIdx = rowIndex;
 
       console.log(this.tableCurrentIdx)
 
-      const currentid = this.$refs.tableLungNodule.getCurrentRecord().id
-      if (currentid !== this.selectedNoduleId) {
+      const current = this.$refs.tableLungNodule.getCurrentRecord()
+      if (current && current.id !== this.selectedNoduleId) {
         const bboxindex = row.id;
 
         this.ChooseAnnotation(bboxindex);

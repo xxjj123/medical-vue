@@ -47,6 +47,13 @@ export function buildProxy() {
       changeOrigin: true,
       rewrite: (path6) => path6.replace(/^\/ta404\/api6\//, ""),
     },
+    ["^/api7/"]: {
+      target: "http://localhost:8080/",
+      // target: "http://192.168.1.142:39625/",//xwj
+      changeOrigin: true,
+      rewrite: (path6) => path6.replace(/^\/api7\//, ""),
+    },
+
     [proxyName]: {
       target:
         getEnv('RUN_ENV') === 'mock' ? 'http://localhost:36742/' : getEnv('VITE_BACKEND_PATH'),

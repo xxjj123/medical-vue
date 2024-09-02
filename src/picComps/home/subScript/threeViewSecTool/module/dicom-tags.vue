@@ -1,19 +1,31 @@
 <template>
-  <div :class="[
+  <div class="" :class="[
     'dicom-tags',
     'absolute',
-    {leftTop: fixHere === 'leftTop'},
-    {rightTop: fixHere === 'rightTop'},
-    {leftBottom: fixHere === 'leftBottom'}
-  ]">
-    <template v-if="group.length > 0">
-      <div class="item_row flex" v-for="(it, index) in group" :key="index">
-        <div class="label">
-          <span>{{ it.label }}</span>
-          <span>:</span>
-        </div>
-        <div class="val">{{ it.value }}</div>
+    { leftTop: fixHere === 'leftTop' },
+    { rightTop: fixHere === 'rightTop' },
+    { leftBottom: fixHere === 'leftBottom' }
+  ]" :style="{ ...sheetStyleTag }">
+    <template>
+      <div class="item_row flex">
+        <div class="label">WW/WL:</div>
+        <div class="val">{{ WindowColorLevel }}</div>
       </div>
+
+    </template>
+    <template>
+      <div class="item_row flex">
+        <div class="label">Image:</div>
+        <div class="val">{{ datav.image }}</div>
+      </div>
+    </template>
+
+    <template v-if="ThicknessShow">
+      <div class="item_row flex">
+        <div class="label">Thickness:</div>
+        <div class="val">{{ ThicknessVal }}</div>
+      </div>
+
     </template>
     <template v-if="KvpShow">
       <div class="KVP_block absolute leftBottom">
@@ -62,23 +74,23 @@
     <template v-if="studies_selected">
       <div class="tagsOther absolute rightTop">
         <div class="item_row flex justify-end">
-          <div class="val">Hospital of hangzhou</div>
+          <div class="val">{{ seriesInfo.institutionName }}</div>
         </div>
 
         <div class="item_row flex justify-end">
-          <div class="val">{{ studies_selected.patientName }}</div>
+          <div class="val">{{ seriesInfo.patientName }}</div>
         </div>
 
         <div class="item_row flex justify-end">
-          <div class="val">F&nbsp;{{ studies_selected.patientAge }}&nbsp;{{ studies_selected.patientId }}</div>
+          <div class="val">F&nbsp;{{ seriesInfo.patientAge }}&nbsp;{{ seriesInfo.patientId }}</div>
         </div>
 
         <div class="item_row flex justify-end">
-          <div class="val">{{ studies_selected.studyDateAndTime | dateTimeFormat }}</div>
+          <div class="val">{{ seriesInfo.studyDateAndTime | dateTimeFormat }}</div>
         </div>
 
         <div class="item_row flex justify-end">
-          <div class="val">GE MEDICAL SYSTEMS</div>
+          <div class="val">{{ seriesInfo.manufacturer }}</div>
         </div>
 
 
@@ -89,15 +101,30 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
   name: 'dicom-tags',
   props: {
     datav: {
       type: Object,
       required: true
+    },
+    sheetStyle: {
+      type: Object,
+      default: () => ({})
     }
   },
   computed: {
+    ...mapState("viewInitStore", ["seriesInfo", "noduleDiagnoseState"]),
+    sheetStyleTag: {
+      get() {
+        return this.sheetStyle;
+      },
+      set(val) {
+        this.$emit("update:sheetStyle", val)
+      },
+    },
     group() {
       return this.datav.group || [];
     },
@@ -105,14 +132,24 @@ export default {
       let studies = this.datav.studies_selected;
       return studies && Object.keys(studies).length > 0 ? studies : false
     },
+    WindowColorLevel() {
+      return this.noduleDiagnoseState.colorWindow + "/" + this.noduleDiagnoseState.colorLevel || false;
+    },
     HuShow() {
       return this.datav.HuShow || false;
     },
     HuVal() {
       return this.datav.HuVal || '';
     },
+    ThicknessShow() {
+      return this.datav.ThicknessShow || false
+    },
+    ThicknessVal() {
+      return parseFloat(this.seriesInfo.sliceThickness).toFixed(2) || '';
+    },
     SpacVal() {
-      return this.datav.SpacVal || '';
+      const [coronalThick, sagittalThick] = this.seriesInfo.pixelSpacing.split(",").map(item => parseFloat(item).toFixed(2));
+      return coronalThick + "/" + sagittalThick || '';
     },
     SpaceShow() {
       return this.datav.SpaceShow || false;
@@ -121,19 +158,19 @@ export default {
       return this.datav.KvpShow || false;
     },
     KvpVal() {
-      return this.datav.KvpVal || '';
+      return this.seriesInfo.kvp || '';
     },
     DimensionShow() {
       return this.datav.DimensionShow || false;
     },
     DimensionVal() {
-      return this.datav.DimensionVal || '';
+      return this.seriesInfo.coronalCount + "/" + this.seriesInfo.sagittalCount || '';
     },
     verseTag() {
       return this.datav.verseTag || false;
     },
     scaleplate() {
-      return this.datav.scaleplate || {unit: 'cm', value: '1', width: '16px', verse: true};
+      return this.datav.scaleplate || { unit: 'cm', value: '1', width: '16px', verse: true };
     },
     fixHere() {
       return this.datav.fixHere || 'leftTop';
@@ -181,7 +218,7 @@ export default {
 
 .item_row {
   box-sizing: border-box;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 100;
   text-overflow: ellipsis;
   white-space: nowrap;

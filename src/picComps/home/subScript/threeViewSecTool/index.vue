@@ -1,5 +1,5 @@
 <template>
-  <div class="threeViewSecTool">
+  <div class="threeViewSecTool ">
     <slot></slot>
     <dicomTags v-show="jbinfoButtonState" :datav="dicomTags_msg"></dicomTags>
     <orientationTags v-show="jbinfoButtonState" :datav="orientationTags_msg"></orientationTags>
@@ -22,6 +22,10 @@ import {
 export default {
   name: 'threeViewSecTool',
   props: {
+    sheetStyle: {
+      type: Object,
+      default: () => ({})
+    },
     TracheaName: {
       type: String,
       default: "" //lung ,heart, brain ,...

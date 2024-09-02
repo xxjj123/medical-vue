@@ -1,9 +1,7 @@
 <template>
 
   <div>
-    <div>
-      <div ref="sceneContainer" style="width: 100%; height: 100%"></div>
-    </div>
+    <div ref="sceneContainer" class="h-full w-full"></div>
   </div>
 </template>
 
@@ -27,21 +25,22 @@ export default {
   },
   mounted() {
     this.initScene();
-    // this.download3D();
-
     window.addEventListener("resize", this.onWindowResize);
   },
   computed: {
     ...mapState("viewInitStore", ["seriesInfo"]),
   },
   watch: {
-    // 监听 seriesInfo 的 seriesId 属性
-    "seriesInfo.seriesId": function (newVal) {
-      if (newVal) {
-        // 当 seriesId 不为空时
-        this.download3D();
-      }
-    },
+    seriesInfo: {
+      handler(nVal, oVal) {
+        console.log("nVal, oVal", nVal, oVal)
+        if (nVal && nVal.seriesId) {
+          this.download3D(nVal.seriesId);
+        }
+      },
+      deep: true,
+      immediate: true,
+    }
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.onWindowResize);
@@ -83,12 +82,10 @@ export default {
       directionalLight.position.set(5, 5, 5);
       this.scene.add(directionalLight);
     },
-    async download3D() {
-      console.log(this.seriesInfo);
-      console.log(this.seriesInfo.seriesId);
+    async download3D(seriesId) {
       try {
         const res = await xhr_getModel3d({
-          seriesId: this.seriesInfo.seriesId,
+          seriesId: seriesId,
         });
 
         if (res) {
@@ -98,6 +95,8 @@ export default {
             this.loadModel(arraybuffer);
             console.log(arraybuffer);
           }
+          this.onWindowResize()
+
         } else {
           console.error("Request failed: No data returned");
         }
@@ -110,14 +109,9 @@ export default {
     },
     loadModel(arraybuffer) {
       const loader = new GLTFLoader();
-      // const path = "output3d/model3.glb";
-      // path = modelpath;
-
       loader.parse(arraybuffer, "", (gltf) => {
-        console.log(gltf);
         this.model = gltf.scene;
         this.model.rotation.x = Math.PI / 2;
-        console.log(this.model.rotation);
 
         // 计算模型的包围盒
         const box = new THREE.Box3().setFromObject(this.model);

@@ -19,6 +19,7 @@ export default {
   pageStudies: "/pageStudies", //分页查询检查
   reAnalyse: "/reAnalyse", //重新分析 old
   reCompute: "/reCompute", //重新分析 new
+  getVtislice:"/getVtislice",
 
   /* fs  */
   upload: "/upload", //文件存储-文件上传
@@ -28,6 +29,7 @@ export default {
   getNoduleInfo: "/getNoduleInfo", //获取结节信息
   getSeriesInfo: "/getSeriesInfo",
   downloadSlice: "/downloadSlice",
+  initInfo:"/initInfo",
   getModel3d: "/getModel3d",
 
   /* lung nodule */

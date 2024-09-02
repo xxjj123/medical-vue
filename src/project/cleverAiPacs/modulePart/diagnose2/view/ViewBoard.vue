@@ -20,8 +20,8 @@
         },
       ]">
         <div class="relative view-item bg-slate-500">
-          <threeViewSecTool :dicomTags_msg="AxialDataInfo" :viewType="AxialData.viewIndex" class="absolute z-2"
-            :TracheaName="`lung`">
+          <threeViewSecTool :sheetStyle="sheetStyle_AxialData" :dicomTags_msg="AxialDataInfo"
+            :viewType="AxialData.viewIndex" class="absolute z-2" :TracheaName="`lung`">
             <div class="relative view-item bg-slate-500" ref="ViewAxialRef">
               <crossHair v-if="AxialData.displayX && AxialData.displayY" class="absolute top-0 h-full w-full left-0 z-1"
                 :crosshairData="axialCrosshairData" />
@@ -87,10 +87,16 @@ export default {
   name: "ViewBoard",
   data() {
     return {
+      sheetStyle_AxialData: {
+        // top: '60px',
+        // left: "30px"
+      },
       SagittalDataInfo: {
         group: [{ label: 'WW/WL', value: '1500/-500' }, { label: 'Image', value: '240/512' }],
         verseTag: true,
         HuShow: true,
+        ThicknessShow: false,
+
         HuVal: "",
         fixHere: 'leftTop'
       },
@@ -98,6 +104,8 @@ export default {
         group: [{ label: 'WW/WL', value: '1500/-500' }, { label: 'Image', value: '240/512' }],
         verseTag: true,
         HuShow: true,
+        ThicknessShow: false,
+
         HuVal: "",
         fixHere: 'leftTop'
       },
@@ -109,6 +117,7 @@ export default {
         SpaceShow: true,
         SpacVal: "",
         KvpShow: true,
+        ThicknessShow: true,
         KvpVal: "",
         DimensionShow: true,
         DimensionVal: "",
@@ -275,11 +284,12 @@ export default {
     },
     initCompData_SagittalData() {
       const { Ww, Wl, changedPageindex, dimension, hu } = this.SagittalData;
-      let group = [
-        { label: 'WW/WL', value: `${Ww}/-${Wl}` },
-        { label: 'Image', value: `${changedPageindex}/${dimension}` },
-      ]
-      this.$set(this.SagittalDataInfo, "group", group);
+      // let group = [
+      //   { label: 'Image', value: `${changedPageindex}/${dimension}` },
+      // ]
+      // this.$set(this.SagittalDataInfo, "group", group);
+      this.$set(this.SagittalDataInfo, "image", `${changedPageindex}/${dimension}`);
+
 
       this.$set(this.SagittalDataInfo, "HuVal", hu);
 
@@ -288,11 +298,12 @@ export default {
     initCompData_CoronalData() {
       const { Ww, Wl, changedPageindex, dimension, hu } = this.CoronalData;
 
-      let group = [
-        { label: 'WW/WL', value: `${Ww}/-${Wl}` },
-        { label: 'Image', value: `${changedPageindex}/${dimension}` },
-      ]
-      this.$set(this.CoronalDataInfo, "group", group);
+      // let group = [
+      //   { label: 'Image', value: `${changedPageindex}/${dimension}` },
+      // ]
+      // this.$set(this.CoronalDataInfo, "group", group);
+      this.$set(this.CoronalDataInfo, "image", `${changedPageindex}/${dimension}`);
+
 
       this.$set(this.CoronalDataInfo, "HuVal", hu);
 
@@ -305,11 +316,9 @@ export default {
       // console.log("this.seriesInfo==", this.seriesInfo);
       // console.log("this.AxialData==", this.AxialData);
 
-      let group = [
-        { label: 'WW/WL', value: `${Ww}/-${Wl}` },
-        { label: 'Image', value: `${changedPageindex}/${axialCount}` },
-        { label: 'Thickness', value: `1.25mm` },
-      ]
+      // let group = [
+      //   { label: 'Image', value: `${changedPageindex}/${axialCount}` },
+      // ]
 
       // console.log("initCompData_AxialDataInfo_____series_map_dicom", this.series_map_dicom);
       // console.log("query-----", this.$route.query);
@@ -329,15 +338,15 @@ export default {
       }
 
 
-      this.$set(this.AxialDataInfo, "group", group);
+      this.$set(this.AxialDataInfo, "image", `${changedPageindex}/${axialCount}`);
 
-      this.$set(this.AxialDataInfo, "KvpVal", '120');
+      // this.$set(this.AxialDataInfo, "KvpVal", '120');
 
       this.$set(this.AxialDataInfo, "HuVal", hu);
 
-      this.$set(this.AxialDataInfo, "SpacVal", "0.96/0.96");
+      // this.$set(this.AxialDataInfo, "SpacVal", "0.96/0.96");
 
-      this.$set(this.AxialDataInfo, "DimensionVal", `${coronalCount}/${sagittalCount}`);
+      // this.$set(this.AxialDataInfo, "DimensionVal", `${coronalCount}/${sagittalCount}`);
 
     }
   },

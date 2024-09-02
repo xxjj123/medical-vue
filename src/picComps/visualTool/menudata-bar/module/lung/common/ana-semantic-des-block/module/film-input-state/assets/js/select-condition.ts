@@ -18,6 +18,6 @@ export const selectOptions1: SelectOption[] = [
 //NCCN
 export const selectOptions2: SelectOption[] = [
   // ... 数据
-  {value: '', label: '无'},
+  {value: '0', label: '无'},
   {value: '1', label: 'NCCN'},
 ];

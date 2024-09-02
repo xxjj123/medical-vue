@@ -1,6 +1,7 @@
 import urlJson from "./collect-api";
 import {apiOps, testDevOps} from "./options";
-const {api, api2, api3, api5, api6} = apiOps;
+import axios from 'axios'
+const {api, api2, api3, api5, api6,api7} = apiOps;
 
 const {Topbase, study, readwriteFsBase, cb, diagnose, nodule,image} = testDevOps;
 
@@ -233,7 +234,7 @@ export const xhr_push = (formData) => {
  */
 export const xhr_getSeriesInfo = (formData) => {
   return Base.submit(null, {
-    url: diagnose + urlJson["getSeriesInfo"],
+    url: image + urlJson["initInfo"],
     data: {
       ...formData,
     },
@@ -266,7 +267,6 @@ export const xhr_getSlice = (formData) => {
   return new Promise((resolve, reject) => {
     try {
       return Base.submit(null, {
-
         url: image + urlJson["downloadSlice"],
         data: {
           ...formData,
@@ -280,6 +280,37 @@ export const xhr_getSlice = (formData) => {
     }
   })
 };
+
+/*
+*
+* @param formData
+* @returns */
+
+
+// export const xhr_getSlice = async (formData2) => {
+//   try {
+//     const formData = new FormData()
+//     formData.append('seriesId', '1824363122761199618')
+//     formData.append('viewName', formData2.viewName)
+//     formData.append('viewIndex', formData2.viewIndex)
+
+//     const response = await axios.post(
+//       '/api7/mids-api/callback/getVtislice',
+//       formData,
+//       {
+//         headers: {
+//           Connection: 'keep-alive'
+//         },
+//         responseType: 'arraybuffer' // This ensures the response is treated as an ArrayBuffer
+//       }
+//     )
+
+//     return response
+//   } catch (error) {
+//     console.error('Error downloading the file', error)
+//     throw error
+//   }
+// }
 
 /**
  * seriesComputeId
@@ -706,4 +737,3 @@ export const xhr_updateTextReport = (formData) => {
   });
 };
 
-/* ----------------------nodule----lung----api---end */
