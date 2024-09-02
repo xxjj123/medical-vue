@@ -843,5 +843,7 @@ textarea {
   max-height: 180px;
   overflow-y: auto;
   height: auto;
+  line-height: 1.8;
+  padding: 10px;
 }
 </style>
