@@ -43,74 +43,85 @@
         <!-- <div class="editable-text" contenteditable="true" style="top: 50px; left: 50px; width: 200px; height: 100px;">
           Editable text here...
         </div> -->
-        <div class="paper_main flex flex-col justify-end">
-          <div class="content_wrapper">
-            <div class="header_info">
-              <div class="h_1 font-bold text-center">CT影像诊断报告单</div>
+        <!-- <div class="paper_main flex flex-col justify-end"> -->
+        <div class="content_wrapper">
+          <div class="header_info">
+            <div class="h_1 font-bold text-center">CT影像诊断报告单</div>
+          </div>
+          <div class="layout_content">
+            <div class="patient_information">
+              <div class="cell_row flex justify-between">
+                <div class="itemInput flex">
+                  <div class="keyName font-bold">患者编号：</div>
+                  <div class="value">
+                    <input type="text" v-model="paperObj.patientInfo.code" class="custom_input ">
+                  </div>
+                </div>
+                <div class="itemInput flex">
+                  <div class="keyName font-bold">检查号：</div>
+                  <div class="value">
+                    <input type="text" v-model="paperObj.patientInfo.jianchahao" class="custom_input ">
+                  </div>
+                </div>
+                <div class="itemInput flex">
+                  <div class="keyName font-bold">检查日期：</div>
+                  <div class="value">
+                    <input type="text" class="custom_input " v-model="paperObj.patientInfo.jianchaDate">
+                  </div>
+                </div>
+              </div>
+              <div class="cell_row flex justify-between">
+                <div class="itemInput flex">
+                  <div class="keyName font-bold">姓名：</div>
+                  <div class="value">
+                    <input type="text" disabled v-model="paperObj.patientInfo.name" class="custom_input ">
+                  </div>
+                </div>
+                <div class="itemInput flex sex">
+                  <div class="keyName font-bold">性别：</div>
+                  <div class="value">
+                    <input type="text" v-model="paperObj.patientInfo.sex" class="custom_input ">
+                  </div>
+                </div>
+                <div class="itemInput flex yearno">
+                  <div class="keyName font-bold">年龄：</div>
+                  <div class="value">
+                    <input type="text" v-model="paperObj.patientInfo.age" class="custom_input ">
+                  </div>
+                </div>
+                <div class="itemInput flex">
+                  <div class="keyName font-bold">检查项目：</div>
+                  <div class="value">
+                    <input type="text" v-model="paperObj.patientInfo.product" class="custom_input ">
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="layout_content">
-              <div class="patient_information">
-                <div class="cell_row flex justify-between">
-                  <div class="itemInput flex">
-                    <div class="keyName font-bold">患者编号：</div>
-                    <div class="value">
-                      <input type="text" v-model="paperObj.patientInfo.code" class="custom_input ">
-                    </div>
-                  </div>
-                  <div class="itemInput flex">
-                    <div class="keyName font-bold">检查号：</div>
-                    <div class="value">
-                      <input type="text" v-model="paperObj.patientInfo.jianchahao" class="custom_input ">
-                    </div>
-                  </div>
-                  <div class="itemInput flex">
-                    <div class="keyName font-bold">检查日期：</div>
-                    <div class="value">
-                      <input type="text" class="custom_input " v-model="paperObj.patientInfo.jianchaDate">
-                    </div>
-                  </div>
-                </div>
-                <div class="cell_row flex justify-between">
-                  <div class="itemInput flex">
-                    <div class="keyName font-bold">姓名：</div>
-                    <div class="value">
-                      <input type="text" disabled v-model="paperObj.patientInfo.name" class="custom_input ">
-                    </div>
-                  </div>
-                  <div class="itemInput flex sex">
-                    <div class="keyName font-bold">性别：</div>
-                    <div class="value">
-                      <input type="text" v-model="paperObj.patientInfo.sex" class="custom_input ">
-                    </div>
-                  </div>
-                  <div class="itemInput flex yearno">
-                    <div class="keyName font-bold">年龄：</div>
-                    <div class="value">
-                      <input type="text" v-model="paperObj.patientInfo.age" class="custom_input ">
-                    </div>
-                  </div>
-                  <div class="itemInput flex">
-                    <div class="keyName font-bold">检查项目：</div>
-                    <div class="value">
-                      <input type="text" v-model="paperObj.patientInfo.product" class="custom_input ">
-                    </div>
-                  </div>
-                </div>
+            <div class="film_look_content">
+              <div class="sub_title font-bold">影像所见</div>
+              <!-- <textarea class="custom_textarea" name="description1" v-model="paperObj.filmLookBook" rows="4"
+                maxlength="500"></textarea> -->
+              <div class="textarea_pre_book" :contenteditable="true" v-html="paperObj.filmLookBook"
+                @input="filmLookBookOb.handleInput"></div>
+              <div class="textcounter_ctrl flex justify-end">
+                <div class="text-counter">{{ filmLookBookOb.currentLength }}/{{ filmLookBookOb.maxLen }}</div>
               </div>
-              <div class="film_look_content">
-                <div class="sub_title font-bold">影像所见</div>
-                <textarea class="custom_textarea" name="description1" v-model="paperObj.filmLookBook" rows="4"
-                  maxlength="500"></textarea>
+            </div>
+            <div class="film_diagnose_content">
+              <div class="sub_title font-bold">影像诊断</div>
+              <!-- <textarea class="custom_textarea" name="description2" v-model="paperObj.filmZdBook" rows="4"
+                maxlength="500"></textarea> -->
+              <div class="textarea_pre_book" :contenteditable="true" v-html="paperObj.filmZdBook"
+                @input="filmZdBookOb.handleInput">
               </div>
-              <div class="film_diagnose_content">
-                <div class="sub_title font-bold">影像诊断</div>
-                <textarea class="custom_textarea" name="description2" v-model="paperObj.filmZdBook" rows="4"
-                  maxlength="500"></textarea>
+              <div class="textcounter_ctrl flex justify-end">
+                <div class="text-counter">{{ filmZdBookOb.currentLength }}/{{ filmZdBookOb.maxLen }}</div>
               </div>
             </div>
           </div>
+        </div>
 
-
+        <div class="footer_boxes">
           <div class="footer_info">
             <div class="cell_row flex justify-between">
               <div class="itemInput flex">
@@ -134,7 +145,17 @@
             </div>
           </div>
 
+          <div class="foot_info">
+            <div class="cell_row flex justify-between">
+              <div class="remark">本报告仅供临床医生参考</div>
+              <div class="jaobiao">
+                <span>1</span><span>/</span><span>1</span>
+              </div>
+            </div>
+          </div>
+
         </div>
+        <!-- </div> -->
       </div>
     </div>
 
@@ -164,6 +185,31 @@ export default {
   },
   data() {
     return {
+      // 打开时初始化一次currentLength
+      filmLookBookOb: {
+        currentLength: 0,
+        maxLen: 400,
+        handleInput: (e) => {
+          console.log("e-------", e);
+          const text = e.target.innerText;
+          this.filmLookBookOb.currentLength = text.length;
+          const isWarn = this.filmLookBookOb.currentLength >= 399 ? true : false;
+          this.$set(this.filmLookBookOb, "isWarning", isWarn)
+        }
+      },
+      // 打开时初始化一次currentLength
+      filmZdBookOb: {
+        currentLength: 0,
+        maxLen: 400,
+        handleInput: (e) => {
+          console.log("e-------", e);
+          const text = e.target.innerText;
+          this.filmZdBookOb.currentLength = text.length;
+          const isWarn = this.filmZdBookOb.currentLength >= 399 ? true : false;
+          this.$set(this.filmZdBookOb, "isWarning", isWarn)
+        }
+
+      },
       loading: false,
       modalVisible: false,
       paperObj: {
@@ -504,6 +550,43 @@ textarea {
     position: relative;
     background: #fff;
     margin: 0 auto;
+
+    padding: 0 27px;
+
+    .content_wrapper {
+      width: 100%;
+
+      textarea {
+        width: 100%;
+      }
+
+    }
+
+    .footer_boxes {
+
+      width: 89%;
+      position: absolute;
+      bottom: 0;
+    }
+
+    .footer_info {}
+
+    .foot_info {
+      // position: absolute;
+      // bottom: 0;
+      // width: 89%;
+      border-top: 1px solid #E8E8E8;
+      font-size: 14px;
+      padding: 27px 0;
+
+      .remark {
+        font-size: 13px;
+      }
+
+      .jaobiao {
+        font-size: 12px;
+      }
+    }
   }
 
   .editable-text {
@@ -692,5 +775,10 @@ textarea {
     }
   }
 
+}
+
+.textarea_pre_book {
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 </style>
