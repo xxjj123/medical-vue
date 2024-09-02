@@ -21,6 +21,7 @@ export default {
       renderer: null,
       model: null,
       controls: null,
+      isAnimating: true
     };
   },
   mounted() {
@@ -35,6 +36,7 @@ export default {
       handler(nVal, oVal) {
         console.log("nVal, oVal", nVal, oVal)
         if (nVal && nVal.seriesId) {
+          // 清空之
           this.download3D(nVal.seriesId);
         }
       },
@@ -109,6 +111,23 @@ export default {
     },
     loadModel(arraybuffer) {
       const loader = new GLTFLoader();
+
+      // 清空之前的模型
+      if (this.model) {
+        this.scene.remove(this.model);
+        this.model.traverse((object) => {
+          if (object.isMesh) {
+            object.geometry.dispose();
+            if (object.material.isMaterial) {
+              this.cleanMaterial(object.material);
+            } else {
+              for (const material of object.material) this.cleanMaterial(material);
+            }
+          }
+        });
+        this.model = null;
+      }
+
       loader.parse(arraybuffer, "", (gltf) => {
         this.model = gltf.scene;
         this.model.rotation.x = Math.PI / 2;
@@ -135,7 +154,6 @@ export default {
         // 更新 OrbitControls 的目标为模型中心
         this.controls.target.copy(new THREE.Vector3(0, 0, 0));
         this.controls.update();
-        console.log(this.controls);
 
         // 添加模型到场景
         this.scene.add(this.model);
@@ -144,8 +162,19 @@ export default {
         this.animate();
       });
     },
+    cleanMaterial(material) {
+      material.dispose(); // 释放材质的内存
+      for (const key in material) {
+        if (material[key] && typeof material[key].dispose === 'function') {
+          material[key].dispose();
+        }
+      }
+    }
+    ,
     animate() {
-      requestAnimationFrame(this.animate);
+      // if (!this.isAnimating) return; // 退出动画循环
+
+      requestAnimationFrame(this.animate.bind(this)); // 确保 this 指向正确的上下文
       this.controls.update(); // 更新控制器
       this.renderer.render(this.scene, this.camera);
     },
@@ -159,6 +188,31 @@ export default {
       this.renderer.setSize(width, height);
     },
   },
+  //亟待解决的问题
+  // beforeDestroy() {
+  //   window.removeEventListener("resize", this.onWindowResize);
+
+  //   this.isAnimating = false; // 停止动画循环
+
+  //   if (this.renderer) {
+  //     this.renderer.dispose();
+  //   }
+
+  //   if (this.model) {
+  //     this.scene.remove(this.model);
+  //     this.model.traverse((object) => {
+  //       if (object.isMesh) {
+  //         object.geometry.dispose();
+  //         if (object.material.isMaterial) {
+  //           this.cleanMaterial(object.material);
+  //         } else {
+  //           for (const material of object.material) this.cleanMaterial(material);
+  //         }
+  //       }
+  //     });
+  //     this.model = null;
+  //   }
+  // },
 };
 </script>
 

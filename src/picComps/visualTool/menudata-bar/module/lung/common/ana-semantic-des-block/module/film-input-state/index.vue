@@ -7,11 +7,8 @@
           <ta-icon type="down" />
         </a>
         <ta-menu slot="overlay" @click="handleMenuClick">
-          <ta-menu-item
-            v-for="(item, index) in optionList"
-            :key="`${index}_${item.value}`"
-            >{{ item.label }}</ta-menu-item
-          >
+          <ta-menu-item v-for="(item, index) in optionList" :key="`${index}_${item.value}`">{{ item.label
+            }}</ta-menu-item>
         </ta-menu>
       </ta-dropdown>
     </template>
@@ -136,7 +133,7 @@ export default {
   created() {
     this.update_optionList();
     this.initPush_FatherPrevSfc();
-    this.$nextTick(() => {});
+    this.$nextTick(() => { });
   },
 };
 </script>

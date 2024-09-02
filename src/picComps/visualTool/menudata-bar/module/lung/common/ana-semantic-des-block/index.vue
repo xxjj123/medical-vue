@@ -17,8 +17,9 @@
       </div>
     </div>
     <div class="context_book">
+
       <div class="item_book" v-for="(item, index) in resultBookItems" :key="index">
-        <div class="item_row" :class="item.id == currentNum ? 'selected' : ''">{{ item.desc }}</div>
+        <div class="item_row" :class="item.isActive ? 'selected' : ''">{{ item.desc }}</div>
       </div>
     </div>
   </div>
@@ -36,15 +37,23 @@
  * ...
  */
 
-import { SortOption, LungTemplateEnum, LungTemplateDiagnoseEnum, mapObjectToTemplate } from "@/assets/js/utils/dicom/select";
+import { SortOption, mapObjectListToFindingTemplate, mapObjectListToDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
+import { mapState } from "vuex";
+import ClipboardJS from 'clipboard';
+
 
 export default {
   name: "ana-semantic-des-block",
+
   props: {
     selectVal: {
       type: [Object],
     },
     title: {
+      type: String,
+      default: "",
+    },
+    blockMode: {
       type: String,
       default: "",
     },
@@ -59,12 +68,26 @@ export default {
       type: Array,
       default: () => [],
     },
+
   },
   computed: {
+    ...mapState("viewInitStore", ["seriesInfo"]),
     resultBookItems: {
       get() {
-        console.log("bookItems", this.bookItems)
-        return this.bookItems;
+        console.log("this.selectValue", this.selectValue)
+        if (this.selectValue && this.selectValue.value) {
+          const { value } = this.selectValue;
+          if (this.blockMode == 'finding') {
+            const resultBookItems = mapObjectListToFindingTemplate(this.selectionValue, value, this.seriesInfo.imageCount, this.currentNum)
+            return resultBookItems
+          } else {
+            const resultBookItems = mapObjectListToDiagnoseTemplate(this.selectionValue, value)
+            console.log("resultBookItems2", resultBookItems)
+            return resultBookItems
+          }
+
+        }
+
       },
       set(val) {
         this.$emit("update:bookItems", val);
@@ -106,6 +129,8 @@ export default {
     },
     selectValue: {
       handler(nVal, oVal) {
+
+
         console.log("selectValue________", nVal, oVal);
 
       },
@@ -121,18 +146,7 @@ export default {
     },
     selectionValue: {
       handler(nVal, oVal) {
-        console.log("selectionValue.watch____selectionValue___nVal, oVal", nVal);
-        console.log("selectionValue.this,currentNum", this.currentNum);
-        let resultBookItems = []
-        nVal.forEach((item) => {
-          console.log(item)
-          const resultBookItem = mapObjectToTemplate(item, LungTemplateEnum.TEMP1)
-          resultBookItems.push({ id: item.id, desc: resultBookItem })
-        })
-        console.log("resultBookItems", resultBookItems)
-        this.resultBookItems = resultBookItems
 
-        // this.resultBookItems = ['1\n', '2\n'];//test
 
       },
       immediate: true,
@@ -145,6 +159,18 @@ export default {
   },
   methods: {
     handle_copy() {
+      console.log("开始打印啦")
+      var clipboard = new ClipboardJS('.btn');
+      console.log(clipboard)
+      clipboard.on('success', function (e) {
+
+        console.log('文本已成功复制:', e.text);
+      });
+      clipboard.on('error', function (e) {
+        console.log('复制失败:', e);
+      });
+
+
       // this.resultBookItems = [
       //   `右肺上叶前段【39/259】见混合性结节，大小约13.8mmx8.3mm，体积约649.3mm³，平均CT值约-277.6HU`,
       //   `左肺上叶前段【63/259】见磨玻璃性结节，大小约4.6mmx2.4mm，体积约28.9mm³，平均CT值约-702.2HU。`,

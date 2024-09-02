@@ -158,6 +158,7 @@ export default {
       state.series_map_dicom = payload;
     },
     SET_SERIES_INFO(state, seriesInfo) {
+      console.log("SET_SERIES_INFO",seriesInfo)
       state.seriesInfo = seriesInfo;
     },
     SET_NODULE_INFO(state, noduleInfo) {
@@ -232,10 +233,7 @@ export default {
           view: data,
         },
       });
-      // data.sliceActor.getProperty().setColorWindow(1500);
-      // data.sliceActor.getProperty().setColorLevel(500);
-      // commit("SET_VIEW_DATA", {viewType, key: "Ww", value: 1500});
-      // commit("SET_VIEW_DATA", {viewType, key: "Wl", value: 500});
+
       commit("SET_VIEW_DATA", {viewType, key: "viewName", value: viewName});
       commit("SET_VIEW_DATA", {viewType, key: "viewIndex", value: viewType});
     },

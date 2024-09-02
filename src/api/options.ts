@@ -4,6 +4,7 @@ export const apiOps = {
   api3: `/api3`, //'http://admin.itsea.com.cn:56808',
   api5: `/api5`, //http://192.168.1.4:39600 test dev,
   api6: `/api6`, //http://localhost:39625 test dev,
+  api7:`/api7`
 };
 
 // 公司测试环境接口基础配置信息，模块划分
