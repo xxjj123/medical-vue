@@ -112,7 +112,7 @@
               <!-- <textarea class="custom_textarea" name="description2" v-model="paperObj.filmZdBook" rows="4"
                 maxlength="500"></textarea> -->
               <div class="textarea_pre_book" :contenteditable="true" v-html="paperObj.filmZdBook"
-                @input="filmZdBookOb.handleInput">
+                @input="filmZdBookOb.handleInput" @paste="filmZdBookOb.handlePaste">
               </div>
               <div class="textcounter_ctrl flex justify-end">
                 <div class="text-counter">{{ filmZdBookOb.currentLength }}/{{ filmZdBookOb.maxLen }}</div>
@@ -190,11 +190,17 @@ export default {
         currentLength: 0,
         maxLen: 400,
         handleInput: (e) => {
-          console.log("e-------", e);
           const text = e.target.innerText;
           this.filmLookBookOb.currentLength = text.length;
-          const isWarn = this.filmLookBookOb.currentLength >= 399 ? true : false;
-          this.$set(this.filmLookBookOb, "isWarning", isWarn)
+
+          // 如果当前长度超过最大长度，则截断文本
+          if (this.filmLookBookOb.currentLength > this.filmLookBookOb.maxLen) {
+            e.target.innerText = text.substring(0, this.filmLookBookOb.maxLen);
+            this.filmLookBookOb.currentLength = this.filmLookBookOb.maxLen;
+          }
+
+          // 更新警告状态
+          this.filmLookBookOb.isWarning = this.filmLookBookOb.currentLength >= 399;
         }
       },
       // 打开时初始化一次currentLength
@@ -202,12 +208,65 @@ export default {
         currentLength: 0,
         maxLen: 400,
         handleInput: (e) => {
-          console.log("e-------", e);
-          const text = e.target.innerText;
-          this.filmZdBookOb.currentLength = text.length;
-          const isWarn = this.filmZdBookOb.currentLength >= 399 ? true : false;
-          this.$set(this.filmZdBookOb, "isWarning", isWarn)
-        }
+          let text = e.target.innerText;
+          let currentLength = text.length;
+
+          // 如果当前长度超过最大长度，则截断文本
+          if (currentLength > this.filmZdBookOb.maxLen) {
+            text = text.substring(0, this.filmZdBookOb.maxLen);
+            currentLength = this.filmZdBookOb.maxLen;
+          }
+
+          // 更新 contenteditable 元素的内容
+          e.target.innerText = text;
+
+          // 设置光标位置在文本末尾
+          const range = document.createRange();
+          const selection = window.getSelection();
+          range.selectNodeContents(e.target);
+          range.collapse(false); // 将光标设置在文本的末尾
+          selection.removeAllRanges();
+          selection.addRange(range);
+
+          // 更新长度计数
+          this.filmZdBookOb.currentLength = currentLength;
+          this.filmZdBookOb.isWarning = currentLength >= 399;
+        },
+        handlePaste: (e) => {
+          e.preventDefault();
+
+          let text = e.clipboardData.getData('text/plain');
+          const currentText = e.target.innerText;
+          const currentLength = currentText.length;
+
+          // 如果当前长度加上粘贴内容超过最大长度，则截断粘贴内容
+          if (currentLength + text.length > this.filmZdBookOb.maxLen) {
+            const allowedLength = this.filmZdBookOb.maxLen - currentLength;
+            text = text.substring(0, allowedLength);
+          }
+
+          if (text.length > 0) {
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+
+            // 插入粘贴内容
+            range.deleteContents();
+            range.insertNode(document.createTextNode(text));
+
+            // 更新光标位置
+            range.setStart(range.endContainer, range.endOffset);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+
+          // 更新 contenteditable 元素的内容
+          e.target.innerText = e.target.innerText.substring(0, this.filmZdBookOb.maxLen);
+
+          // 更新长度计数
+          this.filmZdBookOb.currentLength = e.target.innerText.length;
+          this.filmZdBookOb.isWarning = this.filmZdBookOb.currentLength >= 399;
+        },
 
       },
       loading: false,
@@ -780,5 +839,9 @@ textarea {
 .textarea_pre_book {
   white-space: pre-wrap;
   word-wrap: break-word;
+  font-size: 12px;
+  max-height: 180px;
+  overflow-y: auto;
+  height: auto;
 }
 </style>
