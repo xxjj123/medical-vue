@@ -135,10 +135,10 @@ export default {
       viewIndex: null,
       autoPlayTimer: null,
     })),
-    noduleDiagnoseState:{
-      colorWindow:null,
-      colorLevel:null,
-      isPan:false
+    noduleDiagnoseState: {
+      colorWindow: null,
+      colorLevel: null,
+      isPan: false
     }
 
 
@@ -210,7 +210,7 @@ export default {
         autoPlayTimer: null,
       };
     },
-    SET_NODULE_DIAGNOSE_DATA(state, { key, value}) {
+    SET_NODULE_DIAGNOSE_DATA(state, {key, value}) {
       state.noduleDiagnoseState[key] = value;
     },
 
@@ -517,7 +517,7 @@ export default {
       view.view.interactor.onLeftButtonPress((event) => {
         if (!state.noduleDiagnoseState.isPan) {
           dispatch("handleMousePress", {event, view});
-        }else{
+        } else {
           view.view.interactor.getInteractorStyle().startPan()
           console.log(view.view.interactor.getInteractorStyle())
         }
@@ -525,7 +525,7 @@ export default {
       view.view.interactor.onMouseMove((event) => {
         if (!state.noduleDiagnoseState.isPan) {
           dispatch("handleMouseMove", {event, view});
-        }else{
+        } else {
           dispatch("resizeSliceViews");
         }
       });
@@ -755,7 +755,7 @@ export default {
           key: "Wl",
           value: value,
         });
-        view.view.sliceActor.getProperty().setColorLevel(value+1000);
+        view.view.sliceActor.getProperty().setColorLevel(value + 1000);
         view.view.interactor.render();
       });
     },
@@ -832,7 +832,7 @@ export default {
     throttleUpdateSingleSlice: throttle(
       ({dispatch}, {viewName, viewType, index}) => {
         requestAnimationFrame(() =>
-           dispatch("updateSliceForView", {viewName, index, viewType}),
+          dispatch("updateSliceForView", {viewName, index, viewType}),
         );
       },
       200,
@@ -1205,7 +1205,7 @@ export default {
     },
     // 改变平移
     ChangePan({dispatch, state, getters, commit}) {
-      if(state.noduleDiagnoseState.isPan){
+      if (state.noduleDiagnoseState.isPan) {
         state.viewMprViews.forEach((view, objindex) => {
           console.log(view)
           dispatch("setupCamera", view.viewIndex);
@@ -1215,7 +1215,7 @@ export default {
           key: "isPan",
           value: false,
         });
-      }else{
+      } else {
         state.viewMprViews.forEach((view, objindex) => {
           commit("SET_NODULE_DIAGNOSE_DATA", {
             key: "isPan",
@@ -1238,7 +1238,7 @@ export default {
       dispatch("resizeSliceViews")
 
     }
-,
+    ,
 
     /**
      * 重置视图

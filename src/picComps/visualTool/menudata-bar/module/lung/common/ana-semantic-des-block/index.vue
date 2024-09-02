@@ -17,6 +17,7 @@
       </div>
     </div>
     <div class="context_book">
+
       <div class="item_book" v-for="(item, index) in resultBookItems" :key="index">
         <div class="item_row" :class="item.isActive ? 'selected' : ''">{{ item.desc }}</div>
       </div>
@@ -73,6 +74,7 @@ export default {
     ...mapState("viewInitStore", ["seriesInfo"]),
     resultBookItems: {
       get() {
+        console.log("this.selectValue", this.selectValue)
         if (this.selectValue && this.selectValue.value) {
           const { value } = this.selectValue;
           if (this.blockMode == 'finding') {

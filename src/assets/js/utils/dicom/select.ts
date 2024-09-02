@@ -58,6 +58,13 @@ export function mapObjectToTemplate(obj:Object, template:string,imageCount?:stri
 }
 
 export function mapObjectListToFindingTemplate(objList:Object[], mode:string,imageCount:string,currentNum:string) {
+  console.log("objList",objList)
+  console.log("objList",mode)
+  console.log("objList",imageCount)
+
+  console.log("objList",mode)
+
+
   let resultBookItems = []
   if (objList.length == 0) {
    resultBookItems.push({ id: -1, isActive:false,desc: LungFindingEnum.TEMP0 })

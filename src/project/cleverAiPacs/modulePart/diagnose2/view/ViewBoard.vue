@@ -396,11 +396,13 @@ export default {
   grid-template-rows: 50% 50%;
   position: relative;
   user-select: none;
-  background-color: rgba(161, 148, 148, 0.192);
+  // background-color: rgba(161, 148, 148, 0.192);
+  background: #262626;
 }
 
 .viewbox {
-  background-color: rgba(255, 255, 255, 0.242);
+  // background-color: rgba(255, 255, 255, 0.242);
+  background: #262626;
 }
 
 .view-item {
