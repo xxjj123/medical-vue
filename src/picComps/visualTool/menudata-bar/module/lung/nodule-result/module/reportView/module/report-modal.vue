@@ -167,7 +167,7 @@
 
 </template>
 <script lang='javascript'>
-
+import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 function forceReflow(element) {
@@ -182,6 +182,9 @@ export default {
       type: Boolean,
       required: true,
     },
+  },
+  computed: {
+    ...mapState("viewInitStore", ["seriesInfo"]),
   },
   data() {
     return {
@@ -469,6 +472,10 @@ export default {
   },
   beforeDestroy() {
     // console.log("beforeDestroy:::this.modalVisible==", this.modalVisible);
+  },
+  created() {
+    console.log("seriesInfo==~~~~~~~~~~=", this.seriesInfo);
+
   },
 }
 </script>
@@ -843,7 +850,7 @@ textarea {
   max-height: 180px;
   overflow-y: auto;
   height: auto;
-  line-height: 1.8;
-  padding: 10px;
+  // line-height: 1.8;
+  padding: 5px;
 }
 </style>

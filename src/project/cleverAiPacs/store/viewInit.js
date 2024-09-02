@@ -158,7 +158,7 @@ export default {
       state.series_map_dicom = payload;
     },
     SET_SERIES_INFO(state, seriesInfo) {
-      console.log("SET_SERIES_INFO",seriesInfo)
+      console.log("SET_SERIES_INFO", seriesInfo)
       state.seriesInfo = seriesInfo;
     },
     SET_NODULE_INFO(state, noduleInfo) {
@@ -835,11 +835,11 @@ export default {
           dispatch("updateSliceForView", {viewName, index, viewType}),
         );
       },
-      200,
+      60,
     ),
     throttleUpdateOtherSlice: throttle(({dispatch}, {viewType, ijk}) => {
       requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
-    }, 200),
+    }, 120),
     async GetSlice({dispatch, state}, {viewName, index}) {
 
       try {
@@ -1123,7 +1123,7 @@ export default {
             viewType: view.viewIndex,
             index: newIndex,
           });
-        }, time || 60); // 每秒打印一次
+        }, time || 50); // 每秒打印一次
 
         commit("UPDATE_AUTO_PLAY_TIMER", {viewType, timer});
       } else {
