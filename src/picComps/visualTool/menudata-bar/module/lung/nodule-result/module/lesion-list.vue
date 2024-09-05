@@ -30,12 +30,12 @@
         }" -->
           {{ }}
           <ta-big-table class="lung_table_custom" ref="tableLungNodule" :size="tableConfig.size" row-id="id"
-            :checkbox-config="{ trigger: 'click', checkRowKeys: defaultSelecteRows }"
-            @current-change="handleTableCurrentChange" highlight-current-row :keyboard-config="{ isArrow: true }"
+            :checkbox-config="{trigger: 'click', checkRowKeys: defaultSelecteRows}"
+            @current-change="handleTableCurrentChange" highlight-current-row :keyboard-config="{isArrow: true}"
             height="200" :columns="tableConfig.tableColumns" :data="tableConfig.tableData"
-            @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent" :edit-config="{ trigger: 'click' }"
+            @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent" :edit-config="{trigger: 'click'}"
             @cell-click="handleCellClick" :sort-config="tableConfig.sortConfig">
-            <template #risk="{ row }">
+            <template #risk="{row}">
               <span class="ml-[10px]">{{ row.riskCode }}</span><br />
               <div v-if="row.riskCode == 1">
                 <span class="levelTag">低危</span>
@@ -47,11 +47,11 @@
                 <span class="levelTag text-red-500">高危</span>
               </div>
             </template>
-            <template #lobeSegmentSort="{ row }">
+            <template #lobeSegmentSort="{row}">
               <div v-show="false">-{{ row }}-</div>
             </template>
 
-            <template #volume="{ row }">
+            <template #volume="{row}">
               <div class="h1 im_block">
                 <span class="mr-[5px]">IM</span><span>{{ row.im }}</span>
               </div>
@@ -59,7 +59,7 @@
                 <span class="mr-[5px]">{{ row.volume }}</span><span>mm³</span>
               </div>
             </template>
-            <template #CHENGJI_VAL="{ row }">
+            <template #CHENGJI_VAL="{row}">
               <div class="h1 cj_block">
                 <!-- <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>前内基底段</span> -->
                 <span>{{ row.lobeSegment.label }}</span><span class="mr-[5px] ml-[5px]">&frasl;</span><span>{{
@@ -69,7 +69,7 @@
                 <span>{{ row.ellipsoidAxisMajor }}x{{ row.ellipsoidAxisLeast }}mm</span>
               </div>
             </template>
-            <template #mean="{ row }">
+            <template #mean="{row}">
               <div class="h1 mean_block">
                 <span>{{ row.type.name }}</span>
               </div>
@@ -77,19 +77,19 @@
                 <span>{{ row.ctMeasuresMean }}</span><span>HU</span>
               </div>
             </template>
-            <template #typeSort="{ row }">
+            <template #typeSort="{row}">
               <div v-show="false">-{{ row }}-</div>
             </template>
-            <template #im="{ row }">
+            <template #im="{row}">
               <div v-show="false">-{{ row }}-</div>
             </template>
-            <template #ellipsoidAxisMajor="{ row }">
+            <template #ellipsoidAxisMajor="{row}">
               <div v-show="false">-{{ row }}-</div>
             </template>
 
 
             <!-- edit holder begin-->
-            <template #CHENGJI_ROLE="{ row, column }">
+            <template #CHENGJI_ROLE="{row, column}">
               <div class="h1 cj_block">
                 <!-- <span>左肺下叶</span><span class="mr-[5px] ml-[5px]">&frasl;</span
             ><span>前内基底段</span> -->
@@ -129,7 +129,7 @@
               </div>
             </template>
 
-            <template #MEAN_EDIT="{ row, column }">
+            <template #MEAN_EDIT="{row, column}">
               <div class="h1 mean_block">
                 <ta-dropdown :trigger="['click']" class="flex justify-start items-center mr-[10px]"
                   :getPopupContainer="setPopupContainer">
@@ -179,14 +179,14 @@
               <template v-for="(item, index) in sort_condition.tumorType_select.searchPanel">
                 <ta-form-model-item :key="index" :label="item.title">
                   <ta-checkbox :indeterminate="item.allSelect.indeterminate"
-                    @change="(e) => onCheckAllChange({ e, index })" :checked="item.allSelect.checkAll">
+                    @change="(e) => onCheckAllChange({e, index})" :checked="item.allSelect.checkAll">
                     全部
                   </ta-checkbox>
-                  <ta-checkbox-group :options="item.list" @change="(val) => onChange({ val, index })"
+                  <ta-checkbox-group :options="item.list" @change="(val) => onChange({val, index})"
                     :value="index === 0 ? form[`type`] : form[`type${index}`]" />
                   <br />
                   <ta-checkbox v-if="index === 2" :indeterminate="majorAxis.indeterminate"
-                    @change="(ev) => majorAxis.onCheckAllChange({ ev })" :checked="majorAxis.checkAll"
+                    @change="(ev) => majorAxis.onCheckAllChange({ev})" :checked="majorAxis.checkAll"
                     class="check_block_area">
                     <div class="flex">
                       <div>
@@ -227,16 +227,16 @@
 <script lang="jsx">
 import anaSemanticDesBlock from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/index.vue";
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
-import { CodeSandboxOutline } from "@yh/icons-svg";
-import { mapActions } from "vuex";
+import {CodeSandboxOutline} from "@yh/icons-svg";
+import {mapActions} from "vuex";
 import Vue from 'vue';
-import { SortOption } from "@/assets/js/utils/dicom/select";
-import { mapState } from "vuex";
+import {SortOption} from "@/assets/js/utils/dicom/select";
+import {mapState} from "vuex";
 
 import reportViewBtn from "./reportView/btn.vue"
 
 
-import { xhr_updateNoduleLesion } from "@/api/index";
+import {xhr_updateNoduleLesion} from "@/api/index";
 
 // 病理部位标志
 const LESION_PART_SITE = {
@@ -292,7 +292,7 @@ export default {
       handler(nVal, oVal) {
         console.log("watch-----filmIpt_curItem", nVal, oVal);
         if (nVal) {
-          const { value } = nVal;
+          const {value} = nVal;
           if (value === '0') {
 
           } else if (value === '1') {
@@ -313,7 +313,7 @@ export default {
       handler(nVal, oVal) {
         console.log("watch-----filmIpt_curItem1", nVal, oVal);
         if (nVal) {
-          const { value } = nVal;
+          const {value} = nVal;
           if (value === '') {
 
           } else if (value === '1') {
@@ -399,7 +399,7 @@ export default {
         },
         sortConfig: {
           trigger: 'default',
-          defaultSort: { field: 'riskCode', order: 'asc' },
+          defaultSort: {field: 'riskCode', order: 'asc'},
           orders: ['desc', 'asc', null]
         },
         tableData: [
@@ -570,13 +570,13 @@ export default {
       },
       majorAxis: {
         // indeterminate: false,
-        onCheckAllChange: ({ ev }) => {
+        onCheckAllChange: ({ev}) => {
           console.log("onCheckAllChange--mg", ev, ev.target.checked);
           let isChecked = ev.target.checked;
           if (isChecked) {
             this.$set(this.majorAxis, "checkAll", true);
             console.log("this.form---", this.form);
-            const { type2 } = this.form;
+            const {type2} = this.form;
             if (type2 && type2.length > 0) {
               this.$delete(this.form, "type2");
               const row2 = this.sort_condition.tumorType_select.searchPanel[2];
@@ -603,26 +603,26 @@ export default {
       noduleTypeDropDown: {
         showValue: "",
         list: [
-          // {
-          //   label: "磨玻璃性结节",
-          //   value: "GCN",
-          // },
-          // {
-          //   label: "实性结节",
-          //   value: "Solid",
-          // },
-          // {
-          //   label: "钙化结节",
-          //   value: "Calcified",
-          // },
-          // {
-          //   label: "混合性结节",
-          //   value: "Mixed",
-          // },
-          // {
-          //   label: "肿块",
-          //   value: "Mass",
-          // },
+          {
+            label: "磨玻璃性结节",
+            value: "GCN",
+          },
+          {
+            label: "实性结节",
+            value: "Solid",
+          },
+          {
+            label: "钙化结节",
+            value: "Calcified",
+          },
+          {
+            label: "混合性结节",
+            value: "Mixed",
+          },
+          {
+            label: "肿块",
+            value: "Mass",
+          },
         ],
       },
       // 肺部dropdown数据
@@ -843,7 +843,7 @@ export default {
       this.lunglistSelectRow = {};
       this.noduleTypeListSelectRow = {};
     },
-    rowStyle({ row, rowIndex }) {
+    rowStyle({row, rowIndex}) {
       console.log("rowStyle_____", row, rowIndex);
       if (this.tableCurrentIdx) {
         if ([this.tableCurrentIdx].includes(rowIndex)) {
@@ -913,9 +913,9 @@ export default {
       // console.log(
       //   " row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event ", row,
       //   rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event);
-      const { property } = column;
+      const {property} = column;
       // if(property === 'CHENGJI_VAL'){
-      const { lobe, lobeSegment } = row;
+      const {lobe, lobeSegment} = row;
 
       console.log("lobe, lobeSegment----", lobe, lobeSegment);
 
@@ -950,7 +950,7 @@ export default {
           this.lungLobeDropDown.colstrValue = `${row.ellipsoidAxisMajor}x${row.ellipsoidAxisLeast}mm`
         });
       }
-      const { type } = row;
+      const {type} = row;
       this.$api.query_humen_boot_data().then((item) => {
         const rowSelectItem = this.$api.findObjectByValue(
           item,
@@ -967,8 +967,8 @@ export default {
     async init_lesionPanelSearchBar() {
       const item = await this.init_select("LESION_LIST_TYPE");
       const LESION_LIST_TYPE = this.$ut.serializeDropdownList(item);
-      const { type_select, tumorType_select } = this.sort_condition;
-      const { searchPanel } = tumorType_select;
+      const {type_select, tumorType_select} = this.sort_condition;
+      const {searchPanel} = tumorType_select;
       const lex = searchPanel[0];
       const typeAll = searchPanel[1];
       const longSer = searchPanel[2];
@@ -1042,7 +1042,7 @@ export default {
     },
 
     selectAllEvent(ev) {
-      const { selection } = ev;
+      const {selection} = ev;
       console.log("selection", selection);
 
       this.selection = selection;
@@ -1050,18 +1050,18 @@ export default {
     },
     selectChangeEvent(ev) {
       console.log("selectChangeEvent___", ev);
-      const { selection } = ev;
+      const {selection} = ev;
       // console.log("selection===:", JSON.stringify(selection), "this.tableCurrentIdx", this.tableCurrentIdx);
       console.log("selection", selection);
 
       this.selection = selection;
     },
-    handleTableCurrentChange({ row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event }) {
+    handleTableCurrentChange({row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event}) {
       console.log("handleTableCurrentChange:row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event --", row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, $event);
 
     },
     afterLeaveEvents() { },
-    onCheckAllChange({ e, index }) {
+    onCheckAllChange({e, index}) {
       let isChecked = e.target.checked;
       // console.log("isChecked=", isChecked);
       const typeArr =
@@ -1094,7 +1094,7 @@ export default {
       }
       this.$set(allSelect, "indeterminate", false);
     },
-    onChange({ val, index }) {
+    onChange({val, index}) {
       // console.log("onChange-----", val, index);
       const typeArr =
         this.sort_condition.tumorType_select.searchPanel[index].list;
@@ -1163,7 +1163,7 @@ export default {
     },
     handleMenuClick(e) {
       console.log("click:handleMenuClick:", e);
-      const { key } = e;
+      const {key} = e;
       const keyFindArr = key.split("_");
       console.log("keyFindArr=", keyFindArr);
       console.log("this.sort_condition.type_select.list==", this.sort_condition.type_select.list);
@@ -1176,7 +1176,7 @@ export default {
 
       console.log("sort_condition.type_select==row", row);
 
-      const { label, value } = row;
+      const {label, value} = row;
 
       this.sort_condition.type_select.showValue = label;
 
@@ -1190,7 +1190,7 @@ export default {
 
           function get_lobeSegmentSort_col_index() {
             const col = that.tableConfig.tableColumns[3];
-            const { orderIndex } = col;
+            const {orderIndex} = col;
             return orderIndex;
           }
 
@@ -1215,7 +1215,7 @@ export default {
         case SortOption.Risk: {
           const riskCode_col = this.$refs.tableLungNodule.getSortColumns('riskCode')[0];
           console.log("riskCode_col___", riskCode_col);
-          const { order } = riskCode_col;
+          const {order} = riskCode_col;
 
           console.log("order==", order);
 
@@ -1238,7 +1238,7 @@ export default {
 
           function get_lobeSegmentSort_col_index() {
             const col = that.tableConfig.tableColumns[3];
-            const { orderIndex } = col;
+            const {orderIndex} = col;
             return orderIndex;
           }
 
@@ -1273,7 +1273,7 @@ export default {
 
           function get_lobeSegmentSort_col_index() {
             const col = that.tableConfig.tableColumns[1];
-            const { orderIndex } = col;
+            const {orderIndex} = col;
             return orderIndex;
           }
 
@@ -1306,7 +1306,7 @@ export default {
 
           function get_lobeSegmentSort_col_index() {
             const col = that.tableConfig.tableColumns[4];
-            const { orderIndex } = col;
+            const {orderIndex} = col;
             return orderIndex;
           }
 
@@ -1342,7 +1342,7 @@ export default {
 
           function get_lobeSegmentSort_col_index() {
             const col = that.tableConfig.tableColumns[5];
-            const { orderIndex } = col;
+            const {orderIndex} = col;
             return orderIndex;
           }
 
@@ -1377,7 +1377,7 @@ export default {
 
           function get_lobeSegmentSort_col_index() {
             const col = that.tableConfig.tableColumns[2];
-            const { orderIndex } = col;
+            const {orderIndex} = col;
             return orderIndex;
           }
 
@@ -1408,7 +1408,7 @@ export default {
     },
     handleMenuClick_lungList(e) {
       console.log("handleMenuClick_lungList", e, "this.tableCurrentIdx", this.tableCurrentIdx, "this.tableConfig.tableData", this.tableConfig.tableData, "this.NoduleLesion_row ", this.NoduleLesion_row);
-      const { key } = e;
+      const {key} = e;
       const arr = key.split("_");
       const code = arr[arr.length - 1];
 
@@ -1419,7 +1419,7 @@ export default {
         console.log("rowSelectItem__lungNodule---", rowSelectItem);
 
 
-        this.lunglistSelectRow = { lobeSegment: rowSelectItem };
+        this.lunglistSelectRow = {lobeSegment: rowSelectItem};
 
         console.log("this.lunglistSelectRow---handleMenuClick_after:", this.lunglistSelectRow, "this.tableConfig.tableData[this.tableCurrentIdx]", this.tableConfig.tableData[this.tableCurrentIdx])
 
@@ -1462,7 +1462,7 @@ export default {
     },
     handleMenuClick_noduleList(e) {
       console.log("handleMenuClick_noduleList", e, "this.tableCurrentIdx", this.tableCurrentIdx, "this.tableConfig.tableData", this.tableConfig.tableData);
-      const { key } = e;
+      const {key} = e;
       const arr = key.split("_");
       const code = arr[arr.length - 1];
 
@@ -1473,7 +1473,7 @@ export default {
         console.log("rowSelectItem__lungNodule---", rowSelectItem);
 
 
-        this.noduleTypeListSelectRow = { type: rowSelectItem };
+        this.noduleTypeListSelectRow = {type: rowSelectItem};
 
 
         console.log("this.noduleTypeListSelectRow--", this.noduleTypeListSelectRow)
@@ -1571,7 +1571,7 @@ export default {
       // this.tableConfig.tableData = tableData; //old 赋值
 
       // new 方式接口赋值：2024-08-26
-      const { noduleLesionList } = this.menuResult;
+      const {noduleLesionList} = this.menuResult;
 
       const processedData_lobe = this.$api.processLungItems.call(this, noduleLesionList, ['lobeSegment']).then(async (item) => {
 
@@ -1640,7 +1640,7 @@ export default {
 
       this.processJsonData(jsonData).then(() => {
         //finding 所见，diagnosis 诊断
-        const { finding, diagnosis } = tableItem;
+        const {finding, diagnosis} = tableItem;
         // console.log("finding",finding);
         const arr_find = finding.split("\n");
         // console.log("arr_find",arr_find);
