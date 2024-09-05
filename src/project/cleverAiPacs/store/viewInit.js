@@ -615,7 +615,7 @@ export default {
         commit("SET_VIEW_DATA", {
           viewType: view.viewIndex,
           key: "hu",
-          value: pixelValue[0] - 1024,
+          value: pixelValue[0] ,
         });
 
         trueijk.forEach((item, index) => {
@@ -682,7 +682,7 @@ export default {
         commit("SET_VIEW_DATA", {
           viewType: view.viewIndex,
           key: "hu",
-          value: pixelValue[0] - 1024,
+          value: pixelValue[0] ,
         });
         if (state.mouseDown) {
           const trueijk = GetTureIJK({
@@ -755,7 +755,7 @@ export default {
           key: "Wl",
           value: value,
         });
-        view.view.sliceActor.getProperty().setColorLevel(value + 1000);
+        view.view.sliceActor.getProperty().setColorLevel(value );
         view.view.interactor.render();
       });
     },
