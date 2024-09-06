@@ -225,6 +225,7 @@
   </div>
 </template>
 <script lang="jsx">
+import Emitter from "@/assets/js/mixins/emitter.js";
 import anaSemanticDesBlock from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/index.vue";
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
 import {CodeSandboxOutline} from "@yh/icons-svg";
@@ -234,6 +235,8 @@ import {SortOption} from "@/assets/js/utils/dicom/select";
 import {mapState} from "vuex";
 
 import reportViewBtn from "./reportView/btn.vue"
+
+
 
 
 import {xhr_updateNoduleLesion} from "@/api/index";
@@ -254,6 +257,7 @@ export default {
     filmInputState,
     reportViewBtn,
   },
+  mixins: [Emitter],
   props: {
     value: Object,
     cKey: {

@@ -1,4 +1,4 @@
-import { EventBus } from "./event-bus";
+import {EventBus} from "./event-bus";
 import {
   Vue,
   store,
@@ -24,6 +24,11 @@ import "vue-bus";
 import * as api from "@/api/center-ut";
 
 import sUtil from "@/assets/js/utils";
+
+
+import VueClipboard from 'vue-clipboard2';
+
+Vue.use(VueClipboard);
 
 // 判断登录状态然后确认是否渲染页面
 checkLogin(() => {

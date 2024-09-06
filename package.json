@@ -49,6 +49,7 @@
     "uuid": "9.0.1",
     "vue": "2.7.16",
     "vue-bus": "^1.2.1",
+    "vue-clipboard2": "^0.3.3",
     "vue-grid-layout": "2.4.0",
     "vue-router": "^3.6.5",
     "vuex": "^3.6.2",

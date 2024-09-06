@@ -10,7 +10,8 @@
         </div>
       </div>
       <div class="flex-1 flex justify-end">
-        <div @click="handle_copy" class="copyIcon flex items-center ripple">
+        <div ref="copyButton" v-clipboard:copy="descCacheBk" v-clipboard:success="descCacheBk_copy_success"
+          @click="handle_copy" class="copyIcon flex items-center ripple">
           <div class="pic"></div>
           <div class="txt">复制</div>
         </div>
@@ -22,6 +23,8 @@
         <div class="item_row" :class="item.isActive ? 'selected' : ''">{{ item.desc }}</div>
       </div>
     </div>
+
+    <textarea class="textarea_fix" v-model="descCacheBk"></textarea>
   </div>
 </template>
 <script lang="javascript">
@@ -37,14 +40,18 @@
  * ...
  */
 
-import { SortOption, mapObjectListToFindingTemplate, mapObjectListToDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
-import { mapState } from "vuex";
+import {SortOption, mapObjectListToFindingTemplate, mapObjectListToDiagnoseTemplate} from "@/assets/js/utils/dicom/select";
+import {mapState} from "vuex";
 import ClipboardJS from 'clipboard';
+
+import Emitter from "@/assets/js/mixins/emitter.js";
+
+
 
 
 export default {
   name: "ana-semantic-des-block",
-
+  mixins: [Emitter],
   props: {
     selectVal: {
       type: [Object],
@@ -76,7 +83,7 @@ export default {
       get() {
         console.log("this.selectValue", this.selectValue)
         if (this.selectValue && this.selectValue.value) {
-          const { value } = this.selectValue;
+          const {value} = this.selectValue;
           if (this.blockMode == 'finding') {
             const resultBookItems = mapObjectListToFindingTemplate(this.selectionValue, value, this.seriesInfo.imageCount, this.currentNum)
             return resultBookItems
@@ -155,20 +162,48 @@ export default {
   data() {
     return {
       resultBookItems_data: [],
+      clipboard: null,
+      descCacheBk: "",
     };
   },
   methods: {
+    descCacheBk_copy_success() {
+      this.$message.success('复制成功');
+    },
+    getFullDescString(data) {
+      return data.map(item => item.desc + '\n').join('');
+    },
     handle_copy() {
-      console.log("开始打印啦")
-      var clipboard = new ClipboardJS('.btn');
-      console.log(clipboard)
-      clipboard.on('success', function (e) {
+      // Initialize clipboard instance
+      // let clipboard = new ClipboardJS(this.$refs.copyButton, {
+      //   text: () => this.descCacheBk,
+      // });
+      // // console.log("this.clipboard=", this.clipboard)
+      // clipboard.on('success', function (e) {
+      //   console.info('Action:', e.action);
+      //   console.info('Text:', e.text);
+      //   console.info('Trigger:', e.trigger);
 
-        console.log('文本已成功复制:', e.text);
-      });
-      clipboard.on('error', function (e) {
-        console.log('复制失败:', e);
-      });
+      //   e.clearSelection();
+      // });
+      console.log("开始打印啦", "this.$parent", this.$parent, JSON.stringify(this.resultBookItems));
+
+      const descStrBook = this.getFullDescString(this.resultBookItems);
+      console.log("descStrBook=", descStrBook);
+      this.descCacheBk = descStrBook;
+
+      // let isClp = ClipboardJS.isSupported();
+      // console.log("isClp=", isClp);
+
+
+
+
+      // this.clipboard.on('success', (e) => {
+      //   console.log('文本已成功复制:', e.text);
+      // });
+      // this.clipboard.on('error', (e) => {
+      //   console.log('复制失败:', e);
+      // });
 
 
       // this.resultBookItems = [
@@ -234,5 +269,11 @@ export default {
 
 .selected {
   color: yellow;
+}
+
+.textarea_fix {
+  font-size: 0;
+  position: fixed;
+  right: -999px;
 }
 </style>
