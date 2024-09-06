@@ -156,7 +156,7 @@
 
 
         <div class="analytic_semantic_description">
-          <anaSemanticDesBlock :bookItems.sync="anaSecDesConf.bookItems" :selection.sync="selection"
+          <anaSemanticDesBlock :des-code="'yxsj'" :bookItems.sync="anaSecDesConf.bookItems" :selection.sync="selection"
             :blockMode="anaSecDesConf.mode" :selectVal.sync="filmIpt_curItem" :title="anaSecDesConf.title"
             :current.sync="selectedNoduleId">
             <filmInputState slot="searchBar" v-model="filmIpt_curItem" :typec="`dropdown`" :selectCurIdx="`0`"
@@ -165,8 +165,9 @@
         </div>
 
         <div class="analytic_semantic_description">
-          <anaSemanticDesBlock :bookItems.sync="anaSecDesConf_1.bookItems" :selectVal="filmIpt_curItem_1"
-            :blockMode="anaSecDesConf_1.mode" :title="anaSecDesConf_1.title" :selection.sync="selection">
+          <anaSemanticDesBlock :des-code="'yxzd'" :bookItems.sync="anaSecDesConf_1.bookItems"
+            :selectVal="filmIpt_curItem_1" :blockMode="anaSecDesConf_1.mode" :title="anaSecDesConf_1.title"
+            :selection.sync="selection">
             <filmInputState slot="searchBar" v-model="filmIpt_curItem_1" :typec="`dropdown`" :selectCurIdx="`0`"
               :optionNum="`2`" @cb-click="handle_filmIptClick_yxzd"></filmInputState>
           </anaSemanticDesBlock>
@@ -1645,13 +1646,21 @@ export default {
       this.processJsonData(jsonData).then(() => {
         //finding 所见，diagnosis 诊断
         const {finding, diagnosis} = tableItem;
-        // console.log("finding",finding);
+        console.log("finding", finding, "diagnosis", diagnosis);
         const arr_find = finding.split("\n");
         // console.log("arr_find",arr_find);
         const arr_diagnosis = diagnosis.split("\n");
         this.anaSecDesConf.bookItems = arr_find;
+
+
+
+
         this.anaSecDesConf_1.bookItems = arr_diagnosis;
-        // this.anaSecDesConf.selection =
+        // this.$bus.emit('ebs_update_reports_context', 'yxzd');
+
+        console.log("this.anaSecDesConf===", this.anaSecDesConf);
+        console.log("this.anaSecDesConf_1===", this.anaSecDesConf_1);
+
 
       });
 

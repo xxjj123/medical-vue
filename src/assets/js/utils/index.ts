@@ -73,7 +73,7 @@ export default {
       const chnContent = description ? description.chn : "无对应中文解释"; // 获取中文名称或默认值
 
       // 返回结果对象
-      return { code, engName, sortValue: value, chnContent };
+      return {code, engName, sortValue: value, chnContent};
     });
   },
   /**
@@ -294,7 +294,7 @@ export default {
 
     // 处理传入的数据
     return data.map((item) => {
-      const filledItem = { ...item }; // 复制原始数据以避免直接修改
+      const filledItem = {...item}; // 复制原始数据以避免直接修改
       propertiesToSearch.forEach((property) => {
         // 使用辅助函数搜索每个属性，并填充值
         filledItem[property] = searchProperties(item)[property];
@@ -326,5 +326,21 @@ export default {
 
     // 返回序列化后的数组
     return serializedList;
+  },
+
+
+  getGenderString: (code) => {
+    switch (code) {
+      case 'M':
+        return '男';
+      case 'F':
+        return '女';
+      case 'O':
+        return '其他';
+      case 'U':
+        return '未知';
+      default:
+        return '未知'; // 默认返回 '未知'，如果传入值不匹配任何选项
+    }
   },
 };

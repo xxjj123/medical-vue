@@ -127,19 +127,19 @@
               <div class="itemInput flex">
                 <div class="keyName font-bold">报告日期：</div>
                 <div class="value">
-                  <input type="text" v-model="paperObj.patientInfo.code" class="custom_input ">
+                  <input type="text" v-model="paperObj.footerInfo.bgdate" class="custom_input ">
                 </div>
               </div>
               <div class="itemInput flex">
                 <div class="keyName font-bold">报告医生：</div>
                 <div class="value">
-                  <input type="text" v-model="paperObj.patientInfo.jianchahao" class="custom_input ">
+                  <input type="text" v-model="paperObj.footerInfo.bgdoctor" class="custom_input ">
                 </div>
               </div>
               <div class="itemInput flex">
                 <div class="keyName font-bold">审核医生：</div>
                 <div class="value">
-                  <input type="text" class="custom_input " v-model="paperObj.patientInfo.jianchaDate">
+                  <input type="text" class="custom_input " v-model="paperObj.footerInfo.postDoctor">
                 </div>
               </div>
             </div>
@@ -167,6 +167,7 @@
 
 </template>
 <script lang='javascript'>
+import {serializeAge} from "@/assets/js/utils/dicom/inputFormat";
 import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -182,9 +183,23 @@ export default {
       type: Boolean,
       required: true,
     },
+    // 主体内容正文
+    contentMainData: {
+      type: Object,
+      default: () => ({})
+    },
   },
   computed: {
     ...mapState("viewInitStore", ["seriesInfo"]),
+    contentMainDataCache: {
+      get() {
+        return this.contentMainData;
+      },
+      set(val) {
+        this.$emit('update:contentMainData', val);
+        return val;
+      },
+    }
   },
   data() {
     return {
@@ -276,15 +291,18 @@ export default {
       modalVisible: false,
       paperObj: {
         patientInfo: {
-          code: "1231231",
-          jianchahao: "DJ123123123",
-          jianchaDate: "2024-01-02",
-          name: "张三",
-          sex: "女",
-          age: "38",
+          code: "",
+          jianchahao: "",
+          jianchaDate: "",
+          name: "",
+          sex: "",
+          age: "",
           product: "胸部CT平扫",
-
-
+        },
+        footerInfo: {
+          bgdate: "2023-09-07",
+          bgdoctor: "报告医生",
+          postDoctor: "审核医生",
 
         },
         filmLookBook: "左侧肋骨2投影",
@@ -295,10 +313,42 @@ export default {
   watch: {
     visible(value) {
       this.modalVisible = value;
+      console.log("seriesInfo==~~~~~~~~~~=", this.seriesInfo);
+
     },
     modalVisible(value) {
       // console.log("wwww-", value);
+
+      if (value) {
+        this.$nextTick(() => {
+          console.log(" this.paperObj", this.paperObj);
+          const {patientId, studyId, studyDateAndTime, patientName, patientSex, patientAge, } = this.seriesInfo;
+          // console.log("patientId, studyId, studyDateAndTime, patientName, patientSex, patientAge,", patientId, studyId, studyDateAndTime, patientName, patientSex, patientAge,)
+          this.$set(this.paperObj.patientInfo, "code", patientId)
+          this.paperObj.patientInfo.jianchahao = studyId;
+          this.paperObj.patientInfo.jianchaDate = studyDateAndTime;
+          this.paperObj.patientInfo.name = patientName;
+          this.paperObj.patientInfo.sex = this.$ut.getGenderString(patientSex);
+          const patientAge_Val = serializeAge({
+            dataSource: patientAge,
+            unit: true,
+            language: "zh",
+          }).replaceAll('岁', '');
+          this.paperObj.patientInfo.age = patientAge_Val;
+
+          console.log("this.contentMainDataCache=", this.contentMainDataCache);
+
+
+          this.paperObj.filmLookBook = this.contentMainDataCache.yxsj_content;
+          this.paperObj.filmZdBook = this.contentMainDataCache.yxzd_content;
+        })
+      }
+
       this.$emit("update:visible", value);
+
+
+
+
     },
   },
   methods: {
@@ -474,7 +524,7 @@ export default {
     // console.log("beforeDestroy:::this.modalVisible==", this.modalVisible);
   },
   created() {
-    console.log("seriesInfo==~~~~~~~~~~=", this.seriesInfo);
+
 
   },
 }

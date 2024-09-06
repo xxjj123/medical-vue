@@ -41,8 +41,7 @@
  */
 
 import {SortOption, mapObjectListToFindingTemplate, mapObjectListToDiagnoseTemplate} from "@/assets/js/utils/dicom/select";
-import {mapState} from "vuex";
-import ClipboardJS from 'clipboard';
+import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
 
 import Emitter from "@/assets/js/mixins/emitter.js";
 
@@ -55,6 +54,12 @@ export default {
   props: {
     selectVal: {
       type: [Object],
+    },
+    desCode: {
+      type: String,
+      default: () => {
+        return "";//yxsj yxzd
+      }
     },
     title: {
       type: String,
@@ -79,19 +84,63 @@ export default {
   },
   computed: {
     ...mapState("viewInitStore", ["seriesInfo"]),
+    ...mapGetters("viewReportsStore", ["get_reports_tag", "get_reports_yxsj_content", "get_reports_yxzd_content"]),
+    desCodeValue: {
+      get() {
+        return this.desCode;
+      },
+      set(val) {
+        return val;
+      },
+    },
     resultBookItems: {
       get() {
         console.log("this.selectValue", this.selectValue)
         if (this.selectValue && this.selectValue.value) {
           const {value} = this.selectValue;
+          let resultBookItems = null;
           if (this.blockMode == 'finding') {
-            const resultBookItems = mapObjectListToFindingTemplate(this.selectionValue, value, this.seriesInfo.imageCount, this.currentNum)
-            return resultBookItems
+            resultBookItems = mapObjectListToFindingTemplate(this.selectionValue, value, this.seriesInfo.imageCount, this.currentNum)
+            console.log("resultBookItems2---", resultBookItems)
+            // return resultBookItems
           } else {
-            const resultBookItems = mapObjectListToDiagnoseTemplate(this.selectionValue, value)
+            resultBookItems = mapObjectListToDiagnoseTemplate(this.selectionValue, value)
             console.log("resultBookItems2", resultBookItems)
-            return resultBookItems
+            // return resultBookItems
           }
+
+
+          console.log("this.desCode", this.desCode);
+          if (this.desCode === 'yxsj') {
+            const descStrBook = this.getFullDescString(resultBookItems);
+            console.log("descStrBook=", descStrBook);
+
+            this.SET_REPORTS_MUIL_CONTEXT({
+              name: this.desCode,
+              data: descStrBook,
+            })
+
+
+
+          } else if (this.desCode === 'yxzd') {
+            const descStrBook = this.getFullDescString(resultBookItems);
+            console.log("descStrBook=", descStrBook);
+
+            this.SET_REPORTS_MUIL_CONTEXT({
+              name: this.desCode,
+              data: descStrBook,
+            })
+          }
+
+          // "get_reports_tag", "get_reports_yxsj_content", "get_reports_yxzd_content"
+          console.log("v-get_reports_tag", this.get_reports_tag,);
+          console.log("v-get_reports_yxsj_content", this.get_reports_yxsj_content,);
+          console.log("v-get_reports_yxzd_content", this.get_reports_yxzd_content,);
+
+
+
+
+          return resultBookItems
 
         }
 
@@ -127,6 +176,7 @@ export default {
     }
   },
   watch: {
+
     currentNum: {
       handler(nVal, oVal) {
         console.log("currentNum_______", nVal, oVal);
@@ -147,9 +197,34 @@ export default {
       handler(nVal, oVal) {
         // this.resultBookItems_data = resultBookItems
         console.log("resultBookItems___________", nVal, oVal);
+        if (nVal) {
+
+        }
 
       },
       immediate: false,
+    },
+    desCodeValue: {
+      handler(nVal, oVal) {
+        console.log("watch___desCodeValue", nVal, oVal);
+        this.$nextTick(() => {
+          // this.$bus.emit('ebs_reports_tag', nVal)
+          // if (nVal === 'yxsj') {
+          //   this.$bus.emit('ebs_update_reports_context', 'yxsj');
+
+          // } else if (nVal === 'yxzd') {
+          //   this.$bus.emit('ebs_update_reports_context', 'yxzd');
+          // }
+
+
+
+        })
+
+
+
+
+      },
+      immediate: true,
     },
     selectionValue: {
       handler(nVal, oVal) {
@@ -167,6 +242,7 @@ export default {
     };
   },
   methods: {
+    ...mapMutations("viewReportsStore", ["SET_REPORTS_TAG", "SET_REPORTS_MUIL_CONTEXT", "SET_REPORTS_YXSJ_CONTENT", "SET_REPORTS_YXZD_CONTENT"]),
     descCacheBk_copy_success() {
       this.$message.success('复制成功');
     },
@@ -233,6 +309,34 @@ export default {
 
 
     console.log("this.$slots.searchBar:::", this.$slots.searchBar)
+
+    this.$bus.off('ebs_reports_tag')
+    this.$bus.on('ebs_reports_tag', (val) => {
+      this.SET_REPORTS_TAG(val)
+    })
+
+    this.$bus.off('ebs_update_reports_context')
+    this.$bus.on('ebs_update_reports_context', (tag) => {
+      console.log("this.get_reports_tag", this.get_reports_tag);
+
+
+      const descStrBook = this.getFullDescString(this.resultBookItems);
+      console.log("descStrBook=", descStrBook);
+
+      this.SET_REPORTS_MUIL_CONTEXT({
+        name: tag,
+        data: descStrBook,
+      })
+
+
+      // "get_reports_tag", "get_reports_yxsj_content", "get_reports_yxzd_content"
+      console.log("v-get_reports_tag", this.get_reports_tag,);
+      console.log("v-get_reports_yxsj_content", this.get_reports_yxsj_content,);
+      console.log("v-get_reports_yxzd_content", this.get_reports_yxzd_content,);
+
+
+
+    })
   },
 };
 </script>
