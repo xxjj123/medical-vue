@@ -257,29 +257,29 @@ export const xhr_getNoduleInfo = (formData) => {
   });
 };
 
-// /**
-//  * seriesComputeId
-//  *
-//  * @param formData
-//  * @returns
-//  */
-// export const xhr_getSlice = (formData) => {
-//   return new Promise((resolve, reject) => {
-//     try {
-//       return Base.submit(null, {
-//         url: image + urlJson["downloadSlice"],
-//         data: {
-//           ...formData,
-//         },
-//         responseType: "arraybuffer",
-//       }).then(res => {
-//         resolve(res);
-//       });
-//     } catch (error) {
-//       reject({error})
-//     }
-//   })
-// };
+/**
+ * seriesComputeId
+ *
+ * @param formData
+ * @returns
+ */
+export const xhr_getSlice = (formData) => {
+  return new Promise((resolve, reject) => {
+    try {
+      return Base.submit(null, {
+        url: image + urlJson["downloadSlice"],
+        data: {
+          ...formData,
+        },
+        responseType: "arraybuffer",
+      }).then(res => {
+        resolve(res);
+      });
+    } catch (error) {
+      reject({error})
+    }
+  })
+};
 
 // /*
 // *
@@ -287,28 +287,28 @@ export const xhr_getNoduleInfo = (formData) => {
 // * @returns */
 
 
-export const xhr_getSlice = async (formData2) => {
-  try {
-    const formData = new FormData()
-    formData.append('seriesId', formData2.seriesId)
-    formData.append('viewName', formData2.viewName)
-    formData.append('viewIndex', formData2.viewIndex)
+// export const xhr_getSlice = async (formData2) => {
+//   try {
+//     const formData = new FormData()
+//     formData.append('seriesId', formData2.seriesId)
+//     formData.append('viewName', formData2.viewName)
+//     formData.append('viewIndex', formData2.viewIndex)
 
-    const response = await axios.post(
-      '/api7/mids-api/image/downloadSlice',
-      formData,
-      {
+//     const response = await axios.post(
+//       '/api7/mids-api/image/downloadSlice',
+//       formData,
+//       {
 
-        responseType: 'arraybuffer' // This ensures the response is treated as an ArrayBuffer
-      }
-    )
+//         responseType: 'arraybuffer' // This ensures the response is treated as an ArrayBuffer
+//       }
+//     )
 
-    return response
-  } catch (error) {
-    console.error('Error downloading the file', error)
-    throw error
-  }
-}
+//     return response
+//   } catch (error) {
+//     console.error('Error downloading the file', error)
+//     throw error
+//   }
+// }
 
 /**
  * seriesComputeId
@@ -318,7 +318,7 @@ export const xhr_getSlice = async (formData2) => {
  */
 export const xhr_getModel3d = (formData) => {
   return Base.submit(null, {
-    url: diagnose + urlJson["getModel3d"],
+    url: image + urlJson["download3dModel"],
     data: {
       ...formData,
     },

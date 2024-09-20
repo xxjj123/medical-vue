@@ -3,8 +3,8 @@ export default [
   /* pacs-相关路由 -----start*/
   {
     title: "诊断分析-控制台",
-    name: "diagnose",
-    path: "diagnose",
+    name: "picdiagnose",
+    path: "picdiagnose",
     component: () => import("./index.vue"),
     meta: {
       name: "病变分析",

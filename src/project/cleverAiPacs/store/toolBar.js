@@ -22,6 +22,8 @@ export default {
       acc[`${ButtonNames[key]}${suffix_name}`] = false;
       return acc;
     }, {}),
+    [`${ButtonNames.Jbinfo}${suffix_name}`]: true,
+    [`${ButtonNames.Szckx}${suffix_name}`]: true,
   },
   getters: {
     getButtonState: (state) => (buttonName) => {

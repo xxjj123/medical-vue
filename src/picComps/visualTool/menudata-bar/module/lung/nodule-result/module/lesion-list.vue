@@ -888,11 +888,15 @@ export default {
       console.log(this.tableCurrentIdx)
 
       const currentid = this.$refs.tableLungNodule.getCurrentRecord().id
-      if (currentid !== this.selectedNoduleId) {
-        const bboxindex = row.id;
+      const bboxindex = row.id;
 
-        this.ChooseAnnotation(bboxindex);
-        this.selectedNoduleId = row.id;
+      this.ChooseAnnotation(bboxindex);
+      this.selectedNoduleId = row.id;
+      if (currentid !== this.selectedNoduleId) {
+        // const bboxindex = row.id;
+
+        // this.ChooseAnnotation(bboxindex);
+        // this.selectedNoduleId = row.id;
       }
 
       console.log("handleCellClick--row", row, "row.boxIndex", row.boxIndex, "this.tableCurrentIdx", this.tableCurrentIdx);
@@ -1642,11 +1646,14 @@ export default {
         //finding 所见，diagnosis 诊断
         const { finding, diagnosis } = tableItem;
         // console.log("finding",finding);
-        const arr_find = finding.split("\n");
-        // console.log("arr_find",arr_find);
-        const arr_diagnosis = diagnosis.split("\n");
-        this.anaSecDesConf.bookItems = arr_find;
-        this.anaSecDesConf_1.bookItems = arr_diagnosis;
+        if (finding) {
+          const arr_find = finding.split("\n");
+          // console.log("arr_find",arr_find);
+          const arr_diagnosis = diagnosis.split("\n");
+          this.anaSecDesConf.bookItems = arr_find;
+          this.anaSecDesConf_1.bookItems = arr_diagnosis;
+        }
+
         // this.anaSecDesConf.selection =
 
       });

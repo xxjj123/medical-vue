@@ -56,7 +56,7 @@ export default {
   created() {
     this.$nextTick(() => {
       this.activeIndex = 0
-      this.activate(activeIndex)
+      // this.activate(this.activeIndex)
     })
   },
   computed: {

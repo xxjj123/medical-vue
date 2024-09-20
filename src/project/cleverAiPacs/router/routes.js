@@ -6,8 +6,10 @@ import modulePart2 from "../modulePart/modulePart2/routes";
 import manage from "../modulePart/manage/routes";
 //诊断分析-控制台
 import diagnose from "../modulePart/diagnose2/routes";
+import picdiagnose from "../modulePart/picdiagnose/routes";
 
-const innerRoutes = [...modulePart2, ...manage, ...diagnose];
+
+const innerRoutes = [...modulePart2, ...manage, ...diagnose,...picdiagnose];
 // 导入路由声明
 export default [
   {

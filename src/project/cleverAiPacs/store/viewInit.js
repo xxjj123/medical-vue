@@ -158,16 +158,27 @@ export default {
       state.series_map_dicom = payload;
     },
     SET_SERIES_INFO(state, seriesInfo) {
-      console.log("SET_SERIES_INFO",seriesInfo)
       state.seriesInfo = seriesInfo;
     },
     SET_NODULE_INFO(state, noduleInfo) {
       state.noduleInfo = noduleInfo;
-      console.log("state.noduleInfo==", state.noduleInfo);
 
-      state.noduleInfo.focalDetailList = []
-      // state.noduleInfo.noduleLesionList = []
-
+    },
+    INIT_NODULE_POINTS(state){
+      const imageCount = Number(state.noduleInfo.imageCount)
+        state.noduleInfo.noduleLesionList.forEach(nodule=>{
+          const {points} = nodule
+          let [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+          // let tempzmin =zmin
+          // let tempzmax = zmax
+          // if(zmin>imageCount){
+          //    tempzmax = 2*imageCount - zmin
+          // }
+          // if(zmax>imageCount){
+          //   tempzmin = 2*imageCount - zmax
+          // }
+          nodule.points = [xmin, xmax, ymin, ymax, zmin, zmax]
+        })
     },
 
     INIT_VIEW_MPR_VIEW(state, {viewType, data}) {
@@ -301,8 +312,6 @@ export default {
       dimensions[VIEW_TYPES.SAGITTAL] = state.seriesInfo.sagittalCount;
       dimensions[VIEW_TYPES.CORONAL] = state.seriesInfo.coronalCount;
       dimensions[VIEW_TYPES.AXIAL] = state.seriesInfo.axialCount;
-      console.log(dimensions)
-
       const ijk = dimensions.map((d) => Math.round(d / 2) + 1);
 
       ijk.forEach((item, index) => {
@@ -325,13 +334,20 @@ export default {
       });
       try {
         await dispatch("UpdateIJK", ijk);
+        commit("INIT_NODULE_POINTS")
+
+
         state.viewMprViews.forEach((view, index) => {
           dispatch("setupInteractor", {view, dimensions});
+
+
           state.noduleInfo.noduleLesionList.forEach(async (nodule) => {
+
             const annotation = await dispatch("getAnnotationForView", {
               nodule,
               viewType: view.viewIndex,
             });
+
             requestAnimationFrame(() =>
               dispatch("addRectangleAnnotation", {
                 view,
@@ -372,8 +388,7 @@ export default {
     },
     getAnnotationForView({state}, {nodule, viewType}) {
       const {points} = nodule;
-
-      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points;
       const annotations = {
         [VIEW_TYPES.CORONAL]: {
           xmin: xmin,
@@ -457,24 +472,26 @@ export default {
     },
     UpdateDisplayValue({commit, state}, {changedViewType, pagex, pagey}) {
       const view = state.viewMprViews[changedViewType].view;
+      if(view.image){
+        const world = view.image.indexToWorld([pagex, pagey, 0]);
+        coordinate.setValue(...world);
 
-      const world = view.image.indexToWorld([pagex, pagey, 0]);
-      coordinate.setValue(...world);
+        const [ndcX, ndcY] = coordinate.getComputedDoubleDisplayValue(
+          view.renderer,
+        );
 
-      const [ndcX, ndcY] = coordinate.getComputedDoubleDisplayValue(
-        view.renderer,
-      );
+        commit("SET_VIEW_DATA", {
+          viewType: changedViewType,
+          key: "displayX",
+          value: ndcX,
+        });
+        commit("SET_VIEW_DATA", {
+          viewType: changedViewType,
+          key: "displayY",
+          value: ndcY,
+        });
+      }
 
-      commit("SET_VIEW_DATA", {
-        viewType: changedViewType,
-        key: "displayX",
-        value: ndcX,
-      });
-      commit("SET_VIEW_DATA", {
-        viewType: changedViewType,
-        key: "displayY",
-        value: ndcY,
-      });
     },
     async UpdateIJK({dispatch, getters, commit}, ijk) {
       await Promise.all([
@@ -519,7 +536,6 @@ export default {
           dispatch("handleMousePress", {event, view});
         } else {
           view.view.interactor.getInteractorStyle().startPan()
-          console.log(view.view.interactor.getInteractorStyle())
         }
       });
       view.view.interactor.onMouseMove((event) => {
@@ -567,15 +583,14 @@ export default {
         state.annotations.value.forEach((annotation) => {
           if (annotation.viewIndex === view.viewIndex) {
             if (
-              view.pageIndex > annotation.boundsmin &&
-              view.pageIndex < annotation.boundsmax &&
-              annotation.worldpoint1[0] < pickedX &&
-              annotation.worldpoint2[0] > pickedX &&
-              annotation.worldpoint1[1] < pickedY &&
-              annotation.worldpoint2[1] > pickedY
+              view.pageIndex >= annotation.boundsmin &&
+              view.pageIndex <= annotation.boundsmax &&
+              annotation.worldpoint1[0] <= pickedX &&
+              annotation.worldpoint2[0] >= pickedX &&
+              annotation.worldpoint1[1] <= pickedY &&
+              annotation.worldpoint2[1] >= pickedY
             ) {
               const selectedAnnotation = annotation.bboxIndex;
-              console.log(selectedAnnotation)
               state.annotations.value.forEach((anno) => {
                 let color = BBOX_COLORS.DEFAULT
                 let lineWidth = BBOX_LINEWIDTH.DEFAULT
@@ -734,29 +749,36 @@ export default {
       }
     },
     UpdateColorWindow({state, commit}, value) {
-      console.log("UpdateColorWindow")
-      state.viewMprViews.forEach((view, objindex) => {
-        commit("SET_VIEW_DATA", {
-          viewType: view.viewIndex,
-          key: "Ww",
-          value: value,
+
+        state.viewMprViews.forEach((view, objindex) => {
+          if(view.view){
+             commit("SET_VIEW_DATA", {
+            viewType: view.viewIndex,
+            key: "Ww",
+            value: value,
+          });
+          view.view.sliceActor.getProperty().setColorWindow(value);
+          view.view.interactor.render();
+          }
+
         });
-        view.view.sliceActor.getProperty().setColorWindow(value);
-        view.view.interactor.render();
-      });
+
+
     },
 
     UpdateColorLevel({state, commit}, value) {
-      console.log("UpdateColorLevel")
 
       state.viewMprViews.forEach((view, objindex) => {
-        commit("SET_VIEW_DATA", {
+        if(view.view){
+           commit("SET_VIEW_DATA", {
           viewType: view.viewIndex,
           key: "Wl",
           value: value,
         });
         view.view.sliceActor.getProperty().setColorLevel(value );
         view.view.interactor.render();
+        }
+
       });
     },
     handleMouseWheel({commit, state, dispatch, getters}, {spinY, view}) {
@@ -879,6 +901,7 @@ export default {
       view.sliceMapper.setInputData(image);
       state.annotations.value.forEach((annotation) => {
         if (annotation.viewIndex === viewType) {
+
           annotation.actor.setVisibility(
             index >= annotation.boundsmin && index <= annotation.boundsmax,
           );
@@ -1022,13 +1045,14 @@ export default {
 
       state.noduleInfo.noduleLesionList.forEach(async (nodule) => {
         const {points, id} = nodule;
-        const bbox = points.split(",").map(Number)
+        // const bbox = points.split(",").map(Number)
+        const [xmin, xmax, ymin, ymax, zmin, zmax] = points;
 
         if (id == bboxindex) {
           const ijk = [
-            Math.round((bbox[0] + bbox[1]) / 2),
-            Math.round((bbox[2] + bbox[3]) / 2),
-            Math.round((bbox[4] + bbox[5]) / 2),
+            Math.floor((xmin + xmax) / 2),
+            Math.floor((ymin + ymax) / 2),
+            Math.floor((zmin + zmax) / 2),
           ];
           state.annotations.value.forEach((anno) => {
             let color = BBOX_COLORS.DEFAULT
@@ -1168,7 +1192,6 @@ export default {
 
       view.sliceActor.setScale(newScaleX, currentScale[1], currentScale[2]);
 
-      console.log("currentScale=", currentScale);
 
       dispatch("setupCamera", viewType);
     },
@@ -1184,7 +1207,6 @@ export default {
 
       view.sliceActor.setScale(currentScale[0], newScaleY, currentScale[2]);
 
-      console.log("currentScale=", currentScale);
 
       dispatch("setupCamera", viewType);
     },
@@ -1207,7 +1229,6 @@ export default {
     ChangePan({dispatch, state, getters, commit}) {
       if (state.noduleDiagnoseState.isPan) {
         state.viewMprViews.forEach((view, objindex) => {
-          console.log(view)
           dispatch("setupCamera", view.viewIndex);
           view.view.renderWindow.render()
         })
