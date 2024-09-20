@@ -60,7 +60,6 @@ function GetTureIJK({viewType, ijk}) {
 export default {
   namespaced: true,
   state: {
-    isload:false,
     // 选中行study信息，用于提取tags相关信息用
     studies_selected: {},
     /**
@@ -132,23 +131,10 @@ export default {
     annotations: {value: [], index: new Set()},
     picker: vtkPicker.newInstance(),
     mouseDown: false,
-    autoPlayStates: Array.from({length: 3}, () => ({
-      isPlay:false,
-      viewIndex: null,
-      timerId: null,
-      animationId:null,
-    })),
     autoPlayTimers: Array.from({length: 3}, () => ({
       viewIndex: null,
       autoPlayTimer: null,
     })),
-
-    animationIds: Array.from({length: 3}, () => ({
-      viewIndex: null,
-      animationId: null,
-    })),
-
-
     noduleDiagnoseState:{
       colorWindow:null,
       colorLevel:null,
@@ -165,38 +151,6 @@ export default {
     ],
   },
   mutations: {
-    UPDATE_AUTOPLAY_STATUS(state, {viewIndex, timerId,animationId,isPlay}){
-      state.autoPlayStates[viewIndex].viewIndex  = viewIndex;
-      state.autoPlayStates[viewIndex].timerId  = timerId;
-      state.autoPlayStates[viewIndex].animationId  = animationId;
-      state.autoPlayStates[viewIndex].isPlay  = isPlay;
-    },
-    CLEAR_AUTOPLAY(state, viewIndex) {
-      console.log("执行了清空")
-      console.log(state.autoPlayStates[viewIndex])
-      const autoPlayState = state.autoPlayStates[viewIndex];
-
-      if (autoPlayState && autoPlayState.isPlay) {
-        // 清除定时器和动画帧
-        if (autoPlayState.timerId) {
-          clearInterval(autoPlayState.timerId);
-          autoPlayState.timerId = null;
-        }
-        if (autoPlayState.animationId) {
-          cancelAnimationFrame(autoPlayState.animationId);
-          autoPlayState.animationId = null;
-        }
-
-        // 更新状态
-        autoPlayState.isPlay = false;
-        console.log("结束了",state.autoPlayStates[viewIndex])
-
-      }
-    }
-,
-    UPDATE_LOAD_STATUS(state,statu) {
-      state.isload = statu;
-    },
     SET_STUDIES_SELECTED(state, payload) {
       state.studies_selected = payload;
     },
@@ -209,7 +163,10 @@ export default {
     },
     SET_NODULE_INFO(state, noduleInfo) {
       state.noduleInfo = noduleInfo;
+      console.log("state.noduleInfo==", state.noduleInfo);
+
       state.noduleInfo.focalDetailList = []
+      // state.noduleInfo.noduleLesionList = []
 
     },
 
@@ -237,7 +194,22 @@ export default {
         `${annotation.viewIndex}-${annotation.bboxIndex}`,
       );
     },
-
+    UPDATE_AUTO_PLAY_TIMER(state, {viewType, timer}) {
+      if (!state.autoPlayTimers) {
+        state.autoPlayTimers[viewType].autoPlayTimer = null;
+      }
+      state.autoPlayTimers[viewType].viewType = viewType;
+      state.autoPlayTimers[viewType].autoPlayTimer = timer;
+    },
+    CLEAR_AUTO_PLAY_TIMER(state, viewType) {
+      if (state.autoPlayTimers[viewType]?.autoPlayTimer) {
+        clearInterval(state.autoPlayTimers[viewType].autoPlayTimer);
+      }
+      state.autoPlayTimers[viewType] = {
+        viewIndex: null,
+        autoPlayTimer: null,
+      };
+    },
     SET_NODULE_DIAGNOSE_DATA(state, { key, value}) {
       state.noduleDiagnoseState[key] = value;
     },
@@ -329,6 +301,7 @@ export default {
       dimensions[VIEW_TYPES.SAGITTAL] = state.seriesInfo.sagittalCount;
       dimensions[VIEW_TYPES.CORONAL] = state.seriesInfo.coronalCount;
       dimensions[VIEW_TYPES.AXIAL] = state.seriesInfo.axialCount;
+      console.log(dimensions)
 
       const ijk = dimensions.map((d) => Math.round(d / 2) + 1);
 
@@ -525,24 +498,21 @@ export default {
       ]);
     },
 
-    async updateSliceForView({dispatch,commit}, {viewName, index, viewType}) {
+    async updateSliceForView({dispatch}, {viewName, index, viewType}) {
       if (index === "") return;
-      commit("UPDATE_LOAD_STATUS",true)
-      const arraybuffer = await dispatch("GetSlice", {viewName,viewType, index});
-      // commit("UPDATE_LOAD_STATUS",false)
+      const arraybuffer = await dispatch("GetSlice", {viewName, index});
 
       if (arraybuffer) {
         await dispatch("UpdateSlice", {arraybuffer, viewType, index});
       }
     },
-    setupInteractor({dispatch, state, commit,getters}, {view, dimensions}) {
+    setupInteractor({dispatch, state, commit}, {view, dimensions}) {
       const dimension = dimensions[view.viewIndex];
       commit("SET_VIEW_DATA", {
         viewType: view.viewIndex,
         key: "dimension",
         value: dimension,
       });
-
 
       view.view.interactor.onLeftButtonPress((event) => {
         if (!state.noduleDiagnoseState.isPan) {
@@ -552,7 +522,6 @@ export default {
           console.log(view.view.interactor.getInteractorStyle())
         }
       });
-
       view.view.interactor.onMouseMove((event) => {
         if (!state.noduleDiagnoseState.isPan) {
           dispatch("handleMouseMove", {event, view});
@@ -565,77 +534,26 @@ export default {
       view.view.interactor.onLeftButtonRelease(() =>
         commit("SET_MOUSE_DOWN", false),
       );
-
-      console.log("interactor",view.view.interactor)
-      view.view.interactor.onStartMouseWheel(() => {
-        console.log(state.autoPlayStates[view.viewIndex])
-        if(!state.autoPlayStates[view.viewIndex].isPlay){
-          console.log("开始了")
-          getters.viewsData.forEach((viewdata) => {
-            commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
-          });
-          let animationId;
-
-          const animate = () => {
-            if (!state.isload) {
-
-              console.log("发送了",getters.viewsData[view.viewIndex].changedPageindex)
-              dispatch("updateSliceForView", {
-                viewName: view.viewName,
-                viewType: view.viewIndex,
-                index: getters.viewsData[view.viewIndex].changedPageindex,
-              });
-              animationId = requestAnimationFrame(animate);
-              commit("UPDATE_AUTOPLAY_STATUS", {
-                viewIndex: view.viewIndex,
-                timerId: null,
-                animationId: animationId,
-                isPlay: true,
-              });
-            }
-
-          };
-          // 先赋值，再启动定时器和动画帧
-
-          // 启动动画帧
-          animationId = requestAnimationFrame(animate);
-        }
-      });
       view.view.interactor.onMouseWheel((event) =>
         dispatch("handleMouseWheel", {spinY: event.spinY, view}),
       );
-      view.view.interactor.onEndMouseWheel((event)=>{
-        console.log("结束了")
 
-        if(state.autoPlayStates[view.viewIndex].isPlay){
-          console.log("执行了clear")
-
-          commit("CLEAR_AUTOPLAY", view.viewIndex);
-          const viewdata = getters.viewsData[view.viewIndex];
-          if(viewdata.gotoPageIndex != viewdata.changedPageindex){
-            console.log("补偿性补帧", viewdata.changedPageindex)
-           dispatch("updateSliceForView", {
-             viewName: viewdata.viewName,
-             viewType: viewdata.viewIndex,
-             index: viewdata.changedPageindex,
-           });
-          }
-        }
-
-
-      })
-
-
-
-
+      view.view.interactor.onStartMouseWheel(() => {
+        state.autoPlayTimers.forEach((timer) => {
+          clearInterval(timer.autoPlayTimer);
+          timer.autoPlayTimer = null;
+        });
+      });
     },
     async handleMousePress(
       {dispatch, commit, state, getters},
       {event, view},
     ) {
-      getters.viewsData.forEach((viewdata) => {
-        commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
+      state.autoPlayTimers.forEach((timer) => {
+        clearInterval(timer.autoPlayTimer);
+        timer.autoPlayTimer = null;
       });
+
 
       commit("SET_MOUSE_DOWN", true);
       const {x, y} = event.position;
@@ -649,14 +567,15 @@ export default {
         state.annotations.value.forEach((annotation) => {
           if (annotation.viewIndex === view.viewIndex) {
             if (
-              view.pageIndex >= annotation.boundsmin &&
-              view.pageIndex <= annotation.boundsmax &&
-              annotation.worldpoint1[0] <= pickedX &&
-              annotation.worldpoint2[0] >= pickedX &&
-              annotation.worldpoint1[1] <= pickedY &&
-              annotation.worldpoint2[1] >= pickedY
+              view.pageIndex > annotation.boundsmin &&
+              view.pageIndex < annotation.boundsmax &&
+              annotation.worldpoint1[0] < pickedX &&
+              annotation.worldpoint2[0] > pickedX &&
+              annotation.worldpoint1[1] < pickedY &&
+              annotation.worldpoint2[1] > pickedY
             ) {
               const selectedAnnotation = annotation.bboxIndex;
+              console.log(selectedAnnotation)
               state.annotations.value.forEach((anno) => {
                 let color = BBOX_COLORS.DEFAULT
                 let lineWidth = BBOX_LINEWIDTH.DEFAULT
@@ -696,7 +615,7 @@ export default {
         commit("SET_VIEW_DATA", {
           viewType: view.viewIndex,
           key: "hu",
-          value: pixelValue[0],
+          value: pixelValue[0] - 1024,
         });
 
         trueijk.forEach((item, index) => {
@@ -763,7 +682,7 @@ export default {
         commit("SET_VIEW_DATA", {
           viewType: view.viewIndex,
           key: "hu",
-          value: pixelValue[0] ,
+          value: pixelValue[0] - 1024,
         });
         if (state.mouseDown) {
           const trueijk = GetTureIJK({
@@ -801,8 +720,6 @@ export default {
             }
           });
 
-
-
           dispatch("throttleUpdateOtherSlice", {
             viewType: view.viewIndex,
             ijk: trueijk,
@@ -816,36 +733,30 @@ export default {
         });
       }
     },
-    handleMouseRelease(){
-console.log("")
-    },
     UpdateColorWindow({state, commit}, value) {
+      console.log("UpdateColorWindow")
       state.viewMprViews.forEach((view, objindex) => {
-        if(view.view){
-          commit("SET_VIEW_DATA", {
-            viewType: view.viewIndex,
-            key: "Ww",
-            value: value,
-          });
-          view.view.sliceActor.getProperty().setColorWindow(value);
-          view.view.interactor.render();
-        }
-
+        commit("SET_VIEW_DATA", {
+          viewType: view.viewIndex,
+          key: "Ww",
+          value: value,
+        });
+        view.view.sliceActor.getProperty().setColorWindow(value);
+        view.view.interactor.render();
       });
     },
 
     UpdateColorLevel({state, commit}, value) {
-      state.viewMprViews.forEach((view, objindex) => {
-        if(view.view){
-          commit("SET_VIEW_DATA", {
-            viewType: view.viewIndex,
-            key: "Wl",
-            value: value,
-          });
-          view.view.sliceActor.getProperty().setColorLevel(value);
-          view.view.interactor.render();
-        }
+      console.log("UpdateColorLevel")
 
+      state.viewMprViews.forEach((view, objindex) => {
+        commit("SET_VIEW_DATA", {
+          viewType: view.viewIndex,
+          key: "Wl",
+          value: value,
+        });
+        view.view.sliceActor.getProperty().setColorLevel(value+1000);
+        view.view.interactor.render();
       });
     },
     handleMouseWheel({commit, state, dispatch, getters}, {spinY, view}) {
@@ -911,11 +822,11 @@ console.log("")
             });
           }
         }
-        // dispatch("throttleUpdateSingleSlice", {
-        //   viewName: view.viewName,
-        //   viewType: view.viewIndex,
-        //   index: newIndex,
-        // });
+        dispatch("throttleUpdateSingleSlice", {
+          viewName: view.viewName,
+          viewType: view.viewIndex,
+          index: newIndex,
+        });
       }
     },
     throttleUpdateSingleSlice: throttle(
@@ -924,20 +835,18 @@ console.log("")
            dispatch("updateSliceForView", {viewName, index, viewType}),
         );
       },
-      100,
+      200,
     ),
     throttleUpdateOtherSlice: throttle(({dispatch}, {viewType, ijk}) => {
       requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
     }, 200),
-    async GetSlice({dispatch, state,commit}, {viewName, viewType,index}) {
+    async GetSlice({dispatch, state}, {viewName, index}) {
 
       try {
         let loading = setInterval(() => {
           Vue.prototype.$message.destroy();
 
         }, 50)
-        commit("SET_VIEW_DATA", {viewType, key: "gotoPageIndex", value: index});
-
         const res = await xhr_getSlice({
           seriesId: state.seriesInfo.seriesId,
           viewName: viewName,
@@ -945,9 +854,7 @@ console.log("")
         });
 
         if (res) {
-          commit("UPDATE_LOAD_STATUS",false)
           clearInterval(loading)
-
           return res.data;
         } else {
           console.error("Request failed: No data returned");
@@ -1161,26 +1068,35 @@ console.log("")
      * @param {number} viewType - 操作页面索引
      * @param {number} time - 单片切换时间，单元毫秒
      */
-    AutoPlay({ commit, dispatch, state, getters }, { viewType, time }) {
-      if (!state.autoPlayStates[viewType].isPlay ) {
-        getters.viewsData.forEach((viewdata) => {
-          if (viewdata.viewIndex !== viewType) {
-            commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
-          }
+    AutoPlay({commit, dispatch, state, getters}, {viewType, time}) {
+      if (state.autoPlayTimers[viewType].autoPlayTimer === null) {
+        state.autoPlayTimers.forEach((timer) => {
+          clearInterval(timer.autoPlayTimer);
+          timer.autoPlayTimer = null;
         });
 
         const view = state.viewMprViews[viewType];
+        commit("SET_VIEW_DATA", {
+          viewType: view.viewIndex,
+          key: "changedPageindex",
+          value: view.pageIndex,
+        });
+        dispatch("UpdateDisplay", {
+          viewType: view.viewIndex,
+          changedPageIndex: view.pageIndex,
+        });
 
+        const timer = setInterval(() => {
+          // debugger;
+          const newIndex =
+            (getters.viewsData[view.viewIndex].changedPageindex %
+              view.dimension) +
+            1;
 
-        // 定义一个变量来保存 requestAnimationFrame 的 ID
-
-         // 创建定时器，每隔 50ms 触发
-         const timer = setInterval(() => {
-          let newIndex =
-            (getters.viewsData[view.viewIndex].changedPageindex % view.dimension) + 1;
-
-          if (getters.viewsData[view.viewIndex].changedPageindex === view.dimension) {
-            newIndex = 1;
+          if (
+            getters.viewsData[view.viewIndex].changedPageindex ===
+            view.dimension
+          ) {
             commit("SET_VIEW_DATA", {
               viewType: view.viewIndex,
               key: "changedPageindex",
@@ -1202,48 +1118,18 @@ console.log("")
                 getters.viewsData[view.viewIndex].changedPageindex,
             });
           }
-        }, 50);
-        // 创建 requestAnimationFrame
-        let animationId;
-
-        const animate = () => {
-          console.log(animationId)
-          console.log(state.isload)
-          if (!state.isload) {
-            dispatch("updateSliceForView", {
-              viewName: view.viewName,
-              viewType: view.viewIndex,
-              index: getters.viewsData[view.viewIndex].changedPageindex,
-            });
-
-          }
-          animationId = requestAnimationFrame(animate);
-          commit("UPDATE_AUTOPLAY_STATUS", {
-            viewIndex: viewType,
-            timerId: timer,
-            animationId: animationId,
-            isPlay: true,
-          });
-
-        };
-        // 先赋值，再启动定时器和动画帧
-
-        // 启动动画帧
-        animationId = requestAnimationFrame(animate);
-
-      } else {
-         commit("CLEAR_AUTOPLAY", viewType);
-         const view = getters.viewsData[viewType];
-         if(view.gotoPageIndex != view.changedPageindex){
-          dispatch("updateSliceForView", {
+          dispatch("throttleUpdateSingleSlice", {
             viewName: view.viewName,
             viewType: view.viewIndex,
-            index: view.changedPageindex,
+            index: newIndex,
           });
-         }
+        }, time || 60); // 每秒打印一次
+
+        commit("UPDATE_AUTO_PLAY_TIMER", {viewType, timer});
+      } else {
+        commit("CLEAR_AUTO_PLAY_TIMER", viewType);
       }
-    }
-,
+    },
 
     /**
      * 页面反向
@@ -1298,6 +1184,7 @@ console.log("")
 
       view.sliceActor.setScale(currentScale[0], newScaleY, currentScale[2]);
 
+      console.log("currentScale=", currentScale);
 
       dispatch("setupCamera", viewType);
     },
