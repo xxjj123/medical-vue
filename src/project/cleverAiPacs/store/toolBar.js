@@ -29,6 +29,13 @@ export default {
     getButtonState: (state) => (buttonName) => {
       return state[`${buttonName}${suffix_name}`];
     },
+    getAllButtonStates: (state) => {
+      return Object.keys(ButtonNames).reduce((acc, key) => {
+        acc[`${ButtonNames[key]}${suffix_name}`] = state[`${ButtonNames[key]}${suffix_name}`];
+        console.log("acc",acc)
+        return acc;
+      }, {});
+    },
   },
   mutations: {
     // 定义一个 mutation 来改变 slice_CT_pic_layout 的值

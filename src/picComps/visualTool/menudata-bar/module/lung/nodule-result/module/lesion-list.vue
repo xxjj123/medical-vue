@@ -888,15 +888,11 @@ export default {
       console.log(this.tableCurrentIdx)
 
       const currentid = this.$refs.tableLungNodule.getCurrentRecord().id
-      const bboxindex = row.id;
-
-      this.ChooseAnnotation(bboxindex);
-      this.selectedNoduleId = row.id;
       if (currentid !== this.selectedNoduleId) {
-        // const bboxindex = row.id;
+        const bboxindex = row.id;
 
-        // this.ChooseAnnotation(bboxindex);
-        // this.selectedNoduleId = row.id;
+        this.ChooseAnnotation(bboxindex);
+        this.selectedNoduleId = row.id;
       }
 
       console.log("handleCellClick--row", row, "row.boxIndex", row.boxIndex, "this.tableCurrentIdx", this.tableCurrentIdx);
@@ -1652,9 +1648,9 @@ export default {
           const arr_diagnosis = diagnosis.split("\n");
           this.anaSecDesConf.bookItems = arr_find;
           this.anaSecDesConf_1.bookItems = arr_diagnosis;
+          // this.anaSecDesConf.selection =
         }
 
-        // this.anaSecDesConf.selection =
 
       });
 

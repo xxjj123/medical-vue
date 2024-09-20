@@ -1,5 +1,6 @@
 <template>
   <div class="vsk-tool-bar flex flex-col">
+
     <!-- 视窗调整 -->
     <div :class="getClassName">
       <div class="pic mr-[5px] hover:cursor-pointer" v-tooltip="{ title: '视窗调整', visible: true }"></div>
@@ -13,7 +14,7 @@
     <!-- 窗宽窗位 -->
     <div :class="[
       'boxBtn ckcw_icon flex justify-start items-center',
-      { on: ckcw_on },
+      { on: btnStates.ckcw_on },
     ]">
       <div @click="handle_iconbtn(`ckcw`)" class="pic mr-[5px] hover:cursor-pointer"
         v-tooltip="{ title: '窗宽窗位', visible: true }"></div>
@@ -29,7 +30,7 @@
     <div :class="[
       'boxBtn jbinfo_icon flex justify-start items-center',
       {
-        on: jbinfo_on,
+        on: btnStates.jbinfo_on,
       },
     ]">
       <div @click="handle_iconbtn(`jbinfo`)" class="pic mr-[5px] hover:cursor-pointer"
@@ -40,7 +41,7 @@
     <div :class="[
       'boxBtn ainfo_icon flex justify-start items-center',
       {
-        on: aiInfo_on,
+        on: btnStates.aiInfo_on,
       },
     ]">
       <div @click="handle_iconbtn(`aiInfo`)" class="pic mr-[5px] hover:cursor-pointer"
@@ -51,7 +52,7 @@
     <div :class="[
       'boxBtn xline_icon flex justify-start items-center',
       {
-        on: szckx_on,
+        on: btnStates.szckx_on,
       },
     ]">
       <div @click="handle_iconbtn(`szckx`)" class="pic mr-[5px] hover:cursor-pointer"
@@ -61,7 +62,7 @@
     <!-- 密度投影模式 -->
     <div :class="[
       `boxBtn mdty_icon flex justify-start items-center`,
-      { on: mdtyms_on },
+      { on: btnStates.mdtyms_on },
     ]">
       <div @click="handle_iconbtn(`mdtyms`)" class="pic mr-[5px] hover:cursor-pointer"
         v-tooltip="{ title: '密度投影模式', visible: true }"></div>
@@ -77,7 +78,7 @@
     <div :class="[
       'boxBtn py_icon flex justify-start items-center',
       {
-        on: pyms_on,
+        on: btnStates.pyms_on,
       },
     ]">
       <div @click="handle_iconbtn(`pyms`)" class="pic mr-[5px] hover:cursor-pointer"
@@ -164,14 +165,7 @@ import {
   LayoutIcons,
 } from "./assets/js/buttonNameType";
 import * as dicom from "@itk-wasm/dicom";
-let btnStateGrp = {
-  [`${ButtonNames.Ckcw}${suffix_name}`]: false,
-  [`${ButtonNames.Mdtyms}${suffix_name}`]: false,
-  [`${ButtonNames.Jbinfo}${suffix_name}`]: false,
-  [`${ButtonNames.AiInfo}${suffix_name}`]: false,
-  [`${ButtonNames.Szckx}${suffix_name}`]: false,
-  [`${ButtonNames.Pyms}${suffix_name}`]: false,
-};
+
 
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 import TaUtils from "@yh/ta-utils";
@@ -234,7 +228,12 @@ export default {
   },
   computed: {
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
+    ...mapGetters("toolBarStore", ["getAllButtonStates"]),
+
     ...mapState("viewInitStore", ["noduleDiagnoseState"]),
+    btnStates() {
+      return this.getAllButtonStates
+    },
     // view-layout布局
     getClassName() {
       const classList = ["boxBtn flex justify-start items-center"];
@@ -250,11 +249,7 @@ export default {
       return classList;
     },
   },
-  // created() {
-  //   console.log("===this.ckcw_on==", this.ckcw_on, ButtonNames.Ckcw);
-  //   console.log("dicomdicomdicomdicomdicomdicomdicom", dicom);
 
-  // },
   data() {
     return {
       mdtyms_conf: {
@@ -291,7 +286,6 @@ export default {
           },
         },
       },
-      ...btnStateGrp,
       // -----------
       rotated: false,
       current: null,

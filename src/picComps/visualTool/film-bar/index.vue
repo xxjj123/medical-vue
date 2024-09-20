@@ -98,7 +98,10 @@ export default {
       console.log("kaishiUpdateColorLevel");
       const { tag } = this.buttons[this.activeIndex];
       const { ww, wl } = winCtrl[tag];
-      this.$emit('changeColor', ww, wl)
+      // this.$emit('changeColor', ww, wl)
+      this.UpdateColorWindow(ww)
+      this.UpdateColorLevel(wl)
+
     },
     activate(index) {
       this.activeIndex = index;

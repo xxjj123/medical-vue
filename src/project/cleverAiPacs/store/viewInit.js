@@ -172,8 +172,6 @@ export default {
       state.autoPlayStates[viewIndex].isPlay  = isPlay;
     },
     CLEAR_AUTOPLAY(state, viewIndex) {
-      console.log("执行了清空")
-      console.log(state.autoPlayStates[viewIndex])
       const autoPlayState = state.autoPlayStates[viewIndex];
 
       if (autoPlayState && autoPlayState.isPlay) {
@@ -189,7 +187,6 @@ export default {
 
         // 更新状态
         autoPlayState.isPlay = false;
-        console.log("结束了",state.autoPlayStates[viewIndex])
 
       }
     }
@@ -204,7 +201,6 @@ export default {
       state.series_map_dicom = payload;
     },
     SET_SERIES_INFO(state, seriesInfo) {
-      console.log("SET_SERIES_INFO",seriesInfo)
       state.seriesInfo = seriesInfo;
     },
     SET_NODULE_INFO(state, noduleInfo) {
@@ -549,7 +545,6 @@ export default {
           dispatch("handleMousePress", {event, view});
         }else{
           view.view.interactor.getInteractorStyle().startPan()
-          console.log(view.view.interactor.getInteractorStyle())
         }
       });
 
@@ -566,9 +561,7 @@ export default {
         commit("SET_MOUSE_DOWN", false),
       );
 
-      console.log("interactor",view.view.interactor)
       view.view.interactor.onStartMouseWheel(() => {
-        console.log(state.autoPlayStates[view.viewIndex])
         if(!state.autoPlayStates[view.viewIndex].isPlay){
           console.log("开始了")
           getters.viewsData.forEach((viewdata) => {
@@ -579,7 +572,6 @@ export default {
           const animate = () => {
             if (!state.isload) {
 
-              console.log("发送了",getters.viewsData[view.viewIndex].changedPageindex)
               dispatch("updateSliceForView", {
                 viewName: view.viewName,
                 viewType: view.viewIndex,
@@ -605,15 +597,10 @@ export default {
         dispatch("handleMouseWheel", {spinY: event.spinY, view}),
       );
       view.view.interactor.onEndMouseWheel((event)=>{
-        console.log("结束了")
-
         if(state.autoPlayStates[view.viewIndex].isPlay){
-          console.log("执行了clear")
-
           commit("CLEAR_AUTOPLAY", view.viewIndex);
           const viewdata = getters.viewsData[view.viewIndex];
           if(viewdata.gotoPageIndex != viewdata.changedPageindex){
-            console.log("补偿性补帧", viewdata.changedPageindex)
            dispatch("updateSliceForView", {
              viewName: viewdata.viewName,
              viewType: viewdata.viewIndex,
@@ -989,7 +976,6 @@ console.log("")
       const image = state.viewMprViews[viewType].view.image;
 
       const camera = view.renderer.getActiveCamera();
-      // console.log("camera-------------", camera);
 
       camera.setParallelProjection(true);
       const bounds = image.getBounds();
@@ -1161,7 +1147,7 @@ console.log("")
      * @param {number} viewType - 操作页面索引
      * @param {number} time - 单片切换时间，单元毫秒
      */
-    AutoPlay({ commit, dispatch, state, getters }, { viewType, time }) {
+    AutoPlay({ commit, dispatch, state, getters }, { viewType }) {
       if (!state.autoPlayStates[viewType].isPlay ) {
         getters.viewsData.forEach((viewdata) => {
           if (viewdata.viewIndex !== viewType) {
@@ -1207,8 +1193,6 @@ console.log("")
         let animationId;
 
         const animate = () => {
-          console.log(animationId)
-          console.log(state.isload)
           if (!state.isload) {
             dispatch("updateSliceForView", {
               viewName: view.viewName,
@@ -1282,7 +1266,6 @@ console.log("")
 
       view.sliceActor.setScale(newScaleX, currentScale[1], currentScale[2]);
 
-      console.log("currentScale=", currentScale);
 
       dispatch("setupCamera", viewType);
     },
@@ -1320,7 +1303,6 @@ console.log("")
     ChangePan({dispatch, state, getters, commit}) {
       if(state.noduleDiagnoseState.isPan){
         state.viewMprViews.forEach((view, objindex) => {
-          console.log(view)
           dispatch("setupCamera", view.viewIndex);
           view.view.renderWindow.render()
         })

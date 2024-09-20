@@ -4,9 +4,9 @@
       <template v-if="btnInfoItem && Object.keys(btnInfoItem).length > 0">
         <template v-for="(btn, key) in btnInfoItem">
           <div
-            :class="[`btn flex`, {selected: btn.on && btn.mode !== 'more' && btn.mode !== 'other'}, {ripple: btn.mode === 'more' || btn.mode === 'other'}]"
+            :class="[`btn flex`, { selected: btn.on && btn.mode !== 'more' && btn.mode !== 'other' }, { ripple: btn.mode === 'more' || btn.mode === 'other' }]"
             :key="`${key}_a`" @click.stop="handle_click(btn, key)">
-            <div :class="['ifontyhpacs', {[`${btn.icon}`]: btn.icon && btn.icon !== ''}]">
+            <div :class="['ifontyhpacs', { [`${btn.icon}`]: btn.icon && btn.icon !== '' }]">
             </div>
 
 
@@ -27,10 +27,10 @@
                     <ta-icon type="down" v-if="btn.dropdownIconDown" />
                     <ta-icon type="up" v-else />
                   </a>
-                  <ta-menu slot="overlay" @click="(e) => handleMenuClick_noduleList(e, {btn, key})">
+                  <ta-menu slot="overlay" @click="(e) => handleMenuClick_noduleList(e, { btn, key })">
                     <ta-menu-item v-for="(item, index) in btn.child" :key="`${index}_${item.altName}`">
                       <div class="flex">
-                        <div :class="['ifontyhpacs', {[`${item.icon}`]: item.icon && item.icon !== ''}, 'pr-[10px]']">
+                        <div :class="['ifontyhpacs', { [`${item.icon}`]: item.icon && item.icon !== '' }, 'pr-[10px]']">
                         </div>
                         <div>{{ item.altName }}</div>
                       </div>
@@ -50,9 +50,9 @@
   </div>
 </template>
 <script lang='javascript'>
-import {btnKey, btnLungCodes, rotateChildBtnCodes, autoPlayCodes, btnInfo} from "./btn-group-assets/btn-t-info";
+import { btnKey, btnLungCodes, rotateChildBtnCodes, autoPlayCodes, btnInfo } from "./btn-group-assets/btn-t-info";
 
-import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
+import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
 
 import {
@@ -73,7 +73,7 @@ export default {
   computed: {
     btnInfoItem: {
       get() {
-        const {TracheaName, btnInfoItemLocal} = this
+        const { TracheaName, btnInfoItemLocal } = this
         return [
           ...btnInfoItemLocal
         ]
@@ -161,9 +161,9 @@ export default {
     },
     handleMenuClick_noduleList(e, item) {
       console.log("handleMenuClick_noduleList", e, item);
-      let {btn, key: index} = item;
+      let { btn, key: index } = item;
 
-      let {keyPath} = e;
+      let { keyPath } = e;
 
       let dropValues = keyPath[0].split("_")
 
@@ -173,7 +173,7 @@ export default {
 
 
       console.log("btn", btn);
-      const {child} = btn;
+      const { child } = btn;
 
 
       if (child) {
@@ -200,7 +200,7 @@ export default {
 
       console.log("viewType==handle_click=", this.viewType);
 
-      const {code} = btn;
+      const { code } = btn;
 
       switch (code) {
         case btnLungCodes.REBACK: {
@@ -224,7 +224,7 @@ export default {
         case btnLungCodes.AUTOPLAY: {
           console.log("btnLungCodes.AUTOPLAY", btnLungCodes.AUTOPLAY);
 
-          const {icon, toggle, child} = btn;
+          const { icon, toggle, child } = btn;
 
           // // 如果toggle小于child数组长度，确保游标不超过toggle
           // if (toggle < child.length) {
@@ -245,8 +245,7 @@ export default {
               console.log("icon----------start", icon, autoPlayCodes.ICO_PACSBOFANG);
 
               this.AutoPlay({
-                viewType: this.viewType,
-                time: 60
+                viewType: this.viewType
               })
               this.$set(this.btnInfoItem[index], "icon", autoPlayCodes.ICO_PACSZANTING);
             }
