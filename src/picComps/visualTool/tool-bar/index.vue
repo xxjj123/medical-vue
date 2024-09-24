@@ -1,8 +1,7 @@
 <template>
   <div class="vsk-tool-bar flex flex-col">
-
     <!-- 视窗调整 -->
-    <div :class="getClassName">
+    <div v-if="btnShowStates.Layout_show" :class="getClassName">
       <div class="pic mr-[5px] hover:cursor-pointer" v-tooltip="{ title: '视窗调整', visible: true }"></div>
       <div class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('1')" v-popover:mypop1>
         <div :class="[
@@ -12,9 +11,9 @@
       </div>
     </div>
     <!-- 窗宽窗位 -->
-    <div :class="[
+    <div v-if="btnShowStates.ckcw_show" :class="[
       'boxBtn ckcw_icon flex justify-start items-center',
-      { on: btnStates.ckcw_on },
+      { on: btnActiveStates.ckcw_on },
     ]">
       <div @click="handle_iconbtn(`ckcw`)" class="pic mr-[5px] hover:cursor-pointer"
         v-tooltip="{ title: '窗宽窗位', visible: true }"></div>
@@ -27,10 +26,10 @@
     </div>
 
     <!-- 角标信息 -->
-    <div :class="[
+    <div v-if="btnShowStates.jbinfo_show" :class="[
       'boxBtn jbinfo_icon flex justify-start items-center',
       {
-        on: btnStates.jbinfo_on,
+        on: btnActiveStates.jbinfo_on,
       },
     ]">
       <div @click="handle_iconbtn(`jbinfo`)" class="pic mr-[5px] hover:cursor-pointer"
@@ -38,10 +37,10 @@
     </div>
 
     <!-- ai信息 -->
-    <div :class="[
+    <div v-if="btnShowStates.aiInfo_show" :class="[
       'boxBtn ainfo_icon flex justify-start items-center',
       {
-        on: btnStates.aiInfo_on,
+        on: btnActiveStates.aiInfo_on,
       },
     ]">
       <div @click="handle_iconbtn(`aiInfo`)" class="pic mr-[5px] hover:cursor-pointer"
@@ -49,10 +48,10 @@
     </div>
 
     <!-- 十字参考线 -->
-    <div :class="[
+    <div v-if="btnShowStates.szckx_show" :class="[
       'boxBtn xline_icon flex justify-start items-center',
       {
-        on: btnStates.szckx_on,
+        on: btnActiveStates.szckx_on,
       },
     ]">
       <div @click="handle_iconbtn(`szckx`)" class="pic mr-[5px] hover:cursor-pointer"
@@ -60,11 +59,11 @@
     </div>
 
     <!-- 密度投影模式 -->
-    <div :class="[
+    <div v-if="btnShowStates.mjtyms_show" :class="[
       `boxBtn mdty_icon flex justify-start items-center`,
-      { on: btnStates.mdtyms_on },
+      { on: btnActiveStates.mjtyms_on },
     ]">
-      <div @click="handle_iconbtn(`mdtyms`)" class="pic mr-[5px] hover:cursor-pointer"
+      <div @click="handle_iconbtn(`mjtyms`)" class="pic mr-[5px] hover:cursor-pointer"
         v-tooltip="{ title: '密度投影模式', visible: true }"></div>
       <div v-popover:mypop3 class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('3')">
         <div :class="[
@@ -75,10 +74,10 @@
     </div>
 
     <!-- 平移模式 -->
-    <div :class="[
+    <div v-if="btnShowStates.pyms_show" :class="[
       'boxBtn py_icon flex justify-start items-center',
       {
-        on: btnStates.pyms_on,
+        on: btnActiveStates.pyms_on,
       },
     ]">
       <div @click="handle_iconbtn(`pyms`)" class="pic mr-[5px] hover:cursor-pointer"
@@ -134,23 +133,23 @@
     </ta-popover>
 
     <ta-popover ref="mypop3" @after-leave="afterLeaveEvents" :visible-arrow="true" :offset="1" :appendToBody="false"
-      :placement="`right`" class="cus_poper mdtyms_pop">
+      :placement="`right`" class="cus_poper mjtyms_pop">
       <div slot="content" class="boxBtn_extSelect">
         <div class="title">密度投影模式</div>
-        <ta-radio-group @change="(e) => mdtyms_conf.onChange(e)" v-model="mdtyms_conf.value">
-          <ta-radio :style="mdtyms_conf.radioStyle" :value="1">最大密度投影（MIP）</ta-radio>
-          <ta-radio :style="mdtyms_conf.radioStyle" :value="2">最小密度投影（MinP）</ta-radio>
+        <ta-radio-group @change="(e) => mjtyms_conf.onChange(e)" v-model="mjtyms_conf.value">
+          <ta-radio :style="mjtyms_conf.radioStyle" :value="1">最大密度投影（MIP）</ta-radio>
+          <ta-radio :style="mjtyms_conf.radioStyle" :value="2">最小密度投影（MinP）</ta-radio>
         </ta-radio-group>
         <div class="ceng_row flex justify-around items-center">
           <div>
-            <span>层数</span><span>{{ mdtyms_conf.level }}</span><span>层</span>
+            <span>层数</span><span>{{ mjtyms_conf.level }}</span><span>层</span>
           </div>
           <div class="silder">
-            <ta-slider :min="mdtyms_conf.silder.min" :max="mdtyms_conf.silder.max" v-model="mdtyms_conf.silder.barValue"
-              @change="mdtyms_conf.silder.change" @afterChange="mdtyms_conf.silder.afterChange" />
+            <ta-slider :min="mjtyms_conf.silder.min" :max="mjtyms_conf.silder.max" v-model="mjtyms_conf.silder.barValue"
+              @change="mjtyms_conf.silder.change" @afterChange="mjtyms_conf.silder.afterChange" />
           </div>
           <div>
-            <span>层厚</span><span>{{ mdtyms_conf.weight }}</span><span>{{ mdtyms_conf.unit }}</span>
+            <span>层厚</span><span>{{ mjtyms_conf.weight }}</span><span>{{ mjtyms_conf.unit }}</span>
           </div>
         </div>
       </div>
@@ -162,10 +161,10 @@ import {
   ButtonNames,
   toggleButtonState,
   suffix_name,
+  suffix_show,
   LayoutIcons,
 } from "./assets/js/buttonNameType";
 import * as dicom from "@itk-wasm/dicom";
-
 
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 import TaUtils from "@yh/ta-utils";
@@ -173,38 +172,38 @@ export default {
   name: "vsk-tool-bar",
   components: {},
   watch: {
-    "mdtyms_conf.silder.barValue": {
+    "mjtyms_conf.silder.barValue": {
       handler(nVal, oVal) {
-        console.log("watch---mdtyms_conf.silder.barValue", nVal, oVal);
+        console.log("watch---mjtyms_conf.silder.barValue", nVal, oVal);
         console.log("Tautil----------", TaUtils);
 
-        const { silder } = this.mdtyms_conf;
+        const { silder } = this.mjtyms_conf;
         const { barValue, multiplicand } = silder;
         if (!!nVal || nVal !== "") {
           const mValue = TaUtils.multiply(barValue, multiplicand);
           const weight_value = TaUtils.commafy(mValue, {
             digits: 1,
           });
-          this.$set(this.mdtyms_conf, "weight", weight_value);
+          this.$set(this.mjtyms_conf, "weight", weight_value);
 
           const levelCF = TaUtils.divide(mValue, multiplicand);
 
-          this.$set(this.mdtyms_conf, "level", levelCF);
+          this.$set(this.mjtyms_conf, "level", levelCF);
 
-          console.log("this.mdtyms_conf==", this.mdtyms_conf);
         }
       },
       immediate: true,
     },
     "view_window.win_w": {
       handler(nVal, oVal) {
-        console.log(nVal)
+        console.log("view_window.win_w", nVal)
         if (nVal) {
-          this.UpdateColorWindow(nVal)
-          this.SET_NODULE_DIAGNOSE_DATA({
-            key: "colorWindow",
-            value: nVal
-          })
+          this.$emit('UpdateColorWindow', nVal);
+          // this.UpdateColorWindow(nVal)
+          // this.SET_NODULE_DIAGNOSE_DATA({
+          //   key: "colorWindow",
+          //   value: nVal
+          // })
         }
       },
       immediate: true
@@ -212,13 +211,15 @@ export default {
     },
     "view_window.win_holder": {
       handler(nVal, oVal) {
-        console.log(nVal)
+        console.log("view_window.win_holder", nVal)
         if (nVal) {
-          this.UpdateColorLevel(nVal)
-          this.SET_NODULE_DIAGNOSE_DATA({
-            key: "colorLevel",
-            value: nVal
-          })
+          this.$emit('UpdateColorLevel', nVal);
+
+          // this.UpdateColorLevel(nVal)
+          // this.SET_NODULE_DIAGNOSE_DATA({
+          //   key: "colorLevel",
+          //   value: nVal
+          // })
         }
       },
       immediate: true
@@ -228,11 +229,14 @@ export default {
   },
   computed: {
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
-    ...mapGetters("toolBarStore", ["getAllButtonStates"]),
+    ...mapGetters("toolBarStore", ["getAllButtonActiveStates", "getAllButtonShowStates"]),
 
     ...mapState("viewInitStore", ["noduleDiagnoseState"]),
-    btnStates() {
-      return this.getAllButtonStates
+    btnActiveStates() {
+      return this.getAllButtonActiveStates
+    },
+    btnShowStates() {
+      return this.getAllButtonShowStates
     },
     // view-layout布局
     getClassName() {
@@ -252,10 +256,10 @@ export default {
 
   data() {
     return {
-      mdtyms_conf: {
+      mjtyms_conf: {
         onChange: (ev) => {
-          console.log("onChange___mdtyms_conf", ev, this.mdtyms_conf);
-          const { value } = this.mdtyms_conf;
+          console.log("onChange___mjtyms_conf", ev, this.mjtyms_conf);
+          const { value } = this.mjtyms_conf;
           let mode = "max";
           if (value === 1) {
             mode = "min";
@@ -279,10 +283,10 @@ export default {
           max: 128,
           barValue: 20,
           change: (ev) => {
-            console.log("ev---change:mdtyms_conf", ev);
+            console.log("ev---change:mjtyms_conf", ev);
           },
           afterChange: (ev) => {
-            console.log("ev---afterchange:mdtyms_conf", ev);
+            console.log("ev---afterchange:mjtyms_conf", ev);
           },
         },
       },
@@ -352,9 +356,9 @@ export default {
 
   },
   methods: {
-    ...mapMutations("viewInitStore", ["SET_NODULE_DIAGNOSE_DATA"]),
-    ...mapActions("viewInitStore", ["UpdateColorWindow", "UpdateColorLevel", "ChangePan"]),
-    ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT", "TOGGLE_BUTTON_STATE"]),
+    // ...mapMutations("viewInitStore", ["SET_NODULE_DIAGNOSE_DATA"]),
+    // ...mapActions("viewInitStore", ["ChangePan"]),
+    ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT", "TOGGLE_BUTTON_ACTIVE_STATE", "INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE"]),
     ...mapActions("toolsStore", [
       "toggleUpdateCrossHair",
       "toggleUpdateStartPan",
@@ -369,15 +373,15 @@ export default {
       switch (name) {
         case ButtonNames.Ckcw:
           {
-            this.TOGGLE_BUTTON_STATE(ButtonNames.Ckcw)
+            this.TOGGLE_BUTTON_ACTIVE_STATE(ButtonNames.Ckcw)
             toggleButtonState(ButtonNames.Ckcw, this);
-            console.log("this[ButtonNames.Ckcw]____", ButtonNames.Ckcw, this[`${ButtonNames.Ckcw}_on`]);
+            // console.log("this[ButtonNames.Ckcw]____", ButtonNames.Ckcw, this[`${ButtonNames.Ckcw}_on`]);
           }
           break;
-        case ButtonNames.Mdtyms:
+        case ButtonNames.Mjtyms:
           {
-            this.TOGGLE_BUTTON_STATE(ButtonNames.Mdtyms)
-            toggleButtonState(ButtonNames.Mdtyms, this);
+            this.TOGGLE_BUTTON_ACTIVE_STATE(ButtonNames.Mjtyms)
+            toggleButtonState(ButtonNames.Mjtyms, this);
             // 密度投影
             console.log();
           }
@@ -385,19 +389,19 @@ export default {
         // 其他按钮的逻辑...
         case ButtonNames.Jbinfo:
           {
-            this.TOGGLE_BUTTON_STATE(ButtonNames.Jbinfo)
+            this.TOGGLE_BUTTON_ACTIVE_STATE(ButtonNames.Jbinfo)
             toggleButtonState(ButtonNames.Jbinfo, this);
           }
           break;
         case ButtonNames.AiInfo:
           {
-            this.TOGGLE_BUTTON_STATE(ButtonNames.AiInfo)
+            this.TOGGLE_BUTTON_ACTIVE_STATE(ButtonNames.AiInfo)
             toggleButtonState(ButtonNames.AiInfo, this);
           }
           break;
         case ButtonNames.Szckx:
           {
-            this.TOGGLE_BUTTON_STATE(ButtonNames.Szckx)
+            this.TOGGLE_BUTTON_ACTIVE_STATE(ButtonNames.Szckx)
             toggleButtonState(ButtonNames.Szckx, this);
             // 十字参考线
             this.toggleUpdateCrossHair(!!this.szckx_on);
@@ -406,9 +410,10 @@ export default {
           break;
         case ButtonNames.Pyms:
           {
-            this.TOGGLE_BUTTON_STATE(ButtonNames.Pyms)
+            this.TOGGLE_BUTTON_ACTIVE_STATE(ButtonNames.Pyms)
             toggleButtonState(ButtonNames.Pyms, this);
-            this.ChangePan();
+            // this.ChangePan();
+            this.$emit("ChangePan")
             // this.toggleUpdateStartPan(!!this.pyms_on);
             console.log("// 平移模式=", !!this.pyms_on);
           }
@@ -633,7 +638,7 @@ export default {
   }
 }
 
-/deep/.mdtyms_pop {
+/deep/.mjtyms_pop {
   .title {
     font-size: 16px;
   }

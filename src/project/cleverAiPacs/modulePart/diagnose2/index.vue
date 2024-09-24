@@ -12,7 +12,8 @@
     <div class="main">
       <div class="pacs_container">
         <div class="toolBar">
-          <vskToolbar ref="vskToolbarRef"></vskToolbar>
+          <vskToolbar ref="vskToolbarRef" @UpdateColorWindow="UpdateColorWindow_self"
+            @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self"></vskToolbar>
         </div>
         <div>
           <ViewBoard :seriesInfo="seriesInfo"></ViewBoard>
@@ -50,6 +51,10 @@ import {
   xhr_getSeriesInfo,
   xhr_queryNodule,
 } from "@/api";
+
+import {
+  ButtonNames,
+} from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
 import JSZip from "jszip";
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
@@ -98,8 +103,11 @@ export default {
     };
   },
   methods: {
-    ...mapMutations("viewInitStore", ["SET_SERIES_INFO", "SET_NODULE_INFO"]),
-    ...mapActions("viewInitStore", ["InitSlice"]),
+    ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE"]),
+
+    ...mapMutations("viewInitStore", ["SET_SERIES_INFO", "SET_NODULE_INFO", "SET_NODULE_DIAGNOSE_DATA"]),
+
+    ...mapActions("viewInitStore", ["InitSlice", "UpdateColorWindow", "UpdateColorLevel", "ChangePan"]),
     // 测试
     ...mapActions("toolsStore", ["actRun", "updateActRun"]),
     // 正规业务start
@@ -151,7 +159,10 @@ export default {
       });
     },
     changeColor(colorwindow, colrlevel) {
-      // this.$refs.vskToolbarRef.changeColor(colorwindow, colrlevel)
+      requestAnimationFrame(() => {
+        this.$refs.vskToolbarRef.changeColor(colorwindow, colrlevel)
+
+      })
     },
     async Diagnose(computeSeriesId) {
       return new Promise(async (resolve, reject) => {
@@ -222,6 +233,23 @@ export default {
       }
       // });
     },
+    UpdateColorWindow_self(nVal) {
+      this.UpdateColorWindow(nVal)
+      this.SET_NODULE_DIAGNOSE_DATA({
+        key: "colorWindow",
+        value: nVal
+      })
+    },
+    UpdateColorLevel_self(nVal) {
+      this.UpdateColorLevel(nVal)
+      this.SET_NODULE_DIAGNOSE_DATA({
+        key: "colorLevel",
+        value: nVal
+      })
+    },
+    ChangePan_self() {
+      this.ChangePan();
+    }
   },
   created() {
     this.actRun({ a: 1 });
@@ -247,6 +275,9 @@ export default {
     });
 
     this.setClockUpdateDict();
+
+    this.INIT_BUTTON_SHOW_STATE([ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms])
+    this.INIT_BUTTON_ACTIVE_STATE([ButtonNames.Szckx, ButtonNames.Jbinfo])
   },
   mounted() { },
 };

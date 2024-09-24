@@ -268,7 +268,7 @@ export default {
       grw.resize(width, height);
 
       const interactorstyle = vtkInteractorStyleImage.newInstance();
-      interactorstyle.setInteractionMode("IMAGE_SLICING");
+      interactorstyle.setInteractionMode("IMAGE2D");
 
       const obj = {
         grw,
@@ -287,8 +287,11 @@ export default {
       obj.renderWindow.setInteractor(obj.interactor);
       obj.interactor.initialize();
       obj.interactor.bindEvents(container);
-      // view.view.interactor.getInteractorStyle().endWindowLevel();
       obj.interactor.setInteractorStyle(interactorstyle);
+      obj.interactor.getInteractorStyle().modified();
+      obj.interactor.onLeftButtonPress(()=>{
+        obj.interactor.getInteractorStyle().endWindowLevel()
+      })
       obj.sliceActor.setMapper(obj.sliceMapper);
       obj.renderer.addActor(obj.sliceActor);
 
@@ -480,8 +483,8 @@ export default {
     },
     UpdateDisplayValue({commit, state}, {changedViewType, pagex, pagey}) {
       const view = state.viewMprViews[changedViewType].view;
-
-      const world = view.image.indexToWorld([pagex, pagey, 0]);
+      if(view.image){
+          const world = view.image.indexToWorld([pagex, pagey, 0]);
       coordinate.setValue(...world);
 
       const [ndcX, ndcY] = coordinate.getComputedDoubleDisplayValue(
@@ -498,6 +501,8 @@ export default {
         key: "displayY",
         value: ndcY,
       });
+      }
+
     },
     async UpdateIJK({dispatch, getters, commit}, ijk) {
       await Promise.all([
@@ -728,7 +733,6 @@ export default {
       }
     },
     handleMouseMove({commit, state, dispatch, getters}, {event, view}) {
-      view.view.interactor.getInteractorStyle().endWindowLevel();
 
       const {x, y} = event.position;
       state.picker.pick([x, y, 0], view.view.renderer);
@@ -911,11 +915,11 @@ console.log("")
            dispatch("updateSliceForView", {viewName, index, viewType}),
         );
       },
-      100,
+      60,
     ),
     throttleUpdateOtherSlice: throttle(({dispatch}, {viewType, ijk}) => {
       requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
-    }, 200),
+    }, 150),
     async GetSlice({dispatch, state,commit}, {viewName, viewType,index}) {
 
       try {
@@ -1303,6 +1307,15 @@ console.log("")
     ChangePan({dispatch, state, getters, commit}) {
       if(state.noduleDiagnoseState.isPan){
         state.viewMprViews.forEach((view, objindex) => {
+          const interactorStyle = vtkInteractorStyleImage.newInstance();
+          // interactorStyle.setInteractionMode("IMAGE_PAN");
+          view.view.interactor.setInteractorStyle(interactorStyle);
+
+          view.view.interactor.onLeftButtonPress(()=>{
+            view.view.interactor.getInteractorStyle().endWindowLevel()
+          })
+          // 确保新的 InteractorStyle 被正确设置并激活
+
           dispatch("setupCamera", view.viewIndex);
           view.view.renderWindow.render()
         })
@@ -1318,7 +1331,7 @@ console.log("")
           });
 
           const interactorStyle = vtkInteractorStyleImage.newInstance();
-          interactorStyle.setInteractionMode("IMAGE_PAN");
+          // interactorStyle.setInteractionMode("IMAGE_PAN");
 
           // 确保新的 InteractorStyle 被正确设置并激活
           view.view.interactor.setInteractorStyle(interactorStyle);

@@ -192,14 +192,15 @@
     <ta-drawer :title="fileDraw.title" :headerHeight="fileDraw.headerHeight" placement="right" :width="fileDraw.width"
       :headerStyle="fileDraw.headerStyle" :bodyStyle="fileDraw.bodyStyle" :wrapStyle="fileDraw.wrapStyle"
       @close="fileDraw.onClose" :visible="fileDraw.visible">
+
       <ta-spin :spinning="spinning">
         <div class="custom_panel">
           <div class="custom_title pb-[20px]">上传数据</div>
           <div class="custom_context">
             <div class="upload_box border border-dashed border-white pt-[50px] pb-[50px]">
-              <ta-upload-dragger name="file" :multiple="false" webkitdirectory directory :showUploadList="false"
-                @change="uploadObj.handleChange" :file-list="uploadObj.fileList" :before-upload="uploadObj.beforeUpload"
-                :remove="uploadObj.handleRemove" style="background: transparent">
+              <ta-upload-dragger name="file" :multiple="true" :showUploadList="false" @change="uploadObj.handleChange"
+                :file-list="uploadObj.fileList" :before-upload="uploadObj.beforeUpload" :remove="uploadObj.handleRemove"
+                style="background: transparent">
                 <div class="ant-upload-drag-icon">
                   <ta-button type="primary" icon="upload" class="mb-4">上传数据</ta-button>
                 </div>
@@ -271,6 +272,7 @@ import {
   uploadExamination,
   isExit,
   xhr_uploadDicom,
+  xhr_uploadSingleDicom,
   xhr_pageStudies,
   xhr_addFavorite,
   xhr_removeFavorite,
@@ -343,6 +345,7 @@ export default {
   },
   data() {
     return {
+      mappedValues: {},
       tableDataConfig: {
         cellClickEvent: ({ row, rowIndex, $rowIndex, column }) => {
           const { property } = column;
@@ -674,28 +677,56 @@ export default {
                 // document.body.removeChild(link);
                 // URL.revokeObjectURL(url);
                 /* api文件测试用 end*/
+                console.log("Modality", this.mappedValues.Modality)
+                if (this.mappedValues.Modality == "CT") {
+                  console.log("xhr_uploadDicom")
 
-                xhr_uploadDicom({
-                  algorithmConfig: `[{}]`,
-                  dicom: zipFile,
-                }).then((item) => {
-                  const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
-                  // console.log("xhr_uploadDicom___item:", item);
-                  // this.tableData_upload_anaRe[0] = {
-                  //   ...this.tableData_upload_anaRes[0],
-                  //   Upload_time:currentTime,
-                  //   state:"1",
-                  //   mathtype:"1"
-                  // }
-                  this.$set(this.tableData_upload_anaRes, 0, {
-                    ...this.tableData_upload_anaRes[0],
-                    Upload_time: currentTime,
-                    state: "1",
-                    mathtype: "1",
+                  xhr_uploadDicom({
+                    algorithmConfig: `[{}]`,
+                    dicom: zipFile,
+                  }).then((item) => {
+                    const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
+                    // console.log("xhr_uploadDicom___item:", item);
+                    // this.tableData_upload_anaRe[0] = {
+                    //   ...this.tableData_upload_anaRes[0],
+                    //   Upload_time:currentTime,
+                    //   state:"1",
+                    //   mathtype:"1"
+                    // }
+                    this.$set(this.tableData_upload_anaRes, 0, {
+                      ...this.tableData_upload_anaRes[0],
+                      Upload_time: currentTime,
+                      state: "1",
+                      mathtype: "1",
+                    });
+                    this.spinning = false;
+                    this.$box.update({ visible: false });
                   });
-                  this.spinning = false;
-                  this.$box.update({ visible: false });
-                });
+                }
+                if (this.mappedValues.Modality == "CR") {
+                  console.log("xhr_uploadSingleDicom")
+
+                  xhr_uploadSingleDicom({
+                    dicom: zipFile,
+                  }).then((item) => {
+                    const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
+                    // console.log("xhr_uploadDicom___item:", item);
+                    // this.tableData_upload_anaRe[0] = {
+                    //   ...this.tableData_upload_anaRes[0],
+                    //   Upload_time:currentTime,
+                    //   state:"1",
+                    //   mathtype:"1"
+                    // }
+                    this.$set(this.tableData_upload_anaRes, 0, {
+                      ...this.tableData_upload_anaRes[0],
+                      Upload_time: currentTime,
+                      state: "1",
+                      mathtype: "1",
+                    });
+                    this.spinning = false;
+                    this.$box.update({ visible: false });
+                  });
+                }
               });
           }
         },
@@ -783,7 +814,9 @@ export default {
               this.$ut
                 .convertDicomTags(this.tags, dicomTagsDescriptions)
                 .then((sysDicomTagInfo) => {
-                  // console.log("sysDicomTagInfo=", sysDicomTagInfo);
+                  console.log("sysDicomTagInfo=", sysDicomTagInfo);
+
+
                   this.$message.success(`序列 解析完成`, 10);
 
                   const fieldsToMap = [
@@ -791,13 +824,14 @@ export default {
                     "Patient_ID",
                     "Study_Instance_UID",
                     "Series_Description",
+                    "Modality"
                   ];
 
                   const mappedValues = this.$ut.mapDicomTagsToValues(
                     sysDicomTagInfo,
                     fieldsToMap,
                   );
-
+                  console.log("mappedValues", mappedValues)
                   // console.log("mappedValues==", mappedValues);
                   this.mappedValues = mappedValues;
                   this.tableData_upload_anaRes.push(this.mappedValues);
@@ -850,18 +884,18 @@ export default {
           this.uploadObj.fileList = newFileList;
         },
         // 测试用
-        fnUpload: (file, fileList) => {
-          // console.log("start----fnUpload file, fileList", file, fileList);/
-          const dicom = fileList[0];
-          // console.log("dicom=", dicom);
-          // debugger;
-          xhr_uploadDicom({
-            algorithmConfig: `[{}]`,
-            dicom,
-          }).then((item) => {
-            // console.log("xhr_uploadDicom___item:", item);
-          });
-        },
+        // fnUpload: (file, fileList) => {
+        //   // console.log("start----fnUpload file, fileList", file, fileList);/
+        //   const dicom = fileList[0];
+        //   // console.log("dicom=", dicom);
+        //   // debugger;
+        //   xhr_uploadDicom({
+        //     algorithmConfig: `[{}]`,
+        //     dicom,
+        //   }).then((item) => {
+        //     // console.log("xhr_uploadDicom___item:", item);
+        //   });
+        // },
       },
       tableData_upload_anaRes: [
         // {

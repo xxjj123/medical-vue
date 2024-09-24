@@ -1,34 +1,28 @@
 <template>
   <div class="AlgorithmTypeSelect_modal">
-    <ta-big-table
-      :size="tableConfig.size"
-      highlight-hover-row
-      height="200"
-      :columns="tableConfig.tableColumns"
-      :data="tableData"
-      @checkbox-all="selectAllEvent"
-      @checkbox-change="selectChangeEvent"
-      :edit-config="{ trigger: 'click' }"
-      @cell-click="handleCellClick"
-    >
+    <ta-big-table :size="tableConfig.size" highlight-hover-row height="200" :columns="tableConfig.tableColumns"
+      :data="tableData" @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent"
+      :edit-config="{ trigger: 'click' }" @cell-click="handleCellClick">
       <template #mathType="{}">
         <div class="mathType_customer_block">
-          <ta-row>
+          <ta-row v-if="itemData[0].Modality == 'CT'">
             <ta-col>
-              <ta-checkbox
-                :indeterminate="mathSelectOb.indeterminate"
-                @change="mathSelectOb.onCheckAllChange"
-                :checked="mathSelectOb.checkAll"
-              >
+              <ta-checkbox :indeterminate="CTmathSelectOb.indeterminate" @change="CTmathSelectOb.onCheckAllChange"
+                :checked="CTmathSelectOb.checkAll">
                 自动
               </ta-checkbox>
             </ta-col>
             <ta-col>
-              <ta-checkbox-group
-                :options="mathSelectOb.plainOptions"
-                @change="mathSelectOb.onChange"
-                :value="mathSelectOb.checkedList"
-              />
+              <ta-checkbox-group :options="CTmathSelectOb.plainOptions" @change="CTmathSelectOb.onChange"
+                :value="CTmathSelectOb.checkedList" />
+            </ta-col>
+          </ta-row>
+          <ta-row v-if="itemData[0].Modality == 'CR'">
+            <ta-col>
+              <ta-checkbox :indeterminate="CRmathSelectOb.indeterminate" @change="CRmathSelectOb.onCheckedChange"
+                :checked="CRmathSelectOb.checked">
+                胸片
+              </ta-checkbox>
             </ta-col>
           </ta-row>
         </div>
@@ -78,6 +72,11 @@ export default {
             width: "168",
           },
           {
+            field: "Modality",
+            title: "影像类型",
+            width: "130",
+          },
+          {
             field: "Patient_ID",
             title: "患者ID",
             width: "100",
@@ -92,6 +91,7 @@ export default {
             title: "序列描述",
             width: "130",
           },
+
           {
             field: "mathType",
             title: "算法类型",
@@ -102,42 +102,42 @@ export default {
           },
         ],
       },
-      mathSelectOb: {
+      CTmathSelectOb: {
         onCheckAllChange: (e) => {
           let isChecked = e.target.checked;
 
           if (isChecked) {
             //全选
-            this.mathSelectOb.checkAll = true;
-            this.mathSelectOb.checkedList = ["0", "1", "2"];
+            this.CTmathSelectOb.checkAll = true;
+            this.CTmathSelectOb.checkedList = ["0", "1", "2", "3"];
           } else {
             //反选
-            this.mathSelectOb.checkAll = false;
-            this.mathSelectOb.checkedList = [];
+            this.CTmathSelectOb.checkAll = false;
+            this.CTmathSelectOb.checkedList = [];
           }
-          this.mathSelectOb.indeterminate = false;
+          this.CTmathSelectOb.indeterminate = false;
         },
         onChange: (checkedList) => {
           //未全部选中的情况
           if (
-            checkedList.length < this.mathSelectOb.plainOptions.length &&
+            checkedList.length < this.CTmathSelectOb.plainOptions.length &&
             checkedList.length !== 0
           ) {
             //全选check设置为半选状态
-            this.mathSelectOb.checkAll = false;
-            this.mathSelectOb.indeterminate = true;
+            this.CTmathSelectOb.checkAll = false;
+            this.CTmathSelectOb.indeterminate = true;
           } else if (checkedList.length === 0) {
             //一个都没选的情况
             //全选check设置为不选状态
-            this.mathSelectOb.checkAll = false;
-            this.mathSelectOb.indeterminate = false;
+            this.CTmathSelectOb.checkAll = false;
+            this.CTmathSelectOb.indeterminate = false;
           } else {
             //全选全部选中的情况
             //全选check设置为选中状态
-            this.mathSelectOb.checkAll = true;
-            this.mathSelectOb.indeterminate = false;
+            this.CTmathSelectOb.checkAll = true;
+            this.CTmathSelectOb.indeterminate = false;
           }
-          this.mathSelectOb.checkedList = checkedList;
+          this.CTmathSelectOb.checkedList = checkedList;
         },
 
         indeterminate: false, //半选初始状态
@@ -162,15 +162,30 @@ export default {
           },
         ],
       },
+      CRmathSelectOb: {
+        onCheckedChange: (e) => {
+          let isChecked = e.target.checked;
+
+          if (isChecked) {
+            //全选
+            this.CRmathSelectOb.checked = true;
+          } else {
+            //反选
+            this.CRmathSelectOb.checked = false;
+          }
+        },
+        indeterminate: false, //半选初始状态
+        checked: true, //全选初始状态
+      }
     };
   },
   created() {
     // console.log("itemData-----", this.itemData);
   },
   methods: {
-    selectAllEvent() {},
-    selectChangeEvent() {},
-    handleCellClick() {},
+    selectAllEvent() { },
+    selectChangeEvent() { },
+    handleCellClick() { },
   },
 };
 </script>

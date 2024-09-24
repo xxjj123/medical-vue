@@ -16,5 +16,6 @@ export const testDevOps = {
   diagnose: `/diagnose`,
   nodule: `/nodule`,
   image: `/image`,
+  single:"/single" //单张影像
 
 };

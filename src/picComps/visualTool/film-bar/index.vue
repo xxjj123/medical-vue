@@ -66,9 +66,29 @@ export default {
       };
     },
     ...mapState("viewInitStore", ["noduleDiagnoseState"]),
+    ...mapState("picViewStore", ["diagnoseState"])
   },
   watch: {
     noduleDiagnoseState: {
+      handler(nVal, oVal) {
+        let colorWindow = nVal.colorWindow
+        let colorLevel = nVal.colorLevel
+
+        if (winCtrl.lung.ww == colorWindow && winCtrl.lung.wl == colorLevel) {
+          this.activate(0)
+        } else if (winCtrl.mediastinal.ww == colorWindow && winCtrl.mediastinal.wl == colorLevel) {
+
+          this.activate(1)
+        } else if (winCtrl.bone.ww == colorWindow && winCtrl.bone.wl == colorLevel) {
+          this.activate(2)
+        } else {
+          this.activeIndex = null
+        }
+      },
+      deep: true,
+      immediate: true,
+    },
+    diagnoseState: {
       handler(nVal, oVal) {
         let colorWindow = nVal.colorWindow
         let colorLevel = nVal.colorLevel
@@ -98,9 +118,9 @@ export default {
       console.log("kaishiUpdateColorLevel");
       const { tag } = this.buttons[this.activeIndex];
       const { ww, wl } = winCtrl[tag];
-      // this.$emit('changeColor', ww, wl)
-      this.UpdateColorWindow(ww)
-      this.UpdateColorLevel(wl)
+      this.$emit('changeColor', ww, wl)
+      // this.UpdateColorWindow(ww)
+      // this.UpdateColorLevel(wl)
 
     },
     activate(index) {

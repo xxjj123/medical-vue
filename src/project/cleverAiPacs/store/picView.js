@@ -4,6 +4,7 @@ import {
   readImageDicomFileSeriesWorkerFunction,
 } from "@itk-wasm/dicom";
 import vtkXMLImageDataReader from "@kitware/vtk.js/IO/XML/XMLImageDataReader";
+import vtkITKImageReader from "@kitware/vtk.js/IO/Misc/ITKImageReader";
 import vtkGenericRenderWindow from "@kitware/vtk.js/Rendering/Misc/GenericRenderWindow";
 import vtkImageMapper from "@kitware/vtk.js/Rendering/Core/ImageMapper";
 import vtkImageSlice from "@kitware/vtk.js/Rendering/Core/ImageSlice";
@@ -19,11 +20,11 @@ import vtkColorTransferFunction from "@kitware/vtk.js/Rendering/Core/ColorTransf
 import throttle from "lodash/throttle";
 import Vue from "vue";
 
-import {xhr_getSlice} from "@/api";
+import {xhr_getSlice,xhr_getSingleImage} from "@/api";
 
 
 const VIEW_COLORS = {
-  BACKGROUND: [0, 0, 0]
+  BACKGROUND: [0.5, 0, 0]
 };
 
 
@@ -32,10 +33,7 @@ export default {
   state: {
     // 选中行study信息，用于提取tags相关信息用
     studies_selected: {},
-    /**
-     * { [computeSeriesId] : [] ,...}
-     *
-     */
+
     series_map_dicom: {},
     seriesInfo: {
       seriesId: "",
@@ -58,6 +56,11 @@ export default {
       cameraRotate: 0,
       hu: "",
     },
+    diagnoseState:{
+      colorWindow:null,
+      colorLevel:null,
+      isPan:false
+    }
 
   },
 
@@ -77,13 +80,11 @@ export default {
     SET_VIEW_DATA(state,viewData){
       state.viewData = viewData;
     },
-    SET_VIEW_DATA(state, {viewType, key, value}) {
-      const viewName = VIEWDATA_NAMES[viewType];
-      if (!state[viewName]) {
-        state[viewName] = {};
-      }
-
-      state[viewName][key] = value;
+    SET_VIEW_ITEM(state, { key, value}) {
+      state.view[key] = value;
+    },
+    SET_STATE_DATA(state, { key, value}) {
+      state.diagnoseState[key] = value;
     },
 
   },
@@ -100,7 +101,8 @@ export default {
       grw.resize(width, height);
 
       const interactorstyle = vtkInteractorStyleImage.newInstance();
-      interactorstyle.setInteractionMode("IMAGE_SLICING");
+      console.log(interactorstyle)
+      interactorstyle.setInteractionMode("IMAGE2D");
 
       const obj = {
         grw,
@@ -119,24 +121,53 @@ export default {
       obj.interactor.initialize();
       obj.interactor.bindEvents(container);
       obj.interactor.setInteractorStyle(interactorstyle);
+      obj.interactor.getInteractorStyle().modified();
+      obj.interactor.onLeftButtonPress(()=>{
+        obj.interactor.getInteractorStyle().endWindowLevel()
+      })
       obj.sliceActor.setMapper(obj.sliceMapper);
       obj.renderer.addActor(obj.sliceActor);
-      console.log(obj.sliceMapper)
+
+     obj.interactor.onLeftButtonPress((event) => {
+        if (state.diagnoseState.isPan) {
+          obj.interactor.getInteractorStyle().startPan()
+
+        }else{
+
+        }
+      });
+
       commit("SET_VIEW",obj)
 
       await dispatch("GetSlice");
+      dispatch("resizeSliceViews")
 
     },
 
 
 
-    async GetSlice({dispatch, state}) {
+    async GetSlice({dispatch, state,commit}) {
       console.log("getslice")
       try {
         let loading = setInterval(() => {
           Vue.prototype.$message.destroy();
 
         }, 50)
+        const res2 = await xhr_getSingleImage({
+          seriesId: "1838512078533521409",
+
+        });
+        if(res2){
+          const arraybuffer = res2.data;
+          const reader = vtkITKImageReader.newInstance();
+          // reader.setInputData(arraybuffer);
+          reader.parseAsArrayBuffer(arraybuffer)
+
+          await reader.loadData();
+          const image = reader.getOutputData();
+          console.log(image)
+        }
+        console.log(res2)
         const res = await xhr_getSlice({
           seriesId: "1836683063363411969",
           viewName: "axial",
@@ -152,8 +183,8 @@ export default {
           reader.parseAsArrayBuffer(arraybuffer);
           const image = reader.getOutputData();
           const view = state.view;
-
-          view.image = image;
+          commit("SET_VIEW_ITEM",{key:"image",value:image})
+          // view.image = image;
           console.log(image)
           console.log(view)
           console.log(view.sliceMapper)
@@ -161,7 +192,6 @@ export default {
           view.sliceMapper.setInputData(image);
           dispatch("setupCamera");
 
-          view.renderWindow.render();
         } else {
           console.error("Request failed: No data returned");
         }
@@ -171,6 +201,7 @@ export default {
     },
 
     setupCamera({commit, state, getters}) {
+      console.log("setupcamera2222222222")
       const view = state.view
       const image = view.image;
       const camera = view.renderer.getActiveCamera();
@@ -206,7 +237,7 @@ export default {
         .getBoundingClientRect();
 
       camera.zoom(
-        containerWidth * Math.abs(point1[0] - point2[0]) <
+        containerWidth * Math.abs(point1[0] - point2[0]) >
           containerHeight * Math.abs(point1[1] - point2[1])
           ? Math.max(
             1 / Math.abs(point1[0] - point2[0]),
@@ -227,9 +258,13 @@ export default {
      * @param {number} value - 改变的值
      */
     UpdateColorWindow({state, commit}, value) {
+
       const view = state.view
-      view.sliceActor.getProperty().setColorWindow(value );
+      if(view.sliceActor){
+         view.sliceActor.getProperty().setColorWindow(value );
       view.interactor.render();
+
+      }
 
     },
     /**
@@ -238,9 +273,11 @@ export default {
      */
     UpdateColorLevel({state, commit}, value) {
       const view = state.view
-
-      view.sliceActor.getProperty().setColorLevel(value );
+      if(view.sliceActor){
+        view.sliceActor.getProperty().setColorLevel(value );
       view.interactor.render();
+      }
+
     },
 
     /**
@@ -317,35 +354,34 @@ export default {
     },
     // 改变平移
     ChangePan({dispatch, state, getters, commit}) {
-      if (state.noduleDiagnoseState.isPan) {
-        state.viewMprViews.forEach((view, objindex) => {
-          console.log(view)
-          dispatch("setupCamera");
-          view.view.renderWindow.render()
+      const view = state.view
+      if (state.diagnoseState.isPan) {
+        const interactorStyle = vtkInteractorStyleImage.newInstance();
+        // interactorStyle.setInteractionMode("IMAGE_PAN");
+        view.interactor.setInteractorStyle(interactorStyle);
+
+        view.interactor.onLeftButtonPress(()=>{
+          view.interactor.getInteractorStyle().endWindowLevel()
         })
-        commit("SET_NODULE_DIAGNOSE_DATA", {
+        dispatch("setupCamera");
+        commit("SET_STATE_DATA", {
           key: "isPan",
           value: false,
         });
       } else {
-        state.viewMprViews.forEach((view, objindex) => {
-          commit("SET_NODULE_DIAGNOSE_DATA", {
-            key: "isPan",
-            value: true,
-          });
-
-          const interactorStyle = vtkInteractorStyleImage.newInstance();
-          interactorStyle.setInteractionMode("IMAGE_PAN");
-
-          // 确保新的 InteractorStyle 被正确设置并激活
-          view.view.interactor.setInteractorStyle(interactorStyle);
-          view.view.interactor.getInteractorStyle().modified();
-
-          view.view.interactor.initialize();
-          view.view.interactor.bindEvents(view.view.grw.getContainer());
-          view.view.interactor.start();
-          view.view.renderWindow.render();
+        commit("SET_STATE_DATA", {
+          key: "isPan",
+          value: true,
         });
+        const interactorStyle = vtkInteractorStyleImage.newInstance();
+        view.interactor.setInteractorStyle(interactorStyle);
+        view.interactor.getInteractorStyle().modified();
+
+        view.interactor.initialize();
+        view.interactor.bindEvents(view.grw.getContainer());
+        view.interactor.start();
+        view.renderWindow.render();
+
       }
       dispatch("resizeSliceViews")
 

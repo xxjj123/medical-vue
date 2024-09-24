@@ -74,7 +74,7 @@ import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
 let btnStateGrp = {
   [`${ButtonNames.Ckcw}${suffix_name}`]: false,
-  [`${ButtonNames.Mdtyms}${suffix_name}`]: false,
+  [`${ButtonNames.Mjtyms}${suffix_name}`]: false,
   [`${ButtonNames.Jbinfo}${suffix_name}`]: false,
   [`${ButtonNames.AiInfo}${suffix_name}`]: false,
   [`${ButtonNames.Szckx}${suffix_name}`]: false,

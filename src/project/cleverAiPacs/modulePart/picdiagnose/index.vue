@@ -3,18 +3,18 @@
     <!-- diagnose_page -->
     <PacsPageHeader :bread="true" :filmModeBtn="true">
       <template slot="filmModeCtrl">
-        <!-- <filmBar @changeColor="changeColor"></filmBar> -->
-        <!-- <div class="fixFileMuil">
-          <input ref="Fileinput" type="file" multiple @change="handleFile" />
-        </div> -->
+        <filmBar @changeColor="changeColor"></filmBar>
+
       </template>
     </PacsPageHeader>
     <div class="main">
       <div class="pacs_container">
         <div class="toolBar">
-          <vskToolbar ref="vskToolbarRef"></vskToolbar>
+
+          <vskToolbar ref="vskToolbarRef" @UpdateColorWindow="UpdateColorWindow_self"
+            @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self"></vskToolbar>
         </div>
-        <div>
+        <div class="h-full w-full border-amber-3">
           <PicBoard />
 
         </div>
@@ -33,7 +33,9 @@ import menudataBar from "@/picComps/visualTool/menudata-bar/index.vue";
 
 import PicBoard from "./view/PicBoard.vue"
 import MenuData from "@/picComps/picDiagnose/menudata/lung/index.vue"
-
+import {
+  ButtonNames,
+} from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 import {
   mapState,
   mapMutations,
@@ -72,10 +74,40 @@ export default {
     };
   },
   methods: {
+    ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE"]),
+    ...mapMutations("picViewStore", ["SET_STATE_DATA"]),
+    ...mapActions("picViewStore", [
+      "UpdateColorWindow",
+      "UpdateColorLevel",
+      "ChangePan"
+    ]),
+    UpdateColorWindow_self(nVal) {
+      this.UpdateColorWindow(nVal)
+      this.SET_STATE_DATA({
+        key: "colorWindow",
+        value: nVal
+      })
+    },
+    UpdateColorLevel_self(nVal) {
+      this.UpdateColorLevel(nVal)
+      this.SET_STATE_DATA({
+        key: "colorLevel",
+        value: nVal
+      })
+    },
+    changeColor(colorwindow, colrlevel) {
+      requestAnimationFrame(() => {
+        this.$refs.vskToolbarRef.changeColor(colorwindow, colrlevel)
 
+      })
+    },
+    ChangePan_self() {
+      this.ChangePan()
+    }
   },
   created() {
-
+    this.INIT_BUTTON_SHOW_STATE([ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Pyms])
+    this.INIT_BUTTON_ACTIVE_STATE([ButtonNames.Jbinfo])
   },
   mounted() { },
 };
