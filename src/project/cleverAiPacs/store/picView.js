@@ -154,18 +154,30 @@ export default {
 
         }, 50)
         const res2 = await xhr_getSingleImage({
-          seriesId: "1838512078533521409",
+          studyid: "1838512078533521409",
 
         });
-        if(res2){
+        if (res2) {
+          console.log(res2.data)
+          clearInterval(loading)
+          // return res.data;
           const arraybuffer = res2.data;
           const reader = vtkITKImageReader.newInstance();
-          // reader.setInputData(arraybuffer);
-          reader.parseAsArrayBuffer(arraybuffer)
-
-          await reader.loadData();
+          reader.parseAsArrayBuffer(arraybuffer);
           const image = reader.getOutputData();
           console.log(image)
+          // const view = state.view;
+          // commit("SET_VIEW_ITEM",{key:"image",value:image})
+          // // view.image = image;
+          // console.log(image)
+          // console.log(view)
+          // console.log(view.sliceMapper)
+
+          // view.sliceMapper.setInputData(image);
+          // dispatch("setupCamera");
+
+        } else {
+          console.error("Request failed: No data returned");
         }
         console.log(res2)
         const res = await xhr_getSlice({
