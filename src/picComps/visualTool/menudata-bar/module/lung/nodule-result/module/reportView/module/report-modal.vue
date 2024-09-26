@@ -39,7 +39,7 @@
       </div>
     </div>
     <div class="content_main">
-      <div class="a4-template" ref="printableArea">
+      <div class="a4-template" ref="printableArea" id="printMe">
         <!-- <div class="editable-text" contenteditable="true" style="top: 50px; left: 50px; width: 200px; height: 100px;">
           Editable text here...
         </div> -->
@@ -176,6 +176,7 @@ function forceReflow(element) {
   element.offsetHeight; // 触发重绘
   element.style.display = '';
 }
+
 export default {
   name: 'report-modal',
   props: {
@@ -352,19 +353,148 @@ export default {
     },
   },
   methods: {
+    async printPreview2() {
+      try {
+        const element = this.$refs.printableArea;
+        const maxA4HeightPx = 1122; // A4 height in pixels (297mm * 3.7795 px/mm)
+        let totalHeight = 0;
+        const canvasArray = [];
+
+        // 获取所有子元素
+        const childElements = Array.from(element.children);
+
+        // 遍历所有子元素，计算高度并分页
+        for (const el of childElements) {
+          let elHeight = 0;
+
+          // 如果是 textarea_pre_book，计算其内容高度
+          if (el.classList.contains('textarea_pre_book')) {
+            const textareaContent = el.innerText || el.value;
+            const tempDiv = document.createElement('div');
+            tempDiv.style.width = el.style.width;
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.visibility = 'hidden';
+            tempDiv.innerHTML = textareaContent;
+            document.body.appendChild(tempDiv);
+            elHeight = tempDiv.offsetHeight;
+            document.body.removeChild(tempDiv);
+          } else {
+            // 其它元素的固定高度
+            elHeight = el.offsetHeight;
+          }
+
+          totalHeight += elHeight;
+
+          // 当总高度超出A4纸张的高度时，生成新的 canvas
+          if (totalHeight > maxA4HeightPx) {
+            const canvas = await html2canvas(element, {
+              scale: 2,
+              useCORS: true,
+              backgroundColor: null,
+              scrollX: 0,
+              scrollY: 0,
+              width: el.scrollWidth,
+              height: elHeight,
+            });
+            canvasArray.push(canvas.toDataURL('image/png')); // 保存每个 canvas 的图像数据
+            totalHeight = elHeight; // 重置当前高度为新的起点
+          }
+        }
+
+        // 创建打印 iframe
+        const printFrame = document.createElement('iframe');
+        printFrame.id = 'print_win';
+        printFrame.style.position = 'absolute';
+        printFrame.style.width = '0';
+        printFrame.style.height = '0';
+        printFrame.style.border = 'none';
+        document.body.appendChild(printFrame);
+
+        // 在 iframe 中创建新的打印页面
+        const doc = printFrame.contentWindow.document;
+        doc.open();
+        doc.write(`
+      <html>
+      <head>
+        <title>打印预览</title>
+        <style>
+          @page {
+            size: A4;
+            margin: 0;
+          }
+          @media print {
+            body {
+              margin: 0;
+            }
+            img {
+              width: 210mm;
+              height: auto;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        ${canvasArray.map(img => `<img src="${img}" /><br/>`).join('')}
+      </body>
+      </html>
+    `);
+        doc.close();
+
+        // 打印
+        printFrame.contentWindow.focus();
+        printFrame.contentWindow.print();
+      } catch (error) {
+        console.error('Error generating print preview:', error);
+      }
+    },
     async printPreview() {
+      console.log("$print===", this.$print);
+
+
+      // return;
       try {
         const element = this.$refs.printableArea;
 
-        // 强制重新渲染 textarea
-        const textareas = element.querySelectorAll('textarea');
-        textareas.forEach(textarea => forceReflow(textarea));
 
-        // 调整 textarea 高度以适应内容
-        textareas.forEach(textarea => {
-          textarea.style.height = 'auto'; // 使 textarea 高度自适应
-          textarea.style.height = `${textarea.scrollHeight}px`; // 设置为实际内容高度
-        });
+        const childElements = Array.from(element.children);
+
+        console.log("childElements==", childElements);
+        let tprebook = document.body.querySelectorAll('.textarea_pre_book');
+
+        console.log("tprebook=", tprebook);
+
+        let tp1_scrollHeight = tprebook[0].scrollHeight;
+        let tp1_offsetHeight = tprebook[0].offsetHeight;
+        let tp1_clientHeight = tprebook[0].clientHeight;
+        let tp1_getBoundingClientRect = tprebook[0].getBoundingClientRect();
+
+        console.log("tp1_scrollHeight", tp1_scrollHeight);
+        console.log("tp1_offsetHeight", tp1_offsetHeight);
+        console.log("tp1_clientHeight", tp1_clientHeight);
+        console.log("tp1_getBoundingClientRect", tp1_getBoundingClientRect);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // // 强制重新渲染 textarea
+        // const textareas = element.querySelectorAll('textarea');
+        // textareas.forEach(textarea => forceReflow(textarea));
+
+        // // 调整 textarea 高度以适应内容
+        // textareas.forEach(textarea => {
+        //   textarea.style.height = 'auto'; // 使 textarea 高度自适应
+        //   textarea.style.height = `${textarea.scrollHeight}px`; // 设置为实际内容高度
+        // });
 
         // 使用 html2canvas 生成画布
         const canvas = await html2canvas(element, {
@@ -384,6 +514,7 @@ export default {
 
         // 创建打印内容
         const printFrame = document.createElement('iframe');
+        printFrame.id = 'print_win';
         printFrame.style.position = 'absolute';
         printFrame.style.width = '0';
         printFrame.style.height = '0';
@@ -418,6 +549,8 @@ export default {
       </head>
       <body>
         <img src="${imgData}" />
+        <br/>
+        <img src="${imgData}" />
       </body>
       </html>
     `);
@@ -430,8 +563,6 @@ export default {
         console.error('Error generating print preview:', error);
       }
     },
-
-
 
 
 
@@ -455,6 +586,7 @@ export default {
                     .a4-template {
                         border: none !important;
                         box-shadow: none !important;
+                           page-break-after: always;
                     }
                 `;
         document.head.appendChild(style);
@@ -663,11 +795,14 @@ textarea {
     height: 803px;
     /* A4 height in pixels */
     border: 1px solid #000;
+    border-color: transparent !important;
     position: relative;
     background: #fff;
     margin: 0 auto;
 
     padding: 0 27px;
+
+    page-break-after: always;
 
     .content_wrapper {
       width: 100%;
@@ -721,6 +856,7 @@ textarea {
     /* A4 height */
     border: none;
     background: #fff;
+    page-break-after: always;
   }
 
   input,
@@ -777,6 +913,7 @@ textarea {
       left: 0;
       top: 0;
       width: 100%;
+      page-break-after: always;
     }
 
 
@@ -824,6 +961,7 @@ textarea {
       /* Adjusted for screen display */
       border: 1px solid #000;
       background: #fff;
+      page-break-after: always;
     }
   }
 }
@@ -897,6 +1035,7 @@ textarea {
   white-space: pre-wrap;
   word-wrap: break-word;
   font-size: 12px;
+  min-height: 75px;
   max-height: 180px;
   overflow-y: auto;
   height: auto;

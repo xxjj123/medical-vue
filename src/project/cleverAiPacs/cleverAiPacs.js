@@ -33,6 +33,10 @@ import VueClipboard from 'vue-clipboard2';
 
 Vue.use(VueClipboard);
 
+import Print from 'vue-print-nb'
+// Global instruction
+Vue.use(Print);
+
 // 判断登录状态然后确认是否渲染页面
 checkLogin(() => {
   new Vue({
@@ -44,6 +48,7 @@ checkLogin(() => {
       window.sUtil = sUtil;
       Vue.prototype.$ut = sUtil;
       Vue.prototype.$bus = EventBus;
+      Vue.prototype.$print = Print;
     },
     // render: h => h(app),
   }).$mount("#app");
