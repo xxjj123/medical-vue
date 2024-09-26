@@ -10,7 +10,7 @@
 
       <div class="side viewbox view-3d">
         <!-- <div class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue" ref="View3DRef"></div> -->
-        <view3D class="h-full w-full" ref="view3DRef" :seriesId="sagittalCrosshairData" />
+        <view3D class="h-full w-full" ref="view3DRef" :seriesId="seriesInfo.seriesId" />
 
       </div>
       <div :class="[
@@ -29,7 +29,12 @@
           </threeViewSecTool>
         </div>
       </div>
-      <div class="side viewbox view-coronal bg-slate-400">
+      <div :class="[
+        'side viewbox view-axial bg-slate-400',
+        {
+          viewOriginal: layout === '4',
+        },
+      ]">
         <div class="relative view-item bg-slate-400">
           <threeViewSecTool :dicomTags_msg="CoronalDataInfo" :viewType="CoronalData.viewIndex" class="absolute z-2"
             :TracheaName="`lung`">
@@ -42,7 +47,12 @@
           </threeViewSecTool>
         </div>
       </div>
-      <div class="side viewbox view-sagittal bg-slate-600">
+      <div :class="[
+        'side viewbox view-axial bg-slate-600',
+        {
+          viewOriginal: layout === '5',
+        },
+      ]">
         <div class="relative view-item bg-slate-600 border-t-0.2 border-l-0.2 border-titleblue">
           <threeViewSecTool :dicomTags_msg="SagittalDataInfo" :viewType="SagittalData.viewIndex" class="absolute z-2"
             :TracheaName="`lung`">
@@ -138,9 +148,9 @@ export default {
     };
   },
   props: {
-    // seriesInfo: {
-    //   type: Object,
-    // },
+    seriesInfo: {
+      type: Object,
+    },
     theme: {
       type: String,
       default: "",
@@ -161,7 +171,7 @@ export default {
       "CoronalData",
       "SagittalData",
       "showCrosshair",
-      "seriesInfo",
+      // "seriesInfo",
       "series_map_dicom",
       "studies_selected",
     ]),
@@ -205,7 +215,6 @@ export default {
     },
   },
   watch: {
-
     localSlice_CT_pic_layout: {
       handler(nVal, oVal) {
         // console.log("watch___localSlice_CT_pic_layout:", nVal, oVal);
@@ -298,10 +307,6 @@ export default {
     initCompData_CoronalData() {
       const { Ww, Wl, changedPageindex, dimension, hu } = this.CoronalData;
 
-      // let group = [
-      //   { label: 'Image', value: `${changedPageindex}/${dimension}` },
-      // ]
-      // this.$set(this.CoronalDataInfo, "group", group);
       this.$set(this.CoronalDataInfo, "image", `${changedPageindex}/${dimension}`);
 
 
@@ -350,21 +355,19 @@ export default {
 
     }
   },
-  created() {
-    // console.log("AxialData==", this.AxialData);
-    // console.log("CoronalData==", this.CoronalData);
-    // console.log("SagittalData==", this.SagittalData);
 
-
-
-
-  },
+  // beforeDestroy() {
+  //   this.setSlice_CT_pic_layout("1");
+  // },
   mounted() {
     this.$nextTick(() => {
+      // this.setSlice_CT_pic_layout("1");
+      this.layout = "1"
       // this.Init3DView(this.$refs.View3DRef);
       this.InitAxialView(this.$refs.ViewAxialRef);
       this.InitCoronalView(this.$refs.ViewCoronalRef);
       this.InitSagittalView(this.$refs.ViewSagittalRef);
+
       // window.addEventListener('load', this.fnOnlod)
       setTimeout(() => {
         this.fnOnlod();

@@ -433,16 +433,15 @@ export default {
      * 重置视图
      */
     resizeSliceViews({dispatch, state, getters, commit}) {
-
       const view = state.view
-    if(view.image){
-      const container = view.grw.getContainer();
-      const {width, height} = container.getBoundingClientRect();
+      if(view.image){
+        const container = view.grw.getContainer();
+        const {width, height} = container.getBoundingClientRect();
 
-      view.grw.resize(width, height);
-      view.renderWindow.render();
+        view.grw.resize(width, height);
+        view.renderWindow.render();
 
-    }
+      }
     },
 
 

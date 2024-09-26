@@ -28,16 +28,14 @@ export default {
     this.initScene();
     window.addEventListener("resize", this.onWindowResize);
   },
-  computed: {
-    ...mapState("viewInitStore", ["seriesInfo"]),
-  },
+
   watch: {
-    seriesInfo: {
+    seriesId: {
       handler(nVal, oVal) {
         console.log("nVal, oVal", nVal, oVal)
-        if (nVal && nVal.seriesId) {
+        if (nVal) {
           // 清空之
-          this.download3D(nVal.seriesId);
+          this.download3D(nVal);
         }
       },
       deep: true,
@@ -49,6 +47,9 @@ export default {
     if (this.renderer) {
       this.renderer.dispose();
     }
+  },
+  props: {
+    seriesId: null,
   },
   methods: {
     initScene() {
@@ -83,6 +84,7 @@ export default {
       const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
       directionalLight.position.set(5, 5, 5);
       this.scene.add(directionalLight);
+      // this.download3D(this.seriesId)
     },
     async download3D(seriesId) {
       try {

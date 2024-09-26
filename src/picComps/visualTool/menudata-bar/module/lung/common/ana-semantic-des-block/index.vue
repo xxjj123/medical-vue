@@ -40,8 +40,8 @@
  * ...
  */
 
-import {SortOption, mapObjectListToFindingTemplate, mapObjectListToDiagnoseTemplate} from "@/assets/js/utils/dicom/select";
-import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
+import { SortOption, mapObjectListToFindingTemplate, mapObjectListToDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
+import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
 import Emitter from "@/assets/js/mixins/emitter.js";
 
@@ -97,7 +97,7 @@ export default {
       get() {
         console.log("this.selectValue", this.selectValue)
         if (this.selectValue && this.selectValue.value) {
-          const {value} = this.selectValue;
+          const { value } = this.selectValue;
           let resultBookItems = null;
           if (this.blockMode == 'finding') {
             resultBookItems = mapObjectListToFindingTemplate(this.selectionValue, value, this.seriesInfo.imageCount, this.currentNum)
@@ -113,7 +113,7 @@ export default {
           console.log("this.desCode", this.desCode);
           if (this.desCode === 'yxsj') {
             const descStrBook = this.getFullDescString(resultBookItems);
-            console.log("descStrBook=", descStrBook);
+            // console.log("descStrBook=", descStrBook);
 
             this.SET_REPORTS_MUIL_CONTEXT({
               name: this.desCode,
@@ -124,7 +124,7 @@ export default {
 
           } else if (this.desCode === 'yxzd') {
             const descStrBook = this.getFullDescString(resultBookItems);
-            console.log("descStrBook=", descStrBook);
+            // console.log("descStrBook=", descStrBook);
 
             this.SET_REPORTS_MUIL_CONTEXT({
               name: this.desCode,
@@ -133,11 +133,9 @@ export default {
           }
 
           // "get_reports_tag", "get_reports_yxsj_content", "get_reports_yxzd_content"
-          console.log("v-get_reports_tag", this.get_reports_tag,);
-          console.log("v-get_reports_yxsj_content", this.get_reports_yxsj_content,);
-          console.log("v-get_reports_yxzd_content", this.get_reports_yxzd_content,);
-
-
+          // console.log("v-get_reports_tag", this.get_reports_tag,);
+          // console.log("v-get_reports_yxsj_content", this.get_reports_yxsj_content,);
+          // console.log("v-get_reports_yxzd_content", this.get_reports_yxzd_content,);
 
 
           return resultBookItems

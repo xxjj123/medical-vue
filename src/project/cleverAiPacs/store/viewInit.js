@@ -134,6 +134,7 @@ export default {
     mouseDown: false,
     autoPlayStates: Array.from({length: 3}, () => ({
       isPlay:false,
+      isAutoPlay:false,
       viewIndex: null,
       timerId: null,
       animationId:null,
@@ -153,7 +154,8 @@ export default {
       colorWindow:null,
       colorLevel:null,
       isPan:false
-    }
+    },
+    selectedNoduleId:null
 
 
   },
@@ -165,11 +167,11 @@ export default {
     ],
   },
   mutations: {
-    UPDATE_AUTOPLAY_STATUS(state, {viewIndex, timerId,animationId,isPlay}){
-      state.autoPlayStates[viewIndex].viewIndex  = viewIndex;
-      state.autoPlayStates[viewIndex].timerId  = timerId;
-      state.autoPlayStates[viewIndex].animationId  = animationId;
-      state.autoPlayStates[viewIndex].isPlay  = isPlay;
+    UPDATE_AUTOPLAY_STATUS(state, { viewIndex, updates}){
+      const autoPlayState = state.autoPlayStates[viewIndex];
+        Object.keys(updates).forEach(key => {
+          autoPlayState[key] = updates[key];
+        });
     },
     CLEAR_AUTOPLAY(state, viewIndex) {
       const autoPlayState = state.autoPlayStates[viewIndex];
@@ -232,6 +234,9 @@ export default {
       state.annotations.index.add(
         `${annotation.viewIndex}-${annotation.bboxIndex}`,
       );
+    },
+    ACTIVATE_ANNOTATAION(state,index){
+      state.selectedNoduleId = index
     },
 
     SET_NODULE_DIAGNOSE_DATA(state, { key, value}) {
@@ -571,6 +576,12 @@ export default {
           console.log("开始了")
           getters.viewsData.forEach((viewdata) => {
             commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
+            commit("UPDATE_AUTOPLAY_STATUS", {
+              viewIndex: viewdata.viewIndex,
+             updates:{
+              isAutoPlay: false,
+             }
+            });
           });
           let animationId;
 
@@ -585,9 +596,11 @@ export default {
               animationId = requestAnimationFrame(animate);
               commit("UPDATE_AUTOPLAY_STATUS", {
                 viewIndex: view.viewIndex,
-                timerId: null,
+                updates:{
+                  timerId: null,
                 animationId: animationId,
                 isPlay: true,
+                }
               });
             }
 
@@ -627,6 +640,12 @@ export default {
     ) {
       getters.viewsData.forEach((viewdata) => {
         commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
+        commit("UPDATE_AUTOPLAY_STATUS", {
+          viewIndex: viewdata.viewIndex,
+         updates:{
+          isAutoPlay: false,
+         }
+        });
       });
 
       commit("SET_MOUSE_DOWN", true);
@@ -653,6 +672,7 @@ export default {
                 let color = BBOX_COLORS.DEFAULT
                 let lineWidth = BBOX_LINEWIDTH.DEFAULT
                 if (anno.bboxIndex == selectedAnnotation) {
+                  commit("ACTIVATE_ANNOTATAION",selectedAnnotation)
                   color = BBOX_COLORS.SELECTED
                   lineWidth = BBOX_LINEWIDTH.SELECTED
                 }
@@ -1012,17 +1032,19 @@ console.log("")
         .getContainer()
         .getBoundingClientRect();
 
+      const zoomrate = containerWidth * Math.abs(point1[0] - point2[0]) <
+        containerHeight * Math.abs(point1[1] - point2[1])
+        ? Math.max(
+          1 / Math.abs(point1[0] - point2[0]),
+          1 / Math.abs(point1[1] - point2[1]),
+        )
+        : Math.min(
+          1 / Math.abs(point1[0] - point2[0]),
+          1 / Math.abs(point1[1] - point2[1]),
+        )
+      console.log("zoomrate===========",zoomrate)
       camera.zoom(
-        containerWidth * Math.abs(point1[0] - point2[0]) <
-          containerHeight * Math.abs(point1[1] - point2[1])
-          ? Math.max(
-            1 / Math.abs(point1[0] - point2[0]),
-            1 / Math.abs(point1[1] - point2[1]),
-          )
-          : Math.min(
-            1 / Math.abs(point1[0] - point2[0]),
-            1 / Math.abs(point1[1] - point2[1]),
-          ),
+        zoomrate
       );
       camera.roll(getters.viewsData[viewType].cameraRotate);
 
@@ -1118,6 +1140,7 @@ console.log("")
             let color = BBOX_COLORS.DEFAULT
             let lineWidth = BBOX_LINEWIDTH.DEFAULT
             if (anno.bboxIndex === bboxindex) {
+              commit("ACTIVATE_ANNOTATAION",bboxindex)
               color = BBOX_COLORS.SELECTED
               lineWidth = BBOX_LINEWIDTH.SELECTED
             }
@@ -1157,6 +1180,12 @@ console.log("")
         getters.viewsData.forEach((viewdata) => {
           if (viewdata.viewIndex !== viewType) {
             commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
+            commit("UPDATE_AUTOPLAY_STATUS", {
+              viewIndex: viewdata.viewIndex,
+             updates:{
+              isAutoPlay: false,
+             }
+            });
           }
         });
 
@@ -1209,9 +1238,11 @@ console.log("")
           animationId = requestAnimationFrame(animate);
           commit("UPDATE_AUTOPLAY_STATUS", {
             viewIndex: viewType,
+           updates:{
             timerId: timer,
             animationId: animationId,
             isPlay: true,
+           }
           });
 
         };
@@ -1219,7 +1250,12 @@ console.log("")
 
         // 启动动画帧
         animationId = requestAnimationFrame(animate);
-
+        commit("UPDATE_AUTOPLAY_STATUS", {
+          viewIndex: viewType,
+         updates:{
+          isAutoPlay: true,
+         }
+        });
       } else {
          commit("CLEAR_AUTOPLAY", viewType);
          const view = getters.viewsData[viewType];
@@ -1230,6 +1266,12 @@ console.log("")
             index: view.changedPageindex,
           });
          }
+         commit("UPDATE_AUTOPLAY_STATUS", {
+          viewIndex: viewType,
+         updates:{
+          isAutoPlay: false,
+         }
+        });
       }
     }
 ,
@@ -1396,7 +1438,7 @@ console.log("")
          value: Math.abs(point2x - point1x),
        });
         }
-
+dispatch("setupCamera",view.viewIndex)
 
 
       });

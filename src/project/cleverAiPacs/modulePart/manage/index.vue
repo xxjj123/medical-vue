@@ -1142,15 +1142,15 @@ export default {
     },
     handleEdit(index, row) {
       console.log("handleEdit--manage", index, row);
-      // const { seriesList } = row;
+      const { seriesList } = row;
       // console.log("seriesList", seriesList[0]);
-      // const { computeSeriesId } = seriesList[0];
-      // this.$router.push({
-      //   path: "diagnose",
-      //   query: {
-      //     computeSeriesId,
-      //   },
-      // });
+      const { computeSeriesId } = seriesList[0];
+      this.$router.push({
+        path: "diagnose",
+        query: {
+          computeSeriesId,
+        },
+      });
     },
     extractDicomData(dataSet) {
       let examID = dataSet.string("x0020000d");
@@ -1313,6 +1313,7 @@ export default {
     // console.log("moment----", moment().format("YYYY-MM-DD"));
     this.$nextTick(() => {
       // this.init_loadData();
+      this.cache_init_pageData();
 
       setTimeout(() => {
         // console.log("dicomParser===", dicomParser);

@@ -4,7 +4,7 @@
       <template v-if="btnInfoItem && Object.keys(btnInfoItem).length > 0">
         <template v-for="(btn, key) in btnInfoItem">
           <div
-            :class="[`btn flex`, { selected: btn.on && btn.mode !== 'more' && btn.mode !== 'other' }, { ripple: btn.mode === 'more' || btn.mode === 'other' }]"
+            :class="[`btn flex`, { selected: btn.code == 'autoplay' ? currentViewAutopalyState : btn.on && btn.mode !== 'more' && btn.mode !== 'other' }, { ripple: btn.mode === 'more' || btn.mode === 'other' }]"
             :key="`${key}_a`" @click.stop="handle_click(btn, key)">
             <div :class="['ifontyhpacs', { [`${btn.icon}`]: btn.icon && btn.icon !== '' }]">
             </div>
@@ -19,6 +19,7 @@
                 <div v-else class="ifontyhpacs ico_pacsxiajiantou"></div>
               </div>
             </template> -->
+            {{ viewType }}
             <template v-if="btn.child && btn.child.length > 0">
               <template v-if="btn.moreClickOn">
                 <ta-dropdown :placement="'topCenter'" :getPopupContainer="setPopupContainer" :trigger="['click']"
@@ -31,6 +32,7 @@
                     <ta-menu-item v-for="(item, index) in btn.child" :key="`${index}_${item.altName}`">
                       <div class="flex">
                         <div :class="['ifontyhpacs', { [`${item.icon}`]: item.icon && item.icon !== '' }, 'pr-[10px]']">
+
                         </div>
                         <div>{{ item.altName }}</div>
                       </div>
@@ -70,6 +72,7 @@ export default {
       type: [String, Number],
     },
   },
+
   computed: {
     btnInfoItem: {
       get() {
@@ -83,6 +86,8 @@ export default {
         console.log("this.btnInfoItemLocal;____", this.btnInfoItemLocal)
       },
     },
+    ...mapState("viewInitStore", ["autoPlayStates"]),
+    ...mapGetters("viewInitStore", ["viewAutopalyState"]),
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
     localSlice_CT_pic_layout: {
       get() {
@@ -94,6 +99,24 @@ export default {
         // this.setSlice_CT_pic_layout(value); // 调用 mutation 更新 Vuex 状态
       },
     },
+
+    currentViewAutopalyState: {
+      get() {
+        if (this.autoPlayStates[this.viewType]) {
+          return this.autoPlayStates[this.viewType].isAutoPlay;
+        }
+
+        // if (this.viewType == 0) {
+        //   return this.autoPlayStates[this.viewType].isPlay;
+        //   console.log("currentViewAutopalyState", this.autoPlayStates[this.viewType])
+        // }
+        // if (this.viewType) {
+        //   return  return this.autoPlayStates[this.viewType].isPlay;
+        // }
+        // 从 Vuex 状态获取值
+      },
+
+    }
   },
   watch: {
     btnInfoItem: {
@@ -114,7 +137,6 @@ export default {
         switch (nVal) {
           case LayoutIcons.LGGJST:
             this.layout = "1";
-            // console.log("切换了");
             break;
           case LayoutIcons.MPR:
             this.layout = "2";
@@ -128,7 +150,18 @@ export default {
 
       },
       immediate: true
+    },
+    currentViewAutopalyState: {
+      handler(nVal, oVal) {
+        // if (nVal) {
+        //   this.$set(this.btnInfoItem[2], "icon", autoPlayCodes.ICO_PACSBOFANG);
+        // } else {
+        //   this.$set(this.btnInfoItem[2], "icon", autoPlayCodes.ICO_PACSZANTING);
+        // }
+
+      }
     }
+
   },
   data() {
     return {
@@ -142,7 +175,7 @@ export default {
   created() {
     // this.btnInfoItemLocal = btnInfo[this.TracheaName]
     this.btnInfoItemLocal = JSON.parse(JSON.stringify(btnInfo[this.TracheaName]));
-    // console.log("created:btnInfoItemLocal==>>>", this.btnInfoItemLocal);
+    console.log("created:btnInfoItemLocal==>>>", this.btnInfoItemLocal);
 
   },
   methods: {
@@ -150,7 +183,7 @@ export default {
     ...mapMutations("viewInitStore", ["CLEAR_AUTO_PLAY_TIMER"]),
     ...mapActions("viewInitStore", ["ReverseWindow", "RotateCamera", "AutoPlay", "FlipHorizontal", "FlipVertical"]),
     handle_click_more(btn, index) {
-      // console.log("this.btnInfoItem==start", btn, index);
+      console.log("this.btnInfoItem==start", btn, index);
 
       this.$set(this.btnInfoItem[index], "moreClickOn", !btn.moreClickOn)
 
@@ -242,12 +275,12 @@ export default {
 
           switch (icon) {
             case autoPlayCodes.ICO_PACSBOFANG: {
-              console.log("icon----------start", icon, autoPlayCodes.ICO_PACSBOFANG);
+              // console.log("icon----------start", icon, autoPlayCodes.ICO_PACSBOFANG);
 
               this.AutoPlay({
                 viewType: this.viewType
               })
-              this.$set(this.btnInfoItem[index], "icon", autoPlayCodes.ICO_PACSZANTING);
+              // this.$set(this.btnInfoItem[index], "icon", autoPlayCodes.ICO_PACSZANTING);
             }
               break;
             case autoPlayCodes.ICO_PACSZANTING: {
@@ -265,11 +298,12 @@ export default {
           break;
         case btnLungCodes.SCREEN: {
           console.log("this.slice_CT_pic_layout==SCREEN", this.slice_CT_pic_layout, "layout", this.layout);
-          if (this.layout == 3) {
-
+          if (this.layout == 3 || this.layout == 4 || this.layout == 4) {
             console.log("this.layout_bak=", this.layout_bak);
 
+            // this.SET_SLICE_CT_PIC_LAYOUT(this.layout_bak || LayoutIcons.LGGJST);
             this.SET_SLICE_CT_PIC_LAYOUT(this.layout_bak || LayoutIcons.LGGJST);
+
           } else if (this.layout == 1) {
             this.layout_bak = LayoutIcons.LGGJST;
             console.log("this.layout_bak=", this.layout_bak);

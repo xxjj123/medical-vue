@@ -199,14 +199,12 @@ export default {
     changeColor(colorwindow, colrlevel) {
       requestAnimationFrame(() => {
         this.$refs.vskToolbarRef.changeColor(colorwindow, colrlevel)
-
       })
     },
     async Diagnose(computeSeriesId) {
       return new Promise(async (resolve, reject) => {
         const result = await xhr_queryNodule({ computeSeriesId });
         if (result.serviceSuccess) {
-          //TODO: wait turn new api
           this.SET_NODULE_INFO(result.data.resultData);
           //结节病变列表查询
           // const newRes = await xhr_queryNodule({computeSeriesId: "1825804835303624706"})
@@ -313,8 +311,8 @@ export default {
 
     this.setClockUpdateDict();
 
-    this.INIT_BUTTON_SHOW_STATE([ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.AiInfo])
-    this.INIT_BUTTON_ACTIVE_STATE([ButtonNames.Szckx, ButtonNames.Jbinfo])
+    this.INIT_BUTTON_SHOW_STATE([ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms])
+    this.INIT_BUTTON_ACTIVE_STATE([ButtonNames.Jbinfo])
   },
   mounted() { },
   beforeDestroy() {
