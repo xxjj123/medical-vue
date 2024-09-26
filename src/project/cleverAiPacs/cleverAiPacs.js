@@ -12,6 +12,7 @@ import viewsStore from "./store/views";
 import toolsStore from "./store/tools";
 import toolBarStore from "./store/toolBar";
 import viewInitStore from "./store/viewInit";
+import picViewStore from "./store/picView"
 import view3DStore from "./store/view3D";
 import viewReportsStore from './store/reports';
 
@@ -19,6 +20,8 @@ store.registerModule("viewsStore", viewsStore);
 store.registerModule("toolsStore", toolsStore);
 store.registerModule("toolBarStore", toolBarStore);
 store.registerModule("viewInitStore", viewInitStore);
+store.registerModule("picViewStore", picViewStore);
+
 store.registerModule("view3DStore", view3DStore);
 store.registerModule("viewReportsStore", viewReportsStore);
 

@@ -60,6 +60,7 @@ function GetTureIJK({viewType, ijk}) {
 export default {
   namespaced: true,
   state: {
+    isload:false,
     // 选中行study信息，用于提取tags相关信息用
     studies_selected: {},
     /**
@@ -131,14 +132,27 @@ export default {
     annotations: {value: [], index: new Set()},
     picker: vtkPicker.newInstance(),
     mouseDown: false,
+    autoPlayStates: Array.from({length: 3}, () => ({
+      isPlay:false,
+      viewIndex: null,
+      timerId: null,
+      animationId:null,
+    })),
     autoPlayTimers: Array.from({length: 3}, () => ({
       viewIndex: null,
       autoPlayTimer: null,
     })),
-    noduleDiagnoseState: {
-      colorWindow: null,
-      colorLevel: null,
-      isPan: false
+
+    animationIds: Array.from({length: 3}, () => ({
+      viewIndex: null,
+      animationId: null,
+    })),
+
+
+    noduleDiagnoseState:{
+      colorWindow:null,
+      colorLevel:null,
+      isPan:false
     }
 
 
@@ -151,6 +165,35 @@ export default {
     ],
   },
   mutations: {
+    UPDATE_AUTOPLAY_STATUS(state, {viewIndex, timerId,animationId,isPlay}){
+      state.autoPlayStates[viewIndex].viewIndex  = viewIndex;
+      state.autoPlayStates[viewIndex].timerId  = timerId;
+      state.autoPlayStates[viewIndex].animationId  = animationId;
+      state.autoPlayStates[viewIndex].isPlay  = isPlay;
+    },
+    CLEAR_AUTOPLAY(state, viewIndex) {
+      const autoPlayState = state.autoPlayStates[viewIndex];
+
+      if (autoPlayState && autoPlayState.isPlay) {
+        // 清除定时器和动画帧
+        if (autoPlayState.timerId) {
+          clearInterval(autoPlayState.timerId);
+          autoPlayState.timerId = null;
+        }
+        if (autoPlayState.animationId) {
+          cancelAnimationFrame(autoPlayState.animationId);
+          autoPlayState.animationId = null;
+        }
+
+        // 更新状态
+        autoPlayState.isPlay = false;
+
+      }
+    }
+,
+    UPDATE_LOAD_STATUS(state,statu) {
+      state.isload = statu;
+    },
     SET_STUDIES_SELECTED(state, payload) {
       state.studies_selected = payload;
     },
@@ -158,15 +201,11 @@ export default {
       state.series_map_dicom = payload;
     },
     SET_SERIES_INFO(state, seriesInfo) {
-      console.log("SET_SERIES_INFO", seriesInfo)
       state.seriesInfo = seriesInfo;
     },
     SET_NODULE_INFO(state, noduleInfo) {
       state.noduleInfo = noduleInfo;
-      console.log("state.noduleInfo==", state.noduleInfo);
-
       state.noduleInfo.focalDetailList = []
-      // state.noduleInfo.noduleLesionList = []
 
     },
 
@@ -194,23 +233,8 @@ export default {
         `${annotation.viewIndex}-${annotation.bboxIndex}`,
       );
     },
-    UPDATE_AUTO_PLAY_TIMER(state, {viewType, timer}) {
-      if (!state.autoPlayTimers) {
-        state.autoPlayTimers[viewType].autoPlayTimer = null;
-      }
-      state.autoPlayTimers[viewType].viewType = viewType;
-      state.autoPlayTimers[viewType].autoPlayTimer = timer;
-    },
-    CLEAR_AUTO_PLAY_TIMER(state, viewType) {
-      if (state.autoPlayTimers[viewType]?.autoPlayTimer) {
-        clearInterval(state.autoPlayTimers[viewType].autoPlayTimer);
-      }
-      state.autoPlayTimers[viewType] = {
-        viewIndex: null,
-        autoPlayTimer: null,
-      };
-    },
-    SET_NODULE_DIAGNOSE_DATA(state, {key, value}) {
+
+    SET_NODULE_DIAGNOSE_DATA(state, { key, value}) {
       state.noduleDiagnoseState[key] = value;
     },
 
@@ -244,7 +268,7 @@ export default {
       grw.resize(width, height);
 
       const interactorstyle = vtkInteractorStyleImage.newInstance();
-      interactorstyle.setInteractionMode("IMAGE_SLICING");
+      interactorstyle.setInteractionMode("IMAGE2D");
 
       const obj = {
         grw,
@@ -263,8 +287,11 @@ export default {
       obj.renderWindow.setInteractor(obj.interactor);
       obj.interactor.initialize();
       obj.interactor.bindEvents(container);
-      // view.view.interactor.getInteractorStyle().endWindowLevel();
       obj.interactor.setInteractorStyle(interactorstyle);
+      obj.interactor.getInteractorStyle().modified();
+      obj.interactor.onLeftButtonPress(()=>{
+        obj.interactor.getInteractorStyle().endWindowLevel()
+      })
       obj.sliceActor.setMapper(obj.sliceMapper);
       obj.renderer.addActor(obj.sliceActor);
 
@@ -301,7 +328,6 @@ export default {
       dimensions[VIEW_TYPES.SAGITTAL] = state.seriesInfo.sagittalCount;
       dimensions[VIEW_TYPES.CORONAL] = state.seriesInfo.coronalCount;
       dimensions[VIEW_TYPES.AXIAL] = state.seriesInfo.axialCount;
-      console.log(dimensions)
 
       const ijk = dimensions.map((d) => Math.round(d / 2) + 1);
 
@@ -457,8 +483,8 @@ export default {
     },
     UpdateDisplayValue({commit, state}, {changedViewType, pagex, pagey}) {
       const view = state.viewMprViews[changedViewType].view;
-
-      const world = view.image.indexToWorld([pagex, pagey, 0]);
+      if(view.image){
+          const world = view.image.indexToWorld([pagex, pagey, 0]);
       coordinate.setValue(...world);
 
       const [ndcX, ndcY] = coordinate.getComputedDoubleDisplayValue(
@@ -475,6 +501,8 @@ export default {
         key: "displayY",
         value: ndcY,
       });
+      }
+
     },
     async UpdateIJK({dispatch, getters, commit}, ijk) {
       await Promise.all([
@@ -498,15 +526,17 @@ export default {
       ]);
     },
 
-    async updateSliceForView({dispatch}, {viewName, index, viewType}) {
+    async updateSliceForView({dispatch,commit}, {viewName, index, viewType}) {
       if (index === "") return;
-      const arraybuffer = await dispatch("GetSlice", {viewName, index});
+      commit("UPDATE_LOAD_STATUS",true)
+      const arraybuffer = await dispatch("GetSlice", {viewName,viewType, index});
+      // commit("UPDATE_LOAD_STATUS",false)
 
       if (arraybuffer) {
         await dispatch("UpdateSlice", {arraybuffer, viewType, index});
       }
     },
-    setupInteractor({dispatch, state, commit}, {view, dimensions}) {
+    setupInteractor({dispatch, state, commit,getters}, {view, dimensions}) {
       const dimension = dimensions[view.viewIndex];
       commit("SET_VIEW_DATA", {
         viewType: view.viewIndex,
@@ -514,18 +544,19 @@ export default {
         value: dimension,
       });
 
+
       view.view.interactor.onLeftButtonPress((event) => {
         if (!state.noduleDiagnoseState.isPan) {
           dispatch("handleMousePress", {event, view});
-        } else {
+        }else{
           view.view.interactor.getInteractorStyle().startPan()
-          console.log(view.view.interactor.getInteractorStyle())
         }
       });
+
       view.view.interactor.onMouseMove((event) => {
         if (!state.noduleDiagnoseState.isPan) {
           dispatch("handleMouseMove", {event, view});
-        } else {
+        }else{
           dispatch("resizeSliceViews");
         }
       });
@@ -534,26 +565,69 @@ export default {
       view.view.interactor.onLeftButtonRelease(() =>
         commit("SET_MOUSE_DOWN", false),
       );
+
+      view.view.interactor.onStartMouseWheel(() => {
+        if(!state.autoPlayStates[view.viewIndex].isPlay){
+          console.log("开始了")
+          getters.viewsData.forEach((viewdata) => {
+            commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
+          });
+          let animationId;
+
+          const animate = () => {
+            if (!state.isload) {
+
+              dispatch("updateSliceForView", {
+                viewName: view.viewName,
+                viewType: view.viewIndex,
+                index: getters.viewsData[view.viewIndex].changedPageindex,
+              });
+              animationId = requestAnimationFrame(animate);
+              commit("UPDATE_AUTOPLAY_STATUS", {
+                viewIndex: view.viewIndex,
+                timerId: null,
+                animationId: animationId,
+                isPlay: true,
+              });
+            }
+
+          };
+          // 先赋值，再启动定时器和动画帧
+
+          // 启动动画帧
+          animationId = requestAnimationFrame(animate);
+        }
+      });
       view.view.interactor.onMouseWheel((event) =>
         dispatch("handleMouseWheel", {spinY: event.spinY, view}),
       );
+      view.view.interactor.onEndMouseWheel((event)=>{
+        if(state.autoPlayStates[view.viewIndex].isPlay){
+          commit("CLEAR_AUTOPLAY", view.viewIndex);
+          const viewdata = getters.viewsData[view.viewIndex];
+          if(viewdata.gotoPageIndex != viewdata.changedPageindex){
+           dispatch("updateSliceForView", {
+             viewName: viewdata.viewName,
+             viewType: viewdata.viewIndex,
+             index: viewdata.changedPageindex,
+           });
+          }
+        }
 
-      view.view.interactor.onStartMouseWheel(() => {
-        state.autoPlayTimers.forEach((timer) => {
-          clearInterval(timer.autoPlayTimer);
-          timer.autoPlayTimer = null;
-        });
-      });
+
+      })
+
+
+
+
     },
     async handleMousePress(
       {dispatch, commit, state, getters},
       {event, view},
     ) {
-      state.autoPlayTimers.forEach((timer) => {
-        clearInterval(timer.autoPlayTimer);
-        timer.autoPlayTimer = null;
+      getters.viewsData.forEach((viewdata) => {
+        commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
       });
-
 
       commit("SET_MOUSE_DOWN", true);
       const {x, y} = event.position;
@@ -567,15 +641,14 @@ export default {
         state.annotations.value.forEach((annotation) => {
           if (annotation.viewIndex === view.viewIndex) {
             if (
-              view.pageIndex > annotation.boundsmin &&
-              view.pageIndex < annotation.boundsmax &&
-              annotation.worldpoint1[0] < pickedX &&
-              annotation.worldpoint2[0] > pickedX &&
-              annotation.worldpoint1[1] < pickedY &&
-              annotation.worldpoint2[1] > pickedY
+              view.pageIndex >= annotation.boundsmin &&
+              view.pageIndex <= annotation.boundsmax &&
+              annotation.worldpoint1[0] <= pickedX &&
+              annotation.worldpoint2[0] >= pickedX &&
+              annotation.worldpoint1[1] <= pickedY &&
+              annotation.worldpoint2[1] >= pickedY
             ) {
               const selectedAnnotation = annotation.bboxIndex;
-              console.log(selectedAnnotation)
               state.annotations.value.forEach((anno) => {
                 let color = BBOX_COLORS.DEFAULT
                 let lineWidth = BBOX_LINEWIDTH.DEFAULT
@@ -615,7 +688,7 @@ export default {
         commit("SET_VIEW_DATA", {
           viewType: view.viewIndex,
           key: "hu",
-          value: pixelValue[0] ,
+          value: pixelValue[0],
         });
 
         trueijk.forEach((item, index) => {
@@ -660,7 +733,6 @@ export default {
       }
     },
     handleMouseMove({commit, state, dispatch, getters}, {event, view}) {
-      view.view.interactor.getInteractorStyle().endWindowLevel();
 
       const {x, y} = event.position;
       state.picker.pick([x, y, 0], view.view.renderer);
@@ -720,6 +792,8 @@ export default {
             }
           });
 
+
+
           dispatch("throttleUpdateOtherSlice", {
             viewType: view.viewIndex,
             ijk: trueijk,
@@ -733,30 +807,37 @@ export default {
         });
       }
     },
+    handleMouseRelease(){
+console.log("")
+    },
     UpdateColorWindow({state, commit}, value) {
-      console.log("UpdateColorWindow")
       state.viewMprViews.forEach((view, objindex) => {
-        commit("SET_VIEW_DATA", {
-          viewType: view.viewIndex,
-          key: "Ww",
-          value: value,
-        });
-        view.view.sliceActor.getProperty().setColorWindow(value);
-        view.view.interactor.render();
+        if(view.view ){
+
+          commit("SET_VIEW_DATA", {
+            viewType: view.viewIndex,
+            key: "Ww",
+            value: value,
+          });
+          view.view.sliceActor.getProperty().setColorWindow(value);
+          view.view.renderWindow.render();
+        }
+
       });
     },
 
     UpdateColorLevel({state, commit}, value) {
-      console.log("UpdateColorLevel")
-
       state.viewMprViews.forEach((view, objindex) => {
-        commit("SET_VIEW_DATA", {
-          viewType: view.viewIndex,
-          key: "Wl",
-          value: value,
-        });
-        view.view.sliceActor.getProperty().setColorLevel(value );
-        view.view.interactor.render();
+        if(view.view ){
+          commit("SET_VIEW_DATA", {
+            viewType: view.viewIndex,
+            key: "Wl",
+            value: value,
+          });
+          view.view.sliceActor.getProperty().setColorLevel(value);
+          view.view.renderWindow.render();
+        }
+
       });
     },
     handleMouseWheel({commit, state, dispatch, getters}, {spinY, view}) {
@@ -822,31 +903,33 @@ export default {
             });
           }
         }
-        dispatch("throttleUpdateSingleSlice", {
-          viewName: view.viewName,
-          viewType: view.viewIndex,
-          index: newIndex,
-        });
+        // dispatch("throttleUpdateSingleSlice", {
+        //   viewName: view.viewName,
+        //   viewType: view.viewIndex,
+        //   index: newIndex,
+        // });
       }
     },
     throttleUpdateSingleSlice: throttle(
       ({dispatch}, {viewName, viewType, index}) => {
         requestAnimationFrame(() =>
-          dispatch("updateSliceForView", {viewName, index, viewType}),
+           dispatch("updateSliceForView", {viewName, index, viewType}),
         );
       },
       60,
     ),
     throttleUpdateOtherSlice: throttle(({dispatch}, {viewType, ijk}) => {
       requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
-    }, 120),
-    async GetSlice({dispatch, state}, {viewName, index}) {
+    }, 150),
+    async GetSlice({dispatch, state,commit}, {viewName, viewType,index}) {
 
       try {
         let loading = setInterval(() => {
           Vue.prototype.$message.destroy();
 
         }, 50)
+        commit("SET_VIEW_DATA", {viewType, key: "gotoPageIndex", value: index});
+
         const res = await xhr_getSlice({
           seriesId: state.seriesInfo.seriesId,
           viewName: viewName,
@@ -854,7 +937,9 @@ export default {
         });
 
         if (res) {
+          commit("UPDATE_LOAD_STATUS",false)
           clearInterval(loading)
+
           return res.data;
         } else {
           console.error("Request failed: No data returned");
@@ -896,7 +981,6 @@ export default {
       const image = state.viewMprViews[viewType].view.image;
 
       const camera = view.renderer.getActiveCamera();
-      // console.log("camera-------------", camera);
 
       camera.setParallelProjection(true);
       const bounds = image.getBounds();
@@ -1068,35 +1152,26 @@ export default {
      * @param {number} viewType - 操作页面索引
      * @param {number} time - 单片切换时间，单元毫秒
      */
-    AutoPlay({commit, dispatch, state, getters}, {viewType, time}) {
-      if (state.autoPlayTimers[viewType].autoPlayTimer === null) {
-        state.autoPlayTimers.forEach((timer) => {
-          clearInterval(timer.autoPlayTimer);
-          timer.autoPlayTimer = null;
+    AutoPlay({ commit, dispatch, state, getters }, { viewType }) {
+      if (!state.autoPlayStates[viewType].isPlay ) {
+        getters.viewsData.forEach((viewdata) => {
+          if (viewdata.viewIndex !== viewType) {
+            commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
+          }
         });
 
         const view = state.viewMprViews[viewType];
-        commit("SET_VIEW_DATA", {
-          viewType: view.viewIndex,
-          key: "changedPageindex",
-          value: view.pageIndex,
-        });
-        dispatch("UpdateDisplay", {
-          viewType: view.viewIndex,
-          changedPageIndex: view.pageIndex,
-        });
 
-        const timer = setInterval(() => {
-          // debugger;
-          const newIndex =
-            (getters.viewsData[view.viewIndex].changedPageindex %
-              view.dimension) +
-            1;
 
-          if (
-            getters.viewsData[view.viewIndex].changedPageindex ===
-            view.dimension
-          ) {
+        // 定义一个变量来保存 requestAnimationFrame 的 ID
+
+         // 创建定时器，每隔 50ms 触发
+         const timer = setInterval(() => {
+          let newIndex =
+            (getters.viewsData[view.viewIndex].changedPageindex % view.dimension) + 1;
+
+          if (getters.viewsData[view.viewIndex].changedPageindex === view.dimension) {
+            newIndex = 1;
             commit("SET_VIEW_DATA", {
               viewType: view.viewIndex,
               key: "changedPageindex",
@@ -1118,18 +1193,46 @@ export default {
                 getters.viewsData[view.viewIndex].changedPageindex,
             });
           }
-          dispatch("throttleUpdateSingleSlice", {
+        }, 50);
+        // 创建 requestAnimationFrame
+        let animationId;
+
+        const animate = () => {
+          if (!state.isload) {
+            dispatch("updateSliceForView", {
+              viewName: view.viewName,
+              viewType: view.viewIndex,
+              index: getters.viewsData[view.viewIndex].changedPageindex,
+            });
+
+          }
+          animationId = requestAnimationFrame(animate);
+          commit("UPDATE_AUTOPLAY_STATUS", {
+            viewIndex: viewType,
+            timerId: timer,
+            animationId: animationId,
+            isPlay: true,
+          });
+
+        };
+        // 先赋值，再启动定时器和动画帧
+
+        // 启动动画帧
+        animationId = requestAnimationFrame(animate);
+
+      } else {
+         commit("CLEAR_AUTOPLAY", viewType);
+         const view = getters.viewsData[viewType];
+         if(view.gotoPageIndex != view.changedPageindex){
+          dispatch("updateSliceForView", {
             viewName: view.viewName,
             viewType: view.viewIndex,
-            index: newIndex,
+            index: view.changedPageindex,
           });
-        }, time || 50); // 每秒打印一次
-
-        commit("UPDATE_AUTO_PLAY_TIMER", {viewType, timer});
-      } else {
-        commit("CLEAR_AUTO_PLAY_TIMER", viewType);
+         }
       }
-    },
+    }
+,
 
     /**
      * 页面反向
@@ -1168,7 +1271,6 @@ export default {
 
       view.sliceActor.setScale(newScaleX, currentScale[1], currentScale[2]);
 
-      console.log("currentScale=", currentScale);
 
       dispatch("setupCamera", viewType);
     },
@@ -1184,7 +1286,6 @@ export default {
 
       view.sliceActor.setScale(currentScale[0], newScaleY, currentScale[2]);
 
-      console.log("currentScale=", currentScale);
 
       dispatch("setupCamera", viewType);
     },
@@ -1205,9 +1306,17 @@ export default {
     },
     // 改变平移
     ChangePan({dispatch, state, getters, commit}) {
-      if (state.noduleDiagnoseState.isPan) {
+      if(state.noduleDiagnoseState.isPan){
         state.viewMprViews.forEach((view, objindex) => {
-          console.log(view)
+          const interactorStyle = vtkInteractorStyleImage.newInstance();
+          // interactorStyle.setInteractionMode("IMAGE_PAN");
+          view.view.interactor.setInteractorStyle(interactorStyle);
+
+          view.view.interactor.onLeftButtonPress(()=>{
+            view.view.interactor.getInteractorStyle().endWindowLevel()
+          })
+          // 确保新的 InteractorStyle 被正确设置并激活
+
           dispatch("setupCamera", view.viewIndex);
           view.view.renderWindow.render()
         })
@@ -1215,7 +1324,7 @@ export default {
           key: "isPan",
           value: false,
         });
-      } else {
+      }else{
         state.viewMprViews.forEach((view, objindex) => {
           commit("SET_NODULE_DIAGNOSE_DATA", {
             key: "isPan",
@@ -1223,7 +1332,7 @@ export default {
           });
 
           const interactorStyle = vtkInteractorStyleImage.newInstance();
-          interactorStyle.setInteractionMode("IMAGE_PAN");
+          // interactorStyle.setInteractionMode("IMAGE_PAN");
 
           // 确保新的 InteractorStyle 被正确设置并激活
           view.view.interactor.setInteractorStyle(interactorStyle);
@@ -1238,7 +1347,7 @@ export default {
       dispatch("resizeSliceViews")
 
     }
-    ,
+,
 
     /**
      * 重置视图
@@ -1261,29 +1370,35 @@ export default {
         }
       });
       state.viewMprViews.forEach((view) => {
-        const container = view.view.grw.getContainer();
-        const {width, height} = container.getBoundingClientRect();
+        if(view.view.image){
+          const container = view.view.grw.getContainer();
 
-        view.view.grw.resize(width, height);
-        view.view.renderWindow.render();
-        const point1 = [0, 0, 0];
-        const point2 = [100, 0, 0];
+          const {width, height} = container.getBoundingClientRect();
 
-        coordinate.setValue(...point1);
-        const [point1x] = coordinate.getComputedDoubleDisplayValue(
-          view.view.renderer,
-        );
-        coordinate.setValue(...point2);
+       view.view.grw.resize(width, height);
+       view.view.renderWindow.render();
+       const point1 = [0, 0, 0];
+       const point2 = [100, 0, 0];
 
-        const [point2x] = coordinate.getComputedDoubleDisplayValue(
-          view.view.renderer,
-        );
+       coordinate.setValue(...point1);
+       const [point1x] = coordinate.getComputedDoubleDisplayValue(
+         view.view.renderer,
+       );
+       coordinate.setValue(...point2);
 
-        commit("SET_VIEW_DATA", {
-          viewType: view.viewIndex,
-          key: "scaleLength",
-          value: Math.abs(point2x - point1x),
-        });
+       const [point2x] = coordinate.getComputedDoubleDisplayValue(
+         view.view.renderer,
+       );
+
+       commit("SET_VIEW_DATA", {
+         viewType: view.viewIndex,
+         key: "scaleLength",
+         value: Math.abs(point2x - point1x),
+       });
+        }
+
+
+
       });
     },
   },

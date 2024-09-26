@@ -3,7 +3,7 @@ import {apiOps, testDevOps} from "./options";
 import axios from 'axios'
 const {api, api2, api3, api5, api6, api7} = apiOps;
 
-const {Topbase, study, readwriteFsBase, cb, diagnose, nodule, image} = testDevOps;
+const {Topbase, study, readwriteFsBase, cb, diagnose, nodule, image, single} = testDevOps;
 
 
 // import {getBaseURL} from "@/assets/js/utils";
@@ -281,6 +281,75 @@ export const xhr_getSlice = (formData) => {
   })
 };
 
+/**
+ * algorithmConfig [{}]
+   dicom zip
+ * @param formData
+ * @returns
+ */
+export const xhr_uploadSingleDicom = (formData) => {
+  return Base.submit(null, {
+    method: "POST",
+    autoQs: false,
+    isFormData: true,
+    url: single + urlJson["uploadDicom"],
+    data: formData,
+    transformResponse: [
+      (data) => {
+        return data;
+      },
+      (data) => {
+        return data;
+      },
+    ],
+  })
+    .then((response) => {
+      console.log("response", response);
+    })
+    .catch((error) => {
+      console.log("error", error);
+    });
+};
+
+/**
+ * seriesComputeId
+ *
+ * @param formData
+ * @returns
+ */
+export const xhr_getSingleImage = (formData) => {
+  return new Promise((resolve, reject) => {
+    try {
+      return Base.submit(null, {
+        url: single + urlJson["downloadImage"],
+        data: {
+          ...formData,
+        },
+        responseType: "arraybuffer",
+      }).then(res => {
+        resolve(res);
+      });
+    } catch (error) {
+      reject({error})
+    }
+  })
+};
+
+/**
+ * seriesComputeId
+ *
+ * @param formData
+ * @returns
+ */
+export const xhr_getSingleImageInfo = (formData) => {
+  return Base.submit(null, {
+    url: single + urlJson["initInfo"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
 // /*
 // *
 // * @param formData
@@ -318,7 +387,7 @@ export const xhr_getSlice = (formData) => {
  */
 export const xhr_getModel3d = (formData) => {
   return Base.submit(null, {
-    url: diagnose + urlJson["getModel3d"],
+    url: image + urlJson["download3dModel"],
     data: {
       ...formData,
     },

@@ -148,8 +148,13 @@ export default {
       return parseFloat(this.seriesInfo.sliceThickness).toFixed(2) || '';
     },
     SpacVal() {
-      const [coronalThick, sagittalThick] = this.seriesInfo.pixelSpacing.split(",").map(item => parseFloat(item).toFixed(2));
-      return coronalThick + "/" + sagittalThick || '';
+      if (this.seriesInfo.pixelSpacing) {
+        const [coronalThick, sagittalThick] = this.seriesInfo.pixelSpacing.split(",").map(item => parseFloat(item).toFixed(2));
+        return coronalThick + "/" + sagittalThick || '';
+      } else {
+        return ''
+      }
+
     },
     SpaceShow() {
       return this.datav.SpaceShow || false;
@@ -178,14 +183,18 @@ export default {
   },
   filters: {
     dateTimeFormat(value) {
-      return value.replaceAll('-', '')
+      if (value) {
+        return value.replaceAll('-', '')
+
+      }
+      return ''
     }
   },
   data() {
     return {}
   },
   created() {
-    console.log("this.data===", this.datav);
+    // console.log("this.data===", this.datav);
 
   }
 }

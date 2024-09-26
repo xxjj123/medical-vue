@@ -42,7 +42,6 @@ export const LungFindingEnum = {
 
 
 export function mapObjectToTemplate(obj:Object, template:string,imageCount?:string) {
-  console.log(obj)
   return template
     .replace('{{lobeSegmentlabel}}', obj.lobeSegment.label)
     .replace('{{lobeSegmentname}}', obj.lobeSegment.name)
@@ -58,12 +57,6 @@ export function mapObjectToTemplate(obj:Object, template:string,imageCount?:stri
 }
 
 export function mapObjectListToFindingTemplate(objList:Object[], mode:string,imageCount:string,currentNum:string) {
-  console.log("objList",objList)
-  console.log("objList",mode)
-  console.log("objList",imageCount)
-
-  console.log("objList",mode)
-
 
   let resultBookItems = []
   if (objList.length == 0) {
@@ -180,7 +173,6 @@ export const LungDiagnoseEnum = {
 
 }
 export function mapObjectListToDiagnoseTemplate(objList:Object[], mode:string ) {
-  console.log("resultBookItems2", objList,mode)
 
 
   let resultBookItems = []
@@ -198,7 +190,6 @@ export function mapObjectListToDiagnoseTemplate(objList:Object[], mode:string ) 
       }
 
     })
-    console.log("massList",massList)
     if(massList.length>0){
       if(massList.length==1){
         const selectedItem = massList[0]
@@ -216,7 +207,6 @@ export function mapObjectListToDiagnoseTemplate(objList:Object[], mode:string ) 
       }
 
     }
-    console.log("noduleList",noduleList)
 
     if(noduleList.length>0){
       if(noduleList.length==1){

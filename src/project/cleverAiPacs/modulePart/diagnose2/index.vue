@@ -3,7 +3,7 @@
     <!-- diagnose_page -->
     <PacsPageHeader :bread="true" :filmModeBtn="true">
       <template slot="filmModeCtrl">
-        <filmBar @changeColor="changeColor"></filmBar>
+        <filmBar ref="filmBarRef" @changeColor="changeColor"></filmBar>
         <!-- <div class="fixFileMuil">
           <input ref="Fileinput" type="file" multiple @change="handleFile" />
         </div> -->
@@ -12,7 +12,9 @@
     <div class="main">
       <div class="pacs_container">
         <div class="toolBar">
-          <vskToolbar ref="vskToolbarRef"></vskToolbar>
+          <vskToolbar ref="vskToolbarRef" @UpdateColorWindow="UpdateColorWindow_self"
+            @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self" :windowcolor="{ ww: 1500, wl: -500 }">
+          </vskToolbar>
         </div>
         <div>
           <ViewBoard :seriesInfo="seriesInfo"></ViewBoard>
@@ -51,8 +53,29 @@ import {
   xhr_queryNodule,
 } from "@/api";
 
+import {
+  ButtonNames,
+} from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
+
 import JSZip from "jszip";
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
+
+
+//视窗，窗宽窗位
+const winCtrl = {
+  lung: {
+    ww: 1500,
+    wl: -500,
+  },
+  mediastinal: {
+    ww: 300,
+    wl: 50,
+  },
+  bone: {
+    ww: 1500,
+    wl: 300,
+  },
+};
 export default {
   name: "diagnose",
   components: {
@@ -63,7 +86,7 @@ export default {
     ViewBoard,
   },
   computed: {
-    // 测试 ------ 使用方法时，指定一下模块即可
+    ...mapState("viewInitStore", ["noduleDiagnoseState"]),
     ...mapState("viewsStore", [
       "helloViews",
       "imageData",
@@ -78,18 +101,20 @@ export default {
     ]),
     ...mapState("toolsStore", ["helloTools", "widget"]),
     ...mapGetters("toolsStore", ["combinedState"]),
+
   },
   data() {
     return {
+      ActiveIndex: 0,
       menubarShow: false,
       vskToolbarData: {},
       viewTheme: "",
       showsub: true,
       menuResult: [
-        {des: "nodule", title: "结节", comp: "nodule"},
-        {des: "pneumonia", title: "肺炎", comp: "pneumonia"},
-        {des: "frac", title: "骨折", comp: "pneumonia"},
-        {des: "calcium", title: "钙化积分", comp: "pneumonia"},
+        { des: "nodule", title: "结节", comp: "nodule" },
+        { des: "pneumonia", title: "肺炎", comp: "pneumonia" },
+        { des: "frac", title: "骨折", comp: "pneumonia" },
+        { des: "calcium", title: "钙化积分", comp: "pneumonia" },
       ],
       activeDiagnose: null,
       activeIndex: null,
@@ -97,9 +122,33 @@ export default {
       seriesInfo: {},
     };
   },
+  watch: {
+    noduleDiagnoseState: {
+      handler(nVal, oVal) {
+        requestAnimationFrame(() => {
+          let colorWindow = nVal.colorWindow
+          let colorLevel = nVal.colorLevel
+
+          if (winCtrl.lung.ww == colorWindow && winCtrl.lung.wl == colorLevel) {
+            this.$refs.filmBarRef.activate(0)
+          } else if (winCtrl.mediastinal.ww == colorWindow && winCtrl.mediastinal.wl == colorLevel) {
+
+            this.$refs.filmBarRef.activate(1)
+          } else if (winCtrl.bone.ww == colorWindow && winCtrl.bone.wl == colorLevel) {
+            this.$refs.filmBarRef.activate(2)
+          }
+        })
+      },
+      deep: true,
+      immediate: true,
+    }
+  },
   methods: {
-    ...mapMutations("viewInitStore", ["SET_SERIES_INFO", "SET_NODULE_INFO"]),
-    ...mapActions("viewInitStore", ["InitSlice"]),
+    ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE"]),
+
+    ...mapMutations("viewInitStore", ["SET_SERIES_INFO", "SET_NODULE_INFO", "SET_NODULE_DIAGNOSE_DATA"]),
+
+    ...mapActions("viewInitStore", ["InitSlice", "UpdateColorWindow", "UpdateColorLevel", "ChangePan"]),
     // 测试
     ...mapActions("toolsStore", ["actRun", "updateActRun"]),
     // 正规业务start
@@ -137,28 +186,26 @@ export default {
       });
     },
     GetSeriesInfo(computeSeriesId) {
-      console.log("GetSeriesInfo==");
       return new Promise(async (resolve, reject) => {
-        const result = await xhr_getSeriesInfo({computeSeriesId});
-        console.log(result);
+        const result = await xhr_getSeriesInfo({ computeSeriesId });
         if (result.serviceSuccess) {
           let seriesInfo = result.data.resultData;
           this.seriesInfo = seriesInfo;
           this.SET_SERIES_INFO(seriesInfo);
           this.InitSlice();
-          console.log(seriesInfo);
         }
       });
     },
     changeColor(colorwindow, colrlevel) {
-      console.log("colorwindow,colrlevel", colorwindow, colrlevel)
-      this.$refs.vskToolbarRef.changeColor(colorwindow, colrlevel)
+      requestAnimationFrame(() => {
+        this.$refs.vskToolbarRef.changeColor(colorwindow, colrlevel)
+
+      })
     },
     async Diagnose(computeSeriesId) {
       return new Promise(async (resolve, reject) => {
-        const result = await xhr_queryNodule({computeSeriesId});
+        const result = await xhr_queryNodule({ computeSeriesId });
         if (result.serviceSuccess) {
-          console.log(result.data.resultData);
           //TODO: wait turn new api
           this.SET_NODULE_INFO(result.data.resultData);
           //结节病变列表查询
@@ -223,14 +270,31 @@ export default {
       }
       // });
     },
+    UpdateColorWindow_self(nVal) {
+      this.UpdateColorWindow(nVal)
+      this.SET_NODULE_DIAGNOSE_DATA({
+        key: "colorWindow",
+        value: nVal
+      })
+    },
+    UpdateColorLevel_self(nVal) {
+      this.UpdateColorLevel(nVal)
+      this.SET_NODULE_DIAGNOSE_DATA({
+        key: "colorLevel",
+        value: nVal
+      })
+    },
+    ChangePan_self() {
+      this.ChangePan();
+    }
   },
   created() {
-    this.actRun({a: 1});
+    this.actRun({ a: 1 });
 
     setTimeout(() => {
-      this.actRun({a: 2});
+      this.actRun({ a: 2 });
 
-      this.updateActRun({q: 123123});
+      this.updateActRun({ q: 123123 });
     }, 5000);
 
     // console.log("this.$router", this.$router);
@@ -242,14 +306,22 @@ export default {
       } else {
         // console.log("carplay-已存在");
       }
-      const {computeSeriesId} = this.$route.query;
+      const { computeSeriesId } = this.$route.query;
       this.Diagnose(computeSeriesId);
       this.GetSeriesInfo(computeSeriesId);
     });
 
     this.setClockUpdateDict();
+
+    this.INIT_BUTTON_SHOW_STATE([ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.AiInfo])
+    this.INIT_BUTTON_ACTIVE_STATE([ButtonNames.Szckx, ButtonNames.Jbinfo])
   },
   mounted() { },
+  beforeDestroy() {
+    // 执行退出前的清理操作
+    console.log('组件即将被销毁');
+  }
+
 };
 </script>
 <style lang="less" scoped>

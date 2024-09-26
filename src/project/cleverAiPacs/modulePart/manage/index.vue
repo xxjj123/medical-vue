@@ -59,7 +59,7 @@
         <ta-big-table ref="xTable" height="auto" auto-resize :data="tableData"
           @cell-click="tableDataConfig.cellClickEvent" highlight-hover-row border="inner">
           <ta-big-table-column field="myFavorite" title="#" width="60" fixed="left">
-            <template #default="{row, rowIndex}">
+            <template #default="{ row, rowIndex }">
               <div class="hover:cursor-pointer" @click="handle_star(row, rowIndex)">
                 <ta-icon v-if="row.myFavorite" :style="starOn_style" type="star" theme="filled" />
                 <ta-icon v-else type="star" />
@@ -88,7 +88,7 @@
           </ta-big-table-column>
 
           <ta-big-table-column fixed="right" field="operate" title="操作" width="320">
-            <template #default="{row, rowIndex}">
+            <template #default="{ row, rowIndex }">
               <ta-row type="flex" justify="space-around">
                 <ta-col :span="18">
                   <pacs-abtn :disabled.sync="row.isDisabled" @click="handleEdit(rowIndex, row)">查看结果</pacs-abtn>
@@ -102,7 +102,7 @@
                   </pacs-abtn>
                 </ta-col>
                 <ta-col>
-                  <ta-icon type="close-circle" :style="{color: '#959b9b'}" theme="filled" class="hover:cursor-pointer"
+                  <ta-icon type="close-circle" :style="{ color: '#959b9b' }" theme="filled" class="hover:cursor-pointer"
                     @click="handle_delRow(row, rowIndex)" />
                 </ta-col>
               </ta-row>
@@ -123,7 +123,7 @@
         <ta-big-table ref="xTable_anaRes" height="auto" highlight-hover-row auto-resize :data="tableData_anaRes"
           border="inner">
           <ta-big-table-column field="is-collect" title="#" width="60">
-            <template #default="{row, rowIndex}">
+            <template #default="{ row, rowIndex }">
               <div class="hover:cursor-pointer" @click="handle_star_subTable(row, rowIndex)">
                 <ta-icon v-if="row.myFavorite" :style="starOn_style" type="star" theme="filled" />
                 <ta-icon v-else type="star" />
@@ -142,7 +142,7 @@
             </template>
           </ta-big-table-column>
           <ta-big-table-column field="computeStatus" title="计算状态">
-            <template #default="{row}">
+            <template #default="{ row }">
               <ta-tag v-if="row.computeStatus === '3'" color="rgba(0,175,176,0.15)">计算成功</ta-tag>
               <ta-tag v-if="row.computeStatus === '2'" color="rgba(0,175,176,0.15)">计算中</ta-tag>
               <ta-tag v-if="row.computeStatus === '1'" color="rgba(0,175,176,0.15)">等待计算</ta-tag>
@@ -157,7 +157,7 @@
             <template #default="{}"> 汪彩霞 </template>
           </ta-big-table-column>
           <ta-big-table-column fixed="right" field="operate" title="操作" width="320">
-            <template #default="{row, rowIndex}">
+            <template #default="{ row, rowIndex }">
               <ta-row type="flex" justify="space-around">
                 <ta-col :span="18">
                   <pacs-abtn v-if="temp_isViewResultBtn(row.computeStatus)" :disabled.sync="row.isDisabled"
@@ -179,7 +179,7 @@
                   </pacs-abtn>
                 </ta-col>
                 <ta-col>
-                  <ta-icon type="close-circle" :style="{color: '#959b9b'}" theme="filled" class="hover:cursor-pointer"
+                  <ta-icon type="close-circle" :style="{ color: '#959b9b' }" theme="filled" class="hover:cursor-pointer"
                     @click="handle_delRow_subTable(row, rowIndex)" />
                 </ta-col>
               </ta-row>
@@ -192,14 +192,15 @@
     <ta-drawer :title="fileDraw.title" :headerHeight="fileDraw.headerHeight" placement="right" :width="fileDraw.width"
       :headerStyle="fileDraw.headerStyle" :bodyStyle="fileDraw.bodyStyle" :wrapStyle="fileDraw.wrapStyle"
       @close="fileDraw.onClose" :visible="fileDraw.visible">
+
       <ta-spin :spinning="spinning">
         <div class="custom_panel">
           <div class="custom_title pb-[20px]">上传数据</div>
           <div class="custom_context">
             <div class="upload_box border border-dashed border-white pt-[50px] pb-[50px]">
-              <ta-upload-dragger name="file" :multiple="false" webkitdirectory directory :showUploadList="false"
-                @change="uploadObj.handleChange" :file-list="uploadObj.fileList" :before-upload="uploadObj.beforeUpload"
-                :remove="uploadObj.handleRemove" style="background: transparent">
+              <ta-upload-dragger name="file" :multiple="true" :showUploadList="false" @change="uploadObj.handleChange"
+                :file-list="uploadObj.fileList" :before-upload="uploadObj.beforeUpload" :remove="uploadObj.handleRemove"
+                style="background: transparent">
                 <div class="ant-upload-drag-icon">
                   <ta-button type="primary" icon="upload" class="mb-4">上传数据</ta-button>
                 </div>
@@ -235,14 +236,14 @@
               <ta-big-table-column field="Upload_time" title="上传时间">
               </ta-big-table-column>
               <ta-big-table-column field="state" title="状态">
-                <template #default="{row}">
+                <template #default="{ row }">
                   <template v-if="row.state === '1'">
                     上传成功
                   </template>
                 </template>
               </ta-big-table-column>
               <ta-big-table-column field="mathtype" title="算法类型">
-                <template #default="{row}">
+                <template #default="{ row }">
                   <template v-if="row.mathtype === '1'">自动</template>
                 </template>
               </ta-big-table-column>
@@ -271,6 +272,7 @@ import {
   uploadExamination,
   isExit,
   xhr_uploadDicom,
+  xhr_uploadSingleDicom,
   xhr_pageStudies,
   xhr_addFavorite,
   xhr_removeFavorite,
@@ -278,7 +280,7 @@ import {
   xhr_deleteSeries,
   xhr_deleteStudy,
 } from "@/api";
-import {v4 as uuidv4} from "uuid";
+import { v4 as uuidv4 } from "uuid";
 // import dicomParser from "dicom-parser/dist/dicomParser.js";
 // import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoaderNoWebWorkers.bundle.min";
 // import cornerstone from "cornerstone-core";
@@ -293,8 +295,8 @@ import {v4 as uuidv4} from "uuid";
 import cornerstoneWADOImageLoader from "@cornerstonejs/dicom-image-loader";
 import JSZip from "jszip";
 
-import {readDicomTags} from "@itk-wasm/dicom";
-import {dicomTagsDescriptions} from "@/assets/js/utils/dicom/codeDesc";
+import { readDicomTags } from "@itk-wasm/dicom";
+import { dicomTagsDescriptions } from "@/assets/js/utils/dicom/codeDesc";
 import {
   PATIENT_LABOPTIONS,
   isPatientOptionValid,
@@ -304,7 +306,7 @@ import {
   calculationStatusDictionary,
   isCalculationStatusValid,
 } from "@/assets/js/utils/dicom/computeState";
-import {serializeAge} from "@/assets/js/utils/dicom/inputFormat";
+import { serializeAge } from "@/assets/js/utils/dicom/inputFormat";
 
 import Upload from "@yh/ta404-ui/es/upload";
 import "@yh/ta404-ui/es/upload/style";
@@ -314,13 +316,13 @@ import pacsAbtn from "@/components/pacs-abtn/index.vue";
 
 import AlgorithmTypeSelect from "./module/AlgorithmTypeSelect.vue";
 import moment from "moment";
-import {debounce} from "lodash";
+import { debounce } from "lodash";
 import urlJson from "@/api/collect-api";
-import {apiOps, testDevOps} from "@/api/options";
-const {study} = testDevOps;
+import { apiOps, testDevOps } from "@/api/options";
+const { study } = testDevOps;
 
 
-import {getStorage, createWebStorage, } from '@yh/ta-utils'
+import { getStorage, createWebStorage, } from '@yh/ta-utils'
 
 
 export default {
@@ -343,9 +345,10 @@ export default {
   },
   data() {
     return {
+      mappedValues: {},
       tableDataConfig: {
-        cellClickEvent: ({row, rowIndex, $rowIndex, column}) => {
-          const {property} = column;
+        cellClickEvent: ({ row, rowIndex, $rowIndex, column }) => {
+          const { property } = column;
           // if(property !== "myFavorite" && property !== "operate"){
           if (property !== "myFavorite") {
             // console.log(
@@ -357,7 +360,7 @@ export default {
             //   $rowIndex,
             // );
 
-            const {seriesList, myFavorite, isDisabled} = row;
+            const { seriesList, myFavorite, isDisabled } = row;
 
             let newSeriesList = [];
 
@@ -371,23 +374,19 @@ export default {
 
             const row1 = row;
 
-            const {seriesList: _, ...studySelectItem} = row1;
-            console.log("studySelectItem=", studySelectItem);
+            const { seriesList: _, ...studySelectItem } = row1;
 
 
             const localDb = getStorage('#_st', 'studySelectItem', true)
 
-            console.log("studySelectItem=value", localDb);
             if (localDb) {
-              const storage = createWebStorage('#_st', {isLocal: true, })
+              const storage = createWebStorage('#_st', { isLocal: true, })
               const skItem = storage.get('studySelectItem')
-              console.log("studySelectItem--", skItem);
               // storage.remove('studySelectItem');
               storage.set('studySelectItem', studySelectItem)
-              console.log("change----", storage.get('studySelectItem'))
 
             } else {
-              const storage = createWebStorage('#_st', {isLocal: true, })
+              const storage = createWebStorage('#_st', { isLocal: true, })
               storage.set('studySelectItem', studySelectItem)
             }
 
@@ -397,7 +396,7 @@ export default {
           }
         },
         formatter: {
-          patientAge: ({cellValue}) => {
+          patientAge: ({ cellValue }) => {
             const newCellVal = serializeAge({
               dataSource: cellValue,
               unit: true,
@@ -569,7 +568,7 @@ export default {
           };
           // console.log("fnParams----this.form", this.form);
           let ExtParams = {};
-          const {patientInfo, patientValue, rangeDate} = this.form;
+          const { patientInfo, patientValue, rangeDate } = this.form;
           // debugger
           const isisPatientOptionValid_state =
             isPatientOptionValid(patientInfo);
@@ -611,7 +610,7 @@ export default {
         confirmLoading: false,
         onOk: async (e) => {
           // console.log("onOk", e);
-          const {fileList} = this.uploadObj;
+          const { fileList } = this.uploadObj;
           // console.log("压缩前-", fileList);
           this.spinning = true;
           if (fileList.length > 0) {
@@ -649,7 +648,7 @@ export default {
             });
 
             const content = zip
-              .generateAsync({type: "blob", compression: "DEFLATE"})
+              .generateAsync({ type: "blob", compression: "DEFLATE" })
               .then((blob) => {
                 // console.log("merge--zip-blob:", blob);
 
@@ -678,28 +677,56 @@ export default {
                 // document.body.removeChild(link);
                 // URL.revokeObjectURL(url);
                 /* api文件测试用 end*/
+                console.log("Modality", this.mappedValues.Modality)
+                if (this.mappedValues.Modality == "CT") {
+                  console.log("xhr_uploadDicom")
 
-                xhr_uploadDicom({
-                  algorithmConfig: `[{}]`,
-                  dicom: zipFile,
-                }).then((item) => {
-                  const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
-                  // console.log("xhr_uploadDicom___item:", item);
-                  // this.tableData_upload_anaRe[0] = {
-                  //   ...this.tableData_upload_anaRes[0],
-                  //   Upload_time:currentTime,
-                  //   state:"1",
-                  //   mathtype:"1"
-                  // }
-                  this.$set(this.tableData_upload_anaRes, 0, {
-                    ...this.tableData_upload_anaRes[0],
-                    Upload_time: currentTime,
-                    state: "1",
-                    mathtype: "1",
+                  xhr_uploadDicom({
+                    algorithmConfig: `[{}]`,
+                    dicom: zipFile,
+                  }).then((item) => {
+                    const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
+                    // console.log("xhr_uploadDicom___item:", item);
+                    // this.tableData_upload_anaRe[0] = {
+                    //   ...this.tableData_upload_anaRes[0],
+                    //   Upload_time:currentTime,
+                    //   state:"1",
+                    //   mathtype:"1"
+                    // }
+                    this.$set(this.tableData_upload_anaRes, 0, {
+                      ...this.tableData_upload_anaRes[0],
+                      Upload_time: currentTime,
+                      state: "1",
+                      mathtype: "1",
+                    });
+                    this.spinning = false;
+                    this.$box.update({ visible: false });
                   });
-                  this.spinning = false;
-                  this.$box.update({visible: false});
-                });
+                }
+                if (this.mappedValues.Modality == "CR") {
+                  console.log("xhr_uploadSingleDicom")
+
+                  xhr_uploadSingleDicom({
+                    dicom: zipFile,
+                  }).then((item) => {
+                    const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
+                    // console.log("xhr_uploadDicom___item:", item);
+                    // this.tableData_upload_anaRe[0] = {
+                    //   ...this.tableData_upload_anaRes[0],
+                    //   Upload_time:currentTime,
+                    //   state:"1",
+                    //   mathtype:"1"
+                    // }
+                    this.$set(this.tableData_upload_anaRes, 0, {
+                      ...this.tableData_upload_anaRes[0],
+                      Upload_time: currentTime,
+                      state: "1",
+                      mathtype: "1",
+                    });
+                    this.spinning = false;
+                    this.$box.update({ visible: false });
+                  });
+                }
               });
           }
         },
@@ -708,7 +735,7 @@ export default {
           // this.algorMathSelectConfig.show = false;
           // console.log("this.$box==onCancel",this.$box);
 
-          this.$box.update({visible: false});
+          this.$box.update({ visible: false });
         },
       },
       spinning: false,
@@ -787,7 +814,9 @@ export default {
               this.$ut
                 .convertDicomTags(this.tags, dicomTagsDescriptions)
                 .then((sysDicomTagInfo) => {
-                  // console.log("sysDicomTagInfo=", sysDicomTagInfo);
+                  console.log("sysDicomTagInfo=", sysDicomTagInfo);
+
+
                   this.$message.success(`序列 解析完成`, 10);
 
                   const fieldsToMap = [
@@ -795,18 +824,19 @@ export default {
                     "Patient_ID",
                     "Study_Instance_UID",
                     "Series_Description",
+                    "Modality"
                   ];
 
                   const mappedValues = this.$ut.mapDicomTagsToValues(
                     sysDicomTagInfo,
                     fieldsToMap,
                   );
-
+                  console.log("mappedValues", mappedValues)
                   // console.log("mappedValues==", mappedValues);
                   this.mappedValues = mappedValues;
                   this.tableData_upload_anaRes.push(this.mappedValues);
                   this.spinning = false;
-                  const {show, onOk, onCancel} = this.algorMathSelectConfig;
+                  const { show, onOk, onCancel } = this.algorMathSelectConfig;
                   this.$box = this.$confirm({
                     title: "算法类型选择",
                     icon: false,
@@ -854,18 +884,18 @@ export default {
           this.uploadObj.fileList = newFileList;
         },
         // 测试用
-        fnUpload: (file, fileList) => {
-          // console.log("start----fnUpload file, fileList", file, fileList);/
-          const dicom = fileList[0];
-          // console.log("dicom=", dicom);
-          // debugger;
-          xhr_uploadDicom({
-            algorithmConfig: `[{}]`,
-            dicom,
-          }).then((item) => {
-            // console.log("xhr_uploadDicom___item:", item);
-          });
-        },
+        // fnUpload: (file, fileList) => {
+        //   // console.log("start----fnUpload file, fileList", file, fileList);/
+        //   const dicom = fileList[0];
+        //   // console.log("dicom=", dicom);
+        //   // debugger;
+        //   xhr_uploadDicom({
+        //     algorithmConfig: `[{}]`,
+        //     dicom,
+        //   }).then((item) => {
+        //     // console.log("xhr_uploadDicom___item:", item);
+        //   });
+        // },
       },
       tableData_upload_anaRes: [
         // {
@@ -1003,7 +1033,7 @@ export default {
     // 重新分析1
     handle_replay_xrd1(rowIndex, row) {
       // console.log("sub=handle_replay_xrd", rowIndex, row);
-      const {computeSeriesId} = row;
+      const { computeSeriesId } = row;
       xhr_reCompute({
         computeSeriesId,
       }).then((item) => {
@@ -1011,7 +1041,7 @@ export default {
       });
     },
     handle_favorite_querylist() {
-      const {myFavorite} = this.managerDicomTableConf;
+      const { myFavorite } = this.managerDicomTableConf;
       if (!myFavorite) {
         this.$set(this.managerDicomTableConf, "myFavorite", true);
         this.init_loadData();
@@ -1089,22 +1119,22 @@ export default {
     },
     goto_workplatform() {
       this.$router.push({
-        path: "diagnose2",
+        path: "picdiagnose",
         query: {
-          computeSeriesId: "1815199526034665474",
+          computeSeriesId: "1836238824598966274",
         },
       });
     },
     handleEdit1(index, row) {
       console.log("handleEdit--manage1", index, row);
-      const {computeSeriesId} = row;
+      const { computeSeriesId } = row;
       // 同步dicom map info
       this.SET_SERIES_MAP_DICOM({
         [computeSeriesId]: row
       })
 
       this.$router.push({
-        path: "diagnose2",
+        path: "diagnose",
         query: {
           computeSeriesId,
         },
@@ -1167,7 +1197,7 @@ export default {
 
       console.time("zip");
       // 生成 zip 文件
-      const zipBlob = await zip.generateAsync({type: "blob"});
+      const zipBlob = await zip.generateAsync({ type: "blob" });
       console.timeEnd("zip");
       // 创建 FormData 对象
       const formData = new FormData();
@@ -1194,7 +1224,7 @@ export default {
 
     handle_star(row, rowIndex) {
       // console.log("row---handle_star", row);
-      const {studyId} = row;
+      const { studyId } = row;
       if (studyId) {
         if (row.myFavorite) {
           xhr_removeFavorite({
@@ -1231,7 +1261,7 @@ export default {
         content: "确定要将该组病变检出结果恢复至初始状态吗？",
         maskClosable: true,
         onOk: () => {
-          const {studyId} = row;
+          const { studyId } = row;
 
           xhr_deleteStudy({
             studyId,
@@ -1256,7 +1286,7 @@ export default {
         content: "确定要将该组病变检出结果恢复至初始状态吗？",
         maskClosable: true,
         onOk: () => {
-          const {computeSeriesId} = row;
+          const { computeSeriesId } = row;
 
           xhr_deleteSeries({
             computeSeriesId,

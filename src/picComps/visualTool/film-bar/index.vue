@@ -53,40 +53,16 @@ export default {
       ],
     };
   },
-  created() {
-    this.$nextTick(() => {
-      this.activeIndex = 0
-      this.activate(activeIndex)
-    })
-  },
   computed: {
     backgroundStyle() {
       return {
         transform: `translateX(${this.activeIndex * 100}%)`,
       };
     },
-    ...mapState("viewInitStore", ["noduleDiagnoseState"]),
   },
   watch: {
-    noduleDiagnoseState: {
-      handler(nVal, oVal) {
-        let colorWindow = nVal.colorWindow
-        let colorLevel = nVal.colorLevel
 
-        if (winCtrl.lung.ww == colorWindow && winCtrl.lung.wl == colorLevel) {
-          this.activate(0)
-        } else if (winCtrl.mediastinal.ww == colorWindow && winCtrl.mediastinal.wl == colorLevel) {
 
-          this.activate(1)
-        } else if (winCtrl.bone.ww == colorWindow && winCtrl.bone.wl == colorLevel) {
-          this.activate(2)
-        } else {
-          this.activeIndex = null
-        }
-      },
-      deep: true,
-      immediate: true,
-    }
   },
   methods: {
     ...mapActions("viewInitStore", ["UpdateColorWindow", "UpdateColorLevel"]),
@@ -95,14 +71,18 @@ export default {
       "UpdateColorLevel_self",
     ]),
     changeLevelWinTheme() {
-      console.log("kaishiUpdateColorLevel");
-      const { tag } = this.buttons[this.activeIndex];
-      const { ww, wl } = winCtrl[tag];
-      this.$emit('changeColor', ww, wl)
+      if (this.activeIndex >= 0) {
+        const { tag } = this.buttons[this.activeIndex];
+        const { ww, wl } = winCtrl[tag];
+        this.$emit('changeColor', ww, wl)
+      }
+
     },
     activate(index) {
-      this.activeIndex = index;
-      this.changeLevelWinTheme();
+      if (index >= 0) {
+        this.activeIndex = index;
+        this.changeLevelWinTheme();
+      }
     },
   },
 };

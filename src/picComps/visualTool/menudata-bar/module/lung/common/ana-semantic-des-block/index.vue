@@ -196,10 +196,6 @@ export default {
     resultBookItems: {
       handler(nVal, oVal) {
         // this.resultBookItems_data = resultBookItems
-        console.log("resultBookItems___________", nVal, oVal);
-        if (nVal) {
-
-        }
 
       },
       immediate: false,
@@ -282,12 +278,11 @@ export default {
       // });
 
 
-      // this.resultBookItems = [
-      //   `右肺上叶前段【39/259】见混合性结节，大小约13.8mmx8.3mm，体积约649.3mm³，平均CT值约-277.6HU`,
-      //   `左肺上叶前段【63/259】见磨玻璃性结节，大小约4.6mmx2.4mm，体积约28.9mm³，平均CT值约-702.2HU。`,
-      //   `左肺上叶前段【78/259】见磨玻璃性结节，大小约6.3mmx2.8mm，体积约49.6mm³，平均CT值约-529.3HU。`,
-      //   `右肺上叶前段【78/259】见磨玻璃性结节，大小约4.9mmx3.7mm，体积约51.0mm³，平均CT值约-634.0HU。`,
-      // ];
+      // 监听复制失败事件
+      clipboard.on('error', (e) => {
+        // 显示错误消息提示
+        this.$message.error("复制失败，请重试");
+      });
     },
     // init_resultBookItems() {
 

@@ -61,15 +61,13 @@ export async function processLungItems(dataSource, keys, subKeyName = 'segments'
     keys.forEach(async key => {
       if (key in item) {
         const value = item[key];
-        console.log("value=", value);
+        // console.log("value=", value);
 
         const itemData = await query_humen_boot_data(); // 假设这是异步操作，这里先同步调用
-        console.log("itemData==", itemData);
+        // console.log("itemData==", itemData);
         const pathStr = `lung.${subKeyName}`;
-        console.log("pathStr=", pathStr);
 
         const rowSelectItem = findObjectByValue(itemData, pathStr, value.toString())[0];
-        console.log("rowSelectItem-->", rowSelectItem);
         if (rowSelectItem) {
           baseData[key] = rowSelectItem; // 将处理结果赋值回 baseData 对象
         }

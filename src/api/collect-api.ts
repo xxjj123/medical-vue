@@ -20,6 +20,8 @@ export default {
   reAnalyse: "/reAnalyse", //重新分析 old
   reCompute: "/reCompute", //重新分析 new
   getVtislice:"/getVtislice",
+  download3dModel:"/download3dModel",
+  downloadImage:"/downloadImage",
 
   /* fs  */
   upload: "/upload", //文件存储-文件上传
