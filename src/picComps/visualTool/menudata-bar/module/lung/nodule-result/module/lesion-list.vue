@@ -274,7 +274,7 @@ export default {
     defaultSelecteRows: {
       get() {
         const ids = []
-        console.log(this.tableConfig.tableData)
+        // console.log(this.tableConfig.tableData)
         if (this.tableConfig.tableData) {
           this.tableConfig.tableData.forEach(item => {
             if (item.checked) {
@@ -290,7 +290,7 @@ export default {
   watch: {
     filmIpt_curItem: {
       handler(nVal, oVal) {
-        console.log("watch-----filmIpt_curItem", nVal, oVal);
+        // console.log("watch-----filmIpt_curItem", nVal, oVal);
         if (nVal) {
           const { value } = nVal;
           if (value === '0') {
@@ -311,7 +311,7 @@ export default {
 
     filmIpt_curItem_1: {
       handler(nVal, oVal) {
-        console.log("watch-----filmIpt_curItem1", nVal, oVal);
+        // console.log("watch-----filmIpt_curItem1", nVal, oVal);
         if (nVal) {
           const { value } = nVal;
           if (value === '') {
@@ -326,27 +326,27 @@ export default {
     "anaSecDesConf.bookItems": {
       handler(nVal, oVal) {
 
-        console.log("watch-------anaSecDesConf.bookItems", nVal, oVal);
+        // console.log("watch-------anaSecDesConf.bookItems", nVal, oVal);
 
       },
       immediate: true,
     },
     lunglistSelectRow: {
       handler(nVal, oVal) {
-        console.log("watch____lunglistSelectRow", nVal, oVal);
+        // console.log("watch____lunglistSelectRow", nVal, oVal);
         if (nVal) {
           const valState = this.validateObject(nVal.lobeSegment);
-          console.log("valState", valState)
+
         }
       },
       immediate: true
     },
     noduleTypeListSelectRow: {
       handler(nVal, oVal) {
-        console.log("watch____noduleTypeListSelectRow", nVal, oVal);
+
         if (nVal) {
           const valState = this.validateObject(nVal.type);
-          console.log("valState", valState)
+
         }
       },
       immediate: true
@@ -1636,7 +1636,7 @@ export default {
         console.log("test3res==", test3res); */
 
       const jsonData = tableItem.focalDetailList;
-      console.log(jsonData);
+      // console.log(jsonData);
 
       this.processJsonData(jsonData).then(() => {
         //finding 所见，diagnosis 诊断
@@ -1659,7 +1659,7 @@ export default {
   },
   created() {
 
-    console.log("noduleInfo====", this.noduleInfo);
+    // console.log("noduleInfo====", this.noduleInfo);
     // console.log("lesion-list:this.menuResult", this.menuResult);
     // this.init_select_LesionList();
     this.init_lesionPanelSearchBar();

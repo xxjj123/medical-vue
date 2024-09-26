@@ -116,6 +116,7 @@
           <div class="ipt">
             <ta-input-number :min="1" :max="4096" style="marginleft: 16px; width: 100px" amountPre="HU" :asAmount="true"
               :alignRight="true" :value="view_window.win_w" v-model="view_window.win_w" />
+
           </div>
         </div>
         <div class="rowWin flex items-center">
@@ -171,6 +172,11 @@ import TaUtils from "@yh/ta-utils";
 export default {
   name: "vsk-tool-bar",
   components: {},
+  props: {
+    windowcolor: {
+
+    }
+  },
   watch: {
     "mjtyms_conf.silder.barValue": {
       handler(nVal, oVal) {
@@ -199,11 +205,6 @@ export default {
         console.log("view_window.win_w", nVal)
         if (nVal) {
           this.$emit('UpdateColorWindow', nVal);
-          // this.UpdateColorWindow(nVal)
-          // this.SET_NODULE_DIAGNOSE_DATA({
-          //   key: "colorWindow",
-          //   value: nVal
-          // })
         }
       },
       immediate: true
@@ -348,8 +349,10 @@ export default {
   created() {
     this.$nextTick(() => {
       requestAnimationFrame(() => {
-        this.view_window.win_w = 1500
-        this.view_window.win_holder = -500
+        console.log("this.windowcolor", this.windowcolor)
+
+        this.view_window.win_w = this.windowcolor.ww
+        this.view_window.win_holder = this.windowcolor.wl
       })
 
     })

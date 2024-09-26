@@ -27,8 +27,12 @@ import vtkITKHelper from "@kitware/vtk.js/Common/DataModel/ITKHelper";
 import {xhr_getSlice,xhr_getSingleImage} from "@/api";
 
 
+import cornerstone from 'cornerstone-core';
+import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
+
+
 const VIEW_COLORS = {
-  BACKGROUND: [0, 0, 0]
+  BACKGROUND: [0.5, 0, 0]
 };
 
 
@@ -37,7 +41,7 @@ export default {
   state: {
     // 选中行study信息，用于提取tags相关信息用
     studies_selected: {},
-    picker: vtkPicker.newInstance(),
+
     series_map_dicom: {},
     seriesInfo: {
       seriesId: "",
@@ -63,7 +67,6 @@ export default {
     diagnoseState:{
       colorWindow:null,
       colorLevel:null,
-      hu:'',
       isPan:false
     }
 
@@ -99,82 +102,62 @@ export default {
       container
     ) {
 
-      const grw = vtkGenericRenderWindow.newInstance();
-      grw.setContainer(container);
-      const {width, height} = container.getBoundingClientRect();
-      grw.resize(width, height);
+      cornerstone.enable(container);
+      const dicomData = await xhr_getSingleImage({
+        studyid: "1838512078533521409",
 
-      const interactorstyle = vtkInteractorStyleImage.newInstance();
-      console.log(interactorstyle)
-      interactorstyle.setInteractionMode("IMAGE2D");
+      }).then(res => res.arrayBuffer());
 
-      const obj = {
-        grw,
-        index: null,
-        image: null,
-        renderWindow: grw.getRenderWindow(),
-        renderer: grw.getRenderer(),
-        interactor: grw.getInteractor(),
-        sliceMapper: vtkImageMapper.newInstance(),
-        sliceActor: vtkImageSlice.newInstance(),
-      };
+      const imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(dicomData);
+      const image = await cornerstone.loadImage(imageId);
+      cornerstone.displayImage(this.$refs.dicomImage, image);
 
-      obj.renderer.setBackground(...VIEW_COLORS.BACKGROUND);
-      obj.renderWindow.addRenderer(obj.renderer);
-      obj.renderWindow.setInteractor(obj.interactor);
-      obj.interactor.initialize();
-      obj.interactor.bindEvents(container);
-      obj.interactor.setInteractorStyle(interactorstyle);
-      obj.interactor.getInteractorStyle().modified();
-      obj.interactor.onLeftButtonPress(()=>{
-        obj.interactor.getInteractorStyle().endWindowLevel()
-      })
-      obj.sliceActor.setMapper(obj.sliceMapper);
-      obj.renderer.addActor(obj.sliceActor);
+    //   const grw = vtkGenericRenderWindow.newInstance();
+    //   grw.setContainer(container);
+    //   const {width, height} = container.getBoundingClientRect();
+    //   grw.resize(width, height);
 
+    //   const interactorstyle = vtkInteractorStyleImage.newInstance();
+    //   console.log(interactorstyle)
+    //   interactorstyle.setInteractionMode("IMAGE2D");
 
-     obj.interactor.onMouseMove((event) => {
-      const view = state.view
-      if(view && view.image){
-        const {x, y} = event.position;
-        state.picker.pick([x, y, 0], view.renderer);
-        const pickedPositions = state.picker.getPickedPositions();
-        if (pickedPositions.length > 0) {
-          const pickedPosition = pickedPositions[0];
+    //   const obj = {
+    //     grw,
+    //     index: null,
+    //     image: null,
+    //     renderWindow: grw.getRenderWindow(),
+    //     renderer: grw.getRenderer(),
+    //     interactor: grw.getInteractor(),
+    //     sliceMapper: vtkImageMapper.newInstance(),
+    //     sliceActor: vtkImageSlice.newInstance(),
+    //   };
 
-          const ijk = view.image
-            .worldToIndex(pickedPosition)
-            .map(Math.round);
-          const imageScales = view.image.getPointData().getScalars();
-          const pageindex =
-            ijk[0] +
-            ijk[1] * view.image.getDimensions()[0] +
-            ijk[2] *
-            view.image.getDimensions()[0] *
-            view.image.getDimensions()[1];
-          const pixelValue = imageScales.getTuple(pageindex);
-          commit("SET_STATE_DATA", {
-            key: "hu",
-            value: pixelValue[0] ,
-          });
-        }
-      }
+    //   obj.renderer.setBackground(...VIEW_COLORS.BACKGROUND);
+    //   obj.renderWindow.addRenderer(obj.renderer);
+    //   obj.renderWindow.setInteractor(obj.interactor);
+    //   obj.interactor.initialize();
+    //   obj.interactor.bindEvents(container);
+    //   obj.interactor.setInteractorStyle(interactorstyle);
+    //   obj.interactor.getInteractorStyle().modified();
+    //   obj.interactor.onLeftButtonPress(()=>{
+    //     obj.interactor.getInteractorStyle().endWindowLevel()
+    //   })
+    //   obj.sliceActor.setMapper(obj.sliceMapper);
+    //   obj.renderer.addActor(obj.sliceActor);
 
-      });
+    //  obj.interactor.onLeftButtonPress((event) => {
+    //     if (state.diagnoseState.isPan) {
+    //       obj.interactor.getInteractorStyle().startPan()
 
-      obj.interactor.onLeftButtonPress((event) => {
-        if (state.diagnoseState.isPan) {
-          obj.interactor.getInteractorStyle().startPan()
+    //     }else{
 
-        }else{
+    //     }
+    //   });
 
-        }
-      });
+    //   commit("SET_VIEW",obj)
 
-      commit("SET_VIEW",obj)
-
-      await dispatch("GetSlice");
-      dispatch("resizeSliceViews")
+    //   await dispatch("GetSlice");
+    //   dispatch("resizeSliceViews")
 
     },
 
@@ -198,44 +181,42 @@ export default {
           const file = new File([res2.data],"image.dcm", { type: 'application/dicom' });
           readImageDicomFileSeries({inputImages:[file]}).then(image=>{
             console.log(image)
-            const outputimage = image.outputImage
-            console.log(outputimage.direction)
-            // outputimage.direction.data = null
-            const imageData = vtkITKHelper.convertItkToVtkImage(outputimage)
-            const view = state.view;
-          commit("SET_VIEW_ITEM",{key:"image",value:imageData})
+            console.log(image.outputImage.direction)
 
-
-          view.sliceMapper.setInputData(imageData);
-          dispatch("setupCamera");
+            const imageData = vtkITKHelper.convertItkToVtkImage({itkImage:image.outputImage})
+            console.log(imageData)
           })
         } else {
           console.error("Request failed: No data returned");
         }
 
-        // const res = await xhr_getSlice({
-        //   seriesId: "1836683063363411969",
-        //   viewName: "axial",
-        //   viewIndex: "67",
-        // });
+        const res = await xhr_getSlice({
+          seriesId: "1836683063363411969",
+          viewName: "axial",
+          viewIndex: "67",
+        });
 
-        // if (res) {
-        //   console.log(res.data)
-        //   clearInterval(loading)
-        //   // return res.data;
-        //   const arraybuffer = res.data;
-        //   const reader = vtkXMLImageDataReader.newInstance();
-        //   reader.parseAsArrayBuffer(arraybuffer);
-        //   const image = reader.getOutputData();
-        //   const view = state.view;
-        //   commit("SET_VIEW_ITEM",{key:"image",value:image})
+        if (res) {
+          console.log(res.data)
+          clearInterval(loading)
+          // return res.data;
+          const arraybuffer = res.data;
+          const reader = vtkXMLImageDataReader.newInstance();
+          reader.parseAsArrayBuffer(arraybuffer);
+          const image = reader.getOutputData();
+          const view = state.view;
+          commit("SET_VIEW_ITEM",{key:"image",value:image})
+          // view.image = image;
+          console.log(image)
+          console.log(view)
+          console.log(view.sliceMapper)
 
-        //   view.sliceMapper.setInputData(image);
-        //   dispatch("setupCamera");
+          view.sliceMapper.setInputData(image);
+          dispatch("setupCamera");
 
-        // } else {
-        //   console.error("Request failed: No data returned");
-        // }
+        } else {
+          console.error("Request failed: No data returned");
+        }
       } catch (error) {
         console.error("Request failed:", error);
       }
@@ -435,14 +416,12 @@ export default {
     resizeSliceViews({dispatch, state, getters, commit}) {
 
       const view = state.view
-    if(view.image){
       const container = view.grw.getContainer();
       const {width, height} = container.getBoundingClientRect();
 
       view.grw.resize(width, height);
       view.renderWindow.render();
 
-    }
     },
 
 

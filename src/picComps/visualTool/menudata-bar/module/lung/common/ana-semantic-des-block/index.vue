@@ -139,7 +139,6 @@ export default {
     resultBookItems: {
       handler(nVal, oVal) {
         // this.resultBookItems_data = resultBookItems
-        console.log("resultBookItems___________", nVal, oVal);
 
       },
       immediate: false,

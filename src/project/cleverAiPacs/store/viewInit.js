@@ -812,14 +812,15 @@ console.log("")
     },
     UpdateColorWindow({state, commit}, value) {
       state.viewMprViews.forEach((view, objindex) => {
-        if(view.view){
+        if(view.view ){
+
           commit("SET_VIEW_DATA", {
             viewType: view.viewIndex,
             key: "Ww",
             value: value,
           });
           view.view.sliceActor.getProperty().setColorWindow(value);
-          view.view.interactor.render();
+          view.view.renderWindow.render();
         }
 
       });
@@ -827,14 +828,14 @@ console.log("")
 
     UpdateColorLevel({state, commit}, value) {
       state.viewMprViews.forEach((view, objindex) => {
-        if(view.view){
+        if(view.view ){
           commit("SET_VIEW_DATA", {
             viewType: view.viewIndex,
             key: "Wl",
             value: value,
           });
           view.view.sliceActor.getProperty().setColorLevel(value);
-          view.view.interactor.render();
+          view.view.renderWindow.render();
         }
 
       });
@@ -1369,29 +1370,35 @@ console.log("")
         }
       });
       state.viewMprViews.forEach((view) => {
-        const container = view.view.grw.getContainer();
-        const {width, height} = container.getBoundingClientRect();
+        if(view.view.image){
+          const container = view.view.grw.getContainer();
 
-        view.view.grw.resize(width, height);
-        view.view.renderWindow.render();
-        const point1 = [0, 0, 0];
-        const point2 = [100, 0, 0];
+          const {width, height} = container.getBoundingClientRect();
 
-        coordinate.setValue(...point1);
-        const [point1x] = coordinate.getComputedDoubleDisplayValue(
-          view.view.renderer,
-        );
-        coordinate.setValue(...point2);
+       view.view.grw.resize(width, height);
+       view.view.renderWindow.render();
+       const point1 = [0, 0, 0];
+       const point2 = [100, 0, 0];
 
-        const [point2x] = coordinate.getComputedDoubleDisplayValue(
-          view.view.renderer,
-        );
+       coordinate.setValue(...point1);
+       const [point1x] = coordinate.getComputedDoubleDisplayValue(
+         view.view.renderer,
+       );
+       coordinate.setValue(...point2);
 
-        commit("SET_VIEW_DATA", {
-          viewType: view.viewIndex,
-          key: "scaleLength",
-          value: Math.abs(point2x - point1x),
-        });
+       const [point2x] = coordinate.getComputedDoubleDisplayValue(
+         view.view.renderer,
+       );
+
+       commit("SET_VIEW_DATA", {
+         viewType: view.viewIndex,
+         key: "scaleLength",
+         value: Math.abs(point2x - point1x),
+       });
+        }
+
+
+
       });
     },
   },

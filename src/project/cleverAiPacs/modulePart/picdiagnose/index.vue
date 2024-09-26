@@ -3,7 +3,7 @@
     <!-- diagnose_page -->
     <PacsPageHeader :bread="true" :filmModeBtn="true">
       <template slot="filmModeCtrl">
-        <filmBar @changeColor="changeColor"></filmBar>
+        <filmBar ref="filmBarRef" @changeColor="changeColor"></filmBar>
 
       </template>
     </PacsPageHeader>
@@ -12,7 +12,8 @@
         <div class="toolBar">
 
           <vskToolbar ref="vskToolbarRef" @UpdateColorWindow="UpdateColorWindow_self"
-            @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self"></vskToolbar>
+            @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self" :windowcolor="{ ww: 4094, wl: 2046 }">
+          </vskToolbar>
         </div>
         <div class="h-full w-full border-amber-3">
           <PicBoard />
@@ -58,6 +59,22 @@ import {
 
 import JSZip from "jszip";
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
+
+const winCtrl = {
+  lung: {
+    ww: 1500,
+    wl: -500,
+  },
+  mediastinal: {
+    ww: 300,
+    wl: 50,
+  },
+  bone: {
+    ww: 1500,
+    wl: 300,
+  },
+};
+
 export default {
   name: "diagnose",
   components: {
@@ -70,8 +87,34 @@ export default {
   },
   data() {
     return {
-
+      ActiveIndex: null,
     };
+  },
+  watch: {
+
+
+    diagnoseState: {
+      handler(nVal, oVal) {
+        requestAnimationFrame(() => {
+          let colorWindow = nVal.colorWindow
+          let colorLevel = nVal.colorLevel
+
+          if (winCtrl.lung.ww == colorWindow && winCtrl.lung.wl == colorLevel) {
+            this.$refs.filmBarRef.activate(0)
+          } else if (winCtrl.mediastinal.ww == colorWindow && winCtrl.mediastinal.wl == colorLevel) {
+
+            this.$refs.filmBarRef.activate(1)
+          } else if (winCtrl.bone.ww == colorWindow && winCtrl.bone.wl == colorLevel) {
+            this.$refs.filmBarRef.activate(2)
+          }
+        })
+      },
+      deep: true,
+      immediate: true,
+    }
+  },
+  computed: {
+    ...mapState("picViewStore", ["diagnoseState"])
   },
   methods: {
     ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE"]),

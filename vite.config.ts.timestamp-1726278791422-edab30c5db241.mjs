@@ -32,7 +32,8 @@ var init_viteCommonConfig = __esm({
           vuex: { find: /^vuex$/, replacement: "vuex/dist/vuex.esm.js" },
           "vue-router": { find: /^vue-router$/, replacement: "vue-router/dist/vue-router.esm.js" },
           // 弃用: common 别名已弃用,请使用@common别名,留在这里只是为了兼容,后期会移除
-          common: fileURLToPath(new URL("./cli/common/src", __vite_injected_original_import_meta_url))
+          common: fileURLToPath(new URL("./cli/common/src", __vite_injected_original_import_meta_url)),
+
         },
         development: {},
         production: {

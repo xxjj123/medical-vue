@@ -98,8 +98,8 @@ export default {
   watch: {
     btnInfoItem: {
       handler(nVal, oVal) {
-        console.log("watch____btnInfoItem", nVal, oVal);
-        console.log("this.btnInfoItemLocal--waaww", this.btnInfoItemLocal);
+        // console.log("watch____btnInfoItem", nVal, oVal);
+        // console.log("this.btnInfoItemLocal--waaww", this.btnInfoItemLocal);
 
       },
       immediate: true,
@@ -109,7 +109,7 @@ export default {
       handler(nVal, oVal) {
         const that = this;
 
-        console.log("localSlice_CT_pic_layout___btngroup-nVal, oVal", nVal, oVal);
+        // console.log("localSlice_CT_pic_layout___btngroup-nVal, oVal", nVal, oVal);
 
         switch (nVal) {
           case LayoutIcons.LGGJST:
@@ -142,7 +142,7 @@ export default {
   created() {
     // this.btnInfoItemLocal = btnInfo[this.TracheaName]
     this.btnInfoItemLocal = JSON.parse(JSON.stringify(btnInfo[this.TracheaName]));
-    console.log("created:btnInfoItemLocal==>>>", this.btnInfoItemLocal);
+    // console.log("created:btnInfoItemLocal==>>>", this.btnInfoItemLocal);
 
   },
   methods: {
@@ -150,17 +150,17 @@ export default {
     ...mapMutations("viewInitStore", ["CLEAR_AUTO_PLAY_TIMER"]),
     ...mapActions("viewInitStore", ["ReverseWindow", "RotateCamera", "AutoPlay", "FlipHorizontal", "FlipVertical"]),
     handle_click_more(btn, index) {
-      console.log("this.btnInfoItem==start", btn, index);
+      // console.log("this.btnInfoItem==start", btn, index);
 
       this.$set(this.btnInfoItem[index], "moreClickOn", !btn.moreClickOn)
 
 
-      console.log("this.btnInfoItem==", this.btnInfoItem);
+      // console.log("this.btnInfoItem==", this.btnInfoItem);
 
 
     },
     handleMenuClick_noduleList(e, item) {
-      console.log("handleMenuClick_noduleList", e, item);
+      // console.log("handleMenuClick_noduleList", e, item);
       let { btn, key: index } = item;
 
       let { keyPath } = e;

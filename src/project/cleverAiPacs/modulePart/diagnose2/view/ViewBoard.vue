@@ -351,9 +351,9 @@ export default {
     }
   },
   created() {
-    console.log("AxialData==", this.AxialData);
-    console.log("CoronalData==", this.CoronalData);
-    console.log("SagittalData==", this.SagittalData);
+    // console.log("AxialData==", this.AxialData);
+    // console.log("CoronalData==", this.CoronalData);
+    // console.log("SagittalData==", this.SagittalData);
 
 
 

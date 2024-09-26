@@ -1,17 +1,31 @@
 <template>
   <div class="  p-5">
+
     <div class="relative  h-full w-full" v-show="jbinfoButtonState">
       <div class="absolute left-0 top-0">
-        11
+        <div> {{ data.manufacturer }}</div>
+        <div> {{ data.institutionName }}</div>
+
       </div>
-      <div class="absolute right-0 top-0">
-        22
+      <div class="absolute right-0 top-0 ">
+        <div>{{ data.patientName }}</div>
+        <div> {{ data.patientId }}</div>
+        <div>
+          {{ data.patientSex }}
+        </div>
+        <div>
+          {{ data.patientAge }}
+        </div>
+
       </div>
       <div class="absolute left-0 bottom-0">
-        33
+        <div>{{ diagnoseState.colorLevel + "/" + diagnoseState.colorWindow }}</div>
+
+        <div> {{ diagnoseState.hu }}</div>
+
       </div>
       <div class="absolute right-0 bottom-0">
-        44
+        <div></div>
       </div>
     </div>
   </div>
@@ -34,7 +48,8 @@ export default {
     };
   },
   props: {
-
+    data: null,
+    diagnoseState: null
   },
   components: {
 

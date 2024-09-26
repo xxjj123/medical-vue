@@ -3,7 +3,7 @@
     <!-- diagnose_page -->
     <PacsPageHeader :bread="true" :filmModeBtn="true">
       <template slot="filmModeCtrl">
-        <filmBar @changeColor="changeColor"></filmBar>
+        <filmBar ref="filmBarRef" @changeColor="changeColor"></filmBar>
         <!-- <div class="fixFileMuil">
           <input ref="Fileinput" type="file" multiple @change="handleFile" />
         </div> -->
@@ -13,7 +13,8 @@
       <div class="pacs_container">
         <div class="toolBar">
           <vskToolbar ref="vskToolbarRef" @UpdateColorWindow="UpdateColorWindow_self"
-            @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self"></vskToolbar>
+            @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self" :windowcolor="{ ww: 1500, wl: -500 }">
+          </vskToolbar>
         </div>
         <div>
           <ViewBoard :seriesInfo="seriesInfo"></ViewBoard>
@@ -58,6 +59,23 @@ import {
 
 import JSZip from "jszip";
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
+
+
+//视窗，窗宽窗位
+const winCtrl = {
+  lung: {
+    ww: 1500,
+    wl: -500,
+  },
+  mediastinal: {
+    ww: 300,
+    wl: 50,
+  },
+  bone: {
+    ww: 1500,
+    wl: 300,
+  },
+};
 export default {
   name: "diagnose",
   components: {
@@ -68,7 +86,7 @@ export default {
     ViewBoard,
   },
   computed: {
-    // 测试 ------ 使用方法时，指定一下模块即可
+    ...mapState("viewInitStore", ["noduleDiagnoseState"]),
     ...mapState("viewsStore", [
       "helloViews",
       "imageData",
@@ -83,9 +101,11 @@ export default {
     ]),
     ...mapState("toolsStore", ["helloTools", "widget"]),
     ...mapGetters("toolsStore", ["combinedState"]),
+
   },
   data() {
     return {
+      ActiveIndex: 0,
       menubarShow: false,
       vskToolbarData: {},
       viewTheme: "",
@@ -101,6 +121,27 @@ export default {
       DiagnoseMenuResult: {},
       seriesInfo: {},
     };
+  },
+  watch: {
+    noduleDiagnoseState: {
+      handler(nVal, oVal) {
+        requestAnimationFrame(() => {
+          let colorWindow = nVal.colorWindow
+          let colorLevel = nVal.colorLevel
+
+          if (winCtrl.lung.ww == colorWindow && winCtrl.lung.wl == colorLevel) {
+            this.$refs.filmBarRef.activate(0)
+          } else if (winCtrl.mediastinal.ww == colorWindow && winCtrl.mediastinal.wl == colorLevel) {
+
+            this.$refs.filmBarRef.activate(1)
+          } else if (winCtrl.bone.ww == colorWindow && winCtrl.bone.wl == colorLevel) {
+            this.$refs.filmBarRef.activate(2)
+          }
+        })
+      },
+      deep: true,
+      immediate: true,
+    }
   },
   methods: {
     ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE"]),
@@ -145,16 +186,13 @@ export default {
       });
     },
     GetSeriesInfo(computeSeriesId) {
-      console.log("GetSeriesInfo==");
       return new Promise(async (resolve, reject) => {
         const result = await xhr_getSeriesInfo({ computeSeriesId });
-        console.log(result);
         if (result.serviceSuccess) {
           let seriesInfo = result.data.resultData;
           this.seriesInfo = seriesInfo;
           this.SET_SERIES_INFO(seriesInfo);
           this.InitSlice();
-          console.log(seriesInfo);
         }
       });
     },
@@ -168,7 +206,6 @@ export default {
       return new Promise(async (resolve, reject) => {
         const result = await xhr_queryNodule({ computeSeriesId });
         if (result.serviceSuccess) {
-          console.log(result.data.resultData);
           //TODO: wait turn new api
           this.SET_NODULE_INFO(result.data.resultData);
           //结节病变列表查询
@@ -276,10 +313,15 @@ export default {
 
     this.setClockUpdateDict();
 
-    this.INIT_BUTTON_SHOW_STATE([ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms])
+    this.INIT_BUTTON_SHOW_STATE([ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.AiInfo])
     this.INIT_BUTTON_ACTIVE_STATE([ButtonNames.Szckx, ButtonNames.Jbinfo])
   },
   mounted() { },
+  beforeDestroy() {
+    // 执行退出前的清理操作
+    console.log('组件即将被销毁');
+  }
+
 };
 </script>
 <style lang="less" scoped>
