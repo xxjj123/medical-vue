@@ -228,8 +228,14 @@ export default {
           case LayoutIcons.MPR:
             this.layout = "2";
             break;
-          case LayoutIcons.YS:
+          case LayoutIcons.AXIAL:
             this.layout = "3";
+            break;
+          case LayoutIcons.CORONAL:
+            this.layout = "4";
+            break;
+          case LayoutIcons.SAGITTAL:
+            this.layout = "5";
             break;
           default:
             return void 0;

@@ -1042,7 +1042,6 @@ console.log("")
           1 / Math.abs(point1[0] - point2[0]),
           1 / Math.abs(point1[1] - point2[1]),
         )
-      console.log("zoomrate===========",zoomrate)
       camera.zoom(
         zoomrate
       );

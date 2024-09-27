@@ -167,6 +167,7 @@ import {
 } from "./assets/js/buttonNameType";
 import * as dicom from "@itk-wasm/dicom";
 
+
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 import TaUtils from "@yh/ta-utils";
 export default {
@@ -248,8 +249,14 @@ export default {
       if (this.view_window?.curInput === LayoutIcons.MPR) {
         classList.push(`${LayoutIcons.MPR}_icon`);
       }
-      if (this.view_window?.curInput === LayoutIcons.YS) {
-        classList.push(`${LayoutIcons.YS}_icon`);
+      if (this.view_window?.curInput === LayoutIcons.AXIAL) {
+        classList.push(`${LayoutIcons.AXIAL}_icon`);
+      }
+      if (this.view_window?.curInput === LayoutIcons.CORONAL) {
+        classList.push(`${LayoutIcons.CORONAL}_icon`);
+      }
+      if (this.view_window?.curInput === LayoutIcons.SAGITTAL) {
+        classList.push(`${LayoutIcons.SAGITTAL}_icon`);
       }
       return classList;
     },

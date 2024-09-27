@@ -9,6 +9,14 @@ export enum ButtonNames {
   Pyms = "pyms", //平移模式
 }
 
+export enum LayoutNames {
+  LGGJ="Lggj",
+  MPR="Mpr",
+  AXIAL="Axial",
+  CORONAL="Coronal",
+  SAGITTAL= "Sagittal",
+}
+
 export let suffix_name = `_on`;
 export let suffix_show = `_show`;
 
@@ -23,7 +31,10 @@ export const toggleButtonState = (name: string, state: {[key: string]: boolean})
 export enum LayoutIcons {
   LGGJST = 'lggjst',
   MPR = 'mpr',
-  YS = 'ys'
+  AXIAL = 'ys',
+  CORONAL="Coronal",
+  SAGITTAL= "Sagittal",
+
 }
 
 

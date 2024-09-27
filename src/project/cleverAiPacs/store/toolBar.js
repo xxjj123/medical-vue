@@ -18,12 +18,12 @@ const ButtonNames = {
   Pyms: "pyms", // 平移模式
 };
 
-const Layouts = {
-  Lggj:"Lggj",
-  Mpr: "Mpr",
-  Axial: "Axial",
-  Coronal: "Coronal",
-  Sagittal: "Sagittal",
+const LayoutNames = {
+  LGGJ:"Lggj",
+  MPR:"Mpr",
+  AXIAL:"Axial",
+  CORONAL:"Coronal",
+  SAGITTAL: "Sagittal",
 
 };
 
@@ -34,7 +34,7 @@ const suffix_show = `_show`;
 export default {
   namespaced: true,
   state: {
-    slice_CT_pic_layout: Layouts.Lggj, //ct-三视图+3d,容器布局方式（ps:这个名称和icon-class对应）
+    slice_CT_pic_layout: LayoutNames.Lggj, //ct-三视图+3d,容器布局方式（ps:这个名称和icon-class对应）
     ...Object.keys(ButtonNames).reduce((acc, key) => {
       acc[`${ButtonNames[key]}${suffix_active}`] = false;
       return acc;

@@ -19,7 +19,6 @@
                 <div v-else class="ifontyhpacs ico_pacsxiajiantou"></div>
               </div>
             </template> -->
-            {{ viewType }}
             <template v-if="btn.child && btn.child.length > 0">
               <template v-if="btn.moreClickOn">
                 <ta-dropdown :placement="'topCenter'" :getPopupContainer="setPopupContainer" :trigger="['click']"
@@ -141,8 +140,13 @@ export default {
           case LayoutIcons.MPR:
             this.layout = "2";
             break;
-          case LayoutIcons.YS:
+          case LayoutIcons.AXIAL:
             this.layout = "3";
+            break;
+          case LayoutIcons.CORONAL:
+            this.layout = "4";
+          case LayoutIcons.SAGITTAL:
+            this.layout = "5";
             break;
           default:
             return void 0;
@@ -298,22 +302,42 @@ export default {
           break;
         case btnLungCodes.SCREEN: {
           console.log("this.slice_CT_pic_layout==SCREEN", this.slice_CT_pic_layout, "layout", this.layout);
-          if (this.layout == 3 || this.layout == 4 || this.layout == 4) {
+          if (this.layout == 3 || this.layout == 4 || this.layout == 5) {
             console.log("this.layout_bak=", this.layout_bak);
 
             // this.SET_SLICE_CT_PIC_LAYOUT(this.layout_bak || LayoutIcons.LGGJST);
             this.SET_SLICE_CT_PIC_LAYOUT(this.layout_bak || LayoutIcons.LGGJST);
 
           } else if (this.layout == 1) {
-            this.layout_bak = LayoutIcons.LGGJST;
-            console.log("this.layout_bak=", this.layout_bak);
-
-
-            this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.YS);
+            if (this.viewType == "2") {
+              this.layout_bak = LayoutIcons.LGGJST;
+              console.log("this.layout_bak=", this.layout_bak);
+              this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.AXIAL);
+            } else if (this.viewType == "1") {
+              this.layout_bak = LayoutIcons.LGGJST;
+              console.log("this.layout_bak=", this.layout_bak);
+              this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.CORONAL);
+            } else if (this.viewType == "0") {
+              this.layout_bak = LayoutIcons.LGGJST;
+              console.log("this.layout_bak=", this.layout_bak);
+              this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.SAGITTAL);
+            }
           } else if (this.layout == 2) {
             this.layout_bak = LayoutIcons.MPR;
 
-            this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.YS);
+            if (this.viewType == "2") {
+              this.layout_bak = LayoutIcons.LGGJST;
+              console.log("this.layout_bak=", this.layout_bak);
+              this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.AXIAL);
+            } else if (this.viewType == "1") {
+              this.layout_bak = LayoutIcons.LGGJST;
+              console.log("this.layout_bak=", this.layout_bak);
+              this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.CORONAL);
+            } else if (this.viewType == "0") {
+              this.layout_bak = LayoutIcons.LGGJST;
+              console.log("this.layout_bak=", this.layout_bak);
+              this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.SAGITTAL);
+            }
           }
         }
           break;
