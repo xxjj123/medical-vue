@@ -1124,7 +1124,14 @@ console.log("")
      */
     async ChooseAnnotation({state, dispatch, getters, commit}, bboxindex) {
 
-
+      getters.viewsData.forEach((viewdata, index) => {
+        commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
+  commit("UPDATE_AUTOPLAY_STATUS", {
+    viewIndex: viewdata.viewIndex,
+   updates:{
+    isAutoPlay: false,
+   }
+  });})
       state.noduleInfo.noduleLesionList.forEach(async (nodule) => {
         const {points, id} = nodule;
         const bbox = points.split(",").map(Number)
@@ -1136,6 +1143,7 @@ console.log("")
             Math.round((bbox[4] + bbox[5]) / 2),
           ];
           state.annotations.value.forEach((anno) => {
+
             let color = BBOX_COLORS.DEFAULT
             let lineWidth = BBOX_LINEWIDTH.DEFAULT
             if (anno.bboxIndex === bboxindex) {
@@ -1160,6 +1168,7 @@ console.log("")
           await dispatch("UpdateIJK", ijk);
 
           getters.viewsData.forEach((viewdata, index) => {
+
             dispatch("UpdateDisplay", {
               viewType: viewdata.viewIndex,
               changedPageIndex: viewdata.changedPageindex,
@@ -1437,10 +1446,15 @@ console.log("")
          value: Math.abs(point2x - point1x),
        });
         }
-dispatch("setupCamera",view.viewIndex)
+
 
 
       });
     },
+    resizeCamera({state,dispatch}){
+      state.viewMprViews.forEach((view) =>{
+        dispatch("setupCamera",view.viewIndex)
+      })
+    }
   },
 };

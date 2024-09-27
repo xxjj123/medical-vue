@@ -172,7 +172,7 @@ export default {
       btnInfoItemLocal: [],
       current: "",
       nextChildCurrent: "",
-      layout: -1,
+      layout: 1,
       i: 0,
     }
   },

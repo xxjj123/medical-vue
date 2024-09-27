@@ -242,7 +242,9 @@ export default {
         }
         // 设置一个延时为1000毫秒（1秒）的定时器
         requestAnimationFrame(function () {
-          that.resizeViews();
+          that.resizeSliceViews();
+          that.resizeCamera()
+          // dispatch("setupCamera",view.viewIndex)
         });
       },
       immediate: true,
@@ -285,6 +287,7 @@ export default {
       "InitSagittalView",
       "InitSlice",
       "resizeSliceViews",
+      "resizeCamera"
     ]),
     // ...mapActions("view3DStore", ["Init3DView", "resize3DViews"]),
 
