@@ -174,9 +174,10 @@ export default {
         });
     },
     CLEAR_AUTOPLAY(state, viewIndex) {
+      console.log("CLEAR_AUTOPLAY")
       const autoPlayState = state.autoPlayStates[viewIndex];
 
-      if (autoPlayState && autoPlayState.isPlay) {
+      if (autoPlayState && autoPlayState.isAutoPlay) {
         // 清除定时器和动画帧
         if (autoPlayState.timerId) {
           clearInterval(autoPlayState.timerId);
@@ -188,7 +189,7 @@ export default {
         }
 
         // 更新状态
-        autoPlayState.isPlay = false;
+        autoPlayState.isAutoPlay = false;
 
       }
     }
@@ -242,6 +243,67 @@ export default {
     SET_NODULE_DIAGNOSE_DATA(state, { key, value}) {
       state.noduleDiagnoseState[key] = value;
     },
+    RESET_STATE(state){
+      state.isload = false;
+      state.studies_selected = {};
+      state.series_map_dicom = {};
+      state.seriesInfo = {
+        seriesId: "",
+        axialCount: "",
+        coronalCount: "",
+        sagittalCount: "",
+        imageCount: "",
+      };
+      state.viewMprViews = Array.from({length: 3}, () => ({
+        viewIndex: null,
+        viewName: null,
+        view: null,
+        pageIndex: null,
+        dimension: null,
+      }));
+      state.CoronalData = {
+        viewIndex: null,
+        viewName: null,
+        pageIndex: null,
+        dimension: null,
+        changedPageindex: null,
+        displayX: null,
+        displayY: null,
+        scaleLength: null,
+        Ww: null,
+        Wl: null,
+        reversed: false,
+        cameraRotate: 0,
+        hu: "",
+      };
+      state.AxialData = { ...state.CoronalData };
+      state.SagittalData = { ...state.CoronalData };
+      state.noduleInfo = {};
+      state.annotations = { value: [], index: new Set() };
+      state.mouseDown = false;
+      state.autoPlayStates = Array.from({ length: 3 }, () => ({
+        isPlay: false,
+        isAutoPlay: false,
+        viewIndex: null,
+        timerId: null,
+        animationId: null,
+      }));
+      state.autoPlayTimers = Array.from({ length: 3 }, () => ({
+        viewIndex: null,
+        autoPlayTimer: null,
+      }));
+      state.animationIds = Array.from({ length: 3 }, () => ({
+        viewIndex: null,
+        animationId: null,
+      }));
+      state.noduleDiagnoseState = {
+        colorWindow: null,
+        colorLevel: null,
+        isPan: false,
+      };
+      state.selectedNoduleId = null;
+
+    }
 
   },
   actions: {
@@ -510,6 +572,7 @@ export default {
 
     },
     async UpdateIJK({dispatch, getters, commit}, ijk) {
+
       await Promise.all([
         dispatch("updateSliceForView", {
           viewName: VIEW_NAMES.SAGITTAL,
@@ -551,6 +614,8 @@ export default {
 
 
       view.view.interactor.onLeftButtonPress((event) => {
+        dispatch("clearAllAutoplay")
+
         if (!state.noduleDiagnoseState.isPan) {
           dispatch("handleMousePress", {event, view});
         }else{
@@ -586,8 +651,8 @@ export default {
           let animationId;
 
           const animate = () => {
+            console.log("页面更新了",state.isload,getters.viewsData[view.viewIndex].changedPageindex)
             if (!state.isload) {
-
               dispatch("updateSliceForView", {
                 viewName: view.viewName,
                 viewType: view.viewIndex,
@@ -608,7 +673,7 @@ export default {
           // 先赋值，再启动定时器和动画帧
 
           // 启动动画帧
-          animationId = requestAnimationFrame(animate);
+          // animationId = requestAnimationFrame(animate);
         }
       });
       view.view.interactor.onMouseWheel((event) =>
@@ -638,15 +703,15 @@ export default {
       {dispatch, commit, state, getters},
       {event, view},
     ) {
-      getters.viewsData.forEach((viewdata) => {
-        commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
-        commit("UPDATE_AUTOPLAY_STATUS", {
-          viewIndex: viewdata.viewIndex,
-         updates:{
-          isAutoPlay: false,
-         }
-        });
-      });
+      // getters.viewsData.forEach((viewdata) => {
+      //   commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
+      //   commit("UPDATE_AUTOPLAY_STATUS", {
+      //     viewIndex: viewdata.viewIndex,
+      //    updates:{
+      //     isAutoPlay: false,
+      //    }
+      //   });
+      // });
 
       commit("SET_MOUSE_DOWN", true);
       const {x, y} = event.position;
@@ -805,10 +870,10 @@ export default {
                 });
               }
 
-              dispatch("UpdateDisplay", {
-                viewType: index,
-                changedPageIndex: getters.viewsData[index].changedPageindex,
-              });
+              // dispatch("UpdateDisplay", {
+              //   viewType: index,
+              //   changedPageIndex: getters.viewsData[index].changedPageindex,
+              // });
             }
           });
 
@@ -861,6 +926,7 @@ console.log("")
       });
     },
     handleMouseWheel({commit, state, dispatch, getters}, {spinY, view}) {
+      console.log("滚动操作")
       if (getters.viewsData[view.viewIndex].changedPageindex) {
         let newIndex;
         if (spinY > 0) {
@@ -923,6 +989,15 @@ console.log("")
             });
           }
         }
+        console.log("newIndex",newIndex)
+        if(!state.isload){
+          dispatch("updateSliceForView", {
+            viewName: view.viewName,
+            viewType: view.viewIndex,
+            index: getters.viewsData[view.viewIndex].changedPageindex,
+          });
+        }
+
         // dispatch("throttleUpdateSingleSlice", {
         //   viewName: view.viewName,
         //   viewType: view.viewIndex,
@@ -940,7 +1015,7 @@ console.log("")
     ),
     throttleUpdateOtherSlice: throttle(({dispatch}, {viewType, ijk}) => {
       requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
-    }, 150),
+    }, 120),
     async GetSlice({dispatch, state,commit}, {viewName, viewType,index}) {
 
       try {
@@ -958,6 +1033,7 @@ console.log("")
 
         if (res) {
           commit("UPDATE_LOAD_STATUS",false)
+          console.log("已经返回啦")
           clearInterval(loading)
 
           return res.data;
@@ -1122,25 +1198,18 @@ console.log("")
      * 结节标记选择
      * @param {number} bboxindex - 结节索引index
      */
-    async ChooseAnnotation({state, dispatch, getters, commit}, bboxindex) {
+    async ChooseAnnotation({state, dispatch, getters, commit},{currentim,bboxindex}) {
+      dispatch("clearAllAutoplay")
 
-      getters.viewsData.forEach((viewdata, index) => {
-        commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
-  commit("UPDATE_AUTOPLAY_STATUS", {
-    viewIndex: viewdata.viewIndex,
-   updates:{
-    isAutoPlay: false,
-   }
-  });})
       state.noduleInfo.noduleLesionList.forEach(async (nodule) => {
         const {points, id} = nodule;
         const bbox = points.split(",").map(Number)
-
+        // console.log(currentim)
         if (id == bboxindex) {
           const ijk = [
-            Math.round((bbox[0] + bbox[1]) / 2),
-            Math.round((bbox[2] + bbox[3]) / 2),
-            Math.round((bbox[4] + bbox[5]) / 2),
+            Math.floor((bbox[0] + bbox[1]) / 2),
+            Math.floor((bbox[2] + bbox[3]) / 2),
+            Math.floor((bbox[4] + bbox[5]) / 2),
           ];
           state.annotations.value.forEach((anno) => {
 
@@ -1184,21 +1253,10 @@ console.log("")
      * @param {number} time - 单片切换时间，单元毫秒
      */
     AutoPlay({ commit, dispatch, state, getters }, { viewType }) {
-      if (!state.autoPlayStates[viewType].isPlay ) {
-        getters.viewsData.forEach((viewdata) => {
-          if (viewdata.viewIndex !== viewType) {
-            commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
-            commit("UPDATE_AUTOPLAY_STATUS", {
-              viewIndex: viewdata.viewIndex,
-             updates:{
-              isAutoPlay: false,
-             }
-            });
-          }
-        });
+      if (!state.autoPlayStates[viewType].isAutoPlay ) {
+        dispatch("clearAllAutoplay")
 
         const view = state.viewMprViews[viewType];
-
 
         // 定义一个变量来保存 requestAnimationFrame 的 ID
 
@@ -1230,34 +1288,40 @@ console.log("")
                 getters.viewsData[view.viewIndex].changedPageindex,
             });
           }
-        }, 50);
-        // 创建 requestAnimationFrame
-        let animationId;
-
-        const animate = () => {
-          if (!state.isload) {
+          if(!state.isload){
             dispatch("updateSliceForView", {
               viewName: view.viewName,
               viewType: view.viewIndex,
               index: getters.viewsData[view.viewIndex].changedPageindex,
             });
-
           }
-          animationId = requestAnimationFrame(animate);
+        }, 50);
+        // 创建 requestAnimationFrame
+        // let animationId;
+
+        // const animate = () => {
+        //   if (!state.isload) {
+        //     dispatch("updateSliceForView", {
+        //       viewName: view.viewName,
+        //       viewType: view.viewIndex,
+        //       index: getters.viewsData[view.viewIndex].changedPageindex,
+        //     });
+
+        //   }
+        //   animationId = requestAnimationFrame(animate);
           commit("UPDATE_AUTOPLAY_STATUS", {
             viewIndex: viewType,
            updates:{
             timerId: timer,
-            animationId: animationId,
             isPlay: true,
            }
           });
 
-        };
+        // };
         // 先赋值，再启动定时器和动画帧
 
         // 启动动画帧
-        animationId = requestAnimationFrame(animate);
+        // animationId = requestAnimationFrame(animate);
         commit("UPDATE_AUTOPLAY_STATUS", {
           viewIndex: viewType,
          updates:{
@@ -1455,6 +1519,16 @@ console.log("")
       state.viewMprViews.forEach((view) =>{
         dispatch("setupCamera",view.viewIndex)
       })
+    },
+    clearAllAutoplay({state,getters,commit,dispatch}){
+      getters.viewsData.forEach((viewdata) => {
+        commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
+        commit("UPDATE_AUTOPLAY_STATUS", {
+          viewIndex: viewdata.viewIndex,
+         updates:{
+          isAutoPlay: false,
+         }
+        });})
     }
   },
 };

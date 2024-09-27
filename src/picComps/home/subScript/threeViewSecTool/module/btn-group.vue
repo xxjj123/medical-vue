@@ -115,6 +115,23 @@ export default {
         // 从 Vuex 状态获取值
       },
 
+    },
+    currentViewpalyState: {
+      get() {
+        if (this.autoPlayStates[this.viewType]) {
+          return this.autoPlayStates[this.viewType].isPlay;
+        }
+
+        // if (this.viewType == 0) {
+        //   return this.autoPlayStates[this.viewType].isPlay;
+        //   console.log("currentViewAutopalyState", this.autoPlayStates[this.viewType])
+        // }
+        // if (this.viewType) {
+        //   return  return this.autoPlayStates[this.viewType].isPlay;
+        // }
+        // 从 Vuex 状态获取值
+      },
+
     }
   },
   watch: {

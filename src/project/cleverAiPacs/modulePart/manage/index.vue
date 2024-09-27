@@ -558,7 +558,7 @@ export default {
         },
         myFavorite: false,
         queryPagerInfo: () => {
-          const pager = this.$refs.gridPager.getPagerInfo();
+          const pager = this.$refs.gridPager.getPagerInfo({ patientId: '16187278' });
           // console.log("pager--", pager);
           return pager;
         },
@@ -1065,6 +1065,7 @@ export default {
       this.rangeDateOb.show = true;
     },
     init_loadData() {
+      // xhr_pageStudies
       this.$refs.gridPager.loadData((result) => {
         // console.log("loadata-data", result);
         // const pageObj = result?.data?.pageBean;

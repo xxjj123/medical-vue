@@ -281,6 +281,7 @@ export default {
   },
 
   methods: {
+    ...mapMutations("viewInitStore", ["RESET_STATE"]),
     ...mapActions("viewInitStore", [
       "InitAxialView",
       "InitCoronalView",
@@ -365,9 +366,9 @@ export default {
     }
   },
 
-  // beforeDestroy() {
-  //   this.setSlice_CT_pic_layout("1");
-  // },
+  beforeDestroy() {
+    this.RESET_STATE();
+  },
   mounted() {
     this.$nextTick(() => {
       // this.setSlice_CT_pic_layout("1");

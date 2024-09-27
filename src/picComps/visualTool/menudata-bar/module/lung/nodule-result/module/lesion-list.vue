@@ -291,11 +291,6 @@ export default {
       }
 
     },
-    // activeNoduleId: {
-    //   get() {
-    //     return
-    //   }
-    // }
   },
   watch: {
     filmIpt_curItem: {
@@ -867,11 +862,14 @@ export default {
       // console.log(this.$refs.tableLungNodule.getCurrentRecord())
 
       const currentid = this.$refs.tableLungNodule.getCheckboxRecords().id
+      const currentim = this.$refs.tableLungNodule.getCheckboxRecords()
+
       if (currentid !== this.selectedNoduleId) {
         const bboxindex = row.id;
-
-        this.ChooseAnnotation(bboxindex);
-        this.selectedNoduleId = row.id;
+        console.log(row.im)
+        const currentim = row.im
+        this.ChooseAnnotation({ currentim, bboxindex });
+        // this.selectedNoduleId = row.id;
       }
 
       console.log("handleCellClick--row", row, "row.boxIndex", row.boxIndex, "this.tableCurrentIdx", this.tableCurrentIdx);

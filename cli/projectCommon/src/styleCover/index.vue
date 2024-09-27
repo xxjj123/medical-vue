@@ -21,7 +21,7 @@
               </ta-form-model-item>
               <ta-form-model-item label="患者信息">
                 <ta-input-group compact>
-                  <ta-select defaultValue="jch" @change="handleChange_hzinfo" :options="options_patientInfo"
+                  <ta-select defaultValue="011" @change="handleChange_hzinfo" :options="options_patientInfo"
                     :options-key="optionsKey_patientInfo">
                   </ta-select>
                   <ta-input style="width: 100px" />
