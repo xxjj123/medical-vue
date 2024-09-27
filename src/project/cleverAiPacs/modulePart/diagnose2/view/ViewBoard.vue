@@ -281,14 +281,15 @@ export default {
   },
 
   methods: {
-    ...mapMutations("viewInitStore", ["RESET_STATE"]),
+    // ...mapMutations("viewInitStore", ["RESET_STATE"]),
     ...mapActions("viewInitStore", [
       "InitAxialView",
       "InitCoronalView",
       "InitSagittalView",
       "InitSlice",
       "resizeSliceViews",
-      "resizeCamera"
+      "resizeCamera",
+      "beforeViewDestory"
     ]),
     // ...mapActions("view3DStore", ["Init3DView", "resize3DViews"]),
 
@@ -367,7 +368,7 @@ export default {
   },
 
   beforeDestroy() {
-    this.RESET_STATE();
+    this.beforeViewDestory();
   },
   mounted() {
     this.$nextTick(() => {

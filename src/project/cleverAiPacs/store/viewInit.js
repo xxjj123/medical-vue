@@ -550,7 +550,7 @@ export default {
     },
     UpdateDisplayValue({commit, state}, {changedViewType, pagex, pagey}) {
       const view = state.viewMprViews[changedViewType].view;
-      if(view.image){
+      if(view && view.image){
           const world = view.image.indexToWorld([pagex, pagey, 0]);
       coordinate.setValue(...world);
 
@@ -1521,6 +1521,7 @@ console.log("")
       })
     },
     clearAllAutoplay({state,getters,commit,dispatch}){
+      console.log("clearAllAutoplay")
       getters.viewsData.forEach((viewdata) => {
         commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
         commit("UPDATE_AUTOPLAY_STATUS", {
@@ -1529,6 +1530,11 @@ console.log("")
           isAutoPlay: false,
          }
         });})
+    },
+    beforeViewDestory({state,commit,dispatch}){
+      dispatch("clearAllAutoplay")
+commit("RESET_STATE")
+
     }
   },
 };
