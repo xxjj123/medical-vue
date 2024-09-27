@@ -870,10 +870,10 @@ export default {
                 });
               }
 
-              // dispatch("UpdateDisplay", {
-              //   viewType: index,
-              //   changedPageIndex: getters.viewsData[index].changedPageindex,
-              // });
+              dispatch("UpdateDisplay", {
+                viewType: index,
+                changedPageIndex: getters.viewsData[index].changedPageindex,
+              });
             }
           });
 
