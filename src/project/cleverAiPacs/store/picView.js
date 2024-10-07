@@ -299,7 +299,6 @@ export default {
      * @param {number} value - 改变的值
      */
     UpdateColorWindow({state, commit}, value) {
-
       const view = state.view
       if(view.sliceActor){
          view.sliceActor.getProperty().setColorWindow(value );

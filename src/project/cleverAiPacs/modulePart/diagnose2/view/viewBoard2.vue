@@ -9,8 +9,8 @@
     ]">
 
       <div class="side viewbox view-3d">
-        <div class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue" ref="View3DRef"></div>
-        <!-- <view3D class="h-full w-full" ref="view3DRef" :seriesId="seriesInfo.seriesId" /> -->
+        <!-- <div class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue" ref="View3DRef"></div> -->
+        <view3D class="h-full w-full" ref="view3DRef" :seriesId="seriesInfo.seriesId" />
 
       </div>
       <div :class="[
@@ -176,7 +176,6 @@ export default {
       "studies_selected",
     ]),
 
-
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
     ...mapState("toolBarStore", {
       ckcwButtonState: state => state[`${ButtonNames.Ckcw}${suffix_name}`],
@@ -292,10 +291,6 @@ export default {
       "resizeCamera",
       "beforeViewDestory"
     ]),
-    ...mapActions("view3DStore", [
-      "Init3DScene",
-      "Init3DView",
-    ]),
     // ...mapActions("view3DStore", ["Init3DView", "resize3DViews"]),
 
     // ...mapActions("viewsStore", ["init3DView"]),
@@ -379,10 +374,7 @@ export default {
     this.$nextTick(() => {
       // this.setSlice_CT_pic_layout("1");
       this.layout = "1"
-      // this.Init3DView(this.$refs.View3DRef);/
-
-      this.Init3DScene(this.$refs.View3DRef);
-      // this.Init3DView()
+      // this.Init3DView(this.$refs.View3DRef);
       this.InitAxialView(this.$refs.ViewAxialRef);
       this.InitCoronalView(this.$refs.ViewCoronalRef);
       this.InitSagittalView(this.$refs.ViewSagittalRef);

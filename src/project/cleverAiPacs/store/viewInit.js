@@ -329,6 +329,7 @@ export default {
       commit("SET_VIEW_DATA", {viewType, key: "viewIndex", value: viewType});
     },
     async InitMprView({dispatch, commit}, {container, mode}) {
+
       const grw = vtkGenericRenderWindow.newInstance();
       grw.setContainer(container);
       const {width, height} = container.getBoundingClientRect();
@@ -1015,7 +1016,7 @@ console.log("")
     ),
     throttleUpdateOtherSlice: throttle(({dispatch}, {viewType, ijk}) => {
       requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
-    }, 120),
+    }, 150),
     async GetSlice({dispatch, state,commit}, {viewName, viewType,index}) {
 
       try {
@@ -1295,7 +1296,7 @@ console.log("")
               index: getters.viewsData[view.viewIndex].changedPageindex,
             });
           }
-        }, 50);
+        }, 60);
         // 创建 requestAnimationFrame
         // let animationId;
 

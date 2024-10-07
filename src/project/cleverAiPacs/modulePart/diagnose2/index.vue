@@ -149,6 +149,10 @@ export default {
     ...mapMutations("viewInitStore", ["SET_SERIES_INFO", "SET_NODULE_INFO", "SET_NODULE_DIAGNOSE_DATA"]),
 
     ...mapActions("viewInitStore", ["InitSlice", "UpdateColorWindow", "UpdateColorLevel", "ChangePan"]),
+    ...mapActions("view3DStore", [
+      "Init3DScene",
+      "Init3DView",
+    ]),
     // 测试
     ...mapActions("toolsStore", ["actRun", "updateActRun"]),
     // 正规业务start
@@ -193,6 +197,7 @@ export default {
           this.seriesInfo = seriesInfo;
           this.SET_SERIES_INFO(seriesInfo);
           this.InitSlice();
+          this.Init3DView(this.seriesInfo.seriesId)
         }
       });
     },
@@ -307,6 +312,9 @@ export default {
       const { computeSeriesId } = this.$route.query;
       this.Diagnose(computeSeriesId);
       this.GetSeriesInfo(computeSeriesId);
+      // console.log(this.seriesInfo)
+      // this.Init3DView(this.seriesInfo.seriesId)
+
     });
 
     this.setClockUpdateDict();
