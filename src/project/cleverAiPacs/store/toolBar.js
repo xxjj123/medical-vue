@@ -24,6 +24,7 @@ const LayoutNames = {
   AXIAL:"Axial",
   CORONAL:"Coronal",
   SAGITTAL: "Sagittal",
+   RECON : "Recon"
 
 };
 

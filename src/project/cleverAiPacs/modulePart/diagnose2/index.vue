@@ -12,6 +12,9 @@
     <div class="main">
       <div class="pacs_container">
         <div class="toolBar">
+          <button @click="getRecon">靶重建</button>
+          <button @click="clip3D">切割</button>
+
           <vskToolbar ref="vskToolbarRef" @UpdateColorWindow="UpdateColorWindow_self"
             @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self" :windowcolor="{ ww: 1500, wl: -500 }">
           </vskToolbar>
@@ -55,6 +58,7 @@ import {
 
 import {
   ButtonNames,
+  LayoutIcons
 } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
 import JSZip from "jszip";
@@ -99,6 +103,9 @@ export default {
       "Axial",
       "Sagittal",
     ]),
+    ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
+
+
     ...mapState("toolsStore", ["helloTools", "widget"]),
     ...mapGetters("toolsStore", ["combinedState"]),
 
@@ -144,7 +151,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE"]),
+    ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE", "SET_SLICE_CT_PIC_LAYOUT"]),
 
     ...mapMutations("viewInitStore", ["SET_SERIES_INFO", "SET_NODULE_INFO", "SET_NODULE_DIAGNOSE_DATA"]),
 
@@ -152,9 +159,12 @@ export default {
     ...mapActions("view3DStore", [
       "Init3DScene",
       "Init3DView",
+      "CubeClip"
     ]),
+
     // 测试
     ...mapActions("toolsStore", ["actRun", "updateActRun"]),
+
     // 正规业务start
     ...mapActions("viewsStore", ["readFile", "processDicomFiles"]),
 
@@ -165,6 +175,14 @@ export default {
           localStorage.setItem("carplay", JSON.stringify(res));
         });
       }, 10000);
+    },
+    getRecon() {
+      console.log("切换靶重建", LayoutIcons.RECON)
+      this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.RECON);
+
+    },
+    clip3D() {
+      this.CubeClip()
     },
 
     async handleFile(e) {

@@ -391,7 +391,7 @@ export const xhr_getModel3d = (formData) => {
     data: {
       ...formData,
     },
-    responseType: "arraybuffer",
+    responseType: "blob",
   });
 };
 

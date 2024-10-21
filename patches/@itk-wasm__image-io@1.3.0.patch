@@ -1,0 +1,27 @@
+diff --git a/src/pipelines-base-url.ts b/src/pipelines-base-url.ts
+index 2d35a95bc927388396054350b3183d62e6b44995..c713fb1248a00d5ab9cf05a279683dd9c1455849 100644
+--- a/src/pipelines-base-url.ts
++++ b/src/pipelines-base-url.ts
+@@ -10,12 +10,14 @@ export function setPipelinesBaseUrl(baseUrl: string | URL): void {
+ }
+ 
+ export function getPipelinesBaseUrl(): string | URL {
+-  if (typeof pipelinesBaseUrl !== "undefined") {
+-    return pipelinesBaseUrl;
+-  }
+-  const itkWasmPipelinesBaseUrl = itkWasmGetPipelinesBaseUrl();
+-  if (typeof itkWasmPipelinesBaseUrl !== "undefined") {
+-    return itkWasmPipelinesBaseUrl;
+-  }
+-  return defaultPipelinesBaseUrl;
++  console.log("修改了了了了了了了了了了了了了了了")
++  return `../dist/pipelines`
++  // if (typeof pipelinesBaseUrl !== "undefined") {
++  //   return pipelinesBaseUrl;
++  // }
++  // const itkWasmPipelinesBaseUrl = itkWasmGetPipelinesBaseUrl();
++  // if (typeof itkWasmPipelinesBaseUrl !== "undefined") {
++  //   return itkWasmPipelinesBaseUrl;
++  // }
++  // return defaultPipelinesBaseUrl;
+ }

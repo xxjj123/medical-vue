@@ -6,6 +6,7 @@
       { pic_layout_3d: layout === '1' },
       { pic_layout: layout === '2' },
       { pic_layout_original: layout === '3' },
+      { pic_layout_recon: layout === '6' }
     ]">
 
       <div class="side viewbox view-3d">
@@ -238,6 +239,9 @@ export default {
           case LayoutIcons.SAGITTAL:
             this.layout = "5";
             break;
+          case LayoutIcons.RECON:
+            this.layout = "6";
+            break;
           default:
             return void 0;
         }
@@ -463,6 +467,42 @@ export default {
   width: 100% !important;
   height: 100% !important;
   position: absolute !important;
+}
+
+.pic_layout_recon {
+  display: grid;
+  grid-template-columns: 1fr 1fr; // 两列，各占50%
+  grid-template-rows: 1fr; // 设置行高度为1fr，使每行占满高度
+  grid-template-areas: "left right"; // 第1个元素在左边，第二个在右边
+  height: 100%; // 让父容器高度为100%
+
+  &>div {
+    &:nth-child(1) {
+      grid-area: right; // 第1个元素在左边
+      height: 100%; // 高度占满
+    }
+
+    &:nth-child(2) {
+      grid-area: left; // 第2个元素在右边
+      height: 100%; // 高度占满
+    }
+
+    &:nth-child(3),
+    &:nth-child(4) {
+      visibility: hidden; // 隐藏第3和第4个元素
+      // 如果想完全移除，可以使用 display: none;
+      // display: none;
+    }
+  }
+
+
+
+
+  .side {
+    background: rgb(0, 0, 0);
+    height: 100%;
+    border: 1px solid rgb(14, 17, 23);
+  }
 }
 
 .pic_layout {

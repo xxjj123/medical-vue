@@ -15,6 +15,7 @@ export enum LayoutNames {
   AXIAL="Axial",
   CORONAL="Coronal",
   SAGITTAL= "Sagittal",
+  RECON = "Recon"
 }
 
 export let suffix_name = `_on`;
@@ -34,6 +35,7 @@ export enum LayoutIcons {
   AXIAL = 'ys',
   CORONAL="Coronal",
   SAGITTAL= "Sagittal",
+   RECON = "Recon"
 
 }
 
