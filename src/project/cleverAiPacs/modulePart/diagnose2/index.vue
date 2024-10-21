@@ -13,7 +13,11 @@
       <div class="pacs_container">
         <div class="toolBar">
           <button @click="getRecon">靶重建</button>
+          <!-- <button @click="add3DCube">添加3d</button> -->
           <button @click="clip3D">切割</button>
+          <button @click="back">还原</button>
+
+
 
           <vskToolbar ref="vskToolbarRef" @UpdateColorWindow="UpdateColorWindow_self"
             @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self" :windowcolor="{ ww: 1500, wl: -500 }">
@@ -159,7 +163,9 @@ export default {
     ...mapActions("view3DStore", [
       "Init3DScene",
       "Init3DView",
-      "CubeClip"
+      "AddCube",
+      "CubeClip",
+      "Back"
     ]),
 
     // 测试
@@ -183,6 +189,12 @@ export default {
     },
     clip3D() {
       this.CubeClip()
+    },
+    add3DCube() {
+      this.AddCube()
+    },
+    back() {
+      this.Back()
     },
 
     async handleFile(e) {

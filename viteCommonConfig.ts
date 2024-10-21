@@ -80,6 +80,10 @@ const _default: ViteCommonConfig = {
       from: 'node_modules/@yh/ta404-ui/static/*', // 来源路径,相对于项目根路径的相对路径
       to: 'static', // dist目录下的路径
     },
+   {
+     from: 'node_modules/@itk-wasm/image-io/dist/pipelines/*',
+      to: 'assets/pipelines',
+      },
   ],
   // dev/preview有效, 用于在dev/preview时自动打开文件
   // 设置成false可禁用
@@ -170,6 +174,7 @@ const _default: ViteCommonConfig = {
       'virtual:darkMode',
       'virtual:elderly',
       '@itk-wasm/dicom',
+      '@itk-wasm/image-io',
       'itk-wasm',
       'itk',
       // '@kitware/vtk.js',

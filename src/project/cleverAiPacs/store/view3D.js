@@ -17,6 +17,10 @@ import { mat4, vec3, quat } from 'gl-matrix'
 
 import vtkITKHelper from "@kitware/vtk.js/Common/DataModel/ITKHelper";
 import { niftiReadImage} from "@itk-wasm/image-io"
+import vtkCubeSource from '@kitware/vtk.js/Filters/Sources/CubeSource'
+import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper'
+import vtkActor from '@kitware/vtk.js/Rendering/Core/Actor'
+import vtkProperty from '@kitware/vtk.js/Rendering/Core/Property'
 
 import { xhr_getModel3d } from "@/api";
 
@@ -147,7 +151,12 @@ export default {
             0,  1,  0   // 第三行
           ]
 
-          // 应用新的方向矩阵
+          // const newDirection = [
+          //   1,  0,  0,  // 第一行
+          //   0,  0, 1,  // 第二行
+          //   0,  1,  0   // 第三行
+          // ]
+          // // 应用新的方向矩阵
           imageData.setDirection(newDirection);
 
           const mapper = vtkVolumeMapper.newInstance();
@@ -160,6 +169,7 @@ export default {
 
           // Calculate the center of the model
           const bounds = imageData.getBounds(); // [xmin, xmax, ymin, ymax, zmin, zmax]
+          console.log(imageData.getDimensions())
           const centerX = (bounds[0] + bounds[1]) / 2;
           const centerY = (bounds[2] + bounds[3]) / 2;
           const centerZ = (bounds[4] + bounds[5]) / 2;
@@ -180,6 +190,8 @@ export default {
           const renderWindow = state.view3D.renderWindow;
           renderWindow.render();
 
+
+          dispatch("AddCube")
         })
           }
           // this.onWindowResize()
@@ -253,8 +265,61 @@ export default {
       volumeProperty.setSpecularPower(8.0);
 
     },
+    AddCube({commit,dispatch,state}){
+      const view = state.view3D
+      const imageData = view.image
+      const dimensions = imageData.getDimensions()
+      const ijk1 = [dimensions[0] - 157,dimensions[1] - 178, dimensions[2] - 32]
+      const ijk2 =[dimensions[0] - 180,dimensions[1] -  202, dimensions[2] - 46]
+      // 157,180,178,202,32,46
+
+      const iMin = Math.min(ijk1[0], ijk2[0])
+      const iMax = Math.max(ijk1[0], ijk2[0])
+      const jMin = Math.min(ijk1[1], ijk2[1])
+      const jMax = Math.max(ijk1[1], ijk2[1])
+      const kMin = Math.min(ijk1[2], ijk2[2])
+      const kMax = Math.max(ijk1[2], ijk2[2])
+
+      const origin = imageData.indexToWorld([iMin, jMin, kMin])
+      const corner = imageData.indexToWorld([iMax, jMax, kMax])
+
+      const newCenter = [
+        (origin[0] + corner[0]) / 2,
+        (origin[1] + corner[1]) / 2,
+        (origin[2] + corner[2]) / 2,
+      ]
+      const cubeSource = vtkCubeSource.newInstance({
+        xLength: Math.abs(corner[0]-origin[0]),
+        yLength: Math.abs(corner[1]-origin[1]),
+        zLength: Math.abs(corner[2]-origin[2]),
+      });
+      cubeSource.setCenter(...newCenter);
+
+      const cubeMapper = vtkMapper.newInstance();
+      cubeMapper.setInputConnection(cubeSource.getOutputPort());
+
+      const cubeActor = vtkActor.newInstance();
+      const property = vtkProperty.newInstance();
+      property.setColor(1, 1, 0); // 黄色
+      property.setOpacity(0.5);
+
+      cubeActor.setProperty(property);
+      cubeActor.setMapper(cubeMapper);
+
+      // 添加到3D视图的渲染器
+      view.renderer.addActor(cubeActor);
+      view.renderWindow.render();
+    },
+    Back({commit,dispatch,state}){
+      const view = state.view3D
+      view.mapper.removeAllClippingPlanes()
+      view.renderWindow.render();
+    },
 
     CubeClip({commit,dispatch,state}){
+      // dispatch("AddCube")
+
+
       const view = state.view3D
       const imageData = view.image
 
@@ -263,8 +328,8 @@ export default {
       // const ijk1 =  [157, 178, dimensions[2] - 100]
       // const ijk2 = [300, 350, dimensions[2] - 20]
 
-      const ijk1 = [157, 178, dimensions[2] - 32]
-      const ijk2 =[180, 202, dimensions[2] - 46]
+      const ijk1 = [157, 250, dimensions[2] - 32]
+      const ijk2 =[180, 280, dimensions[2] - 66]
 
 
       // 确定裁剪平面的范围
@@ -274,6 +339,8 @@ export default {
       const jMax = Math.max(ijk1[1], ijk2[1])
       const kMin = Math.min(ijk1[2], ijk2[2])
       const kMax = Math.max(ijk1[2], ijk2[2])
+      const origin = imageData.indexToWorld([iMin, jMin, kMin])
+      const corner = imageData.indexToWorld([iMax, jMax, kMax])
 
       // 获取旋转变换
       const rotation = quat.create()
@@ -287,35 +354,9 @@ export default {
       }
 
       // 确定原点和角点
-      const origin = imageData.indexToWorld([iMin, jMin, kMin])
-      const corner = imageData.indexToWorld([iMax, jMax, kMax])
-
-      // const cubeSource = vtkCubeSource.newInstance({
-      //   xLength: Math.abs(corner[0]-origin[0]),
-      //   yLength: Math.abs(corner[1]-origin[0]),
-      //   zLength: Math.abs(corner[2]-origin[0]),
-      // });
-      // cubeSource.setCenter(...newCenter);
-
-      // const cubeMapper = vtkMapper.newInstance();
-      // cubeMapper.setInputConnection(cubeSource.getOutputPort());
-
-      // const cubeActor = vtkActor.newInstance();
-      // const property = vtkProperty.newInstance();
-      // property.setColor(1, 1, 0); // 黄色
-      // property.setOpacity(0.5);
-
-      // cubeActor.setProperty(property);
-      // cubeActor.setMapper(cubeMapper);
-
-      // // 添加到3D视图的渲染器
-      // viewsStore.view3D.renderer.addActor(cubeActor);
-      // viewsStore.view3D.renderWindow.render();
-
-
 
       console.log('Origin:', origin);
-console.log('Corner:', corner);
+      console.log('Corner:', corner);
 
 
       // 创建裁剪平面
@@ -333,11 +374,17 @@ console.log('Corner:', corner);
 
       // 移除现有的裁剪平面并添加新的裁剪平面
       view.mapper.removeAllClippingPlanes()
-      // view.mapper.addClippingPlane(clippingPlanes[5])
-      // view.mapper.addClippingPlane(clippingPlanes[4])
+
       view.mapper.addClippingPlane(clippingPlanes[0])
       view.mapper.addClippingPlane(clippingPlanes[1])
 
+
+      view.mapper.addClippingPlane(clippingPlanes[2])
+      view.mapper.addClippingPlane(clippingPlanes[3])
+
+
+      view.mapper.addClippingPlane(clippingPlanes[4])
+      view.mapper.addClippingPlane(clippingPlanes[5])
 
 
 
