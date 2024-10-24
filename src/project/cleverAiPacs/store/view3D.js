@@ -26,8 +26,8 @@ import { xhr_getModel3d } from "@/api";
 
 const VIEW_COLORS = {
   // BACKGROUND: [0.5, 0.5, 0.5]
-  // BACKGROUND: [0, 0, 0]
-  BACKGROUND: [1,1,1]
+  BACKGROUND: [0, 0, 0]
+  // BACKGROUND: [1,1,1]
 
 };
 
@@ -147,7 +147,7 @@ export default {
           console.log("imageData", imageData);
           const newDirection = [
             1,  0,  0,  // 第一行
-            0,  0, -1,  // 第二行
+            0,  0, 1,  // 第二行
             0,  1,  0   // 第三行
           ]
 
@@ -178,10 +178,10 @@ export default {
           const renderer = state.view3D.renderer;
           const camera = renderer.getActiveCamera();
           console.log(camera)
-          // camera.setFocalPoint(centerX, centerY, centerZ);
-          // camera.setPosition(centerX, centerY, bounds[5] + (bounds[5] - bounds[4]) * 2);
-          // camera.setViewUp(0, 1, 0);
-          // camera.setClippingRange(0.1, 1000);
+          camera.setFocalPoint(centerX, centerY, centerZ);
+          camera.setPosition(centerX, centerY, bounds[5] + (bounds[5] - bounds[4]) * 2);
+          camera.setViewUp(0, 1, 0);
+          camera.setClippingRange(0.1, 1000);
 
           // Optional: Adjust sample distance if needed
           // mapper.setSampleDistance(sampleDistance);
@@ -191,7 +191,7 @@ export default {
           renderWindow.render();
 
 
-          dispatch("AddCube")
+          // dispatch("AddCube")
         })
           }
           // this.onWindowResize()
@@ -216,28 +216,63 @@ export default {
       console.log(segpart)
       if(segpart == 'lung'){
         color.addRGBPoint(-1000, 0.302, 0.302, 1.0)
-            color.addRGBPoint(-900, 0.0, 0.0, 1.0)
-            color.addRGBPoint(-800, 0.133, 0.78, 0.071)
-            color.addRGBPoint(-560, 0.929, 1.0, 0.110)
-            color.addRGBPoint(-300, 0.890, 0.255, 0.024)
-            color.addRGBPoint(2952, 1.0, 0.302, 0.302)
-            color.addRGBPoint(-100, 0.6, 1.0, 0.8)
-            color.addRGBPoint(110, 0.3, 1.0, 0.5);
+        color.addRGBPoint(-900, 0.0, 0.0, 1.0)
+        color.addRGBPoint(-800, 0.133, 0.78, 0.071)
+        color.addRGBPoint(-560, 0.929, 1.0, 0.110)
+        color.addRGBPoint(-300, 0.890, 0.255, 0.024)
+        color.addRGBPoint(2952, 1.0, 0.302, 0.302)
+        color.addRGBPoint(-100, 0.6, 1.0, 0.8)
+        color.addRGBPoint(110, 0.3, 1.0, 0.5);
 
-            opacity.addPoint(-1000.0, 0.0);
-            opacity.addPoint(-300.0, 0.2);
-            opacity.addPoint(-500.0, 0.6);
-            opacity.addPoint(0.0, 0.5);
-            opacity.addPoint(500.0, 0.8);
+        opacity.addPoint(-1000.0, 0.0);
+        opacity.addPoint(-300.0, 0.2);
+        opacity.addPoint(-500.0, 0.6);
+        opacity.addPoint(0.0, 0.5);
+        opacity.addPoint(500.0, 0.8);
 
-            volumeProperty.setGradientOpacityMinimumValue(0, 1);
-            volumeProperty.setGradientOpacityMinimumOpacity(0, 0.0);
-            volumeProperty.setGradientOpacityMaximumValue(0, 600);
-            volumeProperty.setGradientOpacityMaximumOpacity(0, 1.0);
-            volumeProperty.setScalarOpacityUnitDistance(0, 8.0);
+        volumeProperty.setGradientOpacityMinimumValue(0, 1);
+        volumeProperty.setGradientOpacityMinimumOpacity(0, 0.0);
+        volumeProperty.setGradientOpacityMaximumValue(0, 600);
+        volumeProperty.setGradientOpacityMaximumOpacity(0, 1.0);
+        volumeProperty.setScalarOpacityUnitDistance(0, 8.0);
+   }
+
+//    if(segpart == 'lung'){
+//     opacity.addPoint(-1000.0, 0.0);
+// opacity.addPoint(-700.0, 0.3);
+// opacity.addPoint(-500.0, 0.8);
+// opacity.addPoint(-300.0, 0.9);
+// opacity.addPoint(-50.0, 1.0);
+
+// opacity.addPoint(0.0, 0);
+// opacity.addPoint(50.0, 1.0);
+
+// opacity.addPoint(500.0, 1.0);
+
+// // opacity.addPoint(500.0, 0.8);
 
 
-      }else if(segpart == 'rib'){
+//     color.addRGBPoint(-1000, 0.302, 0.302, 1.0)
+//     color.addRGBPoint(-900, 0.0, 0.0, 1.0)
+//     color.addRGBPoint(-800, 0.133, 0.78, 0.071)
+//     color.addRGBPoint(-560, 0.929, 1.0, 0.110)
+//     color.addRGBPoint(-300, 0.890, 0.255, 0.024)
+//     color.addRGBPoint(2952, 1.0, 0.302, 0.302)
+//     color.addRGBPoint(-100, 0.6, 1.0, 0.8)
+//     color.addRGBPoint(110, 0.3, 1.0, 0.5);
+
+
+
+//     volumeProperty.setGradientOpacityMinimumValue(0, 0);
+//     volumeProperty.setGradientOpacityMinimumOpacity(0, 0.3);
+//     volumeProperty.setGradientOpacityMaximumValue(0, 600);
+//     volumeProperty.setGradientOpacityMaximumOpacity(0, 1.0);
+
+//     volumeProperty.setScalarOpacityUnitDistance(0, 10.0);
+
+
+//       }
+      else if(segpart == 'rib'){
         color.addRGBPoint(-2048, 0,0,0)
         color.addRGBPoint(128, 0.0, 0.0, 0.0)
         color.addRGBPoint(160,0.62, 0.00, 0.02)
@@ -269,9 +304,8 @@ export default {
       const view = state.view3D
       const imageData = view.image
       const dimensions = imageData.getDimensions()
-      const ijk1 = [dimensions[0] - 157,dimensions[1] - 178, dimensions[2] - 32]
-      const ijk2 =[dimensions[0] - 180,dimensions[1] -  202, dimensions[2] - 46]
-      // 157,180,178,202,32,46
+      const ijk1 = [157,dimensions[1] - 178, dimensions[2] - 32]
+      const ijk2 =[ 180,dimensions[1] -  202, dimensions[2] - 46]
 
       const iMin = Math.min(ijk1[0], ijk2[0])
       const iMax = Math.max(ijk1[0], ijk2[0])
@@ -325,11 +359,10 @@ export default {
 
       const dimensions = imageData.getDimensions()
 
-      // const ijk1 =  [157, 178, dimensions[2] - 100]
-      // const ijk2 = [300, 350, dimensions[2] - 20]
 
-      const ijk1 = [157, 250, dimensions[2] - 32]
-      const ijk2 =[180, 280, dimensions[2] - 66]
+      const ijk1 = [157,dimensions[1] - 178, dimensions[2] - 32]
+      const ijk2 =[ 180,dimensions[1] -  202, dimensions[2] - 46]
+
 
 
       // 确定裁剪平面的范围
@@ -360,38 +393,42 @@ export default {
 
 
       // 创建裁剪平面
+      // const clippingPlanes = [
+      //   vtkPlane.newInstance({ normal: rotateVec([1, 0, 0]), origin }),
+      //   vtkPlane.newInstance({ normal: rotateVec([-1, 0, 0]), origin: corner }),
+      //   vtkPlane.newInstance({ normal: rotateVec([0, 1, 0]), origin }),
+      //   vtkPlane.newInstance({ normal: rotateVec([0, -1, 0]), origin: corner }),
+      //   vtkPlane.newInstance({ normal: rotateVec([0, 0, 1]), origin }),
+      //   vtkPlane.newInstance({ normal: rotateVec([0, 0, -1]), origin: corner })
+      // ]
       const clippingPlanes = [
-        vtkPlane.newInstance({ normal: rotateVec([1, 0, 0]), origin }),
-        vtkPlane.newInstance({ normal: rotateVec([-1, 0, 0]), origin: corner }),
-        vtkPlane.newInstance({ normal: rotateVec([0, 1, 0]), origin }),
-        vtkPlane.newInstance({ normal: rotateVec([0, -1, 0]), origin: corner }),
-        vtkPlane.newInstance({ normal: rotateVec([0, 0, 1]), origin }),
-        vtkPlane.newInstance({ normal: rotateVec([0, 0, -1]), origin: corner })
-      ]
+        vtkPlane.newInstance({ normal: [1, 0, 0], origin }),
+        vtkPlane.newInstance({ normal: [-1, 0, 0], origin: corner }),
+        vtkPlane.newInstance({ normal: [0, 1, 0], origin }),
+        vtkPlane.newInstance({ normal: [0, -1, 0], origin: corner }),
+        vtkPlane.newInstance({ normal: [0, 0, 1], origin }),
+        vtkPlane.newInstance({ normal: [0, 0, -1], origin: corner }),
+      ];
       clippingPlanes.forEach((plane, index) => {
         console.log(`Clipping plane ${index}:`, plane.getNormal());
       });
 
       // 移除现有的裁剪平面并添加新的裁剪平面
       view.mapper.removeAllClippingPlanes()
+       clippingPlanes.forEach((plane) => {
+        view.mapper.addClippingPlane(plane)
+        console.log(plane.get())
+      })
 
-      view.mapper.addClippingPlane(clippingPlanes[0])
-      view.mapper.addClippingPlane(clippingPlanes[1])
+      // view.mapper.addClippingPlane(clippingPlanes[0])
+      // view.mapper.addClippingPlane(clippingPlanes[1])
 
+      // view.mapper.addClippingPlane(clippingPlanes[2])
+      // view.mapper.addClippingPlane(clippingPlanes[3])
 
-      view.mapper.addClippingPlane(clippingPlanes[2])
-      view.mapper.addClippingPlane(clippingPlanes[3])
+      // view.mapper.addClippingPlane(clippingPlanes[4])
+      // view.mapper.addClippingPlane(clippingPlanes[5])
 
-
-      view.mapper.addClippingPlane(clippingPlanes[4])
-      view.mapper.addClippingPlane(clippingPlanes[5])
-
-
-
-      // clippingPlanes.forEach((plane) => {
-      //   view.mapper.addClippingPlane(plane)
-      //   console.log(plane.get())
-      // })
 
       // 更新并渲染视图
       view.renderWindow.render();

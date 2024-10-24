@@ -276,7 +276,8 @@ import {
   xhr_pageStudies,
   xhr_addFavorite,
   xhr_removeFavorite,
-  xhr_reCompute,
+  xhr_reComputeStudy,
+  xhr_recomputeSeries,
   xhr_deleteSeries,
   xhr_deleteStudy,
 } from "@/api";
@@ -319,7 +320,7 @@ import moment from "moment";
 import { debounce } from "lodash";
 import urlJson from "@/api/collect-api";
 import { apiOps, testDevOps } from "@/api/options";
-const { study } = testDevOps;
+const { study, Case } = testDevOps;
 
 
 import { getStorage, createWebStorage, } from '@yh/ta-utils'
@@ -360,11 +361,11 @@ export default {
             //   $rowIndex,
             // );
 
-            const { seriesList, myFavorite, isDisabled } = row;
+            const { caseSeriesList, myFavorite, isDisabled } = row;
 
             let newSeriesList = [];
 
-            newSeriesList = seriesList.map((vo) => ({
+            newSeriesList = caseSeriesList.map((vo) => ({
               ...vo,
               myFavorite,
               isDisabled,
@@ -548,7 +549,7 @@ export default {
             this.managerDicomTableConf.pageInfo.pageNumber;
           this.managerDicomTableConf.pageInfo.pageSize = pageSize;
         },
-        queryUrl: study + urlJson["pageStudies"],
+        queryUrl: Case + urlJson["pageStudies"],
         pageInfo: {
           pageNumber: 1,
           pageSize: 10,
@@ -682,8 +683,8 @@ export default {
                   console.log("xhr_uploadDicom")
 
                   xhr_uploadDicom({
-                    algorithmConfig: `[{}]`,
-                    dicom: zipFile,
+                    // algorithmConfig: `[{}]`,
+                    caseFile: zipFile,
                   }).then((item) => {
                     const currentTime = moment().format("YYYY-MM-DD HH:mm:ss");
                     // console.log("xhr_uploadDicom___item:", item);
@@ -1028,13 +1029,21 @@ export default {
 
     // 重新分析
     handle_replay_xrd(rowIndex, row) {
+      const { studyId } = row;
+      xhr_reComputeStudy({
+        studyId,
+      }).then((item) => {
+        // console.log("重新分析1 sub=item", item);/
+      });
+
       // console.log("main=handle_replay_xrd", rowIndex, row);
     },
     // 重新分析1
     handle_replay_xrd1(rowIndex, row) {
+
       // console.log("sub=handle_replay_xrd", rowIndex, row);
       const { computeSeriesId } = row;
-      xhr_reCompute({
+      xhr_recomputeSeries({
         computeSeriesId,
       }).then((item) => {
         // console.log("重新分析1 sub=item", item);/
@@ -1143,9 +1152,9 @@ export default {
     },
     handleEdit(index, row) {
       console.log("handleEdit--manage", index, row);
-      const { seriesList } = row;
+      const { caseSeriesList } = row;
       // console.log("seriesList", seriesList[0]);
-      const { computeSeriesId } = seriesList[0];
+      const { computeSeriesId } = caseSeriesList[0];
       this.$router.push({
         path: "diagnose",
         query: {

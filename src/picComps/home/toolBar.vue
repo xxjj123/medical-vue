@@ -6,85 +6,58 @@
       <el-radio-button value="bone">骨窗</el-radio-button>
     </el-radio-group>
     <!-- 主题选择 -->
-    <el-select
-      v-model="currenttheme"
-      placeholder="Select"
-      size="large"
-      style="width: 160px"
-      value-key="index"
-    >
-      <el-option
-        v-for="item in themes"
-        :key="item.index"
-        :label="item.name"
-        :value="item"
-      />
+    <el-select v-model="currenttheme" placeholder="Select" size="large" style="width: 160px" value-key="index">
+      <el-option v-for="item in themes" :key="item.index" :label="item.name" :value="item" />
     </el-select>
     <!-- 窗宽窗位 -->
-    <el-popover
-      placement="bottom"
-      title="窗宽窗位"
-      :width="200"
-      trigger="click"
-    >
+    <el-popover placement="bottom" title="窗宽窗位" :width="200" trigger="click">
       <template #reference>
         <el-button class="m-2">
-          <el-icon><Loading /></el-icon>
+          <el-icon>
+            <Loading />
+          </el-icon>
           <span class="label">窗宽窗位</span>
         </el-button>
       </template>
       灰度：
-      <el-slider
-        :min="0"
-        :max="4096"
-        v-model="windowcolor"
-        @input="UpdateWindowColor"
-      />
+      <el-slider :min="0" :max="4096" v-model="windowcolor" @input="UpdateWindowColor" />
       <el-input v-model="windowcolor" style="max-width: 120px">
         <template #append>HU</template>
       </el-input>
       亮度：
-      <el-slider
-        :min="-1024"
-        :max="3000"
-        v-model="windowlevel"
-        @input="UpdateWindowLevel"
-      />
+      <el-slider :min="-1024" :max="3000" v-model="windowlevel" @input="UpdateWindowLevel" />
       <el-input v-model="windowlevel" style="max-width: 120px">
         <template #append>HU</template>
       </el-input>
     </el-popover>
     <!-- 角标信息 -->
     <el-button @click="ShowSubscript">
-      <el-icon><CaretBottom /></el-icon>
+      <el-icon>
+        <CaretBottom />
+      </el-icon>
       <span class="label">角标</span>
     </el-button>
     <!-- 十字线显示 -->
     <el-button @click="CrossHair">
-      <el-icon><Rank /></el-icon>
+      <el-icon>
+        <Rank />
+      </el-icon>
       <span class="label">十字线</span>
     </el-button>
     <!-- 密集投影模式 -->
     <el-button>
-      <el-popover
-        placement="bottom"
-        title="密集投影"
-        :width="200"
-        trigger="click"
-      >
+      <el-popover placement="bottom" title="密集投影" :width="200" trigger="click">
         <template #reference>
           <el-button class="m-2">
-            <el-icon><PictureFilled /></el-icon>
+            <el-icon>
+              <PictureFilled />
+            </el-icon>
             <span class="label">密集投影</span>
           </el-button>
         </template>
         模式：
         <el-radio-group v-model="slabMode" @change="ChangeSlabMode">
-          <el-radio
-            v-for="(option, index) in slabModes"
-            :key="index"
-            :label="option.value"
-          >
+          <el-radio v-for="(option, index) in slabModes" :key="index" :label="option.value">
             {{ option.label }}
           </el-radio>
         </el-radio-group>
@@ -92,12 +65,16 @@
     </el-button>
     <!-- 关键靶重建 -->
     <el-button>
-      <el-icon><Aim /></el-icon>
+      <el-icon>
+        <Aim @click="GetRecon" />
+      </el-icon>
       <span class="label">关键靶重建</span>
     </el-button>
     <!-- 平移模式 -->
     <el-button @click="StartPan">
-      <el-icon><DCaret /></el-icon>
+      <el-icon>
+        <DCaret />
+      </el-icon>
       <span class="label">平移模式</span>
     </el-button>
   </div>
@@ -202,9 +179,11 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
+
   .el-icon {
     font-size: 15px;
   }
+
   .label {
     display: none;
     position: absolute;
@@ -218,6 +197,7 @@ defineExpose({
     z-index: 10;
   }
 }
+
 .el-radio-button:hover .label,
 .el-button:hover .label {
   display: block;

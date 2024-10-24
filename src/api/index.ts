@@ -3,7 +3,7 @@ import {apiOps, testDevOps} from "./options";
 import axios from 'axios'
 const {api, api2, api3, api5, api6, api7} = apiOps;
 
-const {Topbase, study, readwriteFsBase, cb, diagnose, nodule, image, single} = testDevOps;
+const {Topbase, study, readwriteFsBase, cb, diagnose, nodule, image, single,Case } = testDevOps;
 
 
 // import {getBaseURL} from "@/assets/js/utils";
@@ -38,7 +38,7 @@ export const xhr_uploadDicom = (formData) => {
     isFormData: true,
     // responseType: 'blob',
     // url: api5 + Topbase + study + urlJson['uploadDicom'],
-    url: study + urlJson["uploadDicom"],
+    url: Case + urlJson["uploadCaseFile"],
     data: formData,
     // data: {
     //   ...formData
@@ -74,7 +74,7 @@ export const xhr_uploadDicom = (formData) => {
 export const xhr_removeFavorite = (formData) => {
   return Base.submit(null, {
     // url: api5 + Topbase + study + urlJson['removeFavorite'],
-    url: study + urlJson["removeFavorite"],
+    url: Case + urlJson["removeFavorite"],
     data: {
       ...formData,
     },
@@ -90,7 +90,7 @@ export const xhr_removeFavorite = (formData) => {
 export const xhr_deleteStudy = (formData) => {
   return Base.submit(null, {
     // url: api5 + Topbase + study + urlJson['deleteStudy'],
-    url: study + urlJson["deleteStudy"],
+    url: Case + urlJson["deleteStudy"],
     data: {
       ...formData,
     },
@@ -105,7 +105,7 @@ export const xhr_deleteStudy = (formData) => {
 export const xhr_deleteSeries = (formData) => {
   return Base.submit(null, {
     // url: api5 + Topbase + study + urlJson['deleteSeries'],
-    url: study + urlJson["deleteSeries"],
+    url: Case + urlJson["deleteSeries"],
     data: {
       ...formData,
     },
@@ -120,7 +120,7 @@ export const xhr_deleteSeries = (formData) => {
 export const xhr_addFavorite = (formData) => {
   return Base.submit(null, {
     // url: api5 + Topbase + study + urlJson['addFavorite'],
-    url: study + urlJson["addFavorite"],
+    url: Case + urlJson["addFavorite"],
     data: {
       ...formData,
     },
@@ -161,7 +161,7 @@ export const xhr_pageStudies = (formData) => {
   return Base.submit(null, {
     method: "get",
     // url: api5 + Topbase + study + urlJson['pageStudies'],
-    url: study + urlJson["pageStudies"],
+    url: Case + urlJson["pageStudies"],
     urlParam: {
       ...formData,
     },
@@ -176,12 +176,45 @@ export const xhr_reCompute = (formData) => {
   return Base.submit(null, {
     method: "POST",
     // url: api5 + Topbase + study + urlJson['pageStudies'],
-    url: study + urlJson["reCompute"],
+    url: Case + urlJson["reCompute"],
     data: {
       ...formData,
     },
   });
 };
+
+/**
+ * 重新分析检查
+ * computeSeriesId
+ * @param formData
+ */
+export const xhr_reComputeStudy = (formData) => {
+  return Base.submit(null, {
+    method: "POST",
+    // url: api5 + Topbase + study + urlJson['pageStudies'],
+    url: Case + urlJson["recomputeStudy"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/**
+ * 重新分析序列
+ * computeSeriesId
+ * @param formData
+ */
+export const xhr_recomputeSeries = (formData) => {
+  return Base.submit(null, {
+    method: "POST",
+    // url: api5 + Topbase + study + urlJson['pageStudies'],
+    url: Case + urlJson["recomputeSeries"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
 
 /**
  * seriesComputeId
@@ -280,6 +313,31 @@ export const xhr_getSlice = (formData) => {
     }
   })
 };
+
+/**
+ * seriesComputeId
+ *
+ * @param formData
+ * @returns
+ */
+export const xhr_getDcmSlice = (formData) => {
+  return new Promise((resolve, reject) => {
+    try {
+      return Base.submit(null, {
+        url: image + urlJson["downloadDcmSlice"],
+        data: {
+          ...formData,
+        },
+        responseType: "arraybuffer",
+      }).then(res => {
+        resolve(res);
+      });
+    } catch (error) {
+      reject({error})
+    }
+  })
+};
+
 
 /**
  * algorithmConfig [{}]

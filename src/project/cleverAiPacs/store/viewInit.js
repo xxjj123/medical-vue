@@ -18,9 +18,12 @@ import vtkCoordinate from "@kitware/vtk.js/Rendering/Core/Coordinate";
 import vtkColorTransferFunction from "@kitware/vtk.js/Rendering/Core/ColorTransferFunction";
 import throttle from "lodash/throttle";
 import Vue from "vue";
+import vtkITKHelper from "@kitware/vtk.js/Common/DataModel/ITKHelper";
 
-import {xhr_getSlice} from "@/api";
+import {xhr_getSlice,xhr_getDcmSlice} from "@/api";
 const coordinate = vtkCoordinate.newInstance();
+
+import { gdcmReadImage} from "@itk-wasm/image-io"
 
 const VIEW_TYPES = {
   CORONAL: 1,
@@ -421,7 +424,9 @@ export default {
         await dispatch("UpdateIJK", ijk);
         state.viewMprViews.forEach((view, index) => {
           dispatch("setupInteractor", {view, dimensions});
+          console.log("state.noduleInfo.noduleLesionList",state.noduleInfo.noduleLesionList)
           state.noduleInfo.noduleLesionList.forEach(async (nodule) => {
+            console.log("nodule",nodule)
             const annotation = await dispatch("getAnnotationForView", {
               nodule,
               viewType: view.viewIndex,
@@ -598,11 +603,10 @@ export default {
     async updateSliceForView({dispatch,commit}, {viewName, index, viewType}) {
       if (index === "") return;
       commit("UPDATE_LOAD_STATUS",true)
-      const arraybuffer = await dispatch("GetSlice", {viewName,viewType, index});
+      const imageData = await dispatch("GetSlice", {viewName,viewType, index});
       // commit("UPDATE_LOAD_STATUS",false)
-
-      if (arraybuffer) {
-        await dispatch("UpdateSlice", {arraybuffer, viewType, index});
+      if (imageData) {
+        await dispatch("UpdateSlice", {imageData, viewType, index});
       }
     },
     setupInteractor({dispatch, state, commit,getters}, {view, dimensions}) {
@@ -615,6 +619,7 @@ export default {
 
 
       view.view.interactor.onLeftButtonPress((event) => {
+        console.log("点击了啦啦啦")
         dispatch("clearAllAutoplay")
 
         if (!state.noduleDiagnoseState.isPan) {
@@ -713,7 +718,7 @@ export default {
       //    }
       //   });
       // });
-
+    console.log("点击了按压================================")
       commit("SET_MOUSE_DOWN", true);
       const {x, y} = event.position;
       state.picker.pick([x, y, 0], view.view.renderer);
@@ -762,6 +767,7 @@ export default {
           viewType: view.viewIndex,
           ijk,
         });
+        console.log("trueijk======",ijk,trueijk)
         const imageScales = view.view.image.getPointData().getScalars();
         const pageindex =
           ijk[0] +
@@ -1017,15 +1023,17 @@ console.log("")
     throttleUpdateOtherSlice: throttle(({dispatch}, {viewType, ijk}) => {
       requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
     }, 150),
-    async GetSlice({dispatch, state,commit}, {viewName, viewType,index}) {
-
+    async GetSlice({ dispatch, state, commit }, { viewName, viewType, index }) {
       try {
+        // Start loading indicator
         let loading = setInterval(() => {
           Vue.prototype.$message.destroy();
+        }, 50);
 
-        }, 50)
-        commit("SET_VIEW_DATA", {viewType, key: "gotoPageIndex", value: index});
+        // Update the current view state
+        commit("SET_VIEW_DATA", { viewType, key: "gotoPageIndex", value: index });
 
+        // Request DICOM slice data from the server
         const res = await xhr_getSlice({
           seriesId: state.seriesInfo.seriesId,
           viewName: viewName,
@@ -1033,25 +1041,50 @@ console.log("")
         });
 
         if (res) {
-          commit("UPDATE_LOAD_STATUS",false)
-          console.log("已经返回啦")
-          clearInterval(loading)
+          // Clear loading status once we have a response
+          commit("UPDATE_LOAD_STATUS", false);
+          clearInterval(loading);
 
-          return res.data;
+          // Convert response data to a DICOM file object
+          const file = new File([res.data], "image.dcm", { type: "application/dicom" });
+
+          // Wait for the DICOM image to be read
+          const result = await gdcmReadImage(file);
+          const outputImage = result.image;
+
+          // Convert the output image to vtkImageData
+          const imageData = vtkITKHelper.convertItkToVtkImage(outputImage);
+
+          // Return the imageData
+        // if(viewType!=2){
+        //   const newDirection = [
+        //     1,  0,  0,  // 第一行
+        //     0,  1, 0,  // 第二行
+        //     0,  0,  -1   // 第三行
+        //   ]
+
+
+        //   // // 应用新的方向矩阵
+        //   imageData.setDirection(newDirection);
+        // }
+          return imageData;
         } else {
           console.error("Request failed: No data returned");
+          return null; // Return null or some indication of failure
         }
       } catch (error) {
         console.error("Request failed:", error);
+        return null; // Return null in case of error
       }
     },
+
     async UpdateSlice(
       {commit, dispatch, state},
-      {arraybuffer, viewType, index},
+      {imageData, viewType, index},
     ) {
-      const reader = vtkXMLImageDataReader.newInstance();
-      reader.parseAsArrayBuffer(arraybuffer);
-      const image = reader.getOutputData();
+      // const reader = vtkXMLImageDataReader.newInstance();
+      // reader.parseAsArrayBuffer(arraybuffer);
+      const image = imageData;
       const view = state.viewMprViews[viewType]?.view;
       if (!view) {
         console.error("没有这个页面:", viewType);
@@ -1064,6 +1097,7 @@ console.log("")
           annotation.actor.setVisibility(
             index >= annotation.boundsmin && index <= annotation.boundsmax,
           );
+
         }
       });
 
@@ -1086,9 +1120,14 @@ console.log("")
         (bounds[2] + bounds[3]) / 2,
         (bounds[4] + bounds[5]) / 2,
       ];
+
+
       camera.setFocalPoint(centerX, centerY, centerZ);
-      camera.setPosition(centerX, centerY, centerZ - 1);
-      camera.setViewUp(0, -1, 0);
+        camera.setPosition(centerX, centerY, centerZ - 1);
+        camera.setViewUp(0, -1, 0);
+
+
+      // camera.setViewUp(0, 1, 0);
       view.renderer.resetCamera();
 
       const [point1, point2] = [
@@ -1124,16 +1163,19 @@ console.log("")
       );
       camera.roll(getters.viewsData[viewType].cameraRotate);
 
-
-
       view.renderWindow.render();
     },
 
     addRectangleAnnotation({commit, state}, {view, annotation, bboxindex}) {
       const {xmin, ymin, xmax, ymax, boundsmin, boundsmax} = annotation;
+      let boundsZ = view.view.image.getBounds()[2]
+      if(view.viewIndex == 2){
+        boundsZ = view.view.image.getBounds()[5]
+      }
+      console.log("boundx",view.view.image.getBounds())
       const [worldpoint1, worldpoint2] = [
-        view.view.image.indexToWorld([xmin, ymin, 0]),
-        view.view.image.indexToWorld([xmax, ymax, 0]),
+        view.view.image.indexToWorld([xmin, ymin, boundsZ]),
+        view.view.image.indexToWorld([xmax, ymax,boundsZ]),
       ];
       const points = vtkPoints.newInstance();
       points.setNumberOfPoints(5);
@@ -1155,6 +1197,8 @@ console.log("")
 
       const actor = vtkActor.newInstance();
       actor.setVisibility(false);
+
+
       actor.setMapper(mapper);
       actor.getProperty().setColor(...BBOX_COLORS.DEFAULT);
       actor.getProperty().setLineWidth(1);

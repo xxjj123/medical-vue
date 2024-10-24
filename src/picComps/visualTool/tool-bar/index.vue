@@ -1,5 +1,5 @@
 <template>
-  <div class="vsk-tool-bar flex flex-col">
+  <div class="   flex flex-row first:ml-25">
     <!-- 视窗调整 -->
     <div v-if="btnShowStates.Layout_show" :class="getClassName">
       <div class="pic mr-[5px] hover:cursor-pointer" v-tooltip="{ title: '视窗调整', visible: true }"></div>
@@ -82,6 +82,17 @@
     ]">
       <div @click="handle_iconbtn(`pyms`)" class="pic mr-[5px] hover:cursor-pointer"
         v-tooltip="{ title: '平移模式', visible: true }"></div>
+    </div>
+
+    <!-- 靶重建 -->
+    <div v-if="btnShowStates.pyms_show" :class="[
+      'boxBtn py_icon flex justify-start items-center',
+      {
+        on: btnActiveStates.bcj_on,
+      },
+    ]">
+      <div @click="handle_iconbtn(`bcj`)" class="pic mr-[5px] hover:cursor-pointer"
+        v-tooltip="{ title: '靶重建', visible: true }"></div>
     </div>
 
     <!-- ext -->
@@ -428,6 +439,16 @@ export default {
             console.log("// 平移模式=", !!this.pyms_on);
           }
           break;
+        case ButtonNames.Bcj:
+          {
+            this.TOGGLE_BUTTON_ACTIVE_STATE(ButtonNames.Bcj)
+            toggleButtonState(ButtonNames.Bcj, this);
+            // this.ChangePan();
+            this.$emit("GetRecon")
+            // this.toggleUpdateStartPan(!!this.pyms_on);
+            console.log("// 靶重建=", !!this.bcj_on);
+          }
+          break;
         default:
           break;
       }
@@ -463,8 +484,15 @@ export default {
   height: 18px;
 }
 
+.boxBtn:first-child {
+  margin-left: 20px;
+  /* 或者您想要的任何值 */
+}
+
 .boxBtn {
-  margin-bottom: 27px;
+  // margin-bottom: 27px;
+  margin-right: 10px;
+
 
   &.on {
     .pic {

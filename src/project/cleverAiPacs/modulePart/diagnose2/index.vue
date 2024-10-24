@@ -1,28 +1,39 @@
 <template>
   <div class="diagnose_page flex flex-col">
+
     <!-- diagnose_page -->
     <PacsPageHeader :bread="true" :filmModeBtn="true">
       <template slot="filmModeCtrl">
+
         <filmBar ref="filmBarRef" @changeColor="changeColor"></filmBar>
+
+
         <!-- <div class="fixFileMuil">
           <input ref="Fileinput" type="file" multiple @change="handleFile" />
         </div> -->
       </template>
+      <template slot="vtkTool">
+        <vskToolbar ref="vskToolbarRef" @UpdateColorWindow="UpdateColorWindow_self"
+          @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self" @GetRecon="GetRecon_self"
+          :windowcolor="{ ww: 1500, wl: -500 }">
+        </vskToolbar>
+      </template>
+
     </PacsPageHeader>
     <div class="main">
       <div class="pacs_container">
-        <div class="toolBar">
-          <button @click="getRecon">靶重建</button>
-          <!-- <button @click="add3DCube">添加3d</button> -->
+        <!-- <div class="toolBar"> -->
+        <!-- <button @click="getRecon">靶重建</button> -->
+        <!-- <button @click="add3DCube">添加3d</button>
           <button @click="clip3D">切割</button>
-          <button @click="back">还原</button>
+          <button @click="back">还原</button> -->
 
 
-
-          <vskToolbar ref="vskToolbarRef" @UpdateColorWindow="UpdateColorWindow_self"
-            @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self" :windowcolor="{ ww: 1500, wl: -500 }">
-          </vskToolbar>
-        </div>
+        <!-- <vskToolbar ref="vskToolbarRef" @UpdateColorWindow="UpdateColorWindow_self"
+            @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self" @GetRecon="GetRecon_self"
+            :windowcolor="{ ww: 1500, wl: -500 }">
+          </vskToolbar> -->
+        <!-- </div> -->
         <div>
           <ViewBoard :seriesInfo="seriesInfo"></ViewBoard>
         </div>
@@ -319,6 +330,9 @@ export default {
     },
     ChangePan_self() {
       this.ChangePan();
+    },
+    GetRecon_self() {
+      this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.RECON);
     }
   },
   created() {
@@ -349,7 +363,7 @@ export default {
 
     this.setClockUpdateDict();
 
-    this.INIT_BUTTON_SHOW_STATE([ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms])
+    this.INIT_BUTTON_SHOW_STATE([ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj])
     this.INIT_BUTTON_ACTIVE_STATE([ButtonNames.Jbinfo])
   },
   mounted() { },
@@ -377,7 +391,7 @@ export default {
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: 85px calc(100% - 505px) 420px;
+  grid-template-columns: calc(100% - 425px) 425px;
   grid-template-rows: 100%;
   // background: rgba(104, 102, 102, 0.774);
 }

@@ -26,12 +26,19 @@
           </div>
         </div>
       </template>
-      <div class="absolute inset-0 m-auto w-1/3">
+      <!-- <div class="absolute inset-0 m-auto w-1/3"> -->
+      <div class="flex flex-row inset-0 m-auto  w-1/3 ">
         <!-- 片子视窗模式切换按钮 -->
         <template v-if="filmModeBtn">
           <slot name="filmModeCtrl"> </slot>
         </template>
+        <template v-if="filmModeBtn">
+          <slot name="vtkTool"> </slot>
+        </template>
+
       </div>
+
+
       <div>
         <div class="group_btns flex items-center justify-start">
           <!-- <div

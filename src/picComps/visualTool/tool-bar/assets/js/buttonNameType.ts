@@ -7,6 +7,7 @@ export enum ButtonNames {
   AiInfo = "aiInfo", //ai信息
   Szckx = "szckx", //十字参考线
   Pyms = "pyms", //平移模式
+  Bcj = "bcj" //靶重建
 }
 
 export enum LayoutNames {

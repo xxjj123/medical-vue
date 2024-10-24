@@ -95,7 +95,9 @@ export default {
   max-width: 389px;
   height: 44px;
   padding: 4px;
-  background-color: #111111;
+  // background-color: #111111;
+  background-color: #333333;
+
   border-radius: 8px;
 }
 

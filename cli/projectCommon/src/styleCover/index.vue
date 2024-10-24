@@ -398,8 +398,8 @@ export default {
               /* api文件测试用 end*/
 
               xhr_uploadDicom({
-                algorithmConfig: `[{}]`,
-                dicom: zipFile,
+                // algorithmConfig: `[{}]`,
+                caseFile: zipFile,
               })
                 .then((item) => {
                   console.log("xhr_uploadDicom___item:", item);
@@ -561,8 +561,8 @@ export default {
           console.log("dicom=", dicom);
           // debugger;
           xhr_uploadDicom({
-            algorithmConfig: `[{}]`,
-            dicom,
+            // algorithmConfig: `[{}]`,
+            caseFile:dicom,
           }).then((item) => {
             console.log("xhr_uploadDicom___item:", item);
           });

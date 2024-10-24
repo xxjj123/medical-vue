@@ -23,6 +23,7 @@ export default {
   download3dModel:"/download3dModel",
   downloadImage:"/downloadImage",
 
+
   /* fs  */
   upload: "/upload", //文件存储-文件上传
 
@@ -31,6 +32,7 @@ export default {
   getNoduleInfo: "/getNoduleInfo", //获取结节信息
   getSeriesInfo: "/getSeriesInfo",
   downloadSlice: "/downloadSlice",
+  downloadDcmSlice:"/downloadDcmSlice",
   initInfo:"/initInfo",
   getModel3d: "/getModel3d",
 
@@ -43,6 +45,11 @@ export default {
   updateNoduleLesion: "/updateNoduleLesion",
   updateTextReport: "/updateTextReport",
 
+
+
+  uploadCaseFile:"/uploadCaseFile",
+  recomputeStudy:"/recomputeStudy",
+  recomputeSeries:"/recomputeSeries"
 
 
   /* 山哥-----公司测试环境接口 end*/
