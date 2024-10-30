@@ -1,9 +1,12 @@
 <template>
   <div class="page_full">
+
     <div class="headerTop">
       <PacsPageHeader></PacsPageHeader>
     </div>
+
     <div style="height: 80px"></div>
+
     <div class="contentMain">
       <div class="headerBox">
         <ta-row type="flex" justify="space-between">
@@ -141,11 +144,11 @@
               自动
             </template>
           </ta-big-table-column>
-          <ta-big-table-column field="computeStatus" title="计算状态">
+          <ta-big-table-column field="computeStatus" title="计算状态2">
             <template #default="{ row }">
-              <ta-tag v-if="row.computeStatus === '3'" color="rgba(0,175,176,0.15)">计算成功</ta-tag>
-              <ta-tag v-if="row.computeStatus === '2'" color="rgba(0,175,176,0.15)">计算中</ta-tag>
-              <ta-tag v-if="row.computeStatus === '1'" color="rgba(0,175,176,0.15)">等待计算</ta-tag>
+              <ta-tag v-if="row.computeStatus == 3" color="rgba(0,175,176,0.5)">计算成功</ta-tag>
+              <ta-tag v-if="row.computeStatus == 2" color="rgba(176, 175, 0, 0.5)">计算中</ta-tag>
+              <ta-tag v-if="row.computeStatus == 1" color="rgba(176, 175, 0, 0.5)">等待计算</ta-tag>
             </template>
           </ta-big-table-column>
           <ta-big-table-column field="ctrlState" title="操作状态">
@@ -207,7 +210,7 @@
                 <div class="ant-upload-text">
                   <div class="mid_subTit text-center">
                     <div class="mr-[10px]">
-                      点击或拖入.dcm文件/文件夹到本区域
+                      点击或拖入33.dcm文件/文件夹到本区域
                     </div>
                   </div>
                 </div>
@@ -282,16 +285,6 @@ import {
   xhr_deleteStudy,
 } from "@/api";
 import { v4 as uuidv4 } from "uuid";
-// import dicomParser from "dicom-parser/dist/dicomParser.js";
-// import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoaderNoWebWorkers.bundle.min";
-// import cornerstone from "cornerstone-core";
-// import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoader.min.js";
-// wasm单独用全局版-生成bug先注释
-// import cornerstoneWADOImageLoader from "cornerstone-wado-image-loader/dist/cornerstoneWADOImageLoaderNoWebWorkers.bundle.min";
-// import * as cornerstone from "cornerstone-core";
-// import dicomParser from "dicom-parser";
-// import * as dicomParser from 'dicom-parser';
-// import cornerstone from "cornerstone-core/dist/cornerstone";
 
 import cornerstoneWADOImageLoader from "@cornerstonejs/dicom-image-loader";
 import JSZip from "jszip";
@@ -488,7 +481,7 @@ export default {
       },
       computeStateMapOb: {
         onChange: (value) => {
-          // console.log(`selected ${value}`);
+          console.log(`selected ${value}`);
         },
         optionskV: {
           value: "value",
@@ -500,12 +493,14 @@ export default {
           {
             labName: "全部",
             value: "",
+            statu: "",
             key: "all",
           },
           {
             labName: "计算成功",
             value: "jscg",
             key: "001",
+            statu: "3",
           },
           {
             labName: "计算失败",
@@ -516,11 +511,15 @@ export default {
             labName: "计算中",
             value: "jsz",
             key: "003",
+            statu: "2",
+
           },
           {
             labName: "等待计算",
             value: "ddjs",
             key: "004",
+            statu: "2",
+
           },
           {
             labName: "计算取消",
@@ -610,7 +609,7 @@ export default {
         show: true,
         confirmLoading: false,
         onOk: async (e) => {
-          // console.log("onOk", e);
+          console.log("onOk", e);
           const { fileList } = this.uploadObj;
           // console.log("压缩前-", fileList);
           this.spinning = true;
@@ -982,6 +981,7 @@ export default {
 
       starOn_style: {
         color: `#F5A623`,
+        // color: `#FFFFFF`,
       },
 
       tableData_anaRes: [],
@@ -1007,7 +1007,9 @@ export default {
     },
   },
   methods: {
-    ...mapMutations("viewInitStore", ["SET_SERIES_MAP_DICOM", "SET_STUDIES_SELECTED"]),
+    ...mapMutations("mprViewStore", ["SET_SERIES_MAP_DICOM", "SET_STUDIES_SELECTED"]),
+
+    // ...mapMutations("viewInitStore", ["SET_SERIES_MAP_DICOM", "SET_STUDIES_SELECTED"]),
     /**
      * 模版处理：根据计算状态返回切换按钮是否可点击
      * @param computeStatus

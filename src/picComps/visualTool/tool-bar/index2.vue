@@ -1,7 +1,7 @@
 <template>
   <div class="   flex flex-row first:ml-25">
     <!-- 视窗调整 -->
-    <div v-if="btnShowStates.Layout_show" :class="layOutClass">
+    <div v-if="btnShowStates.Layout_show" :class="getClassName">
       <div class="pic mr-[5px] hover:cursor-pointer" v-tooltip="{ title: '视窗调整', visible: true }"></div>
       <div class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('1')" v-popover:mypop1>
         <div :class="[
@@ -15,7 +15,9 @@
           <div class="group_tools flex flex-col">
             <div v-for="(it, idx) in view_window.list" :key="idx" :class="[
               `h_row    flex justify-start items-center ripple`,
-              { on: it.icon == allViewData.layOut },
+              // `h_50   flex justify-start items-center ripple`,
+
+              { on: view_window.current === idx },
             ]" @click="handle_view_window_row(idx)">
               <div :class="{ [`icon ${it.icon}`]: it.icon }"></div>
               <div class="txt">{{ it.name }}</div>
@@ -46,27 +48,23 @@
           <div class="rowWin flex items-center">
             <div class="name">窗宽</div>
             <div class="silder">
-              <ta-slider :min="view_window.win_w_min" :max="view_window.win_w_max" :value="view_window.win_w"
-                v-model="view_window.win_w" @change="view_window.winW.onSliderChange" />
+              <ta-slider :min="1" :max="4096" v-model="view_window.win_w" @change="view_window.winW.onChange"
+                @afterChange="view_window.winW.onAfterChange" />
             </div>
             <div class="ipt">
-              <ta-input-number :min="view_window.win_w_min" :max="view_window.win_w_max"
-                style="marginleft: 16px; width: 100px" amountPre="HU" :asAmount="true" :alignRight="true"
-                :value="computedWinW" v-model="computedWinW" @change="view_window.winW.onNumberChange" />
+              <ta-input-number :min="1" :max="4096" style="marginleft: 16px; width: 100px" amountPre="HU"
+                :asAmount="true" :alignRight="true" :value="view_window.win_w" v-model="view_window.win_w" />
             </div>
           </div>
-
           <div class="rowWin flex items-center">
             <div class="name">窗位</div>
             <div class="silder">
-              <ta-slider :min="view_window.win_holder_min" :max="view_window.win_holder_max"
-                :value="view_window.win_holder" v-model="view_window.win_holder"
-                @change="view_window.winHold.onSliderChange" />
+              <ta-slider :min="-1024" :max="3071" v-model="view_window.win_holder"
+                @change="view_window.winHold.onChange" @afterChange="view_window.winHold.onAfterChange" />
             </div>
             <div class="ipt">
-              <ta-input-number :min="view_window.win_holder_min" :max="view_window.win_holder_max"
-                style="marginleft: 16px; width: 100px" amountPre="HU" :asAmount="true" :alignRight="true"
-                :value="computedWinHolder" v-model="computedWinHolder" @change="view_window.winHold.onNumberChange" />
+              <ta-input-number :min="-1024" :max="3071" style="marginleft: 16px; width: 100px" amountPre="HU"
+                :asAmount="true" :alignRight="true" :value="view_window.win_holder" v-model="view_window.win_holder" />
             </div>
           </div>
         </div>
@@ -133,8 +131,8 @@
     </div>
 
     <!-- 靶重建 -->
-    <div v-if="btnShowStates.bcj_show" :class="[
-      'boxBtn xline_icon flex justify-start items-center',
+    <div v-if="btnShowStates.pyms_show" :class="[
+      'boxBtn py_icon flex justify-start items-center',
       {
         on: btnActiveStates.bcj_on,
       },
@@ -142,6 +140,9 @@
       <div @click="handle_iconbtn(`bcj`)" class="pic mr-[5px] hover:cursor-pointer"
         v-tooltip="{ title: '靶重建', visible: true }"></div>
     </div>
+
+
+
 
     <ta-popover ref="mypop3" @after-leave="afterLeaveEvents" :visible-arrow="true" :offset="1" :appendToBody="false"
       :placement="`right`" class="cus_poper mjtyms_pop">
@@ -204,37 +205,39 @@ export default {
       },
       immediate: true,
     },
-    "allViewData.colorWindow": {
+    "view_window.win_w": {
       handler(nVal, oVal) {
-        if (nVal) {
-          this.view_window.win_w = nVal
-        }
-
-
-      },
-      immediate: true
-
-    },
-    "allViewData.colorLevel": {
-      handler(nVal, oVal) {
-        if (nVal) {
-          this.view_window.win_holder = nVal
-
+        console.log("view_window.win_w", oVal, nVal)
+        if (oVal && nVal) {
+          // this.$emit('UpdateColorWindow', nVal);
         }
       },
       immediate: true
 
     },
+    "view_window.win_holder": {
+      handler(nVal, oVal) {
+        console.log("view_window.win_holder", nVal)
+        if (oVal && nVal) {
+          // this.$emit('UpdateColorLevel', nVal);
 
+          // this.UpdateColorLevel(nVal)
+          // this.SET_NODULE_DIAGNOSE_DATA({
+          //   key: "colorLevel",
+          //   value: nVal
+          // })
+        }
+      },
+      immediate: true
 
+    },
 
   },
   computed: {
-    ...mapState("mprViewStore", ["allViewData"]),
-
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
     ...mapGetters("toolBarStore", ["getAllButtonActiveStates", "getAllButtonShowStates"]),
 
+    ...mapState("viewInitStore", ["noduleDiagnoseState"]),
     btnActiveStates() {
       return this.getAllButtonActiveStates
     },
@@ -242,43 +245,25 @@ export default {
       return this.getAllButtonShowStates
     },
     // view-layout布局
-    layOutClass() {
+    getClassName() {
       const classList = ["boxBtn flex justify-start items-center"];
-      classList.push(`${this.allViewData.layOut}_icon`);
-
+      if (this.view_window?.curInput === LayoutIcons.LGGJST) {
+        classList.push(`${LayoutIcons.LGGJST}_icon`);
+      }
+      if (this.view_window?.curInput === LayoutIcons.MPR) {
+        classList.push(`${LayoutIcons.MPR}_icon`);
+      }
+      if (this.view_window?.curInput === LayoutIcons.AXIAL) {
+        classList.push(`${LayoutIcons.AXIAL}_icon`);
+      }
+      if (this.view_window?.curInput === LayoutIcons.CORONAL) {
+        classList.push(`${LayoutIcons.CORONAL}_icon`);
+      }
+      if (this.view_window?.curInput === LayoutIcons.SAGITTAL) {
+        classList.push(`${LayoutIcons.SAGITTAL}_icon`);
+      }
       return classList;
     },
-
-    colorWindow() {
-      return this.allViewData.colorWindow
-    },
-    colorLevel() {
-      return this.allViewData.colorLevel
-    },
-    computedWinW: {
-      get() {
-        return this.view_window.win_w;
-      },
-      set(value) {
-        // 在这里检查值是否有效并且不是空
-        if (!isNaN(value) && value !== '') {
-          this.view_window.win_w = value;
-        }
-      }
-    },
-    computedWinHolder: {
-      get() {
-        return this.view_window.win_holder;
-      },
-      set(value) {
-        // 在这里检查值是否有效并且不是空
-        if (!isNaN(value) && value !== '') {
-          this.view_window.win_holder = value;
-        }
-      }
-    }
-
-
   },
 
   data() {
@@ -324,56 +309,49 @@ export default {
       view_window: {
         curInput: LayoutIcons.LGGJST,
         win_w: 1, //"1",
-        win_w_min: 1,
-        win_w_max: 4096,
-
         win_holder: 1, //"1",
-        win_holder_min: -1024,
-        win_holder_max: 3071,
         winW: {
-          onSliderChange: (value) => {
-            this.UpdateColorWindow(value)
+          onChange: (value) => {
+            // console.log("onChange:", value);
+            // this.$set(this.view_window, "win_w", value);
           },
-          onNumberChange: (e) => {
-            const { win_w, win_w_min, win_w_max } = this.view_window
-            if (typeof win_w === 'number') {
-              if (win_w < win_w_max && win_w > win_w_min) {
-                this.UpdateColorWindow(win_w)
-              }
-            }
-
+          onAfterChange: (value) => {
+            // this.UpdateColorWindow(value)
+            // console.log("onChange1:", value, this.view_window);
+            // this.$set(this.view_window, "win_w", value);
+            // // 灰度
+            // this.UpdateColorWindow_self({ ww: value });
+            // this.$forceUpdate();
           },
         },
         winHold: {
-          onSliderChange: (value) => {
-            this.UpdateColorLevel(value)
-
+          onChange: (value) => {
+            // console.log("onChange:", value);
+            // this.$set(this.view_window, "win_holder", value);
           },
-          onNumberChange: (e) => {
-            console.log("先手")
-            const { win_holder, win_holder_min, win_holder_max } = this.view_window
-            if (typeof win_holder === 'number') {
-              if (win_holder < win_holder_max && win_holder > win_holder_min) {
-                this.UpdateColorLevel(win_holder)
-              }
-            }
+          onAfterChange: (value) => {
+            // // 亮度
+            // console.log("onChange1:", value);
+            // this.UpdateColorLevel(value)
 
-
+            // this.$set(this.view_window, "win_holder", value);
+            // this.UpdateColorLevel_self({ wl: value });
+            // this.$forceUpdate();
           },
         },
         current: 0,
         list: [
           {
             name: "肋骨高级视图",
-            icon: LayoutIcons.LGGJST,
+            icon: "lggjst",
           },
           {
             name: "MPR",
-            icon: LayoutIcons.MPR,
+            icon: "mpr",
           },
           {
             name: "原图",
-            icon: LayoutIcons.AXIAL,
+            icon: "ys",
           },
         ],
       },
@@ -381,8 +359,10 @@ export default {
   },
 
   methods: {
-    ...mapMutations("toolBarStore", ["TOGGLE_BUTTON_ACTIVE_STATE", "INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE"]),
-    ...mapActions("toolBarStore", ["activeButtonState", "activeLayout", "UpdateColorWindow", "UpdateColorLevel"]),
+    // ...mapMutations("viewInitStore", ["SET_NODULE_DIAGNOSE_DATA"]),
+    // ...mapActions("viewInitStore", ["ChangePan"]),
+    ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT", "TOGGLE_BUTTON_ACTIVE_STATE", "INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE"]),
+    ...mapActions("toolBarStore", ["activeButtonState"]),
 
     handle_iconbtn(name) {
       // debugger;
@@ -390,55 +370,72 @@ export default {
         case ButtonNames.Ckcw:
           {
             this.activeButtonState(ButtonNames.Ckcw)
+            // toggleButtonState(ButtonNames.Ckcw, this);
+            // console.log("this[ButtonNames.Ckcw]____", ButtonNames.Ckcw, this[`${ButtonNames.Ckcw}_on`]);
           }
           break;
         case ButtonNames.Mjtyms:
           {
             this.activeButtonState(ButtonNames.Mjtyms)
+            // toggleButtonState(ButtonNames.Mjtyms, this);
+            // 密度投影
+            console.log();
           }
           break;
         // 其他按钮的逻辑...
         case ButtonNames.Jbinfo:
           {
             this.activeButtonState(ButtonNames.Jbinfo)
+            // toggleButtonState(ButtonNames.Jbinfo, this);
           }
           break;
         case ButtonNames.AiInfo:
           {
             this.activeButtonState(ButtonNames.AiInfo)
+            // toggleButtonState(ButtonNames.AiInfo, this);
           }
           break;
         case ButtonNames.Szckx:
           {
             this.activeButtonState(ButtonNames.Szckx)
+            // toggleButtonState(ButtonNames.Szckx, this);
+            // 十字参考线
             this.toggleUpdateCrossHair(!!this.szckx_on);
+            console.log("// 十字参考线=", !!this.szckx_on);
           }
           break;
         case ButtonNames.Pyms:
           {
             this.activeButtonState(ButtonNames.Pyms)
+            // toggleButtonState(ButtonNames.Pyms, this);
+            // this.ChangePan();
+            // this.$emit("ChangePan")
+            // this.toggleUpdateStartPan(!!this.pyms_on);
+            console.log("// 平移模式=", !!this.pyms_on);
           }
           break;
         case ButtonNames.Bcj:
           {
             this.activeButtonState(ButtonNames.Bcj)
-            // this.activeLayout(LayoutIcons.RECON);
-
+            // toggleButtonState(ButtonNames.Bcj, this);
+            // this.ChangePan();
+            // this.$emit("GetRecon")
+            // this.toggleUpdateStartPan(!!this.pyms_on);
+            console.log("// 靶重建=", !!this.bcj_on);
           }
           break;
         default:
           break;
       }
     },
-
     handle_view_window_row(idx) {
       this.view_window.current = idx;
       const { current } = this.view_window;
       const row = this.view_window.list[current];
       this.view_window.curInput = row.icon;
-      this.activeLayout(row.icon);
+      console.log("row.icon==", row.icon);
 
-
+      this.SET_SLICE_CT_PIC_LAYOUT(row.icon);
     },
     handle_openTzg(curNo) {
       console.log(curNo)

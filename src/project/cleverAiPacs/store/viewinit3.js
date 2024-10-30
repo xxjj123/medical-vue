@@ -424,7 +424,9 @@ export default {
         await dispatch("UpdateIJK", ijk);
         state.viewMprViews.forEach((view, index) => {
           dispatch("setupInteractor", {view, dimensions});
+          console.log("state.noduleInfo.noduleLesionList",state.noduleInfo.noduleLesionList)
           state.noduleInfo.noduleLesionList.forEach(async (nodule) => {
+            console.log("nodule",nodule)
             const annotation = await dispatch("getAnnotationForView", {
               nodule,
               viewType: view.viewIndex,
@@ -603,7 +605,6 @@ export default {
       commit("UPDATE_LOAD_STATUS",true)
       const imageData = await dispatch("GetSlice", {viewName,viewType, index});
       // commit("UPDATE_LOAD_STATUS",false)
-      console.log("imagedata============",imageData)
       if (imageData) {
         await dispatch("UpdateSlice", {imageData, viewType, index});
       }
@@ -618,6 +619,7 @@ export default {
 
 
       view.view.interactor.onLeftButtonPress((event) => {
+        console.log("点击了啦啦啦")
         dispatch("clearAllAutoplay")
 
         if (!state.noduleDiagnoseState.isPan) {
@@ -716,7 +718,7 @@ export default {
       //    }
       //   });
       // });
-
+    console.log("点击了按压================================")
       commit("SET_MOUSE_DOWN", true);
       const {x, y} = event.position;
       state.picker.pick([x, y, 0], view.view.renderer);
@@ -765,6 +767,7 @@ export default {
           viewType: view.viewIndex,
           ijk,
         });
+        console.log("trueijk======",ijk,trueijk)
         const imageScales = view.view.image.getPointData().getScalars();
         const pageindex =
           ijk[0] +
@@ -1031,7 +1034,7 @@ console.log("")
         commit("SET_VIEW_DATA", { viewType, key: "gotoPageIndex", value: index });
 
         // Request DICOM slice data from the server
-        const res = await xhr_getDcmSlice({
+        const res = await xhr_getSlice({
           seriesId: state.seriesInfo.seriesId,
           viewName: viewName,
           viewIndex: index,
@@ -1040,7 +1043,6 @@ console.log("")
         if (res) {
           // Clear loading status once we have a response
           commit("UPDATE_LOAD_STATUS", false);
-          console.log("已经返回啦");
           clearInterval(loading);
 
           // Convert response data to a DICOM file object
@@ -1053,7 +1055,7 @@ console.log("")
           // Convert the output image to vtkImageData
           const imageData = vtkITKHelper.convertItkToVtkImage(outputImage);
 
-          // Return the imageData
+
           return imageData;
         } else {
           console.error("Request failed: No data returned");
@@ -1084,6 +1086,7 @@ console.log("")
           annotation.actor.setVisibility(
             index >= annotation.boundsmin && index <= annotation.boundsmax,
           );
+
         }
       });
 
@@ -1106,9 +1109,14 @@ console.log("")
         (bounds[2] + bounds[3]) / 2,
         (bounds[4] + bounds[5]) / 2,
       ];
+
+
       camera.setFocalPoint(centerX, centerY, centerZ);
-      camera.setPosition(centerX, centerY, centerZ - 1);
-      camera.setViewUp(0, -1, 0);
+        camera.setPosition(centerX, centerY, centerZ - 1);
+        camera.setViewUp(0, -1, 0);
+
+
+      // camera.setViewUp(0, 1, 0);
       view.renderer.resetCamera();
 
       const [point1, point2] = [
@@ -1144,16 +1152,18 @@ console.log("")
       );
       camera.roll(getters.viewsData[viewType].cameraRotate);
 
-
-
       view.renderWindow.render();
     },
 
     addRectangleAnnotation({commit, state}, {view, annotation, bboxindex}) {
       const {xmin, ymin, xmax, ymax, boundsmin, boundsmax} = annotation;
+      let boundsZ = view.view.image.getBounds()[2]
+      if(view.viewIndex == 2){
+        boundsZ = view.view.image.getBounds()[5]
+      }
       const [worldpoint1, worldpoint2] = [
-        view.view.image.indexToWorld([xmin, ymin, 0]),
-        view.view.image.indexToWorld([xmax, ymax, 0]),
+        view.view.image.indexToWorld([xmin, ymin, boundsZ]),
+        view.view.image.indexToWorld([xmax, ymax,boundsZ]),
       ];
       const points = vtkPoints.newInstance();
       points.setNumberOfPoints(5);
@@ -1175,6 +1185,8 @@ console.log("")
 
       const actor = vtkActor.newInstance();
       actor.setVisibility(false);
+
+
       actor.setMapper(mapper);
       actor.getProperty().setColor(...BBOX_COLORS.DEFAULT);
       actor.getProperty().setLineWidth(1);

@@ -1,103 +1,70 @@
 <template>
   <div class="vsk_film_bar">
     <div class="button-group flex">
-      <button v-for="(button, index) in buttons" :key="index" :class="[
-        'button',
-        'flex-1',
-        'ripple',
-        { active: activeIndex === index },
-      ]" @click="activate(index)">
+      <!-- 使用 v-for 循环遍历 buttons 数组 -->
+      <button v-for="(button, index) in buttons" :key="index" :class="['button', { active: activeIndex === index }]"
+        @click="activate(index)">
         {{ button.name }}
       </button>
-      <div class="background" v-if="activeIndex != null" :style="backgroundStyle"></div>
+      <div class="background" v-if="activeIndex !== null" :style="backgroundStyle"></div>
     </div>
   </div>
 </template>
-<script lang="javascript">
-import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
-//视窗，窗宽窗位
-const winCtrl = {
-  lung: {
-    ww: 1500,
-    wl: -500,
-  },
-  mediastinal: {
-    ww: 300,
-    wl: 50,
-  },
-  bone: {
-    ww: 1500,
-    wl: 300,
-  },
-};
+<script lang="javascript">
+import { mapState, mapActions } from "vuex";
+
+const buttons = [
+  { name: "肺窗", tag: "lung", ww: 1500, wl: -500 },
+  { name: "纵隔窗", tag: "mediastinal", ww: 300, wl: 50 },
+  { name: "骨窗", tag: "bone", ww: 1500, wl: 300 },
+];
 
 export default {
   name: "film-bar",
   data() {
-    return {
-      activeIndex: null,
-      buttons: [
-        {
-          name: "肺窗",
-          tag: "lung",
-        },
-        {
-          name: "纵隔窗",
-          tag: "mediastinal",
-        },
-        {
-          name: "骨窗",
-          tag: "bone",
-        },
-      ],
-    };
+    return {};
   },
   computed: {
-    backgroundStyle() {
-      return {
-        transform: `translateX(${this.activeIndex * 100}%)`,
-      };
+    ...mapState("mprViewStore", ["allViewData"]),
+    buttons() {
+      return buttons
     },
-  },
-  watch: {
+    backgroundStyle() {
+      if (this.activeIndex) {
+        return {
+          transform: `translateX(${this.activeIndex * 100}%)`,
+        };
+      }
 
-
+    },
+    activeIndex() {
+      const { colorWindow, colorLevel } = this.allViewData;
+      const matchedIndex = buttons.findIndex(
+        (button) => button.ww === colorWindow && button.wl === colorLevel
+      );
+      return matchedIndex >= 0 ? matchedIndex : null;
+    },
   },
   methods: {
-    ...mapActions("viewInitStore", ["UpdateColorWindow", "UpdateColorLevel"]),
-    ...mapActions("viewsStore", [
-      "UpdateColorWindow_self",
-      "UpdateColorLevel_self",
-    ]),
-    changeLevelWinTheme() {
-      if (this.activeIndex >= 0) {
-        const { tag } = this.buttons[this.activeIndex];
-        const { ww, wl } = winCtrl[tag];
-        this.$emit('changeColor', ww, wl)
-      }
-
-    },
+    ...mapActions("toolBarStore", ["UpdateColorWindow", "UpdateColorLevel"]),
     activate(index) {
-      if (index >= 0) {
-        this.activeIndex = index;
-        this.changeLevelWinTheme();
-      }
+      const { ww, wl } = buttons[index];
+      this.UpdateColorWindow(ww);
+      this.UpdateColorLevel(wl);
     },
   },
 };
 </script>
+
 <style lang="less" scoped>
 .button-group {
   position: relative;
-  // min-width: 224px;
   width: 224px;
   max-width: 389px;
   height: 44px;
   padding: 4px;
-  // background-color: #111111;
   background-color: #333333;
-
   border-radius: 8px;
 }
 
@@ -105,10 +72,9 @@ export default {
   border: none;
   background: transparent;
   cursor: pointer;
-  min-width: 70px;
-  max-width: 260px;
-  z-index: 2;
-  /* Ensure buttons are above the background */
+  flex: 1;
+  z-index: 2; // 确保按钮在背景之上
+  transition: color 0.3s ease;
 }
 
 .background {
@@ -119,7 +85,7 @@ export default {
   height: 36px;
   border-radius: 6px;
   background-color: @primary-color;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, width 0.3s ease, background-color 0.3s ease;
 }
 
 .active {

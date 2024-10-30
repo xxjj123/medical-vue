@@ -83,7 +83,8 @@ export default {
 
   },
   computed: {
-    ...mapState("viewInitStore", ["seriesInfo"]),
+    ...mapState("mprViewStore", ["seriesInfo"]),
+
     ...mapGetters("viewReportsStore", ["get_reports_tag", "get_reports_yxsj_content", "get_reports_yxzd_content"]),
     desCodeValue: {
       get() {

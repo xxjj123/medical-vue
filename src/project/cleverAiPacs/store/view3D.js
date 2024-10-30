@@ -48,9 +48,10 @@ export default {
     INIT_VIEW(state, scene) { state.view3D = scene; },
     SET_MAPPER(state, mapper) {
       state.view3D.mapper = mapper;
+      state.view3D.actor.setMapper(mapper);
       state.view3D.actor.setMapper(state.view3D.mapper)
       state.view3D.renderer.addActor(state.view3D.actor)
-      state.view3D.renderer.resetCamera()
+      // state.view3D.renderer.resetCamera()
     },
     SET_VIEW_ITEM(state, { key, value}) {
       state.view3D[key] = value;
@@ -95,10 +96,7 @@ export default {
       obj.orientationWidget.setMaxPixelSize(100)
       commit("INIT_VIEW",obj)
       const camera = obj.renderer.getActiveCamera()
-      // camera.setPosition(0, 1, 0) // 从 Y 轴负方向看向原点
-      // camera.setFocalPoint(0, 0, 0) // 设置相机焦点为原点
-      // camera.setViewUp(0, 0, 1) // 设置相机的上方向为 Z 轴正方向
-      camera.zoom(10)
+
     },
     getAnnotatedCube(){
       const cube = vtkAnnotatedCubeActor.newInstance()
@@ -108,7 +106,7 @@ export default {
         fontFamily: 'Arial',
         fontColor: 'black',
         fontSizeScale: (res) => res / 2.2,
-        faceRotation: 180,
+        faceRotation: 0,
         edgeThickness: 0.05,
         edgeColor: 'black',
         resolution: 400
@@ -116,15 +114,14 @@ export default {
       // 设置每个面的标签，确保其与标准医学方向一致
       cube.setXPlusFaceProperty({ text: 'L' }) // 左（Left）
       cube.setXMinusFaceProperty({ text: 'R' }) // 右（Right）
-      cube.setYPlusFaceProperty({ text: 'A' }) // 前（Anterior）
-      cube.setYMinusFaceProperty({ text: 'P' }) // 后（Posterior）
-      cube.setZPlusFaceProperty({ text: 'S' }) // 上（Superior）
-      cube.setZMinusFaceProperty({ text: 'I' }) // 下（Inferior）
+      cube.setYPlusFaceProperty({ text: 'H' }) // 前（Anterior）
+      cube.setYMinusFaceProperty({ text: 'F' }) // 后（Posterior）
+      cube.setZPlusFaceProperty({ text: 'A' }) // 上（Superior）
+      cube.setZMinusFaceProperty({ text: 'P' }) // 下（Inferior）
       return cube
     },
     // Init3DView({state,commit},imageData){
     async Init3DView({state,commit,dispatch},seriesId){
-      console.log(seriesId);
 
       commit("REMOVE_ALL_VIEW_PROPS")
 
@@ -139,59 +136,27 @@ export default {
 
           if (blob) {
             const segpart = 'lung'
-        console.log("blob=====================",blob)
         const file = new File([blob], "example.nii.gz");
-        niftiReadImage(file).then((res)=>{
+        niftiReadImage(file).then(async (res)=>{
           const outputImage = res.image;
           const imageData = vtkITKHelper.convertItkToVtkImage(outputImage);
-          console.log("imageData", imageData);
+
           const newDirection = [
             1,  0,  0,  // 第一行
             0,  0, 1,  // 第二行
             0,  1,  0   // 第三行
           ]
 
-          // const newDirection = [
-          //   1,  0,  0,  // 第一行
-          //   0,  0, 1,  // 第二行
-          //   0,  1,  0   // 第三行
-          // ]
-          // // 应用新的方向矩阵
           imageData.setDirection(newDirection);
 
           const mapper = vtkVolumeMapper.newInstance();
 
           mapper.setInputData(imageData);
           commit("SET_VIEW_ITEM", { key: "image", value: imageData });
-          state.view3D.actor.setMapper(mapper);
           commit("SET_MAPPER", mapper);
-          dispatch("updateEdgeGradient",segpart)
-
-          // Calculate the center of the model
-          const bounds = imageData.getBounds(); // [xmin, xmax, ymin, ymax, zmin, zmax]
-          console.log(imageData.getDimensions())
-          const centerX = (bounds[0] + bounds[1]) / 2;
-          const centerY = (bounds[2] + bounds[3]) / 2;
-          const centerZ = (bounds[4] + bounds[5]) / 2;
-
-          // Set the camera to focus on the model center
-          const renderer = state.view3D.renderer;
-          const camera = renderer.getActiveCamera();
-          console.log(camera)
-          camera.setFocalPoint(centerX, centerY, centerZ);
-          camera.setPosition(centerX, centerY, bounds[5] + (bounds[5] - bounds[4]) * 2);
-          camera.setViewUp(0, 1, 0);
-          camera.setClippingRange(0.1, 1000);
-
-          // Optional: Adjust sample distance if needed
-          // mapper.setSampleDistance(sampleDistance);
-
-          // Render the scene
-          const renderWindow = state.view3D.renderWindow;
-          renderWindow.render();
-
-
-          // dispatch("AddCube")
+          await dispatch("updateEdgeGradient",segpart)
+          await dispatch("resize3DView")
+          await dispatch("setupCamera")
         })
           }
           // this.onWindowResize()
@@ -203,10 +168,9 @@ export default {
         console.error("Request failed:", error);
       }
 
-
     },
 
-   updateEdgeGradient({state},segpart){
+   async updateEdgeGradient({state,dispatch},segpart){
       const renderWindow = state.view3D.renderWindow
       const actor = state.view3D.actor
       const color = vtkColorTransferFunction.newInstance()
@@ -235,6 +199,8 @@ export default {
         volumeProperty.setGradientOpacityMaximumValue(0, 600);
         volumeProperty.setGradientOpacityMaximumOpacity(0, 1.0);
         volumeProperty.setScalarOpacityUnitDistance(0, 8.0);
+
+
    }
 
 //    if(segpart == 'lung'){
@@ -251,7 +217,6 @@ export default {
 
 // // opacity.addPoint(500.0, 0.8);
 
-
 //     color.addRGBPoint(-1000, 0.302, 0.302, 1.0)
 //     color.addRGBPoint(-900, 0.0, 0.0, 1.0)
 //     color.addRGBPoint(-800, 0.133, 0.78, 0.071)
@@ -260,7 +225,6 @@ export default {
 //     color.addRGBPoint(2952, 1.0, 0.302, 0.302)
 //     color.addRGBPoint(-100, 0.6, 1.0, 0.8)
 //     color.addRGBPoint(110, 0.3, 1.0, 0.5);
-
 
 
 //     volumeProperty.setGradientOpacityMinimumValue(0, 0);
@@ -298,6 +262,7 @@ export default {
       volumeProperty.setDiffuse(0.7);
       volumeProperty.setSpecular(0.3);
       volumeProperty.setSpecularPower(8.0);
+
 
     },
     AddCube({commit,dispatch,state}){
@@ -359,10 +324,29 @@ export default {
 
       const dimensions = imageData.getDimensions()
 
+      const point1 = [157, 178, 32];
+      const point2 = [180, 202, 46];
 
-      const ijk1 = [157,dimensions[1] - 178, dimensions[2] - 32]
-      const ijk2 =[ 180,dimensions[1] -  202, dimensions[2] - 46]
+      // 计算中心点
+      const point_center = point1.map((val, index) => (val + point2[index]) / 2);
 
+      // 计算各个维度上两点之间的距离
+      const half_extent = point1.map((val, index) => Math.abs(val - point_center[index]));
+
+      // 计算扩大2倍后的最小点和最大点
+      const min_point = point_center.map((val, index) => val - 2 * half_extent[index]);
+      const max_point = point_center.map((val, index) => val + 2 * half_extent[index]);
+
+      console.log('Center Point:', point_center);  // 中心点
+      console.log('Min Point:', min_point);        // 方块的最小点
+      console.log('Max Point:', max_point);        // 方块的最大点
+
+
+      // const ijk1 = [157,dimensions[1] - 178, dimensions[2] - 32]
+      // const ijk2 =[ 180,dimensions[1] -  202, dimensions[2] - 46]
+
+      const ijk1 = [min_point[0],dimensions[1] - min_point[1], dimensions[2] - min_point[2]]
+      const ijk2 =[ max_point[0],dimensions[1] -  max_point[1], dimensions[2] - max_point[2]]
 
 
       // 确定裁剪平面的范围
@@ -386,21 +370,6 @@ export default {
         return out
       }
 
-      // 确定原点和角点
-
-      console.log('Origin:', origin);
-      console.log('Corner:', corner);
-
-
-      // 创建裁剪平面
-      // const clippingPlanes = [
-      //   vtkPlane.newInstance({ normal: rotateVec([1, 0, 0]), origin }),
-      //   vtkPlane.newInstance({ normal: rotateVec([-1, 0, 0]), origin: corner }),
-      //   vtkPlane.newInstance({ normal: rotateVec([0, 1, 0]), origin }),
-      //   vtkPlane.newInstance({ normal: rotateVec([0, -1, 0]), origin: corner }),
-      //   vtkPlane.newInstance({ normal: rotateVec([0, 0, 1]), origin }),
-      //   vtkPlane.newInstance({ normal: rotateVec([0, 0, -1]), origin: corner })
-      // ]
       const clippingPlanes = [
         vtkPlane.newInstance({ normal: [1, 0, 0], origin }),
         vtkPlane.newInstance({ normal: [-1, 0, 0], origin: corner }),
@@ -409,9 +378,6 @@ export default {
         vtkPlane.newInstance({ normal: [0, 0, 1], origin }),
         vtkPlane.newInstance({ normal: [0, 0, -1], origin: corner }),
       ];
-      clippingPlanes.forEach((plane, index) => {
-        console.log(`Clipping plane ${index}:`, plane.getNormal());
-      });
 
       // 移除现有的裁剪平面并添加新的裁剪平面
       view.mapper.removeAllClippingPlanes()
@@ -420,91 +386,76 @@ export default {
         console.log(plane.get())
       })
 
-      // view.mapper.addClippingPlane(clippingPlanes[0])
-      // view.mapper.addClippingPlane(clippingPlanes[1])
-
-      // view.mapper.addClippingPlane(clippingPlanes[2])
-      // view.mapper.addClippingPlane(clippingPlanes[3])
-
-      // view.mapper.addClippingPlane(clippingPlanes[4])
-      // view.mapper.addClippingPlane(clippingPlanes[5])
-
-
-      // 更新并渲染视图
-      view.renderWindow.render();
-      console.log('Clipping applied and rendering updated');
+      const bounds = [origin[0],corner[0],origin[1],corner[1],origin[2],corner[2]]
+      dispatch("resizeCubeView",{bounds })
 
     }
 ,
 
     setupCamera({commit, state, getters}) {
-      console.log("更新相机")
-      const view = state.view3D;
-      const image = view.image
-
-      const camera = view.renderer.getActiveCamera();
-
-      camera.setParallelProjection(true);
-      const bounds = image.getBounds();
-      const [centerX, centerY, centerZ] = [
-        (bounds[0] + bounds[1]) / 2,
-        (bounds[2] + bounds[3]) / 2,
-        (bounds[4] + bounds[5]) / 2,
-      ];
-      camera.setFocalPoint(centerX, centerY, centerZ);
-      camera.setPosition(centerX, centerY, centerZ - 1);
-      camera.setViewUp(0, -1, 0);
-
-      view.renderer.resetCamera();
-
-      const [point1, point2] = [
-        view.renderer.worldToNormalizedDisplay(
-          bounds[0],
-          bounds[2],
-          bounds[4],
-          true,
-        ),
-        view.renderer.worldToNormalizedDisplay(
-          bounds[1],
-          bounds[3],
-          bounds[5],
-          true,
-        ),
-      ];
-      const {width: containerWidth, height: containerHeight} = view.grw
-        .getContainer()
-        .getBoundingClientRect();
-
-      const zoomrate = containerWidth * Math.abs(point1[0] - point2[0]) <
-        containerHeight * Math.abs(point1[1] - point2[1])
-        ? Math.max(
-          1 / Math.abs(point1[0] - point2[0]),
-          1 / Math.abs(point1[1] - point2[1]),
-        )
-        : Math.min(
-          1 / Math.abs(point1[0] - point2[0]),
-          1 / Math.abs(point1[1] - point2[1]),
-        )
-      camera.zoom(
-        zoomrate
-      );
-
-
-
-      view.renderWindow.render();
-    },
-
-
-    resize3DView({dispatch, state, getters, commit}) {
       const view = state.view3D
-      const container = view.grw.getContainer();
+      if(view.image){
+        const bounds = view.image.getBounds();
 
-      const {width, height} = container.getBoundingClientRect();
+        const centerX = (bounds[0] + bounds[1]) / 2;
+        const centerY = (bounds[2] + bounds[3]) / 2;
+        const centerZ = (bounds[4] + bounds[5]) / 2;
 
-      view.grw.resize(width, height);
+        // Set the camera to focus on the model center
+        const renderer = state.view3D.renderer;
+        const camera = renderer.getActiveCamera();
+        camera.setFocalPoint(centerX, centerY, centerZ);
+        camera.setPosition(centerX, centerY, bounds[5] + (bounds[5] - bounds[4]) * 1.5);
+
+      }
       view.renderWindow.render();
+
     },
 
+
+    async resize3DView({dispatch, state, getters, commit} ) {
+      const view = state.view3D
+      if(view.image){
+        const container = view.grw.getContainer();
+        const {width, height} = container.getBoundingClientRect();
+        view.grw.resize(width, height);
+      }
+       await view.renderWindow.render();
+
+
+    },
+
+    async resizeCubeView({dispatch, state, getters, commit},{bounds}) {
+      // const view = state.view3D
+      // const container = view.grw.getContainer();
+
+      // const {width, height} = container.getBoundingClientRect();
+
+      // view.grw.resize(width, height);
+      // view.renderWindow.render();
+
+
+      const centerX = (bounds[0] + bounds[1]) / 2;
+      const centerY = (bounds[2] + bounds[3]) / 2;
+      const centerZ = (bounds[4] + bounds[5]) / 2;
+
+      // Set the camera to focus on the model center
+      const renderer = state.view3D.renderer;
+      const camera = renderer.getActiveCamera();
+      console.log(camera)
+      console.log(centerX, centerY, centerZ)
+      camera.setFocalPoint(centerX, centerY, centerZ);
+      camera.setPosition(centerX, centerY, bounds[5] + (bounds[5] - bounds[4]) * 5);
+      // camera.setViewUp(0, 1, 0);
+      // camera.setClippingRange(0.1, 1000);
+
+      // Optional: Adjust sample distance if needed
+      // mapper.setSampleDistance(sampleDistance);
+
+      // Render the scene
+      const renderWindow = state.view3D.renderWindow;
+      await renderWindow.render();
+    },
   },
 
 

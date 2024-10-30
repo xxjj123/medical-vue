@@ -16,6 +16,7 @@ import picViewStore from "./store/picView"
 import view3DStore from "./store/view3D";
 import viewReportsStore from './store/reports';
 
+
 store.registerModule("viewsStore", viewsStore);
 store.registerModule("toolsStore", toolsStore);
 store.registerModule("toolBarStore", toolBarStore);
@@ -24,6 +25,22 @@ store.registerModule("picViewStore", picViewStore);
 
 store.registerModule("view3DStore", view3DStore);
 store.registerModule("viewReportsStore", viewReportsStore);
+
+
+import mprViewStore from "./store/mprView"
+import mprToolsStore from "./store/mprTools"
+import noduleInfoStore from "./store/noduleInfo"
+import pneumoniaInfoStore from "./store/pneumoniaInfo"
+
+
+store.registerModule("mprViewStore", mprViewStore);
+store.registerModule("mprToolsStore", mprToolsStore);
+store.registerModule("noduleInfoStore", noduleInfoStore);
+store.registerModule("pneumoniaInfoStore", pneumoniaInfoStore);
+
+
+
+
 
 import "vue-bus";
 

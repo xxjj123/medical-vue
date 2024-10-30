@@ -49,7 +49,7 @@ import noduleResult from "@/picComps/visualTool/menudata-bar/module/lung/nodule-
 import pneumoniaResult from "@/picComps/visualTool/menudata-bar/module/lung/pneumonia-result/index.vue";
 import fractureResult from "@/picComps/visualTool/menudata-bar/module/lung/fracture-result/index.vue";
 import calciumScoreResult from "@/picComps/visualTool/menudata-bar/module/lung/calcium-score-result/index.vue";
-import {mapState} from "vuex";
+import { mapState, mapActions } from "vuex";
 
 export default {
   name: "menudata-bar",
@@ -61,10 +61,10 @@ export default {
   },
 
   computed: {
-    ...mapState("viewInitStore", ["noduleInfo"]),
+    ...mapState("noduleInfoStore", ["noduleInfo"]),
     menuResult: {
       get() {
-        console.log("get-first----this.noduleInfo", this.noduleInfo);
+        console.log("get-first----this.noduleInfo", this.noduleInfo.noduleLesionList);
 
         return this.noduleInfo;
       },
@@ -87,9 +87,19 @@ export default {
     };
   },
   methods: {
+    ...mapActions("noduleInfoStore", ["ActiveNoduleState"]),
+
+    ...mapActions("pneumoniaInfoStore", ["ActivePneumoniaState"]),
+
     tab_callback(key) {
-      // console.log(key);
+      console.log(key);
+      if (key == 1) {
+        this.ActiveNoduleState()
+      } else if (key == 2) {
+        this.ActivePneumoniaState()
+      }
       this.curSelectActKey = key;
+
     },
     handle_shouchang() {
       this.menuTopTool.collect = !this.menuTopTool.collect;

@@ -5,11 +5,9 @@
         <span>WW/WL:{{ (vdata.Ww ?? "") + "/" + (vdata.Wl ?? "") }}</span>
       </div>
       <div class="">
-        <span
-          >Image:{{
-            (vdata.sliceIndex ?? "") + "/" + (vdata.dimensions ?? "")
-          }}</span
-        >
+        <span>Image:{{
+          (vdata.sliceIndex ?? "") + "/" + (vdata.dimensions ?? "")
+        }}</span>
       </div>
       <div class="">
         <span>Thickness:{{ vdata.thickness ?? "" }}</span>
@@ -28,29 +26,7 @@
       </div>
     </div>
 
-    <!-- <svg
-      ref="svg"
-      class="absolute select-none pointer-events-none w-full h-full"
-    >
-      <line
-        :x1="vdata.crosshair_x + 'px'"
-        :y1="0 + 'px'"
-        :x2="vdata.crosshair_x + 'px'"
-        :y2="440 + 'px'"
-        stroke="blue"
-        stroke-width="2"
-        stroke-dasharray="5,5"
-      />
-      <line
-        :x1="0 + 'px'"
-        :y1="660 - vdata.crosshair_y + 'px'"
-        :x2="660 + 'px'"
-        :y2="660 - vdata.crosshair_y + 'px'"
-        stroke="red"
-        stroke-width="2"
-        stroke-dasharray="5,5"
-      />
-    </svg> -->
+
   </div>
 </template>
 

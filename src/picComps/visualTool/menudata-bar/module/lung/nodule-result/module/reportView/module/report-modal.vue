@@ -167,8 +167,8 @@
 
 </template>
 <script lang='javascript'>
-import {serializeAge} from "@/assets/js/utils/dicom/inputFormat";
-import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
+import { serializeAge } from "@/assets/js/utils/dicom/inputFormat";
+import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 function forceReflow(element) {
@@ -191,7 +191,7 @@ export default {
     },
   },
   computed: {
-    ...mapState("viewInitStore", ["seriesInfo"]),
+    ...mapState("mprViewStore", ["seriesInfo"]),
     contentMainDataCache: {
       get() {
         return this.contentMainData;
@@ -302,8 +302,8 @@ export default {
         },
         footerInfo: {
           bgdate: "2023-09-07",
-          bgdoctor: "报告医生",
-          postDoctor: "审核医生",
+          bgdoctor: "王彩霞",
+          postDoctor: "王彩霞",
 
         },
         filmLookBook: "左侧肋骨2投影",
@@ -323,7 +323,7 @@ export default {
       if (value) {
         this.$nextTick(() => {
           console.log(" this.paperObj", this.paperObj);
-          const {patientId, studyId, studyDateAndTime, patientName, patientSex, patientAge, } = this.seriesInfo;
+          const { patientId, studyId, studyDateAndTime, patientName, patientSex, patientAge, } = this.seriesInfo;
           // console.log("patientId, studyId, studyDateAndTime, patientName, patientSex, patientAge,", patientId, studyId, studyDateAndTime, patientName, patientSex, patientAge,)
           this.$set(this.paperObj.patientInfo, "code", patientId)
           this.paperObj.patientInfo.jianchahao = studyId;

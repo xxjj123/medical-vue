@@ -52,6 +52,8 @@ const BBOX_LINEWIDTH = {
   DEFAULT: 1,
   SELECTED: 2,
 };
+
+
 function GetTureIJK({viewType, ijk}) {
   const newijkMap = {
     [VIEW_TYPES.AXIAL]: [ijk[0], ijk[1], ""],
@@ -60,6 +62,23 @@ function GetTureIJK({viewType, ijk}) {
   };
   return newijkMap[viewType];
 }
+
+const initialViewData = {
+  viewIndex: null,
+  viewName: null,
+  pageIndex: null,
+  dimension: null,
+  changedPageindex: null,
+  displayX: null,
+  displayY: null,
+  scaleLength: null,
+  Ww: null,
+  Wl: null,
+  reversed: false,
+  cameraRotate: 0,
+  hu: "",
+};
+
 export default {
   namespaced: true,
   state: {
@@ -85,51 +104,9 @@ export default {
       pageIndex: null,
       dimension: null,
     })),
-    CoronalData: {
-      viewIndex: null,
-      viewName: null,
-      pageIndex: null,
-      dimension: null,
-      changedPageindex: null,
-      displayX: null,
-      displayY: null,
-      scaleLength: null,
-      Ww: null,
-      Wl: null,
-      reversed: false,
-      cameraRotate: 0,
-      hu: "",
-    },
-    AxialData: {
-      viewIndex: null,
-      viewName: null,
-      pageIndex: null,
-      dimension: null,
-      changedPageindex: null,
-      displayX: null,
-      displayY: null,
-      scaleLength: null,
-      Ww: null,
-      Wl: null,
-      reversed: false,
-      cameraRotate: 0,
-      hu: "",
-    },
-    SagittalData: {
-      viewIndex: null,
-      viewName: null,
-      pageIndex: null,
-      dimension: null,
-      changedPageindex: null,
-      displayX: null,
-      displayY: null,
-      scaleLength: null,
-      Ww: null,
-      Wl: null,
-      reversed: false,
-      cameraRotate: 0,
-      hu: "",
-    },
+    CoronalData: { ...initialViewData },
+    AxialData: { ...initialViewData },
+    SagittalData: { ...initialViewData },
     noduleInfo: {},
 
     annotations: {value: [], index: new Set()},
@@ -142,11 +119,6 @@ export default {
       timerId: null,
       animationId:null,
     })),
-    autoPlayTimers: Array.from({length: 3}, () => ({
-      viewIndex: null,
-      autoPlayTimer: null,
-    })),
-
     animationIds: Array.from({length: 3}, () => ({
       viewIndex: null,
       animationId: null,
@@ -291,10 +263,6 @@ export default {
         timerId: null,
         animationId: null,
       }));
-      state.autoPlayTimers = Array.from({ length: 3 }, () => ({
-        viewIndex: null,
-        autoPlayTimer: null,
-      }));
       state.animationIds = Array.from({ length: 3 }, () => ({
         viewIndex: null,
         animationId: null,
@@ -312,11 +280,10 @@ export default {
   actions: {
     async InitView(
       {dispatch, commit, state},
-      {container, viewName, viewType, slicingMode},
+      {container, viewName, viewType},
     ) {
       const data = await dispatch("InitMprView", {
         container,
-        slicingMode,
       });
 
       commit("INIT_VIEW_MPR_VIEW", {
@@ -343,7 +310,7 @@ export default {
 
       const obj = {
         grw,
-        viewMode: mode,
+        // viewMode: mode,
         index: null,
         image: null,
         renderWindow: grw.getRenderWindow(),
@@ -374,7 +341,7 @@ export default {
         container,
         viewName: VIEW_NAMES.AXIAL,
         viewType: VIEW_TYPES.AXIAL,
-        slicingMode: vtkImageMapper.SlicingMode.K,
+        // slicingMode: vtkImageMapper.SlicingMode.K,
       });
     },
     async InitCoronalView({dispatch}, container) {
@@ -382,7 +349,7 @@ export default {
         container,
         viewName: VIEW_NAMES.CORONAL,
         viewType: VIEW_TYPES.CORONAL,
-        slicingMode: vtkImageMapper.SlicingMode.I,
+        // slicingMode: vtkImageMapper.SlicingMode.I,
       });
     },
     async InitSagittalView({dispatch}, container) {
@@ -390,7 +357,7 @@ export default {
         container,
         viewName: VIEW_NAMES.SAGITTAL,
         viewType: VIEW_TYPES.SAGITTAL,
-        slicingMode: vtkImageMapper.SlicingMode.J,
+        // slicingMode: vtkImageMapper.SlicingMode.J,
       });
     },
 
@@ -636,7 +603,6 @@ export default {
           dispatch("resizeSliceViews");
         }
       });
-
 
       view.view.interactor.onLeftButtonRelease(() =>
         commit("SET_MOUSE_DOWN", false),
@@ -1005,11 +971,6 @@ console.log("")
           });
         }
 
-        // dispatch("throttleUpdateSingleSlice", {
-        //   viewName: view.viewName,
-        //   viewType: view.viewIndex,
-        //   index: newIndex,
-        // });
       }
     },
     throttleUpdateSingleSlice: throttle(
@@ -1055,18 +1016,7 @@ console.log("")
           // Convert the output image to vtkImageData
           const imageData = vtkITKHelper.convertItkToVtkImage(outputImage);
 
-          // Return the imageData
-        // if(viewType!=2){
-        //   const newDirection = [
-        //     1,  0,  0,  // 第一行
-        //     0,  1, 0,  // 第二行
-        //     0,  0,  -1   // 第三行
-        //   ]
 
-
-        //   // // 应用新的方向矩阵
-        //   imageData.setDirection(newDirection);
-        // }
           return imageData;
         } else {
           console.error("Request failed: No data returned");
@@ -1172,7 +1122,6 @@ console.log("")
       if(view.viewIndex == 2){
         boundsZ = view.view.image.getBounds()[5]
       }
-      console.log("boundx",view.view.image.getBounds())
       const [worldpoint1, worldpoint2] = [
         view.view.image.indexToWorld([xmin, ymin, boundsZ]),
         view.view.image.indexToWorld([xmax, ymax,boundsZ]),
@@ -1341,19 +1290,6 @@ console.log("")
             });
           }
         }, 60);
-        // 创建 requestAnimationFrame
-        // let animationId;
-
-        // const animate = () => {
-        //   if (!state.isload) {
-        //     dispatch("updateSliceForView", {
-        //       viewName: view.viewName,
-        //       viewType: view.viewIndex,
-        //       index: getters.viewsData[view.viewIndex].changedPageindex,
-        //     });
-
-        //   }
-        //   animationId = requestAnimationFrame(animate);
           commit("UPDATE_AUTOPLAY_STATUS", {
             viewIndex: viewType,
            updates:{
@@ -1362,11 +1298,6 @@ console.log("")
            }
           });
 
-        // };
-        // 先赋值，再启动定时器和动画帧
-
-        // 启动动画帧
-        // animationId = requestAnimationFrame(animate);
         commit("UPDATE_AUTOPLAY_STATUS", {
           viewIndex: viewType,
          updates:{

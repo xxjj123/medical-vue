@@ -85,9 +85,12 @@ export default {
         console.log("this.btnInfoItemLocal;____", this.btnInfoItemLocal)
       },
     },
+    ...mapState("mprViewStore", ["allViewData"]),
+    ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
+
     ...mapState("viewInitStore", ["autoPlayStates"]),
     ...mapGetters("viewInitStore", ["viewAutopalyState"]),
-    ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
+
     localSlice_CT_pic_layout: {
       get() {
         return this.slice_CT_pic_layout; // 从 Vuex 状态获取值
@@ -162,6 +165,7 @@ export default {
             break;
           case LayoutIcons.CORONAL:
             this.layout = "4";
+            break;
           case LayoutIcons.SAGITTAL:
             this.layout = "5";
             break;
@@ -200,9 +204,17 @@ export default {
 
   },
   methods: {
+    ...mapActions("mprToolsStore", ["ReverseWindow", "RotateCamera", "AutoPlay", "FlipHorizontal", "FlipVertical"]),
+
+
+
     ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
-    ...mapMutations("viewInitStore", ["CLEAR_AUTO_PLAY_TIMER"]),
-    ...mapActions("viewInitStore", ["ReverseWindow", "RotateCamera", "AutoPlay", "FlipHorizontal", "FlipVertical"]),
+    ...mapActions("toolBarStore", ["activeZoom"]),
+
+
+    // ...mapMutations("viewInitStore", ["CLEAR_AUTO_PLAY_TIMER"]),
+
+    // ...mapActions("viewInitStore", ["ReverseWindow", "RotateCamera", "AutoPlay", "FlipHorizontal", "FlipVertical"]),
     handle_click_more(btn, index) {
       console.log("this.btnInfoItem==start", btn, index);
 
@@ -234,11 +246,8 @@ export default {
         const selectIcon = child[dropCode]?.icon;
         console.log("selectIcon_", selectIcon);
 
-
         this.$set(this.btnInfoItem[index], "icon", selectIcon)
       }
-
-
 
 
 
@@ -297,9 +306,9 @@ export default {
           switch (icon) {
             case autoPlayCodes.ICO_PACSBOFANG: {
               // console.log("icon----------start", icon, autoPlayCodes.ICO_PACSBOFANG);
-
+              console.log("this.viewType", this.viewType)
               this.AutoPlay({
-                viewType: this.viewType
+                viewIndex: this.viewType
               })
               // this.$set(this.btnInfoItem[index], "icon", autoPlayCodes.ICO_PACSZANTING);
             }
@@ -318,44 +327,50 @@ export default {
         }
           break;
         case btnLungCodes.SCREEN: {
-          console.log("this.slice_CT_pic_layout==SCREEN", this.slice_CT_pic_layout, "layout", this.layout);
-          if (this.layout == 3 || this.layout == 4 || this.layout == 5) {
-            console.log("this.layout_bak=", this.layout_bak);
+          console.log(this.viewType)
+          this.activeZoom(this.viewType)
 
-            // this.SET_SLICE_CT_PIC_LAYOUT(this.layout_bak || LayoutIcons.LGGJST);
-            this.SET_SLICE_CT_PIC_LAYOUT(this.layout_bak || LayoutIcons.LGGJST);
+          //     console.log("this.slice_CT_pic_layout==SCREEN", this.slice_CT_pic_layout, "layout", this.layout);
+          //     if (this.layout == 3 || this.layout == 4 || this.layout == 5) {
+          //       console.log("this.layout_bak=", this.layout_bak);
 
-          } else if (this.layout == 1) {
-            if (this.viewType == "2") {
-              this.layout_bak = LayoutIcons.LGGJST;
-              console.log("this.layout_bak=", this.layout_bak);
-              this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.AXIAL);
-            } else if (this.viewType == "1") {
-              this.layout_bak = LayoutIcons.LGGJST;
-              console.log("this.layout_bak=", this.layout_bak);
-              this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.CORONAL);
-            } else if (this.viewType == "0") {
-              this.layout_bak = LayoutIcons.LGGJST;
-              console.log("this.layout_bak=", this.layout_bak);
-              this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.SAGITTAL);
-            }
-          } else if (this.layout == 2) {
-            this.layout_bak = LayoutIcons.MPR;
+          //       // this.SET_SLICE_CT_PIC_LAYOUT(this.layout_bak || LayoutIcons.LGGJST);
+          //       this.SET_SLICE_CT_PIC_LAYOUT(this.layout_bak || LayoutIcons.LGGJST);
 
-            if (this.viewType == "2") {
-              this.layout_bak = LayoutIcons.LGGJST;
-              console.log("this.layout_bak=", this.layout_bak);
-              this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.AXIAL);
-            } else if (this.viewType == "1") {
-              this.layout_bak = LayoutIcons.LGGJST;
-              console.log("this.layout_bak=", this.layout_bak);
-              this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.CORONAL);
-            } else if (this.viewType == "0") {
-              this.layout_bak = LayoutIcons.LGGJST;
-              console.log("this.layout_bak=", this.layout_bak);
-              this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.SAGITTAL);
-            }
-          }
+          //     } else if (this.layout == 1) {
+          //       if (this.viewType == "2") {
+          //         this.layout_bak = LayoutIcons.LGGJST;
+
+
+
+          //         console.log("this.layout_bak=", this.layout_bak);
+          //         this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.AXIAL);
+          //       } else if (this.viewType == "1") {
+          //         this.layout_bak = LayoutIcons.LGGJST;
+          //         console.log("this.layout_bak=", this.layout_bak);
+          //         this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.CORONAL);
+          //       } else if (this.viewType == "0") {
+          //         this.layout_bak = LayoutIcons.LGGJST;
+          //         console.log("this.layout_bak=", this.layout_bak);
+          //         this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.SAGITTAL);
+          //       }
+          //     } else if (this.layout == 2) {
+          //       this.layout_bak = LayoutIcons.MPR;
+
+          //       if (this.viewType == "2") {
+          //         this.layout_bak = LayoutIcons.LGGJST;
+          //         console.log("this.layout_bak=", this.layout_bak);
+          //         this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.AXIAL);
+          //       } else if (this.viewType == "1") {
+          //         this.layout_bak = LayoutIcons.LGGJST;
+          //         console.log("this.layout_bak=", this.layout_bak);
+          //         this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.CORONAL);
+          //       } else if (this.viewType == "0") {
+          //         this.layout_bak = LayoutIcons.LGGJST;
+          //         console.log("this.layout_bak=", this.layout_bak);
+          //         this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.SAGITTAL);
+          //       }
+          //     }
         }
           break;
         default:
@@ -367,7 +382,7 @@ export default {
 
 
 
-      console.log("btnInfoItemLocal==", this.btnInfoItemLocal);
+      // console.log("btnInfoItemLocal==", this.btnInfoItemLocal);
 
     }
   },

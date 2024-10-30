@@ -116,7 +116,7 @@ export default {
     }
   },
   computed: {
-    ...mapState("viewInitStore", ["seriesInfo", "noduleDiagnoseState"]),
+    ...mapState("mprViewStore", ["seriesInfo", "allViewData"]),
     sheetStyleTag: {
       get() {
         return this.sheetStyle;
@@ -133,7 +133,7 @@ export default {
       return studies && Object.keys(studies).length > 0 ? studies : false
     },
     WindowColorLevel() {
-      return this.noduleDiagnoseState.colorWindow + "/" + this.noduleDiagnoseState.colorLevel || false;
+      return this.allViewData.colorWindow + "/" + this.allViewData.colorLevel || false;
     },
     HuShow() {
       return this.datav.HuShow || false;

@@ -5,18 +5,26 @@
     <PacsPageHeader :bread="true" :filmModeBtn="true">
       <template slot="filmModeCtrl">
 
-        <filmBar ref="filmBarRef" @changeColor="changeColor"></filmBar>
+        <filmBar ref="filmBarRef"></filmBar>
 
-
-        <!-- <div class="fixFileMuil">
-          <input ref="Fileinput" type="file" multiple @change="handleFile" />
-        </div> -->
       </template>
       <template slot="vtkTool">
-        <vskToolbar ref="vskToolbarRef" @UpdateColorWindow="UpdateColorWindow_self"
-          @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self" @GetRecon="GetRecon_self"
-          :windowcolor="{ ww: 1500, wl: -500 }">
+        <vskToolbar ref="vskToolbarRef">
         </vskToolbar>
+        <!-- <button class="mr-10" @click="nodule">结节</button>
+
+        <button class="mr-10" @click="pneumonia">肺炎</button> -->
+
+
+        <!-- <button @click="hidedraw">隐藏</button> -->
+
+
+        <!-- <button @click="clip3D">切割</button>   -->
+        <!-- <button class="mr-10" @click="initNodule">结节ini</button>
+        <button @click="initCube">initCube</button> -->
+
+
+
       </template>
 
     </PacsPageHeader>
@@ -105,24 +113,7 @@ export default {
     ViewBoard,
   },
   computed: {
-    ...mapState("viewInitStore", ["noduleDiagnoseState"]),
-    ...mapState("viewsStore", [
-      "helloViews",
-      "imageData",
-      "view3D",
-      "viewMprViews",
-      "viewsData",
-      "imageData",
-      "mouseDown",
-      "Coronal",
-      "Axial",
-      "Sagittal",
-    ]),
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
-
-
-    ...mapState("toolsStore", ["helloTools", "widget"]),
-    ...mapGetters("toolsStore", ["combinedState"]),
 
   },
   data() {
@@ -145,45 +136,31 @@ export default {
     };
   },
   watch: {
-    noduleDiagnoseState: {
-      handler(nVal, oVal) {
-        requestAnimationFrame(() => {
-          let colorWindow = nVal.colorWindow
-          let colorLevel = nVal.colorLevel
 
-          if (winCtrl.lung.ww == colorWindow && winCtrl.lung.wl == colorLevel) {
-            this.$refs.filmBarRef.activate(0)
-          } else if (winCtrl.mediastinal.ww == colorWindow && winCtrl.mediastinal.wl == colorLevel) {
-
-            this.$refs.filmBarRef.activate(1)
-          } else if (winCtrl.bone.ww == colorWindow && winCtrl.bone.wl == colorLevel) {
-            this.$refs.filmBarRef.activate(2)
-          }
-        })
-      },
-      deep: true,
-      immediate: true,
-    }
   },
   methods: {
+    ...mapMutations("mprViewStore", ["SET_SERIES_INFO"]),
+    ...mapActions("mprViewStore", ["UpdateDraw", "UpdateDiagnoseState", "InitSlice", "SetAllViewData"]),
+    ...mapActions("mprToolsStore", ["UpdateColorWindow", "UpdateColorLevel", "ChangePan"]),
+
+    ...mapActions("noduleInfoStore", ["InitNoduleState", "ActiveNoduleState", "InitAnnotations"]),
+    ...mapMutations("noduleInfoStore", ["SET_NODULE_INFO"]),
+
+    ...mapActions("pneumoniaInfoStore", ["InitPneumoniaState"]),
+
     ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE", "SET_SLICE_CT_PIC_LAYOUT"]),
 
-    ...mapMutations("viewInitStore", ["SET_SERIES_INFO", "SET_NODULE_INFO", "SET_NODULE_DIAGNOSE_DATA"]),
-
-    ...mapActions("viewInitStore", ["InitSlice", "UpdateColorWindow", "UpdateColorLevel", "ChangePan"]),
     ...mapActions("view3DStore", [
       "Init3DScene",
       "Init3DView",
       "AddCube",
       "CubeClip",
+      "setupCamera",
       "Back"
     ]),
 
-    // 测试
-    ...mapActions("toolsStore", ["actRun", "updateActRun"]),
-
-    // 正规业务start
-    ...mapActions("viewsStore", ["readFile", "processDicomFiles"]),
+    // // 测试
+    // ...mapActions("toolsStore", ["actRun", "updateActRun"]),
 
     // 定时更新dict(developer)
     async setClockUpdateDict() {
@@ -207,71 +184,46 @@ export default {
     back() {
       this.Back()
     },
+    nodule() {
+      this.ActiveNoduleState()
+    },
+    pneumonia() {
+      this.ActivePneumoniaState()
+    },
 
-    async handleFile(e) {
-      const files = Array.from(e.target.files);
 
-      await this.readFile(files);
-    },
-    // 本页面方法
-
-    ChangeTheme(theme) {
-      this.viewTheme = theme;
-      // toolsStore.resizeWindow()
-    },
-    ChangeSubshow() {
-      this.showsub = !this.showsub;
-    },
-    SelectDiagnose(key) {
-      this.menuResult.forEach((item, index) => {
-        if (item.des === key) {
-          this.activeDiagnose = item;
-          this.activeIndex = index;
-        }
-      });
-    },
-    GetSeriesInfo(computeSeriesId) {
-      return new Promise(async (resolve, reject) => {
+    async GetSeriesInfo(computeSeriesId) {
+      try {
         const result = await xhr_getSeriesInfo({ computeSeriesId });
         if (result.serviceSuccess) {
-          let seriesInfo = result.data.resultData;
-          this.seriesInfo = seriesInfo;
-          this.SET_SERIES_INFO(seriesInfo);
-          this.InitSlice();
-          this.Init3DView(this.seriesInfo.seriesId)
+          return result.data.resultData;
         }
-      });
-    },
+        return null; // 如果 serviceSuccess 为 false，返回 null
+      } catch (error) {
+        return null; // 出现错误时返回 null
+      }
+    }
+
+
+
+    ,
     changeColor(colorwindow, colrlevel) {
       requestAnimationFrame(() => {
-        this.$refs.vskToolbarRef.changeColor(colorwindow, colrlevel)
+        // this.$refs.vskToolbarRef.changeColor(colorwindow, colrlevel)
       })
     },
-    async Diagnose(computeSeriesId) {
-      return new Promise(async (resolve, reject) => {
+    async GetNodoleInfo(computeSeriesId) {
+      try {
         const result = await xhr_queryNodule({ computeSeriesId });
         if (result.serviceSuccess) {
-          this.SET_NODULE_INFO(result.data.resultData);
-          //结节病变列表查询
-          // const newRes = await xhr_queryNodule({computeSeriesId: "1825804835303624706"})
-          // console.log("newRes====", newRes);
-
-          this.menubarShow = true;
-        } else {
-          console.log("xhr_queryNodule失败");
+          return result.data.resultData;
         }
-        // const result = await xhr_getNoduleInfo({computeSeriesId});
-        // if (result.serviceSuccess) {
-        //   console.log(result.data.resultData);
-        //   //TODO: wait turn new api
-        //   this.SET_NODULE_INFO(result.data.resultData);
+        return null; // 如果 serviceSuccess 为 false，返回 null
+      } catch (error) {
+        return null; // 出现错误时返回 null
+      }
 
 
-        //   this.menubarShow = true;
-        // } else {
-        //   console.log("xhr_getNoduleInfo失败");
-        // }
-      });
     },
 
     async loadFile(applyId) {
@@ -316,14 +268,14 @@ export default {
     },
     UpdateColorWindow_self(nVal) {
       this.UpdateColorWindow(nVal)
-      this.SET_NODULE_DIAGNOSE_DATA({
+      this.SetAllViewData({
         key: "colorWindow",
         value: nVal
       })
     },
     UpdateColorLevel_self(nVal) {
       this.UpdateColorLevel(nVal)
-      this.SET_NODULE_DIAGNOSE_DATA({
+      this.SetAllViewData({
         key: "colorLevel",
         value: nVal
       })
@@ -336,17 +288,7 @@ export default {
     }
   },
   created() {
-    this.actRun({ a: 1 });
-
-    setTimeout(() => {
-      this.actRun({ a: 2 });
-
-      this.updateActRun({ q: 123123 });
-    }, 5000);
-
-    // console.log("this.$router", this.$router);
-
-    getSysDict().then((res) => {
+    getSysDict().then(async (res) => {
       const carplay = localStorage.getItem("carplay");
       if (!carplay) {
         localStorage.setItem("carplay", JSON.stringify(res));
@@ -354,19 +296,31 @@ export default {
         // console.log("carplay-已存在");
       }
       const { computeSeriesId } = this.$route.query;
-      this.Diagnose(computeSeriesId);
-      this.GetSeriesInfo(computeSeriesId);
-      // console.log(this.seriesInfo)
-      // this.Init3DView(this.seriesInfo.seriesId)
+      const noduleInfo = await this.GetNodoleInfo(computeSeriesId);
+      console.log("noduleInfonoduleInfonoduleInfo", noduleInfo)
+      if (noduleInfo) {
+        this.SET_NODULE_INFO(noduleInfo);
+        this.menubarShow = true
+      }
+      const seriesInfo = await this.GetSeriesInfo(computeSeriesId);
+      if (seriesInfo) {
+        // console.log(seriesInfo)
+        this.Init3DView(seriesInfo.seriesId)
+        this.SET_SERIES_INFO(seriesInfo);
+        this.InitNoduleState(seriesInfo);
+        this.InitPneumoniaState(seriesInfo);
+        this.ActiveNoduleState()
+
+
+      }
+
 
     });
 
     this.setClockUpdateDict();
 
-    this.INIT_BUTTON_SHOW_STATE([ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj])
-    this.INIT_BUTTON_ACTIVE_STATE([ButtonNames.Jbinfo])
+
   },
-  mounted() { },
   beforeDestroy() {
     // 执行退出前的清理操作
     console.log('组件即将被销毁');

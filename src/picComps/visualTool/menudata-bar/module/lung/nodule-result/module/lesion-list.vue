@@ -25,10 +25,6 @@
         </div>
 
         <div class="table_container">
-          <!-- :checkbox-config="{
-          trigger: 'row',
-        }" -->
-
           <ta-big-table class="lung_table_custom" ref="tableLungNodule" :size="tableConfig.size" row-id="id"
             :checkbox-config="{ trigger: 'click', checkRowKeys: defaultSelecteRows }"
             @current-change="handleTableCurrentChange" :row-style="rowStyle" :keyboard-config="{ isArrow: true }"
@@ -36,7 +32,6 @@
             @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent" :edit-config="{ trigger: 'click' }"
             @cell-click="handleCellClick" :sort-config="tableConfig.sortConfig">
             <template #risk="{ row }">
-
               <span class="ml-[10px]">{{ row.riskCode }}</span><br />
               <div v-if="row.riskCode == 1">
                 <span class="levelTag">低危</span>
@@ -172,6 +167,7 @@
           </anaSemanticDesBlock>
         </div>
         <!-- ext -->
+        <!-- 筛选气泡框 -->
         <ta-popover ref="mypop" @after-leave="afterLeaveEvents" :visible-arrow="true" :offset="1" :appendToBody="true"
           :placement="`bottom`" class="cus_poper">
           <div slot="content" class="boxBtn_extSelect">
@@ -207,7 +203,7 @@
             <div class="flex justify-end">
               <div class="btn_group">
                 <ta-button size="small">重置</ta-button>
-                <ta-button type="primary" size="small">确定</ta-button>
+                <ta-button type="primary" size="small" @click="filterConfirm">确定</ta-button>
               </div>
             </div>
           </div>
@@ -219,7 +215,6 @@
         </div>
       </div>
     </div>
-
 
 
   </div>
@@ -235,9 +230,6 @@ import { SortOption } from "@/assets/js/utils/dicom/select";
 import { mapState } from "vuex";
 
 import reportViewBtn from "./reportView/btn.vue"
-
-
-
 
 import { xhr_updateNoduleLesion } from "@/api/index";
 
@@ -265,7 +257,9 @@ export default {
     },
   },
   computed: {
-    ...mapState("viewInitStore", ["noduleInfo", "selectedNoduleId"]),
+    // ...mapState("viewInitStore", ["noduleInfo", "selectedNoduleId"]),
+    ...mapState("noduleInfoStore", ["noduleInfo", "selectedNoduleId"]),
+
 
     menuResult: {
       get() {
@@ -357,13 +351,6 @@ export default {
       immediate: true
     }
     ,
-    // selectedNoduleId1: {
-    //   handler(nVal) {
-    //     console.log(nVal)
-    //     // this.$refs.tableLungNodule.setCurrentRow(row)
-    //     // setCurrentRow(row)
-    //   }
-    // }
   },
 
   data() {
@@ -429,6 +416,7 @@ export default {
 
 
         ],
+        tableOriginalData: [],
         tableColumns: [
           {
             type: {
@@ -440,19 +428,9 @@ export default {
             sortable: true,
             customRender: {
               default: "risk",
-              // default: ({ row }) => {
-              //   return (<div>
-              //   {row.risk}
 
-              //   </div>)
-              // },
             },
           },
-          // {
-          //   field: "risk1",
-          //   title: "", //IM + 体积 volume mm3
-          //   width: "60",
-          // },
           {
             field: "lobeSegmentSort",
             title: "",
@@ -546,11 +524,9 @@ export default {
       majorAxis: {
         // indeterminate: false,
         onCheckAllChange: ({ ev }) => {
-          console.log("onCheckAllChange--mg", ev, ev.target.checked);
           let isChecked = ev.target.checked;
           if (isChecked) {
             this.$set(this.majorAxis, "checkAll", true);
-            console.log("this.form---", this.form);
             const { type2 } = this.form;
             if (type2 && type2.length > 0) {
               this.$delete(this.form, "type2");
@@ -808,8 +784,8 @@ export default {
     };
   },
   methods: {
+    ...mapActions("noduleInfoStore", ["ChooseAnnotation"]),
 
-    ...mapActions("viewInitStore", ["ChooseAnnotation"]),
     setPopupContainer(trigger) {
       return trigger.parentElement;
     },
@@ -826,11 +802,57 @@ export default {
           color: '#ffffff'
         }
       }
-
-
-
     },
 
+    filterConfirm() {
+      console.log(this.form["type"])
+      console.log(this.form["type1"])
+      console.log(this.form["type2"])
+      const type = this.form["type"]
+      const type1 = this.form["type1"]
+      const type2 = this.form["type2"]
+
+      console.log(type2)
+      console.log(this.form)
+      console.log(this.majorAxis)
+
+      console.log(this.anaSecDesConf)
+      let filteredData = this.tableConfig.tableOriginalData
+
+
+      console.log(this.tableConfig.tableOriginalData);
+      if (type && type.length !== 0) {
+        console.log("筛选风险")
+        console.log(type[0])
+        console.log(this.tableConfig.tableOriginalData[3].riskCode)
+        filteredData = this.tableConfig.tableOriginalData.filter(item =>
+          type.includes(String(item.riskCode))
+        );
+        console.log(filteredData)
+
+      }
+      console.log(type1)
+      if (type1 && type1.length !== 0) {
+        console.log("筛选类型")
+        console.log(type1[0])
+        filteredData = filteredData.filter(item =>
+          type1.includes(String(item.typeSort))
+        );
+        console.log(filteredData)
+      }
+      filteredData.forEach(item => item.checked = true)
+      // const selection = filteredData.filter(item => item.checked)
+
+      const selection = filteredData
+      this.tableConfig.tableData = filteredData
+      this.selection = selection
+
+      // this.tableConfig.tableData.filter(item => item.checked);
+
+      // // console.log(column)
+      // this.$refs.tableLungNodule.setFilter(column, [{ value: "1" }])
+    }
+    ,
     validateObject(obj) {
       // 检查是否为对象且不是null
       if (typeof obj === 'object' && obj !== null && Object.keys(obj).length > 0) {
@@ -855,8 +877,6 @@ export default {
         this.chekboxFlag = false
         return;
       }
-
-
       this.tableCurrentIdx = rowIndex;
 
       // console.log(this.$refs.tableLungNodule.getCurrentRecord())
@@ -876,28 +896,9 @@ export default {
 
       this.NoduleLesion_row = row;
 
-
-      // console.log("this.$refs.tableLungNodule==", this.$refs.tableLungNodule);
-
-      // console.log("this.validateObject(this.lunglistSelectRow)", this.lunglistSelectRow, this.validateObject(this.lunglistSelectRow.lobeSegment))
-      // console.log("this.validateObject(this.noduleTypeListSelectRow)", this.noduleTypeListSelectRow, this.validateObject(this.noduleTypeListSelectRow.type))
-
-
-
-
-
-
-      // console.log(
-      //   " row, rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event ", row,
-      //   rowIndex, $rowIndex, column, columnIndex, $columnIndex, triggerRadio, triggerCheckbox, $event);
       const { property } = column;
       // if(property === 'CHENGJI_VAL'){
       const { lobe, lobeSegment } = row;
-
-      console.log("lobe, lobeSegment----", lobe, lobeSegment);
-
-
-
 
       const mark = this.$api.getLungSide(lobe);
 
@@ -937,9 +938,6 @@ export default {
         this.noduleTypeDropDown.showValue = `${rowSelectItem.name}`;
       });
 
-
-      // this.NoduleLesion_row = {};
-
     },
     async init_lesionPanelSearchBar() {
       const item = await this.init_select("LESION_LIST_TYPE");
@@ -952,7 +950,6 @@ export default {
 
       this.$set(type_select, "list", LESION_LIST_TYPE);
 
-      // console.log("this.sort_condition", this.sort_condition);
       const group = [
         "LESION_LIST_FILTER_LEX",
         "LESION_LIST_FILTER_NODULETYPE",
@@ -960,8 +957,6 @@ export default {
       ];
       // const item1 = await
       this.init_lesion_filter_Item(group).then((itemRes) => {
-        // console.log("itemRes==", itemRes);
-        // console.log("itemRes=~=", itemRes[group[0]]);
         const LESION_LIST_FILTER_LEX = this.$ut
           .serializeDropdownList(itemRes[group[0]])
           .filter((v) => v.label !== "全部");
@@ -1188,8 +1183,6 @@ export default {
           this.$refs.tableLungNodule.sort('im', 'desc');
 
 
-
-
           console.log("SortOption.IM=默认=", SortOption.IM);
         }
           break;
@@ -1240,8 +1233,6 @@ export default {
           } else {
             this.$refs.tableLungNodule.sort('im', 'asc');
           }
-
-
 
           console.log("SortOption.IM==", SortOption.IM);
         }
@@ -1302,11 +1293,11 @@ export default {
           const order = that.tableConfig.tableColumns[4].orderAsc[orderIndex];
 
           if (order === 'desc') {
-            this.$refs.tableLungNodule.sort('ellipsoidAxisMajor', 'asc');
-          } else if (order === 'asc') {
             this.$refs.tableLungNodule.sort('ellipsoidAxisMajor', 'desc');
-          } else {
+          } else if (order === 'asc') {
             this.$refs.tableLungNodule.sort('ellipsoidAxisMajor', 'asc');
+          } else {
+            this.$refs.tableLungNodule.sort('ellipsoidAxisMajor', 'desc');
           }
 
 
@@ -1338,11 +1329,11 @@ export default {
           const order = that.tableConfig.tableColumns[5].orderAsc[orderIndex];
 
           if (order === 'desc') {
-            this.$refs.tableLungNodule.sort('volume', 'asc');
-          } else if (order === 'asc') {
             this.$refs.tableLungNodule.sort('volume', 'desc');
-          } else {
+          } else if (order === 'asc') {
             this.$refs.tableLungNodule.sort('volume', 'asc');
+          } else {
+            this.$refs.tableLungNodule.sort('volume', 'desc');
           }
 
 
@@ -1396,10 +1387,6 @@ export default {
       this.$api.query_humen_boot_data().then(async item => {
         const rowSelectItem = await this.$api.findObjectByValue(item, "lung.segments", code.toString())[0];
 
-
-        console.log("rowSelectItem__lungNodule---", rowSelectItem);
-
-
         this.lunglistSelectRow = { lobeSegment: rowSelectItem };
 
         console.log("this.lunglistSelectRow---handleMenuClick_after:", this.lunglistSelectRow, "this.tableConfig.tableData[this.tableCurrentIdx]", this.tableConfig.tableData[this.tableCurrentIdx])
@@ -1410,11 +1397,9 @@ export default {
         this.lungLobeDropDown.showValue = `${rowSelectItem.label} / ${rowSelectItem.name}`;
         // this.reset_cache_selectedNodule();
 
-
         if (this.validateObject(this.lunglistSelectRow.lobeSegment)) {
 
           // this.$set(this.NoduleLesion_row, "lobeSegment", this.lunglistSelectRow.lobeSegment.value)
-
 
           let param = {};
           param = {
@@ -1437,9 +1422,6 @@ export default {
       })
 
 
-
-
-
     },
     handleMenuClick_noduleList(e) {
       console.log("handleMenuClick_noduleList", e, "this.tableCurrentIdx", this.tableCurrentIdx, "this.tableConfig.tableData", this.tableConfig.tableData);
@@ -1450,17 +1432,13 @@ export default {
       this.$api.query_humen_boot_data().then(async item => {
         const rowSelectItem = await this.$api.findObjectByValue(item, "lung.noduleType", code.toString())[0];
 
-
         console.log("rowSelectItem__lungNodule---", rowSelectItem);
 
-
         this.noduleTypeListSelectRow = { type: rowSelectItem };
-
 
         console.log("this.noduleTypeListSelectRow--", this.noduleTypeListSelectRow)
 
         console.log("this.noduleTypeListSelectRow---handleMenuClick_after:", this.noduleTypeListSelectRow)
-
 
         // 同步最新表格数据
         this.$set(this.tableConfig.tableData[this.tableCurrentIdx], 'type', rowSelectItem);
@@ -1495,63 +1473,11 @@ export default {
 
       })
 
-
-
     },
 
     // 应用 customizeJson 和 策略
     async processJsonData(jsonData) {
-      /* const customData = {
-        IM_VAL: (vm, obj) => {
-          // debugger;
-          // 根据vm和obj计算IM_VAL的值
-          // console.log("vm,obj----IM_VAL", vm, obj);
-          let IM = "";
-          // console.log("annotation--", obj);
-          if (obj.points && Array.isArray(obj.points)) {
-            IM = vm.operation_IM(obj.points, "z", Math.round);
-            // console.log("IM------------", IM);
-            // return IM
-          }
-          return IM;
-          // else if(!isNaN(obj.annotation[0].IM_VAL)){
-          //   console.log("annotation--111",obj);
-          //   IM = obj.annotation[0].IM_VAL;
-          //   return IM
-          // }
-        },
-        CHENGJI_VAL: (vm, obj) => {
-          // 根据vm和obj计算CHENGJI_VAL的值
-          // console.log("vm,obj----CHENGJI_VAL", vm, obj);
-          let CHENGJI = "";
-          if (obj.ellipsoidAxis) {
-            const {major, least} = obj.ellipsoidAxis;
-            CHENGJI = `${major} x ${least}`;
-          }
-          return CHENGJI;
-        },
-      }; */
 
-      /* const customizedData = this.$ut.customizeJson(jsonData, customData); */
-      // console.log("customizedData----",customizedData);
-      // console.log("JSON.stringify(customizedData)---",JSON.stringify(customizedData));
-      // 根据需要使用 customizedData
-      // old --
-      /*  const propertiesToSearch = ["CHENGJI_VAL", "IM_VAL"];
-       const tableData = this.$ut.transformData(
-         customizedData,
-         propertiesToSearch,
-       ); */
-
-      // console.log("tableData__", tableData);
-      // console.log("tableData__JSON.st",JSON.stringify(tableData));
-
-      // const filledData  = this.$ut.fillMissingValues(["CHENGJI_VAL", "IM_VAL"],customizedData)
-      // console.log("filledData==",filledData);
-
-      // this.tableConfig.tableData = tableData; //old 赋值
-
-      // new 方式接口赋值：2024-08-26
       const { noduleLesionList } = this.menuResult;
 
       const processedData_lobe = this.$api.processLungItems.call(this, noduleLesionList, ['lobeSegment']).then(async (item) => {
@@ -1561,61 +1487,17 @@ export default {
 
         console.log("processedData_type=", processedData_type);
         this.tableConfig.tableData = processedData_type;
+        this.tableConfig.tableOriginalData = processedData_type;
+        this.tableConfig.tableOriginalData.forEach(item => item.checked = true)
 
 
         this.selection = this.tableConfig.tableData.filter(item => item.checked);
 
-
       })
 
-      // console.log("processedData_lobe==", processedData_lobe);
-      // console.log("processedData_type==", processedData_type);
-
-      // this.tableConfig.tableData = noduleLesionList;
-      // this.tableConfig.tableData = processedData;
-
-      // 初始化edit模式小组件的数据源
-      /*  this.$api.query_humen_boot_data().then((item) => {
-         // console.log("query_humen_boot_data", item);
-         const nodule_type = this.$api.getPropertyArray(item, "lung.noduleType");
-         const left_lung = this.$api.getPropertyArray(
-           item,
-           "lung.segment.leftLung.segments",
-         );
-         const right_lung = this.$api.getPropertyArray(
-           item,
-           "lung.segment.rightLung.segments",
-         );
-         // console.log("nodule_type-", nodule_type);
-         // console.log("left_lung-", left_lung);
-         this.nodule_type = nodule_type;
-         this.left_lung = left_lung;
-         this.right_lung = right_lung;
-
-         // console.log("right_lung-", right_lung);
-       }); */
     },
     init_tableData() {
-      // const item = this.menuResult.result;
-
-      // console.log("this.cKey.toUpperCase()", this.cKey.toUpperCase(), item);
-
-      // const tableItem = item[LESION_PART_SITE[`${this.cKey.toUpperCase()}`]];
       const tableItem = this.menuResult;
-      // console.log("tableItem==", tableItem);
-      // 测试---123
-      /* const test277_min =
-          tableItem.volumeDetailList[3].annotation[0].points[0].z;
-        const test277_max =
-          tableItem.volumeDetailList[3].annotation[0].points[1].z;
-
-        const centerValue = Math.round((test277_min + test277_max) / 2);
-        console.log("centerValue==", centerValue);
-        const antArr = tableItem.volumeDetailList[3].annotation[0].points;
-        console.log("antArr", antArr);
-        const test3res = this.$ut.operation_IM(antArr, "z", Math.round);
-        console.log("test3res==", test3res); */
-
       const jsonData = tableItem.focalDetailList;
       // console.log(jsonData);
 
@@ -1632,19 +1514,13 @@ export default {
           // this.anaSecDesConf.selection =
         }
 
-
       });
 
 
     },
   },
   created() {
-
-    // console.log("noduleInfo====", this.noduleInfo);
-    // console.log("lesion-list:this.menuResult", this.menuResult);
-    // this.init_select_LesionList();
     this.init_lesionPanelSearchBar();
-
     // 表格初始化
     this.init_tableData();
     this.$nextTick(() => {

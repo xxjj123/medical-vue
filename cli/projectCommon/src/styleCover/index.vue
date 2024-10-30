@@ -214,7 +214,7 @@
                 <div class="ant-upload-text">
                   <div class="mid_subTit text-center">
                     <div class="mr-[10px]">
-                      点击或拖入.dcm文件/文件夹到本区域
+                      点击或拖入11.dcm文件/文件夹到本区域
                     </div>
                   </div>
                 </div>
@@ -562,7 +562,7 @@ export default {
           // debugger;
           xhr_uploadDicom({
             // algorithmConfig: `[{}]`,
-            caseFile:dicom,
+            caseFile: dicom,
           }).then((item) => {
             console.log("xhr_uploadDicom___item:", item);
           });

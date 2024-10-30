@@ -48,7 +48,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions("viewInitStore", ["resizeSliceViews"]),
+    ...mapActions("mprToolsStore", ["resizeSliceViews"]),
     detectZoom() {
       let ratio = 1;
       const screen = window.screen;

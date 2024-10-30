@@ -16,6 +16,7 @@ const ButtonNames = {
   AiInfo: "aiInfo", // ai 信息
   Szckx: "szckx", // 十字参考线
   Pyms: "pyms", // 平移模式
+  Bcj : "bcj" //靶重建
 };
 
 const LayoutNames = {
@@ -31,11 +32,17 @@ const LayoutNames = {
 const suffix_active = `_on`;
 const suffix_show = `_show`;
 
+import {
+  LayoutIcons
+} from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
 export default {
   namespaced: true,
   state: {
-    slice_CT_pic_layout: LayoutNames.Lggj, //ct-三视图+3d,容器布局方式（ps:这个名称和icon-class对应）
+    activeViewModule:"mprViewStore",
+    activeToolModule:"mprToolsStore",
+    activeButtons:[],
+    slice_CT_pic_layout: null, //ct-三视图+3d,容器布局方式（ps:这个名称和icon-class对应）
     ...Object.keys(ButtonNames).reduce((acc, key) => {
       acc[`${ButtonNames[key]}${suffix_active}`] = false;
       return acc;
@@ -44,21 +51,13 @@ export default {
       acc[`${ButtonNames[key]}${suffix_show}`] = false;
       return acc;
     }, {}),
-    // [`${ButtonNames.Jbinfo}${suffix_name}`]: true,
-    // [`${ButtonNames.Szckx}${suffix_name}`]: true,
   },
   getters: {
-    getButtonActiveState: (state) => (buttonName) => {
-      return state[`${buttonName}${suffix_active}`];
-    },
     getAllButtonActiveStates: (state) => {
       return Object.keys(ButtonNames).reduce((acc, key) => {
         acc[`${ButtonNames[key]}${suffix_active}`] = state[`${ButtonNames[key]}${suffix_active}`];
         return acc;
       }, {});
-    },
-    getButtonShowState: (state) => (buttonName) => {
-      return state[`${buttonName}${suffix_show}`];
     },
     getAllButtonShowStates: (state) => {
       return Object.keys(ButtonNames).reduce((acc, key) => {
@@ -68,13 +67,19 @@ export default {
     },
   },
   mutations: {
-    // 定义一个 mutation 来改变 slice_CT_pic_layout 的值
     SET_SLICE_CT_PIC_LAYOUT(state, layout) {
       state.slice_CT_pic_layout = layout;
+
     },
     TOGGLE_BUTTON_ACTIVE_STATE(state, buttonName) {
       state[`${buttonName}${suffix_active}`] =
         !state[`${buttonName}${suffix_active}`];
+
+      const activeButtons = Object.keys(ButtonNames).filter((key) => {
+        return state[`${ButtonNames[key]}${suffix_active}`] === true;
+      }).map((key) => ButtonNames[key]);
+      state.activeButtons = activeButtons
+
     },
     INIT_BUTTON_ACTIVE_STATE(state, activeButtons) {
       Object.keys(ButtonNames).forEach((key) => {
@@ -85,6 +90,7 @@ export default {
     TOGGLE_BUTTON_SHOW_STATE(state, buttonName) {
       state[`${buttonName}${suffix_show}`] =
         !state[`${buttonName}${suffix_show}`];
+
     },
     INIT_BUTTON_SHOW_STATE(state, activeButtons) {
       Object.keys(ButtonNames).forEach((key) => {
@@ -93,5 +99,64 @@ export default {
       });
     }
   },
-  actions: {},
+  actions: {
+    activeButtonState({state,commit,dispatch},buttonName){
+      commit("TOGGLE_BUTTON_ACTIVE_STATE",buttonName)
+      dispatch(state.activeViewModule+"/SetAllViewData",{
+        key: "activeButtons",
+        value: state.activeButtons,
+      },{root:true})
+      switch (buttonName) {
+        case ButtonNames.Pyms:
+          dispatch(`${state.activeToolModule}/ChangePan`, null, { root: true });
+          break;
+
+        case ButtonNames.Bcj:
+          dispatch(state.activeViewModule+"/SetAllViewData",{
+            key: "isRecon",
+            value: state[`${ButtonNames.Bcj}${suffix_active}`],
+          },{root:true})
+          break;
+
+        default:
+          // 如果没有匹配的情况，可以在这里处理默认操作
+          break;
+      }
+    // if(buttonName == ButtonNames.Szckx||buttonName == ButtonNames.Jbinfo){
+
+    // }
+    },
+    activeLayout({state,dispatch,commit},layout){
+      commit("SET_SLICE_CT_PIC_LAYOUT",layout)
+      dispatch(state.activeViewModule+"/SetAllViewData",{
+        key: "zoomView",
+        value: null,
+      },{root:true})
+      dispatch(state.activeViewModule+"/SetAllViewData",{
+        key: "layOut",
+        value: layout,
+      },{root:true})
+    },
+    activeZoom({state,dispatch,commit,rootState},viewIndex){
+      const v_state = rootState[state.activeViewModule]
+      let zoomView = null
+      const views = [LayoutIcons.SAGITTAL, LayoutIcons.CORONAL,LayoutIcons.AXIAL]
+      if(!v_state.allViewData.zoomView){
+        zoomView = views[viewIndex]
+      }
+      dispatch(state.activeViewModule+"/SetAllViewData",{
+        key: "zoomView",
+        value: zoomView,
+      },{root:true})
+    },
+    UpdateColorWindow({state,dispatch},value){
+      dispatch(`${state.activeToolModule}/UpdateColorWindow`, value, { root: true });
+    },
+    UpdateColorLevel({state,dispatch},value){
+      dispatch(`${state.activeToolModule}/UpdateColorLevel`, value, { root: true });
+
+    }
+
+
+  },
 };
