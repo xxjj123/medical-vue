@@ -61,9 +61,11 @@ export default {
   },
 
   computed: {
-    ...mapState("noduleInfoStore", ["noduleInfo"]),
+    ...mapState("noduleInfoStore", ["isReady", "noduleInfo"]),
     menuResult: {
+
       get() {
+        console.log(this.noduleInfo)
         console.log("get-first----this.noduleInfo", this.noduleInfo.noduleLesionList);
 
         return this.noduleInfo;
@@ -91,12 +93,18 @@ export default {
 
     ...mapActions("pneumoniaInfoStore", ["ActivePneumoniaState"]),
 
+    ...mapActions("fracInfoStore", ["ActiveFracState"]),
+
+
     tab_callback(key) {
       console.log(key);
       if (key == 1) {
         this.ActiveNoduleState()
       } else if (key == 2) {
         this.ActivePneumoniaState()
+      } else if (key = 3) {
+        this.ActiveFracState()
+
       }
       this.curSelectActKey = key;
 

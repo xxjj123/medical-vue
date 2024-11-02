@@ -31,12 +31,17 @@ import mprViewStore from "./store/mprView"
 import mprToolsStore from "./store/mprTools"
 import noduleInfoStore from "./store/noduleInfo"
 import pneumoniaInfoStore from "./store/pneumoniaInfo"
+import fracInfoStore from "./store/fracInfo"
+
 
 
 store.registerModule("mprViewStore", mprViewStore);
 store.registerModule("mprToolsStore", mprToolsStore);
 store.registerModule("noduleInfoStore", noduleInfoStore);
 store.registerModule("pneumoniaInfoStore", pneumoniaInfoStore);
+store.registerModule("fracInfoStore", fracInfoStore);
+
+
 
 
 

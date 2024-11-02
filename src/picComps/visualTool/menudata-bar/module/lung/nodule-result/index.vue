@@ -1,6 +1,7 @@
 <template>
   <div class="nodule-result_panel">
     <checkToolBar></checkToolBar>
+
     <LesionList v-model="menuResult" :cKey="cKey"></LesionList>
   </div>
 </template>
@@ -42,7 +43,7 @@ export default {
     },
 
     lesionPartSite: {
-      get() {},
+      get() { },
       set(val) {
         return val;
       },

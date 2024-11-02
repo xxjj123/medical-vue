@@ -3,8 +3,6 @@ import {
   readDicomTags,
   readImageDicomFileSeriesWorkerFunction,
 } from "@itk-wasm/dicom";
-import vtkXMLImageDataReader from "@kitware/vtk.js/IO/XML/XMLImageDataReader";
-import vtkGenericRenderWindow from "@kitware/vtk.js/Rendering/Misc/GenericRenderWindow";
 import vtkImageMapper from "@kitware/vtk.js/Rendering/Core/ImageMapper";
 import vtkImageSlice from "@kitware/vtk.js/Rendering/Core/ImageSlice";
 import vtkActor from "@kitware/vtk.js/Rendering/Core/Actor";
@@ -14,10 +12,6 @@ import vtkPoints from "@kitware/vtk.js/Common/Core/Points";
 import vtkCellArray from "@kitware/vtk.js/Common/Core/CellArray";
 import vtkPicker from "@kitware/vtk.js/Rendering/Core/Picker";
 import vtkCoordinate from "@kitware/vtk.js/Rendering/Core/Coordinate";
-import vtkColorTransferFunction from "@kitware/vtk.js/Rendering/Core/ColorTransferFunction";
-import throttle from "lodash/throttle";
-import Vue from "vue";
-import vtkITKHelper from "@kitware/vtk.js/Common/DataModel/ITKHelper";
 import {ViewData,AllViewData,ViewRenderer} from './data';
 import vtkRenderer from "@kitware/vtk.js/Rendering/Core/Renderer";
 
@@ -831,15 +825,7 @@ export default {
         dispatch("InitContours",{view:state.viewMprViews[2]})
 
       }
-      // if(state.viewMprViews[0].image){
-      //   await dispatch("mprViewStore/ActiveModule","pneumoniaInfoStore",{root:true})
 
-
-      // }else{
-      //   await dispatch("mprViewStore/InitModuleView","pneumoniaInfoStore",{root:true})
-      // // const {mprViewStore} = rootState
-      // dispatch("InitContours",{view:state.viewMprViews[2]})
-      // }
 
     },
 
@@ -852,9 +838,7 @@ export default {
       const pickedX = pickedPosition[0];
       const pickedY = pickedPosition[1];
 
-
     },
-
 
 
     async UpdateSlice(
@@ -932,55 +916,6 @@ export default {
       // 刷新视图
       dispatch("mprViewStore/freshView", view.viewIndex, { root: true });
 
-      // console.log(pointsArray)
-      // const transformedData = {};
-
-      // for (let i = 0; i < pointsArray.length; i += 2) {
-      //   const x = pointsArray[i];
-      //   const y = pointsArray[i + 1];
-      //   const z = i / 2; // z 值为索引除以 2，可以是小数
-
-      //   // 初始化 x 键的对象
-      //   if (!transformedData[x]) {
-      //     transformedData[x] = {};
-      //   }
-      //   // 设置 z 和 y 的对应关系
-      //   transformedData[x][z] = y;
-      // }
-
-      // console.log(transformedData);
-      // // 创建 vtkPoints 实例并动态设置点
-      // const points = vtkPoints.newInstance();
-      // points.setNumberOfPoints(pointsArray.length / 2);
-
-      // for (let i = 0; i < pointsArray.length; i += 2) {
-      //   const [x, y] = [pointsArray[i], pointsArray[i + 1]];
-      //   const worldPoint = view.image.indexToWorld([x, y, boundsZ]);
-      //   points.setPoint(i / 2, worldPoint[0], worldPoint[1], worldPoint[2]);
-      // }
-
-      // // 创建线的连接
-      // const lines = vtkCellArray.newInstance();
-      // const pointIndices = Array.from({ length: pointsArray.length / 2 }, (_, i) => i);
-      // lines.insertNextCell([pointsArray.length / 2, ...pointIndices]);
-
-      // // 设置 polyData 和 mapper
-      // const polyData = vtkPolyData.newInstance();
-      // polyData.setPoints(points);
-      // polyData.setLines(lines);
-
-      // const mapper = vtkMapper.newInstance();
-      // mapper.setInputData(polyData);
-
-      // // 创建 actor，设置可见性和其他属性
-      // const actor = vtkActor.newInstance();
-      // actor.setVisibility(true);
-      // actor.setMapper(mapper);
-      // actor.getProperty().setColor(1,0,0);
-      // actor.getProperty().setLineWidth(1);
-      // console.log(actor)
-      // view.renderer.addActor(actor);
-      // dispatch("mprViewStore/freshView",view.viewIndex,{root:true})
     }
 
 

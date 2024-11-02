@@ -305,7 +305,6 @@ export default {
       // this.resize3DViews();
       this.resizeSliceViews();
       // this.setupCamera();
-
       this.resize3DView()
 
 
@@ -318,7 +317,6 @@ export default {
       // this.$set(this.SagittalDataInfo, "group", group);
       this.$set(this.SagittalDataInfo, "image", `${changedPageIndex}/${dimension}`);
 
-
       this.$set(this.SagittalDataInfo, "HuVal", hu);
 
 
@@ -328,10 +326,7 @@ export default {
 
       this.$set(this.CoronalDataInfo, "image", `${changedPageIndex}/${dimension}`);
 
-
       this.$set(this.CoronalDataInfo, "HuVal", hu);
-
-
 
     },
     initCompData_AxialDataInfo() {

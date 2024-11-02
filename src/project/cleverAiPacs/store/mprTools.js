@@ -267,7 +267,6 @@ setupCamera({commit, state,rootState,rootGetters,dispatch}, viewIndex){
       });
 
       const v_state =  rootState[mprViewStore.activeModule];
-
       mprViewStore.viewMprViews.forEach((view,index) => {
         const v_view = v_state.viewMprViews[index]
         if(v_view.image){

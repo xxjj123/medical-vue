@@ -40,6 +40,8 @@ export default {
   queryNodule: "/queryNodule",
   queryOperate: "/queryOperate",
   queryTextReport: "/queryTextReport",
+  queryFrac:"/queryFrac",
+
   saveManualDiagnosis: "/saveManualDiagnosis",
   saveOperate: "/saveOperate",
   updateNoduleLesion: "/updateNoduleLesion",

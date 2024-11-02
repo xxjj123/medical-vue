@@ -1477,23 +1477,24 @@ export default {
 
     // 应用 customizeJson 和 策略
     async processJsonData(jsonData) {
-
       const { noduleLesionList } = this.menuResult;
+      if (this.menuResult) {
+        const processedData_lobe = this.$api.processLungItems.call(this, noduleLesionList, ['lobeSegment']).then(async (item) => {
 
-      const processedData_lobe = this.$api.processLungItems.call(this, noduleLesionList, ['lobeSegment']).then(async (item) => {
+          console.log("item----", item);
+          const processedData_type = await this.$api.processLungItems.call(this, item, ['type'], 'noduleType')
 
-        console.log("item----", item);
-        const processedData_type = await this.$api.processLungItems.call(this, item, ['type'], 'noduleType')
-
-        console.log("processedData_type=", processedData_type);
-        this.tableConfig.tableData = processedData_type;
-        this.tableConfig.tableOriginalData = processedData_type;
-        this.tableConfig.tableOriginalData.forEach(item => item.checked = true)
+          console.log("processedData_type=", processedData_type);
+          this.tableConfig.tableData = processedData_type;
+          this.tableConfig.tableOriginalData = processedData_type;
+          this.tableConfig.tableOriginalData.forEach(item => item.checked = true)
 
 
-        this.selection = this.tableConfig.tableData.filter(item => item.checked);
+          this.selection = this.tableConfig.tableData.filter(item => item.checked);
 
-      })
+        })
+      }
+
 
     },
     init_tableData() {

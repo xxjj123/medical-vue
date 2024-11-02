@@ -3,7 +3,7 @@ import {apiOps, testDevOps} from "./options";
 import axios from 'axios'
 const {api, api2, api3, api5, api6, api7} = apiOps;
 
-const {Topbase, study, readwriteFsBase, cb, diagnose, nodule, image, single,Case } = testDevOps;
+const {Topbase, study, readwriteFsBase, cb, diagnose, nodule,frac, image, single,Case } = testDevOps;
 
 
 // import {getBaseURL} from "@/assets/js/utils";
@@ -289,6 +289,7 @@ export const xhr_getNoduleInfo = (formData) => {
     },
   });
 };
+
 
 /**
  * seriesComputeId
@@ -765,6 +766,21 @@ export const xhr_queryNodule = (formData) => {
   });
 };
 
+/* ----------------------nodule----lung----api---start */
+/**
+ * 结节病变列表查询
+ * @param formData
+ * @returns
+ */
+export const xhr_queryFrac = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: frac + urlJson["queryFrac"],
+    data: {
+      ...formData,
+    },
+  });
+};
 /**
  * 查询上次结节操作
  * @param formData

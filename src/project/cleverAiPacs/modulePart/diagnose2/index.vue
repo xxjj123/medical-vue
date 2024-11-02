@@ -64,17 +64,10 @@ import {
   mapMutations,
   mapActions,
   mapGetters,
-  createNamespacedHelpers,
 } from "vuex";
 
 import {
-  getExaDetail_keya,
-  readBlobAsArrayBuffer,
-  getExaminationDetail,
-  getFile,
-  getDiagnoseResult,
   getSysDict,
-  xhr_getNoduleInfo,
   xhr_getSeriesInfo,
   xhr_queryNodule,
 } from "@/api";
@@ -88,21 +81,6 @@ import JSZip from "jszip";
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
 
 
-//视窗，窗宽窗位
-const winCtrl = {
-  lung: {
-    ww: 1500,
-    wl: -500,
-  },
-  mediastinal: {
-    ww: 300,
-    wl: 50,
-  },
-  bone: {
-    ww: 1500,
-    wl: 300,
-  },
-};
 export default {
   name: "diagnose",
   components: {
@@ -120,18 +98,7 @@ export default {
     return {
       ActiveIndex: 0,
       menubarShow: false,
-      vskToolbarData: {},
-      viewTheme: "",
-      showsub: true,
-      menuResult: [
-        { des: "nodule", title: "结节", comp: "nodule" },
-        { des: "pneumonia", title: "肺炎", comp: "pneumonia" },
-        { des: "frac", title: "骨折", comp: "pneumonia" },
-        { des: "calcium", title: "钙化积分", comp: "pneumonia" },
-      ],
-      activeDiagnose: null,
-      activeIndex: null,
-      DiagnoseMenuResult: {},
+
       seriesInfo: {},
     };
   },
@@ -148,6 +115,7 @@ export default {
 
     ...mapActions("pneumoniaInfoStore", ["InitPneumoniaState"]),
 
+    ...mapActions("fracInfoStore", ["InitFracState"]),
     ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE", "SET_SLICE_CT_PIC_LAYOUT"]),
 
     ...mapActions("view3DStore", [
@@ -159,17 +127,7 @@ export default {
       "Back"
     ]),
 
-    // // 测试
-    // ...mapActions("toolsStore", ["actRun", "updateActRun"]),
 
-    // 定时更新dict(developer)
-    async setClockUpdateDict() {
-      setInterval(() => {
-        getSysDict().then((res) => {
-          localStorage.setItem("carplay", JSON.stringify(res));
-        });
-      }, 10000);
-    },
     getRecon() {
       console.log("切换靶重建", LayoutIcons.RECON)
       this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.RECON);
@@ -207,11 +165,6 @@ export default {
 
 
     ,
-    changeColor(colorwindow, colrlevel) {
-      requestAnimationFrame(() => {
-        // this.$refs.vskToolbarRef.changeColor(colorwindow, colrlevel)
-      })
-    },
     async GetNodoleInfo(computeSeriesId) {
       try {
         const result = await xhr_queryNodule({ computeSeriesId });
@@ -223,69 +176,9 @@ export default {
         return null; // 出现错误时返回 null
       }
 
-
     },
 
-    async loadFile(applyId) {
-      console.time("unzip");
-      try {
-        const res = await getFile(applyId);
-        const fileList = [];
-        const zip = new JSZip();
-        const blob = res.data;
 
-        // 将 Blob 转换为 ArrayBuffer
-        const arrayBuffer = await readBlobAsArrayBuffer(blob);
-
-        const zipContent = await zip.loadAsync(arrayBuffer);
-        // const zipContent = zip.loadAsync(blob);
-
-        const filePromises = [];
-        // console.log("zipContent==", zipContent);
-        zipContent.forEach((relativePath, zipEntry) => {
-          // console.log("relativePath, zipEntry===", relativePath, zipEntry);
-          if (!zipEntry.dir) {
-            const filePromise = zipEntry.async("blob").then((fileData) => {
-              const blob = new Blob([fileData], {
-                type: zipEntry._data ? zipEntry._data.mimeType : "",
-              }); // Create Blob object
-              const file = new File([blob], relativePath); // Create File object
-              fileList.push(file);
-            });
-            filePromises.push(filePromise);
-          }
-        });
-
-        await Promise.all(filePromises);
-        console.timeEnd("unzip");
-        return fileList;
-      } catch (err) {
-        console.error(err);
-        // return Promise.reject(err);
-        throw err;
-      }
-      // });
-    },
-    UpdateColorWindow_self(nVal) {
-      this.UpdateColorWindow(nVal)
-      this.SetAllViewData({
-        key: "colorWindow",
-        value: nVal
-      })
-    },
-    UpdateColorLevel_self(nVal) {
-      this.UpdateColorLevel(nVal)
-      this.SetAllViewData({
-        key: "colorLevel",
-        value: nVal
-      })
-    },
-    ChangePan_self() {
-      this.ChangePan();
-    },
-    GetRecon_self() {
-      this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.RECON);
-    }
   },
   created() {
     getSysDict().then(async (res) => {
@@ -309,15 +202,11 @@ export default {
         this.SET_SERIES_INFO(seriesInfo);
         this.InitNoduleState(seriesInfo);
         this.InitPneumoniaState(seriesInfo);
+        this.InitFracState(seriesInfo)
         this.ActiveNoduleState()
-
-
       }
 
-
     });
-
-    this.setClockUpdateDict();
 
 
   },

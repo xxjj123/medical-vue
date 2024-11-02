@@ -15,6 +15,7 @@ export const testDevOps = {
   cb: `/callback`, //mod
   diagnose: `/diagnose`,
   nodule: `/nodule`,
+  frac: `/frac`,
   image: `/image`,
   single:"/single" ,//单张影像,
 

@@ -450,18 +450,13 @@ export default {
     async printPreview() {
       console.log("$print===", this.$print);
 
-
       // return;
       try {
         const element = this.$refs.printableArea;
 
-
         const childElements = Array.from(element.children);
 
-        console.log("childElements==", childElements);
         let tprebook = document.body.querySelectorAll('.textarea_pre_book');
-
-        console.log("tprebook=", tprebook);
 
         let tp1_scrollHeight = tprebook[0].scrollHeight;
         let tp1_offsetHeight = tprebook[0].offsetHeight;
@@ -472,17 +467,6 @@ export default {
         console.log("tp1_offsetHeight", tp1_offsetHeight);
         console.log("tp1_clientHeight", tp1_clientHeight);
         console.log("tp1_getBoundingClientRect", tp1_getBoundingClientRect);
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -550,8 +534,6 @@ export default {
       <body>
         <img src="${imgData}" />
         <br/>
-        <img src="${imgData}" />
-      </body>
       </html>
     `);
         doc.close();

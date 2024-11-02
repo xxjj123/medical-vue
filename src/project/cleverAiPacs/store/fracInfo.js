@@ -21,9 +21,7 @@ import {
 } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
 const coordinate = vtkCoordinate.newInstance();
-import {
-  xhr_queryNodule,
-} from "@/api";
+
 
 
 const VIEW_TYPES = {
@@ -65,7 +63,7 @@ export default {
     CoronalData: new ViewData,
     AxialData: new ViewData,
     SagittalData: new ViewData,
-    noduleInfo: {},
+    fracInfo: {},
 
     annotations: {value: [], index: new Set()},
     picker: vtkPicker.newInstance(),
@@ -76,7 +74,7 @@ export default {
     })),
 
     allViewData:new AllViewData,
-    selectedNoduleId:null
+    selectedFracId:null
 
   },
   getters: {
@@ -87,8 +85,8 @@ export default {
     ],
   },
   mutations: {
-    SET_NODULE_INFO(state, noduleInfo) {
-      state.noduleInfo = noduleInfo;
+    SET_FRAC_INFO(state, fracInfo) {
+      state.fracInfo = fracInfo;
     },
 
     ADD_ANNOTATION(state, annotation) {
@@ -98,10 +96,10 @@ export default {
       );
     },
     ACTIVATE_ANNOTATAION(state,index){
-      state.selectedNoduleId = index
+      state.selectedFracId = index
     },
 
-    INIT_NODULE_RENDER_VIEW(state,v_state){
+    INIT_FRAC_RENDER_VIEW(state,v_state){
       const indexs = [0,1,2]
 
       state.viewMprViews.forEach((view,index) => {
@@ -120,17 +118,17 @@ export default {
     SET_VIEW_MPR_VIEW(state, {viewIndex, key, value}) {
       state.viewMprViews[viewIndex][key] = value;
     },
-    INIT_NODULE_ALL_VIEW_DATA(state){
+    INIT_FRAC_ALL_VIEW_DATA(state){
       const originalData = new AllViewData();
       originalData.colorWindow = 1500;
-      originalData.colorLevel = -500;
+      originalData.colorLevel = 300;
       originalData.isPan = false;
       originalData.layOut = LayoutIcons.AXIAL;
       originalData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj];
       originalData.activeButtons = [ButtonNames.Jbinfo,  ]
       state.allViewData.copyFrom(originalData)
     },
-    INIT_NODULE_VIEW_DATA(state, seriesInfo) {
+    INIT_FRAC_VIEW_DATA(state, seriesInfo) {
       const viewTypes = [VIEW_TYPES.AXIAL, VIEW_TYPES.CORONAL, VIEW_TYPES.SAGITTAL];
       const viewNames = [VIEW_NAMES.AXIAL, VIEW_NAMES.CORONAL, VIEW_NAMES.SAGITTAL];
       const viewDatas = ["AxialData","SagittalData", "CoronalData"]
@@ -161,40 +159,39 @@ export default {
 
   },
   actions: {
-    async InitNoduleState({state,commit,rootState,dispatch},seriesInfo){
+    async InitFracState({state,commit,rootState,dispatch},seriesInfo){
       await dispatch("mprViewStore/clearAllAutoplay",null,{root:true} )
 
       const {mprViewStore} = rootState
-      commit("INIT_NODULE_ALL_VIEW_DATA")
-      commit("INIT_NODULE_VIEW_DATA",seriesInfo)
-      commit("INIT_NODULE_RENDER_VIEW",mprViewStore)
+      commit("INIT_FRAC_ALL_VIEW_DATA")
+      commit("INIT_FRAC_VIEW_DATA",seriesInfo)
+      commit("INIT_FRAC_RENDER_VIEW",mprViewStore)
 
     },
-    async ActiveNoduleState({dispatch,state,rootState,commit}){
+    async ActiveFracState({dispatch,state,rootState,commit}){
       await dispatch("mprViewStore/clearAllAutoplay",null,{root:true} )
       const {mprViewStore} = rootState
 
-      if(mprViewStore.activedModules.includes("noduleInfoStore")){
-        await dispatch("mprViewStore/ActiveModule","noduleInfoStore",{root:true})
+      if(mprViewStore.activedModules.includes("fracInfoStore")){
+        await dispatch("mprViewStore/ActiveModule","fracInfoStore",{root:true})
       }else{
-        await dispatch("mprViewStore/InitModuleView","noduleInfoStore",{root:true})
+        await dispatch("mprViewStore/InitModuleView","fracInfoStore",{root:true})
         dispatch("InitAnnotations")
 
       }
     },
-    async InitAnnotations({state,rootState,dispatch},computeSeriesId){
+    InitAnnotations({state,rootState,dispatch}){
       const {mprViewStore} = rootState
-
       state.viewMprViews.forEach((view, index) => {
-        state.noduleInfo.noduleLesionList.forEach(async (nodule) => {
+        state.fracInfo.fracLesionList.forEach(async (frac) => {
           const annotation = await dispatch("getAnnotationForView", {
-            nodule,
+            frac,
             viewIndex: view.viewIndex,
           });
           dispatch("addRectangleAnnotation", {
                 view,
                 annotation,
-                bboxindex: nodule.id,
+                bboxindex: frac.id,
               })
         });
         dispatch("mprViewStore/freshView",view.viewIndex,{root:true})
@@ -202,8 +199,8 @@ export default {
 
     },
 
-    getAnnotationForView({state}, {nodule, viewIndex}) {
-      const {points} = nodule;
+    getAnnotationForView({state}, {frac, viewIndex}) {
+      const {points} = frac;
       const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
       const annotations = {
         [VIEW_TYPES.CORONAL]: {
@@ -350,8 +347,8 @@ export default {
       dispatch("mprViewStore/clearAllAutoplay",null,{root:true})
       const viewsData = rootGetters['mprViewStore/viewsData']
 
-      state.noduleInfo.noduleLesionList.forEach(async (nodule) => {
-        const {points, id} = nodule;
+      state.fracInfo.fracLesionList.forEach(async (frac) => {
+        const {points, id} = frac;
         const bbox = points.split(",").map(Number)
         if (id == bboxindex) {
           const ijk = [

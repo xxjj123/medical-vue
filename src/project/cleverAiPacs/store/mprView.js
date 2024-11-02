@@ -67,7 +67,6 @@ const getDefaultState = () => ({
   isload: false,
   studies_selected: {},
 
-  series_map_dicom: {},
   seriesInfo: {
     seriesId: "",
     axialCount: "",
@@ -168,9 +167,6 @@ export default {
     },
     SET_STUDIES_SELECTED(state, payload) {
       state.studies_selected = payload;
-    },
-    SET_SERIES_MAP_DICOM(state, payload) {
-      state.series_map_dicom = payload;
     },
     SET_SERIES_INFO(state, seriesInfo) {
       state.seriesInfo = seriesInfo;
@@ -1081,7 +1077,6 @@ console.log("")
     freshView({state,rootState},viewType){
       const v_state = rootState[state.activeModule]
       if (v_state.viewMprViews[viewType].image){
-        console.log("刷新啦")
         state.viewMprViews[viewType].renderWindow.render()
       }else{
       }

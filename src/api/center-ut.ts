@@ -52,6 +52,7 @@ export function query_humen_boot_data() {
  * @returns
  */
 export async function processLungItems(dataSource, keys, subKeyName = 'segments') {
+  console.log(dataSource)
   // 假设 this.$api.findObjectByValue 和 query_humen_boot_data 已经定义在组件中
   const processedItems = dataSource.map(item => {
     // 首先获取基础数据
