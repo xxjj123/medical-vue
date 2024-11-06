@@ -299,7 +299,7 @@ export default {
 
       })
 
-      dispatch("InitModuleView","noduleInfoStore")
+      dispatch("noduleInfoStore/ActiveNoduleState",null,{root:true})
       //  dispatch("InitModuleView","noduleInfoStore").then(async()=>{
       //   const {SagittalData,CoronalData,AxialData,allViewData} = state
       //  const ijk = [SagittalData.changedPageIndex,CoronalData.changedPageIndex,AxialData.changedPageIndex]
