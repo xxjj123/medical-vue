@@ -134,11 +134,10 @@ export default {
     SET_VIEW_MPR_VIEW(state, {viewIndex, key, value}) {
       state.viewMprViews[viewIndex][key] = value;
     },
-
     INIT_PNEUMONIA_ALL_VIEW_DATA(state){
       const originalData = new AllViewData();
       originalData.colorWindow = 1500;
-      originalData.colorLevel = 300;
+      originalData.colorLevel = -500;
       originalData.isPan = false;
       originalData.layOut = LayoutIcons.MPR;
       originalData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms ];

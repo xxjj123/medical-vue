@@ -200,7 +200,7 @@ export default {
         await this.InitNoduleState(seriesInfo);
         await this.InitPneumoniaState(seriesInfo);
         await this.InitFracState(seriesInfo)
-        this.ActiveFracState()
+        this.ActiveNoduleState()
       }
 
     });
