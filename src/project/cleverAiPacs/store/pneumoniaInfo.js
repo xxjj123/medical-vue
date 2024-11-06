@@ -166,6 +166,8 @@ export default {
       originalSagittalData.changedPageIndex = Math.round(seriesInfo.sagittalCount / 2) + 1
       state.SagittalData.copyFrom(originalSagittalData)
 
+
+
     },
     SET_STATE(state,v_state){
       console.log("保存下来",v_state.allViewData)
@@ -181,7 +183,7 @@ export default {
 
   },
   actions: {
-    async InitPneumoniaState({state,commit,rootState,dispatch},seriesInfo){
+    async InitModuleState({state,commit,rootState,dispatch},seriesInfo){
       const result = await xhr_queryPneumonia({ computeSeriesId:seriesInfo.computeSeriesId});
 
       if (result.serviceSuccess) {

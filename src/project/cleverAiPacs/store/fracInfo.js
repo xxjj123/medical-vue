@@ -174,8 +174,7 @@ export default {
 
   },
   actions: {
-    async InitFracState({state,commit,rootState,dispatch},seriesInfo){
-
+    async InitModuleState({state,commit,rootState,dispatch},seriesInfo){
       const result = await xhr_queryFrac({ computeSeriesId:seriesInfo.computeSeriesId});
       if (result.serviceSuccess) {
         commit("SET_FRAC_INFO",result.data.resultData)

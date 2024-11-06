@@ -171,7 +171,7 @@ export default {
 
   },
   actions: {
-    async InitNoduleState({state,commit,rootState,dispatch},seriesInfo){
+    async InitModuleState({state,commit,rootState,dispatch},seriesInfo){
       const result = await xhr_queryNodule({ computeSeriesId:seriesInfo.computeSeriesId});
       if (result.serviceSuccess) {
         commit("SET_NODULE_INFO",result.data.resultData)

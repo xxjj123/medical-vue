@@ -162,7 +162,6 @@ export default {
       this.descCacheBk = descStrBook;
 
 
-
       clipboard.on('error', (e) => {
         // 显示错误消息提示
         this.$message.error("复制失败，请重试");
@@ -191,13 +190,9 @@ export default {
         data: descStrBook,
       })
 
-
-      // "get_reports_tag", "get_reports_yxsj_content", "get_reports_yxzd_content"
       console.log("v-get_reports_tag", this.get_reports_tag,);
       console.log("v-get_reports_yxsj_content", this.get_reports_yxsj_content,);
       console.log("v-get_reports_yxzd_content", this.get_reports_yxzd_content,);
-
-
 
     })
   },

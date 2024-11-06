@@ -303,8 +303,9 @@ export default {
     },
     resizeViews() {
       // this.resize3DViews();
-      this.resizeSliceViews();
       // this.setupCamera();
+      this.resizeSliceViews();
+
       this.resize3DView()
 
 

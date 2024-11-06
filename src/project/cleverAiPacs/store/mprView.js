@@ -264,6 +264,55 @@ export default {
 
         return obj;
     },
+    async InitAllSlice({dispatch,rootState,commit},seriesInfo){
+      const modules = ["noduleInfoStore", "fracInfoStore", "pneumoniaInfoStore"];
+
+      await Promise.all(modules.map(module => dispatch(module + "/InitModuleState", seriesInfo, { root: true })))
+
+      const dimensions = [seriesInfo.sagittalCount, seriesInfo.coronalCount, seriesInfo.axialCount]
+      const ijk = dimensions.map(item => Math.round(item / 2) + 1)
+
+      const imageDatas = await Promise.all([
+        dispatch("GetSlice", {
+          viewName: VIEW_NAMES.SAGITTAL,
+          index: ijk[0],
+          viewIndex: VIEW_TYPES.SAGITTAL,
+        }),
+
+        dispatch("GetSlice", {
+          viewName: VIEW_NAMES.CORONAL,
+          index: ijk[1],
+          viewIndex: VIEW_TYPES.CORONAL,
+        }),
+
+        dispatch("GetSlice", {
+          viewName: VIEW_NAMES.AXIAL,
+          index: ijk[2],
+          viewIndex: VIEW_TYPES.AXIAL,
+        }),
+      ]);
+      console.log(imageDatas)
+      modules.forEach(module=>{
+        imageDatas.forEach((imagedata,index)=>{
+          commit(module+"/SET_VIEW_MPR_VIEW",{viewIndex:index, key:"image", value:imagedata},{root:true})
+        })
+
+      })
+
+      dispatch("InitModuleView","noduleInfoStore")
+      //  dispatch("InitModuleView","noduleInfoStore").then(async()=>{
+      //   const {SagittalData,CoronalData,AxialData,allViewData} = state
+      //  const ijk = [SagittalData.changedPageIndex,CoronalData.changedPageIndex,AxialData.changedPageIndex]
+      //  const dimensions = [SagittalData.dimension,CoronalData.dimension,AxialData.dimension]
+      //  await dispatch("InitSlice",{ijk,dimensions})
+      // })
+
+      // const {SagittalData,CoronalData,AxialData,allViewData} = state
+      //  const ijk = [SagittalData.changedPageIndex,CoronalData.changedPageIndex,AxialData.changedPageIndex]
+      //  const dimensions = [SagittalData.dimension,CoronalData.dimension,AxialData.dimension]
+      //  await dispatch("InitSlice",{ijk,dimensions})
+
+    },
 
    async  InitModuleView({dispatch, state, getters, commit,rootState,rootGetters },currentState){
 
@@ -285,14 +334,18 @@ export default {
           renderWindow.addRenderer(active_state.viewMprViews[index].renderer)
           // renderWindow.render()
       })
-       const {SagittalData,CoronalData,AxialData,allViewData} = state
-       const ijk = [SagittalData.changedPageIndex,CoronalData.changedPageIndex,AxialData.changedPageIndex]
-       const dimensions = [SagittalData.dimension,CoronalData.dimension,AxialData.dimension]
+
+      const {SagittalData,CoronalData,AxialData,allViewData} = state
+      const ijk = [SagittalData.changedPageIndex,CoronalData.changedPageIndex,AxialData.changedPageIndex]
+      const dimensions = [SagittalData.dimension,CoronalData.dimension,AxialData.dimension]
+      await dispatch("InitSlice",{ijk,dimensions})
+        // await dispatch("InitIJK",{ijk})
+
+
 
        console.log("allViewData",allViewData.buttons)
        dispatch("mprToolsStore/UpdateColorWindow",allViewData.colorWindow,{root:true})
        dispatch("mprToolsStore/UpdateColorLevel",allViewData.colorLevel,{root:true})
-       await dispatch("InitSlice",{ijk,dimensions})
 
 
       //  dispatch("mprToolsStore/UpdateColorWindow",allViewData.colorWindow,{root:true})
@@ -301,6 +354,7 @@ export default {
        commit("toolBarStore/INIT_BUTTON_ACTIVE_STATE",allViewData.activeButtons,{root:true})
 
        commit("toolBarStore/SET_SLICE_CT_PIC_LAYOUT",allViewData.layOut,{root:true})
+
 
       //  dispatch('mprToolsStore/resizeSliceViews', null, { root: true });
       },
@@ -344,12 +398,11 @@ export default {
 
     async InitSlice({dispatch, state, getters, commit},{ijk,dimensions}) {
       try {
-        // await dispatch("UpdateIJK", ijk);
         state.viewMprViews.forEach((view, index) => {
           dispatch("setupInteractor", {view, dimensions});
 
         });
-        await dispatch("UpdateIJK", ijk);
+        await dispatch("InitIJK", ijk);
         ijk.forEach((item, index) => {
           dispatch("UpdateDisplay", {
             viewIndex: index,
@@ -470,6 +523,33 @@ export default {
       ]);
     },
 
+    async InitIJK({dispatch, getters, commit}, ijk) {
+      await Promise.all([
+        dispatch("initSliceForView", {
+          index: ijk[0],
+          viewIndex: VIEW_TYPES.SAGITTAL,
+        }),
+
+        dispatch("initSliceForView", {
+          index: ijk[1],
+          viewIndex: VIEW_TYPES.CORONAL,
+        }),
+
+        dispatch("initSliceForView", {
+          index: ijk[2],
+          viewIndex: VIEW_TYPES.AXIAL,
+        }),
+      ]);
+    },
+
+
+
+    async initSliceForView({dispatch,commit,state,rootState}, { index, viewIndex}){
+      const v_view = rootState[state.activeModule].viewMprViews[viewIndex];
+
+      const imageData = v_view.image
+      await dispatch("UpdateSlice", {imageData, viewIndex, index});
+    },
     async updateSliceForView({dispatch,commit,state}, {viewName, index, viewIndex}) {
       if (index === "") return;
       commit("UPDATE_LOAD_STATUS",true)
@@ -852,7 +932,9 @@ console.log("")
     ) {
       const image = imageData;
       const view = state.viewMprViews[viewIndex];
+
       const v_view = rootState[state.activeModule].viewMprViews[viewIndex];
+
       // const view = state.viewMprViews[viewIndex];
       if (!v_view) {
         console.error("没有这个页面:", viewIndex);
@@ -862,10 +944,15 @@ console.log("")
       // view.image = image;
       v_view.sliceMapper.setInputData(image);
       dispatch(state.activeModule+"/UpdateSlice",{viewIndex,index},{root:true})
+
+
       dispatch("setupCamera", viewIndex);
+
       view.renderWindow.render();
 
       commit(state.activeModule+"/SET_VIEW_MPR_VIEW",{viewIndex , key:"pageIndex", value:index},{root:true})
+
+
       commit("SET_VIEW_DATA", {viewIndex, key: "pageIndex", value: index});
     },
     setupCamera({commit, state, getters,rootState}, viewIndex) {

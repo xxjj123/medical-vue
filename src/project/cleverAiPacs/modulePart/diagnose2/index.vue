@@ -106,7 +106,7 @@ export default {
   },
   methods: {
     ...mapMutations("mprViewStore", ["SET_SERIES_INFO"]),
-    ...mapActions("mprViewStore", ["UpdateDraw", "UpdateDiagnoseState", "InitSlice", "SetAllViewData"]),
+    ...mapActions("mprViewStore", ["UpdateDraw", "UpdateDiagnoseState", "InitSlice", "InitAllSlice", "SetAllViewData"]),
     ...mapActions("mprToolsStore", ["UpdateColorWindow", "UpdateColorLevel", "ChangePan"]),
 
     ...mapActions("noduleInfoStore", ["InitNoduleState", "ActiveNoduleState", "InitAnnotations"]),
@@ -194,13 +194,22 @@ export default {
       // }
       const seriesInfo = await this.GetSeriesInfo(computeSeriesId);
       if (seriesInfo) {
-        // console.log(seriesInfo)
-        this.Init3DView(seriesInfo.seriesId)
-        this.SET_SERIES_INFO(seriesInfo);
-        await this.InitNoduleState(seriesInfo);
-        await this.InitPneumoniaState(seriesInfo);
-        await this.InitFracState(seriesInfo)
-        this.ActiveNoduleState()
+        console.log(seriesInfo)
+        // const ijk = [SagittalData.changedPageIndex, CoronalData.changedPageIndex, AxialData.changedPageIndex]
+        const dimensions = [seriesInfo.sagittalCount, seriesInfo.coronalCount, seriesInfo.axialCount]
+        const ijk = dimensions.map(item => Math.round(item / 2) + 1)
+
+        this.$nextTick(async () => {
+          this.Init3DView(seriesInfo.seriesId)
+          this.SET_SERIES_INFO(seriesInfo);
+          await this.InitAllSlice(seriesInfo)
+          // this.ActiveNoduleState()
+
+        })
+        // await this.InitNoduleState(seriesInfo);
+        // await this.InitPneumoniaState(seriesInfo);
+        // await this.InitFracState(seriesInfo)
+
       }
 
     });
