@@ -74,7 +74,6 @@ export async function processLungItems(dataSource, keys, subKeyName = 'segments'
         }
       }
     });
-
     return baseData;
   });
 

@@ -251,7 +251,7 @@ export default {
   },
   mixins: [Emitter],
   props: {
-    value: Object,
+    menuResult: Object,
     cKey: {
       type: String,
     },
@@ -261,15 +261,16 @@ export default {
     ...mapState("noduleInfoStore", ["noduleInfo", "selectedNoduleId"]),
 
 
-    menuResult: {
-      get() {
-        return this.value;
-      },
-      set(val) {
-        this.$emit("input", val);
-        return val;
-      },
-    },
+    // menuResult: {
+    //   get() {
+
+    //     return this.value;
+    //   },
+    //   set(val) {
+    //     this.$emit("input", val);
+    //     return val;
+    //   },
+    // },
     defaultSelecteRows: {
       get() {
         const ids = []
@@ -287,6 +288,11 @@ export default {
     },
   },
   watch: {
+    menuResult: {
+      handler() {
+        this.processJsonData()
+      }
+    },
     filmIpt_curItem: {
       handler(nVal, oVal) {
         // console.log("watch-----filmIpt_curItem", nVal, oVal);
@@ -1476,12 +1482,12 @@ export default {
     },
 
     // 应用 customizeJson 和 策略
-    async processJsonData(jsonData) {
+    async processJsonData() {
+      console.log("this.menuResult", this.menuResult)
       const { noduleLesionList } = this.menuResult;
-      if (this.menuResult) {
+      if (noduleLesionList) {
         const processedData_lobe = this.$api.processLungItems.call(this, noduleLesionList, ['lobeSegment']).then(async (item) => {
 
-          console.log("item----", item);
           const processedData_type = await this.$api.processLungItems.call(this, item, ['type'], 'noduleType')
 
           console.log("processedData_type=", processedData_type);
@@ -1497,47 +1503,26 @@ export default {
 
 
     },
-    init_tableData() {
-      const tableItem = this.menuResult;
-      const jsonData = tableItem.focalDetailList;
-      // console.log(jsonData);
 
-      this.processJsonData(jsonData).then(() => {
-        //finding 所见，diagnosis 诊断
-        const { finding, diagnosis } = tableItem;
-        // console.log("finding",finding);
-        if (finding) {
-          const arr_find = finding.split("\n");
-          // console.log("arr_find",arr_find);
-          const arr_diagnosis = diagnosis.split("\n");
-          this.anaSecDesConf.bookItems = arr_find;
-          this.anaSecDesConf_1.bookItems = arr_diagnosis;
-          // this.anaSecDesConf.selection =
-        }
-
-      });
-
-
-    },
   },
   created() {
     this.init_lesionPanelSearchBar();
     // 表格初始化
-    this.init_tableData();
-    this.$nextTick(() => {
-      document
-        .querySelector(".nodule_lesion-list")
-        .addEventListener("mouseover", function () {
-          this.style.overflow = "auto"; // 获得焦点时显示滚动条
-        });
+    // this.init_tableData();
+    // this.$nextTick(() => {
+    //   document
+    //     .querySelector(".nodule_lesion-list")
+    //     .addEventListener("mouseover", function () {
+    //       this.style.overflow = "auto"; // 获得焦点时显示滚动条
+    //     });
 
-      document
-        .querySelector(".nodule_lesion-list")
-        .addEventListener("mouseout", function () {
-          this.style.overflow = "hidden"; // 失去焦点时隐藏滚动条
-        });
+    //   document
+    //     .querySelector(".nodule_lesion-list")
+    //     .addEventListener("mouseout", function () {
+    //       this.style.overflow = "hidden"; // 失去焦点时隐藏滚动条
+    //     });
 
-    });
+    // });
 
   },
 };

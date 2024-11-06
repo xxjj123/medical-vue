@@ -45,6 +45,10 @@ import Pagination from "@yh/ta404-ui/es/pagination";
 import "@yh/ta404-ui/es/pagination/style";
 Vue.use(Pagination);
 
+import Popconfirm from '@yh/ta404-ui/es/popconfirm';
+import '@yh/ta404-ui/es/popconfirm/style';
+Vue.use(Popconfirm);
+
 import Drawer from "@yh/ta404-ui/es/drawer";
 import "@yh/ta404-ui/es/drawer/style";
 Vue.use(Drawer);

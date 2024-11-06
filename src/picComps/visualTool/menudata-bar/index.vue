@@ -27,19 +27,19 @@
     <ta-tabs :defaultActiveKey="defaultActiveKey" @change="tab_callback">
       <ta-tab-pane tab="结节" key="1">
         <!-- Content of Tab Pane 1 -->
-        <noduleResult v-model="menuResult" :cKey="'nodule'"></noduleResult>
+        <noduleResult :cKey="'nodule'"></noduleResult>
       </ta-tab-pane>
       <ta-tab-pane tab="肺炎" key="2">
         <!-- Content of Tab Pane 2 -->
-        <pneumonia-result v-model="menuResult" :cKey="'pneumonia'"></pneumonia-result>
+        <pneumonia-result :cKey="'pneumonia'"></pneumonia-result>
       </ta-tab-pane>
       <ta-tab-pane tab="骨折" key="3">
         <!-- Content of Tab Pane 3 -->
-        <fracture-result v-model="menuResult" :cKey="'frac'"></fracture-result>
+        <fracture-result :cKey="'frac'"></fracture-result>
       </ta-tab-pane>
       <ta-tab-pane tab="钙化积分" key="4">
         <!-- Content of Tab Pane 4 -->
-        <calcium-score-result v-model="menuResult" :cKey="'calcium'"></calcium-score-result>
+        <calcium-score-result :cKey="'calcium'"></calcium-score-result>
       </ta-tab-pane>
     </ta-tabs>
   </div>
@@ -49,7 +49,7 @@ import noduleResult from "@/picComps/visualTool/menudata-bar/module/lung/nodule-
 import pneumoniaResult from "@/picComps/visualTool/menudata-bar/module/lung/pneumonia-result/index.vue";
 import fractureResult from "@/picComps/visualTool/menudata-bar/module/lung/fracture-result/index.vue";
 import calciumScoreResult from "@/picComps/visualTool/menudata-bar/module/lung/calcium-score-result/index.vue";
-import { mapState, mapActions } from "vuex";
+import { mapActions } from "vuex";
 
 export default {
   name: "menudata-bar",
@@ -60,22 +60,6 @@ export default {
     calciumScoreResult,
   },
 
-  computed: {
-    ...mapState("noduleInfoStore", ["isReady", "noduleInfo"]),
-    menuResult: {
-
-      get() {
-        console.log(this.noduleInfo)
-        console.log("get-first----this.noduleInfo", this.noduleInfo.noduleLesionList);
-
-        return this.noduleInfo;
-      },
-      set(val) {
-        this.$emit("input", val);
-        return val;
-      },
-    },
-  },
   data() {
     return {
       defaultActiveKey: "1",

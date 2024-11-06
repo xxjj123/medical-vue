@@ -29,7 +29,7 @@ export enum SortOption {
 
 
 // 所见
-export const LungFindingEnum = {
+export const noduleFindingEnum = {
   TEMP0:'双肺纹理清晰，未见明显结节影。',
   TEMP1: '{{lobeSegmentlabel}}{{lobeSegmentname}} 见{{type}},【{{im}}/{{imageCount}}】,大小约{{ellipsoidAxisMajor}}mm x {{ellipsoidAxisLeast}}mm，体积约{{volume}}mm³，平均CT值约{{ctMeasuresMean}}HU。',//1
   TEMP2: '双肺见多发结节，其中最大者【{{im}}/{{imageCount}}】，大小约{{ellipsoidAxisMajor}}mm x {{ellipsoidAxisLeast}}mm， 体积约{{volume}}mm³，平均CT值约{{ctMeasuresMean}}HU。',//1
@@ -41,26 +41,25 @@ export const LungFindingEnum = {
 
 
 
-export function mapObjectToTemplate(obj:Object, template:string,imageCount?:string) {
+function noduleObjectToTemplate(obj:Object, template:string,imageCount?:string) {
   return template
     .replace('{{lobeSegmentlabel}}', obj.lobeSegment.label)
     .replace('{{lobeSegmentname}}', obj.lobeSegment.name)
-
     .replace('{{type}}', obj.type.name)
     .replace('{{im}}', obj.im)
     .replace('{{imageCount}}', imageCount) // Replace 'TotalImages' with the actual value
     .replace('{{ellipsoidAxisMajor}}', obj.ellipsoidAxisMajor)
     .replace('{{ellipsoidAxisLeast}}', obj.ellipsoidAxisLeast)
     .replace('{{volume}}', obj.volume)
-    .replace('{{ctMeasuresMean}}', obj.ctMeasuresMean);
+    .replace('{{ctMeasuresMean}}', obj.ctMeasuresMean)
 
 }
 
-export function mapObjectListToFindingTemplate(objList:Object[], mode:string,imageCount:string,currentNum:string) {
+export function noduleFindingTemplate(objList:Object[], mode:string,imageCount:string,currentNum:string) {
 
   let resultBookItems = []
   if (objList.length == 0) {
-   resultBookItems.push({ id: -1, isActive:false,desc: LungFindingEnum.TEMP0 })
+   resultBookItems.push({ id: -1, isActive:false,desc: noduleFindingEnum.TEMP0 })
   }else{
    if (mode === '0') {
     objList.sort((a, b) => {
@@ -70,7 +69,7 @@ export function mapObjectListToFindingTemplate(objList:Object[], mode:string,ima
     });
 
     objList.forEach((item) => {
-      const resultBookItem = mapObjectToTemplate(item, LungFindingEnum.TEMP3, imageCount)
+      const resultBookItem = noduleObjectToTemplate(item, noduleFindingEnum.TEMP3, imageCount)
       resultBookItems.push({ id: item.id,isActive:currentNum==item.id, desc: resultBookItem })
         })
    }
@@ -82,7 +81,7 @@ export function mapObjectListToFindingTemplate(objList:Object[], mode:string,ima
     });
 
     objList.forEach((item) => {
-    const resultBookItem = mapObjectToTemplate(item, LungFindingEnum.TEMP3, imageCount)
+    const resultBookItem = noduleObjectToTemplate(item, noduleFindingEnum.TEMP3, imageCount)
     resultBookItems.push({ id: item.id,isActive:currentNum==item.id, desc: resultBookItem })
     })
 
@@ -99,7 +98,7 @@ export function mapObjectListToFindingTemplate(objList:Object[], mode:string,ima
   });
   for (const [type, items] of Object.entries(typeMap)) {
    let segments = items.map(item =>
-    mapObjectToTemplate(item, LungFindingEnum.TEMP5, imageCount)
+    noduleObjectToTemplate(item, noduleFindingEnum.TEMP5, imageCount)
    ).join('、');
 
    const noduleCount = items.length;
@@ -110,10 +109,10 @@ export function mapObjectListToFindingTemplate(objList:Object[], mode:string,ima
 
     let summary
     if(noduleCount>1){
-      summary = `${segments}见${noduleCount}个${type}，较大者` + mapObjectToTemplate(largestItem, LungFindingEnum.TEMP4, imageCount);
+      summary = `${segments}见${noduleCount}个${type}，较大者` + noduleObjectToTemplate(largestItem, noduleFindingEnum.TEMP4, imageCount);
 
     }else{
-      summary = `${segments}见${type}，` + mapObjectToTemplate(largestItem, LungFindingEnum.TEMP4, imageCount);
+      summary = `${segments}见${type}，` + noduleObjectToTemplate(largestItem, noduleFindingEnum.TEMP4, imageCount);
 
     }
     let isActive = false
@@ -133,13 +132,13 @@ export function mapObjectListToFindingTemplate(objList:Object[], mode:string,ima
         });
 
       objList.forEach((item) => {
-       const resultBookItem = mapObjectToTemplate(item, LungFindingEnum.TEMP3, imageCount)
+       const resultBookItem = noduleObjectToTemplate(item, noduleFindingEnum.TEMP3, imageCount)
         resultBookItems.push({ id: item.id,isActive:currentNum==item.id, desc: resultBookItem })
         })
    }else if(mode ==='4'){
     if(objList.length===1){
       const selectedItem = objList[0]
-      const resultBookItem = mapObjectToTemplate(selectedItem, LungFindingEnum.TEMP1, imageCount)
+      const resultBookItem = noduleObjectToTemplate(selectedItem, noduleFindingEnum.TEMP1, imageCount)
       resultBookItems.push({ id: selectedItem.id,isActive:currentNum==resultBookItem.id, desc: resultBookItem })
     }else{
   objList.sort((a, b) => {
@@ -148,7 +147,7 @@ export function mapObjectListToFindingTemplate(objList:Object[], mode:string,ima
     return 0;
     });
    const selectedItem = objList[0]
-   const resultBookItem = mapObjectToTemplate(selectedItem, LungFindingEnum.TEMP2, imageCount)
+   const resultBookItem = noduleObjectToTemplate(selectedItem, noduleFindingEnum.TEMP2, imageCount)
    let isActive = false
    objList.forEach((item)=>{
      if(item.id==currentNum){
@@ -165,19 +164,19 @@ export function mapObjectListToFindingTemplate(objList:Object[], mode:string,ima
  }
 
 // 诊断
-export const LungDiagnoseEnum = {
+export const noduleDiagnoseEnum = {
   TEMP0:'胸部CT平扫未见明显结节影。',
   TEMP1:'{{lobeSegmentlabel}}{{lobeSegmentname}}',
   TEMP3:'{{lobeSegmentlabel}}{{lobeSegmentname}} 见肿块, 约{{ellipsoidAxisMajor}}mm x {{ellipsoidAxisLeast}}mm。',
   TEMP4:'见肿块，较大者约{{ellipsoidAxisMajor}}mm x {{ellipsoidAxisLeast}}mm。'
 
 }
-export function mapObjectListToDiagnoseTemplate(objList:Object[], mode:string ) {
+export function noduleDiagnoseTemplate(objList:Object[], mode:string ) {
 
 
   let resultBookItems = []
   if (objList.length == 0) {
-   resultBookItems.push({ id: -1, isActive:false,desc: LungDiagnoseEnum.TEMP0 })
+   resultBookItems.push({ id: -1, isActive:false,desc: noduleDiagnoseEnum.TEMP0 })
   }else{
    if (mode === '0') {
     const massList = []
@@ -193,16 +192,16 @@ export function mapObjectListToDiagnoseTemplate(objList:Object[], mode:string ) 
     if(massList.length>0){
       if(massList.length==1){
         const selectedItem = massList[0]
-        const resultBookItem = mapObjectToTemplate(selectedItem, LungDiagnoseEnum.TEMP3)
+        const resultBookItem = noduleObjectToTemplate(selectedItem, noduleDiagnoseEnum.TEMP3)
         resultBookItems.push({ id: selectedItem.id,isActive:false, desc: resultBookItem })
       }else{
         let segments = massList.map(item =>
-          mapObjectToTemplate(item, LungDiagnoseEnum.TEMP1)
+          noduleObjectToTemplate(item, noduleDiagnoseEnum.TEMP1)
          ).join('、');
         const largestItem = massList.reduce((prev, current) =>
           (prev.volume > current.volume) ? prev : current
          );
-         const summary = `${segments}` + mapObjectToTemplate(largestItem, LungDiagnoseEnum.TEMP4);
+         const summary = `${segments}` + noduleObjectToTemplate(largestItem, noduleDiagnoseEnum.TEMP4);
          resultBookItems.push({ id: largestItem.id, isActive:false,desc: summary });
       }
 
@@ -211,7 +210,7 @@ export function mapObjectListToDiagnoseTemplate(objList:Object[], mode:string ) 
     if(noduleList.length>0){
       if(noduleList.length==1){
         const selectedItem = noduleList[0]
-        const resultBookItem = mapObjectToTemplate(selectedItem, LungDiagnoseEnum.TEMP1) +'结节。'
+        const resultBookItem = noduleObjectToTemplate(selectedItem, noduleDiagnoseEnum.TEMP1) +'结节。'
         resultBookItems.push({ id: selectedItem.id, isActive:false,desc: resultBookItem })
       }else{
         const typeMap = {};
@@ -233,7 +232,233 @@ export function mapObjectListToDiagnoseTemplate(objList:Object[], mode:string ) 
 
     }
 
-
    }}
    return resultBookItems;
+}
+
+
+const fracFindingEnum = {
+  TEMP0: '胸廓对称，肋骨走行自然。片中所示骨性肋骨骨质连续性完整，未见中断影像。',
+  TEMP1: '{{ribSide}}第{{ribNum}}肋',
+  TEMP2: '见{{fracClass}}。'
+};
+
+const fracDiagnoseEnum = {
+  TEMP0:'肋骨未见明显异常。',
+  TEMP1: '{{ribSide}}第{{ribNum}}肋',
+  TEMP2: '见{{fracClass}}。',
+  TEMP3: '请结合临床，必要时复查。'
+
+}
+function fracObjectToTemplate(obj:Object, template:string,ribNum:[]) {
+  return template
+    .replace('{{ribSide}}', obj.ribSide.label)
+    .replace('{{fracClass}}',obj.fracClass.value == 'old'?'骨痂影': obj.fracClass.label)
+    .replace('{{ribNum}}',ribNum)
+}
+
+function formatRibNums(sortedItems) {
+  const uniqueRibNums = [...new Set(sortedItems.map(item => item.ribNum))].sort((a, b) => a - b);
+
+  let result = [];
+  let start = uniqueRibNums[0];
+  let end = start;
+
+  for (let i = 1; i < uniqueRibNums.length; i++) {
+    if (uniqueRibNums[i] === end + 1) {
+      end = uniqueRibNums[i];
+    } else {
+      result.push(start === end ? `${start}` : `${start}-${end}`);
+      start = uniqueRibNums[i];
+      end = start;
+    }
+  }
+  result.push(start === end ? `${start}` : `${start}-${end}`);
+
+  return result.join('、');
+}
+
+
+export function fracFindingTemplate(objList,currentNum) {
+  let resultBookItems = [];
+  if (objList.length === 0) {
+    resultBookItems.push({ id: -1, isActive: false, desc: fracFindingEnum.TEMP0 });
+    return resultBookItems;
+  }
+  const typeMap = {};
+  objList.forEach(item => {
+    if (!typeMap[item.fracClass.value]) {
+      typeMap[item.fracClass.value] = [];
+    }
+    typeMap[item.fracClass.value].push(item);
+  });
+
+  for (const [type, items] of Object.entries(typeMap)) {
+    let categorizedItems = { l: [], r: [] };
+
+    items.forEach(item => {
+      if (item.ribSide.value === 'L') {
+        categorizedItems.l.push(item);
+      } else if (item.ribSide.value === 'R') {
+        categorizedItems.r.push(item);
+      }
+    });
+
+    categorizedItems.l.sort((a, b) => a.ribNum - b.ribNum);
+    categorizedItems.r.sort((a, b) => a.ribNum - b.ribNum);
+
+    let leftFormatted = categorizedItems.l.length > 0 ? formatRibNums(categorizedItems.l) : '';
+    let rightFormatted = categorizedItems.r.length > 0 ? formatRibNums(categorizedItems.r) : '';
+
+    let finding = '';
+
+    if (leftFormatted) {
+      finding += fracObjectToTemplate(categorizedItems.l[0], fracFindingEnum.TEMP1, leftFormatted);
+    }
+    if (rightFormatted) {
+      if (finding) finding += '，';
+      finding += fracObjectToTemplate(categorizedItems.r[0], fracFindingEnum.TEMP1, rightFormatted);
+    }
+
+    finding += fracObjectToTemplate(items[0], fracFindingEnum.TEMP2);
+
+    let isActive = items.some(item => item.id === currentNum);
+    resultBookItems.push({
+      id: items[0].id,
+      isActive: isActive,
+      desc: finding
+    });
+  }
+
+  return resultBookItems;
+}
+
+export function fracDiagnoseTemplate(objList:Object[], currentNum:string) {
+
+  let resultBookItems = [];
+  if (objList.length === 0) {
+    resultBookItems.push({ id: -1, isActive: false, desc: fracDiagnoseEnum.TEMP0 });
+    return resultBookItems;
+  }
+  const typeMap = {};
+  let fracType = { frac: [], buckle: [], old: [] };
+
+  objList.forEach(item => {
+      if (item.fracClass.value === 'displaced' || item.fracClass.value === 'nodisplaced') {
+        fracType.frac.push(item);
+      }  else if (item.fracClass.value === 'buckle') {
+        fracType.buckle.push(item);
+      }else if (item.fracClass.value === 'old') {
+        fracType.old.push(item);
+      }
+    });
+  for (const [type, items] of Object.entries(fracType)) {
+    if(items.length >0){
+      let categorizedItems = { l: [], r: [] };
+
+      items.forEach(item => {
+        if (item.ribSide.value === 'L') {
+          categorizedItems.l.push(item);
+        } else if (item.ribSide.value === 'R') {
+          categorizedItems.r.push(item);
+        }
+      });
+
+      categorizedItems.l.sort((a, b) => a.ribNum - b.ribNum);
+      categorizedItems.r.sort((a, b) => a.ribNum - b.ribNum);
+
+      let leftFormatted = categorizedItems.l.length > 0 ? formatRibNums(categorizedItems.l) : '';
+      let rightFormatted = categorizedItems.r.length > 0 ? formatRibNums(categorizedItems.r) : '';
+
+      let finding = '';
+
+      if (leftFormatted) {
+        finding += fracObjectToTemplate(categorizedItems.l[0], fracDiagnoseEnum.TEMP1, leftFormatted);
+      }
+      if (rightFormatted) {
+        if (finding) finding += '，';
+        finding += fracObjectToTemplate(categorizedItems.r[0], fracDiagnoseEnum.TEMP1, rightFormatted);
+      }
+      let diagnose = ""
+      if(type == 'frac'){
+        diagnose = "骨折"
+        if(items.length >1){
+          diagnose = "多发骨折"
+        }
+      }else if(type=='buckle'){
+        diagnose = "骨折可能"
+      }else if(type == 'old'){
+        diagnose = "陈旧性骨折"
+      }
+      finding = finding +diagnose
+      resultBookItems.push(finding);
+    }
+
+  }
+  resultBookItems.push(fracDiagnoseEnum.TEMP3)
+  const desc = resultBookItems.join('。')
+
+  return [  { id: -1, isActive: false, desc: desc }
+  ];;
+
+
+}
+
+
+const pneumoniaFindingEnum = {
+  TEMP0: '双肺纹理清晰，未见明显炎性密度影。',
+  TEMP1: '{{lobeName}}见{{diseaseClass}}，体积{{diseaseVolume}}cm³，平均CT值为{{intensity}}HU。',
+};
+
+const pneumoniaDiagnoseEnum = {
+  TEMP0:'胸部CT平扫未见明显炎性密度影。',
+  TEMP1: '{{lobeName}}',
+  TEMP2: '炎症，建议随诊复查。',
+
+}
+function pneumoniaObjectToTemplate(obj:Object, template:string,ribNum:[]=[]) {
+  return template
+    .replace('{{lobeName}}', obj.lobeName.label)
+    .replace('{{diseaseClass}}',obj.diseaseClass.label)
+    .replace('{{diseaseVolume}}',obj.fixedDiseaseVolume)
+    .replace('{{intensity}}',obj.fixedIntensity)
+}
+
+
+export function pneumoniaFindingTemplate(objList,currentNum) {
+  let resultBookItems = [];
+  if (objList.length === 0) {
+    resultBookItems.push({ id: -1, isActive: false, desc: pneumoniaFindingEnum.TEMP0 });
+    return resultBookItems;
+  }
+  objList.forEach(item=>{
+    const resultBookItem = pneumoniaObjectToTemplate(item, pneumoniaFindingEnum.TEMP1)
+    resultBookItems.push({ id: item.id, isActive:false,desc: resultBookItem })
+  })
+
+  return resultBookItems;
+}
+
+export function pneumoniaDiagnoseTemplate(objList,currentNum) {
+  let resultBookItems = [];
+  if (objList.length === 0) {
+    resultBookItems.push({ id: -1, isActive: false, desc: pneumoniaDiagnoseEnum.TEMP0 });
+    return resultBookItems;
+  }
+  const lobeNameList = []
+  objList.forEach(item=>{
+    lobeNameList.push(pneumoniaObjectToTemplate(item, pneumoniaDiagnoseEnum.TEMP1))
+  })
+  let desc =''
+  if (lobeNameList.length > 2) {
+    let allButLast = lobeNameList.slice(0, -1).join('、');
+    let lastElement = "及" + lobeNameList[lobeNameList.length - 1];
+    desc = allButLast  + lastElement;
+  } else {
+    desc= lobeNameList.join('、');
+
+  }
+  desc += pneumoniaDiagnoseEnum.TEMP2
+  resultBookItems.push({ id: -1, isActive: false, desc: desc })
+  return resultBookItems;
 }

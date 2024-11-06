@@ -46,7 +46,7 @@
           <ViewBoard :seriesInfo="seriesInfo"></ViewBoard>
         </div>
         <div class="menu_data">
-          <menudataBar v-if="menubarShow"></menudataBar>
+          <menudataBar></menudataBar>
         </div>
       </div>
     </div>
@@ -97,7 +97,6 @@ export default {
   data() {
     return {
       ActiveIndex: 0,
-      menubarShow: false,
 
       seriesInfo: {},
     };
@@ -115,7 +114,7 @@ export default {
 
     ...mapActions("pneumoniaInfoStore", ["InitPneumoniaState"]),
 
-    ...mapActions("fracInfoStore", ["InitFracState"]),
+    ...mapActions("fracInfoStore", ["InitFracState", "ActiveFracState"]),
     ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE", "SET_SLICE_CT_PIC_LAYOUT"]),
 
     ...mapActions("view3DStore", [
@@ -189,21 +188,19 @@ export default {
         // console.log("carplay-已存在");
       }
       const { computeSeriesId } = this.$route.query;
-      const noduleInfo = await this.GetNodoleInfo(computeSeriesId);
-      console.log("noduleInfonoduleInfonoduleInfo", noduleInfo)
-      if (noduleInfo) {
-        this.SET_NODULE_INFO(noduleInfo);
-        this.menubarShow = true
-      }
+      // const noduleInfo = await this.GetNodoleInfo(computeSeriesId);
+      // if (noduleInfo) {
+      //   this.SET_NODULE_INFO(noduleInfo);
+      // }
       const seriesInfo = await this.GetSeriesInfo(computeSeriesId);
       if (seriesInfo) {
         // console.log(seriesInfo)
         this.Init3DView(seriesInfo.seriesId)
         this.SET_SERIES_INFO(seriesInfo);
-        this.InitNoduleState(seriesInfo);
-        this.InitPneumoniaState(seriesInfo);
-        this.InitFracState(seriesInfo)
-        this.ActiveNoduleState()
+        await this.InitNoduleState(seriesInfo);
+        await this.InitPneumoniaState(seriesInfo);
+        await this.InitFracState(seriesInfo)
+        this.ActiveFracState()
       }
 
     });

@@ -2,12 +2,14 @@
   <div class="nodule-result_panel">
     <checkToolBar></checkToolBar>
 
-    <LesionList v-model="menuResult" :cKey="cKey"></LesionList>
+    <LesionList :menuResult="menuResult" :cKey="cKey"></LesionList>
   </div>
 </template>
 <script lang="javascript">
 import checkToolBar from "./module/check-tool-bar.vue";
 import LesionList from "./module/lesion-list.vue";
+import { mapState, mapActions } from "vuex";
+
 /**
  * const LESION_PART_SITE = {
   CALCIUM: "calcium", //钙化
@@ -25,16 +27,22 @@ export default {
     LesionList,
   },
   props: {
-    value: Object,
     // LESION_PART_SITE 标志
     cKey: {
       type: String,
     },
   },
   computed: {
+    ...mapState("noduleInfoStore", ["noduleInfo"]),
+
     menuResult: {
       get() {
-        return this.value;
+        if (this.noduleInfo) {
+          return this.noduleInfo;
+
+        } else {
+          return []
+        }
       },
       set(val) {
         this.$emit("input", val);

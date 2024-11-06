@@ -41,10 +41,13 @@ export default {
   queryOperate: "/queryOperate",
   queryTextReport: "/queryTextReport",
   queryFrac:"/queryFrac",
+  queryPneumonia:"/queryPneumonia",
 
   saveManualDiagnosis: "/saveManualDiagnosis",
   saveOperate: "/saveOperate",
   updateNoduleLesion: "/updateNoduleLesion",
+  updateFracLesion:"/updateFracLesion",
+  updateCheckStatus:"/updateCheckStatus",
   updateTextReport: "/updateTextReport",
 
 

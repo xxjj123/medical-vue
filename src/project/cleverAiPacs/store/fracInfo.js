@@ -20,6 +20,8 @@ import {
   LayoutIcons
 } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
+
+import {xhr_queryFrac,xhr_updateFracLesion} from "@/api";
 const coordinate = vtkCoordinate.newInstance();
 
 
@@ -63,7 +65,13 @@ export default {
     CoronalData: new ViewData,
     AxialData: new ViewData,
     SagittalData: new ViewData,
-    fracInfo: {},
+    fracInfo: { computeSeriesId:null,
+      hasLesion: false,
+      fracLesionList:[],
+      seriesId:null,
+      seriesInstanceUid:null,
+      studyId:null,
+      studyInstanceUid:null},
 
     annotations: {value: [], index: new Set()},
     picker: vtkPicker.newInstance(),
@@ -88,7 +96,13 @@ export default {
     SET_FRAC_INFO(state, fracInfo) {
       state.fracInfo = fracInfo;
     },
+    UPDATE_FRAC_LESSION(state,{fracid,key,value}){
+      const lesion = state.fracInfo.fracLesionList.find(item => item.id === fracid);
+      if (lesion) {
+          lesion[key] = value;
+      }
 
+    },
     ADD_ANNOTATION(state, annotation) {
       state.annotations.value.push(annotation);
       state.annotations.index.add(
@@ -118,21 +132,22 @@ export default {
     SET_VIEW_MPR_VIEW(state, {viewIndex, key, value}) {
       state.viewMprViews[viewIndex][key] = value;
     },
+
     INIT_FRAC_ALL_VIEW_DATA(state){
       const originalData = new AllViewData();
       originalData.colorWindow = 1500;
       originalData.colorLevel = 300;
       originalData.isPan = false;
-      originalData.layOut = LayoutIcons.AXIAL;
+      originalData.layOut = LayoutIcons.MPR;
       originalData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj];
       originalData.activeButtons = [ButtonNames.Jbinfo,  ]
       state.allViewData.copyFrom(originalData)
     },
     INIT_FRAC_VIEW_DATA(state, seriesInfo) {
-      const viewTypes = [VIEW_TYPES.AXIAL, VIEW_TYPES.CORONAL, VIEW_TYPES.SAGITTAL];
-      const viewNames = [VIEW_NAMES.AXIAL, VIEW_NAMES.CORONAL, VIEW_NAMES.SAGITTAL];
+      const viewTypes = [VIEW_TYPES.AXIAL, VIEW_TYPES.SAGITTAL, VIEW_TYPES.CORONAL];
+      const viewNames = [VIEW_NAMES.AXIAL, VIEW_NAMES.SAGITTAL, VIEW_NAMES.CORONAL];
       const viewDatas = ["AxialData","SagittalData", "CoronalData"]
-      const dimensions = [seriesInfo.axialCount, seriesInfo.coronalCount, seriesInfo.sagittalCount];
+      const dimensions = [seriesInfo.axialCount, seriesInfo.sagittalCount, seriesInfo.coronalCount];
 
       viewTypes.forEach((viewType, index) => {
           const originalData = new ViewData();
@@ -160,8 +175,15 @@ export default {
   },
   actions: {
     async InitFracState({state,commit,rootState,dispatch},seriesInfo){
-      await dispatch("mprViewStore/clearAllAutoplay",null,{root:true} )
 
+      const result = await xhr_queryFrac({ computeSeriesId:seriesInfo.computeSeriesId});
+      if (result.serviceSuccess) {
+        commit("SET_FRAC_INFO",result.data.resultData)
+      }
+      console.log("fracLesionList",result.data.resultData)
+
+      console.log("fracLesionList",result.data.resultData.fracLesionList)
+      await dispatch("mprViewStore/clearAllAutoplay",null,{root:true} )
       const {mprViewStore} = rootState
       commit("INIT_FRAC_ALL_VIEW_DATA")
       commit("INIT_FRAC_VIEW_DATA",seriesInfo)
@@ -176,10 +198,28 @@ export default {
         await dispatch("mprViewStore/ActiveModule","fracInfoStore",{root:true})
       }else{
         await dispatch("mprViewStore/InitModuleView","fracInfoStore",{root:true})
-        dispatch("InitAnnotations")
+        // dispatch("InitAnnotations")
+        const pointsArray1 = [-127.98255580000004,42.501926999999995,-94.746994,-93.80012919999997,75.05661899999998,-58.746994]
+        dispatch("addRectangleAnnotation2",{view:state.viewMprViews[0], pointsArray:pointsArray1  })
+        const pointsArray2 = [-132.142322,44.85309920000002,-131.496994,-99.58763000000002,79.03552579999997,-93.246994]
+        dispatch("addRectangleAnnotation2",{view:state.viewMprViews[0], pointsArray:pointsArray2  })
+        const pointsArray3 = [112.37958679999998,28.575753199999973,-199.996994,143.3065442,70.8968528,-157.246994]
+        dispatch("addRectangleAnnotation2",{view:state.viewMprViews[0], pointsArray:pointsArray3  })
+
 
       }
     },
+    async updateFracLession({state,commit},{fracid,key,value}){
+      console.log({fracid,key,value})
+      const lesion = state.fracInfo.fracLesionList.find(item => item.id === fracid);
+      commit("UPDATE_FRAC_LESSION",{fracid,key,value})
+      if (lesion) {
+       await xhr_updateFracLesion(lesion).then(res=>{
+        console.log(res)
+       })
+    }
+    },
+
     InitAnnotations({state,rootState,dispatch}){
       const {mprViewStore} = rootState
       state.viewMprViews.forEach((view, index) => {
@@ -274,7 +314,6 @@ export default {
 
     },
 
-
     async UpdateSlice(
       {commit, dispatch, state},
       {viewIndex, index},
@@ -338,7 +377,57 @@ export default {
       });
       view.renderer.addActor(actor);
     },
+    addRectangleAnnotation2({commit, state,rootState,dispatch},{view,pointsArray}) {
+      const { mprViewStore } = rootState;
+      let boundsZ = view.image.getBounds()[2];
+      if (view.viewIndex == 2) {
+        boundsZ = view.image.getBounds()[4];
+      }
+      // console.log(view.image.getBounds())
 
+
+
+      const [xmin, ymin, zmin, xmax, ymax, zmax] = pointsArray
+
+
+      const worldpoint1 = [-ymin+228, -zmin+45 , -100];
+      const worldpoint2 = [-ymax+228, -zmax +45, -100];
+
+
+      // console.log(worldpoint1)
+      // console.log(worldpoint2)
+
+      const points = vtkPoints.newInstance();
+      points.setNumberOfPoints(5);
+      points.setPoint(0, worldpoint1[0], worldpoint1[1], worldpoint1[2]);
+      points.setPoint(1, worldpoint2[0], worldpoint1[1], worldpoint1[2]);
+      points.setPoint(2, worldpoint2[0], worldpoint2[1], worldpoint2[2]);
+      points.setPoint(3, worldpoint1[0], worldpoint2[1], worldpoint2[2]);
+      points.setPoint(4, worldpoint1[0], worldpoint1[1], worldpoint1[2]);
+
+      const lines = vtkCellArray.newInstance();
+      lines.insertNextCell([5, 0, 1, 2, 3, 4]);
+
+      const polyData = vtkPolyData.newInstance();
+      polyData.setPoints(points);
+      polyData.setLines(lines);
+
+      const mapper = vtkMapper.newInstance();
+      mapper.setInputData(polyData);
+
+      const actor = vtkActor.newInstance();
+      actor.setVisibility(
+        true
+      );
+
+      actor.setMapper(mapper);
+      actor.getProperty().setColor(...BBOX_COLORS.DEFAULT);
+      actor.getProperty().setLineWidth(1);
+      view.renderer.addActor(actor);
+
+      // 刷新视图
+      dispatch("mprViewStore/freshView", view.viewIndex, { root: true });
+    },
     /**
      * 结节标记选择
      * @param {number} bboxindex - 结节索引index

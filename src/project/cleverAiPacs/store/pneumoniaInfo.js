@@ -20,7 +20,7 @@ import {
   LayoutIcons
 } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
-import {xhr_getSlice,xhr_getDcmSlice} from "@/api";
+import {xhr_queryPneumonia,xhr_updatePneuCheckStatus} from "@/api";
 const coordinate = vtkCoordinate.newInstance();
 
 import { gdcmReadImage} from "@itk-wasm/image-io"
@@ -53,640 +53,13 @@ const BBOX_LINEWIDTH = {
   SELECTED: 2,
 };
 
-const contours = {
-  "107":[[
-    313,
-    358.5,
-    312,
-    358.5,
-    311,
-    358.5,
-    310,
-    358.5,
-    309,
-    358.5,
-    308,
-    358.5,
-    307,
-    358.5,
-    306.5,
-    358,
-    306,
-    357.5,
-    305.5,
-    357,
-    305.5,
-    356,
-    305.5,
-    355,
-    305.5,
-    354,
-    306,
-    353.5,
-    306.5,
-    353,
-    307,
-    352.5,
-    308,
-    352.5,
-    309,
-    352.5,
-    310,
-    352.5,
-    310.5,
-    352,
-    311,
-    351.5,
-    312,
-    351.5,
-    312.5,
-    351,
-    313,
-    350.5,
-    313.5,
-    350,
-    314,
-    349.5,
-    314.5,
-    349,
-    315,
-    348.5,
-    315.5,
-    348,
-    316,
-    347.5,
-    317,
-    347.5,
-    317.5,
-    347,
-    318,
-    346.5,
-    318.5,
-    346,
-    318.5,
-    345,
-    318.5,
-    344,
-    319,
-    343.5,
-    319.5,
-    343,
-    319.5,
-    342,
-    319.5,
-    341,
-    319.5,
-    340,
-    320,
-    339.5,
-    321,
-    339.5,
-    322,
-    339.5,
-    323,
-    339.5,
-    324,
-    339.5,
-    325,
-    339.5,
-    326,
-    339.5,
-    327,
-    339.5,
-    327.5,
-    340,
-    327.5,
-    341,
-    327.5,
-    342,
-    327.5,
-    343,
-    327.5,
-    344,
-    327.5,
-    345,
-    327,
-    345.5,
-    326,
-    345.5,
-    325.5,
-    346,
-    325,
-    346.5,
-    324.5,
-    347,
-    324,
-    347.5,
-    323.5,
-    348,
-    323,
-    348.5,
-    322.5,
-    349,
-    322.5,
-    350,
-    322.5,
-    351,
-    322.5,
-    352,
-    322,
-    352.5,
-    321.5,
-    353,
-    321,
-    353.5,
-    320,
-    353.5,
-    319.5,
-    354,
-    319,
-    354.5,
-    318.5,
-    355,
-    318,
-    355.5,
-    317.5,
-    356,
-    317.5,
-    357,
-    317,
-    357.5,
-    316,
-    357.5,
-    315,
-    357.5,
-    314,
-    357.5,
-    313.5,
-    358,
-    313,
-    358.5
-  ]]
-  ,"109": [
-					[
-						312,
-						360.5,
-						311,
-						360.5,
-						310,
-						360.5,
-						309.5,
-						360,
-						309,
-						359.5,
-						308,
-						359.5,
-						307,
-						359.5,
-						306.5,
-						359,
-						306,
-						358.5,
-						305.5,
-						358,
-						305,
-						357.5,
-						304.5,
-						357,
-						304.5,
-						356,
-						304.5,
-						355,
-						305,
-						354.5,
-						305.5,
-						354,
-						305.5,
-						353,
-						306,
-						352.5,
-						307,
-						352.5,
-						308,
-						352.5,
-						308.5,
-						352,
-						309,
-						351.5,
-						310,
-						351.5,
-						310.5,
-						351,
-						310.5,
-						350,
-						311,
-						349.5,
-						311.5,
-						349,
-						312,
-						348.5,
-						313,
-						348.5,
-						313.5,
-						348,
-						314,
-						347.5,
-						315,
-						347.5,
-						315.5,
-						347,
-						316,
-						346.5,
-						316.5,
-						346,
-						316.5,
-						345,
-						316.5,
-						344,
-						317,
-						343.5,
-						317.5,
-						343,
-						318,
-						342.5,
-						318.5,
-						342,
-						318.5,
-						341,
-						318.5,
-						340,
-						319,
-						339.5,
-						319.5,
-						339,
-						320,
-						338.5,
-						321,
-						338.5,
-						321.5,
-						338,
-						321.5,
-						337,
-						322,
-						336.5,
-						323,
-						336.5,
-						324,
-						336.5,
-						325,
-						336.5,
-						326,
-						336.5,
-						327,
-						336.5,
-						328,
-						336.5,
-						329,
-						336.5,
-						330,
-						336.5,
-						330.5,
-						337,
-						330.5,
-						338,
-						330.5,
-						339,
-						331,
-						339.5,
-						331.5,
-						340,
-						331.5,
-						341,
-						331,
-						341.5,
-						330.5,
-						342,
-						330.5,
-						343,
-						330.5,
-						344,
-						330.5,
-						345,
-						330,
-						345.5,
-						329.5,
-						346,
-						329,
-						346.5,
-						328.5,
-						347,
-						328.5,
-						348,
-						328,
-						348.5,
-						327.5,
-						349,
-						327,
-						349.5,
-						326,
-						349.5,
-						325.5,
-						350,
-						325.5,
-						351,
-						325,
-						351.5,
-						324.5,
-						352,
-						324,
-						352.5,
-						323.5,
-						353,
-						323,
-						353.5,
-						322.5,
-						354,
-						322,
-						354.5,
-						321.5,
-						355,
-						321,
-						355.5,
-						320,
-						355.5,
-						319.5,
-						356,
-						319.5,
-						357,
-						319,
-						357.5,
-						318,
-						357.5,
-						317.5,
-						358,
-						317,
-						358.5,
-						316,
-						358.5,
-						315.5,
-						359,
-						315,
-						359.5,
-						314,
-						359.5,
-						313,
-						359.5,
-						312.5,
-						360,
-						312,
-						360.5
-					]
-				],
-				"110": [
-					[
-						315,
-						361.5,
-						314,
-						361.5,
-						313,
-						361.5,
-						312,
-						361.5,
-						311,
-						361.5,
-						310,
-						361.5,
-						309.5,
-						361,
-						309,
-						360.5,
-						308.5,
-						360,
-						308,
-						359.5,
-						307,
-						359.5,
-						306.5,
-						359,
-						306.5,
-						358,
-						306,
-						357.5,
-						305.5,
-						357,
-						305.5,
-						356,
-						305.5,
-						355,
-						305.5,
-						354,
-						306,
-						353.5,
-						306.5,
-						353,
-						306.5,
-						352,
-						307,
-						351.5,
-						308,
-						351.5,
-						309,
-						351.5,
-						309.5,
-						351,
-						309.5,
-						350,
-						310,
-						349.5,
-						310.5,
-						349,
-						311,
-						348.5,
-						312,
-						348.5,
-						312.5,
-						348,
-						313,
-						347.5,
-						313.5,
-						347,
-						314,
-						346.5,
-						315,
-						346.5,
-						315.5,
-						346,
-						315.5,
-						345,
-						315.5,
-						344,
-						316,
-						343.5,
-						316.5,
-						343,
-						316.5,
-						342,
-						317,
-						341.5,
-						317.5,
-						341,
-						318,
-						340.5,
-						318.5,
-						340,
-						318.5,
-						339,
-						319,
-						338.5,
-						319.5,
-						338,
-						319.5,
-						337,
-						320,
-						336.5,
-						321,
-						336.5,
-						321.5,
-						336,
-						322,
-						335.5,
-						322.5,
-						335,
-						323,
-						334.5,
-						324,
-						334.5,
-						325,
-						334.5,
-						326,
-						334.5,
-						327,
-						334.5,
-						328,
-						334.5,
-						329,
-						334.5,
-						330,
-						334.5,
-						330.5,
-						335,
-						331,
-						335.5,
-						332,
-						335.5,
-						332.5,
-						336,
-						333,
-						336.5,
-						334,
-						336.5,
-						334.5,
-						337,
-						334.5,
-						338,
-						335,
-						338.5,
-						335.5,
-						339,
-						335.5,
-						340,
-						335.5,
-						341,
-						336,
-						341.5,
-						336.5,
-						342,
-						336.5,
-						343,
-						337,
-						343.5,
-						337.5,
-						344,
-						337.5,
-						345,
-						337,
-						345.5,
-						336.5,
-						346,
-						336,
-						346.5,
-						335.5,
-						347,
-						335,
-						347.5,
-						334,
-						347.5,
-						333,
-						347.5,
-						332.5,
-						348,
-						332,
-						348.5,
-						331,
-						348.5,
-						330.5,
-						349,
-						330,
-						349.5,
-						329.5,
-						350,
-						329.5,
-						351,
-						329,
-						351.5,
-						328.5,
-						352,
-						328,
-						352.5,
-						327.5,
-						353,
-						327,
-						353.5,
-						326,
-						353.5,
-						325.5,
-						354,
-						325,
-						354.5,
-						324.5,
-						355,
-						324,
-						355.5,
-						323,
-						355.5,
-						322.5,
-						356,
-						322.5,
-						357,
-						322,
-						357.5,
-						321.5,
-						358,
-						321,
-						358.5,
-						320,
-						358.5,
-						319,
-						358.5,
-						318.5,
-						359,
-						318,
-						359.5,
-						317.5,
-						360,
-						317,
-						360.5,
-						316,
-						360.5,
-						315.5,
-						361,
-						315,
-						361.5
-					]
-				],}
-
-
-
 export default {
   namespaced: true,
   state: {
     isload:false,
     // 选中行study信息，用于提取tags相关信息用
     studies_selected: {},
-    /**
-     * { [computeSeriesId] : [] ,...}
-     *
-     */
+
     series_map_dicom: {},
 
     viewMprViews: Array.from({length: 3}, () => (new ViewRenderer)),
@@ -695,10 +68,12 @@ export default {
     AxialData: new ViewData,
     SagittalData: new ViewData,
     pneumoniaInfo: {},
+    contourActorList:{
+      'sagittal':[],
+      'coronal':[],
+      'axial':[]
+    },
 
-    CoronalContours:[],
-    AxialContours: [],
-    SagittalContours: [],
 
 
     annotations: {value: [], index: new Set()},
@@ -722,10 +97,7 @@ export default {
       state.CoronalData,
       state.AxialData,
     ],
-    pneumoniaContours:(state)=>[
-      state.CoronalContours,
-      state.AxialContours,
-      state.SagittalContours]
+
 
   },
   mutations: {
@@ -734,10 +106,18 @@ export default {
       // state.pneumoniaInfo.focalDetailList = []
 
     },
+    UPDATE_PNEUMONIA_LESSION(state,{pneuid,key,value}){
+      const lesion = state.pneumoniaInfo.pneumoniaLesionList.find(item => item.id === pneuid);
+      if (lesion) {
+          lesion[key] = value;
+      }
 
+    },
+    SET_CONTOURS_LIST(state,{viewName,actorList}){
+      state.contourActorList[viewName] = actorList
+    },
     INIT_PNEUMONIA_RENDER_VIEW(state,v_state){
       const indexs = [0,1,2]
-
       state.viewMprViews.forEach((view,index) => {
         const originalView = new ViewRenderer();
         originalView.viewIndex = indexs[index]
@@ -749,7 +129,6 @@ export default {
         originalView.renderer.addActor(originalView.sliceActor);
         originalView.renderer.setBackground(...VIEW_COLORS.BACKGROUND);
         view.copyFrom(originalView)
-        // v_state.viewMprViews[index].renderWindow.addRenderer(view.renderer)
       });
     },
     SET_VIEW_MPR_VIEW(state, {viewIndex, key, value}) {
@@ -763,7 +142,7 @@ export default {
       originalData.isPan = false;
       originalData.layOut = LayoutIcons.MPR;
       originalData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms ];
-      originalData.activeButtons = [ButtonNames.Jbinfo, ButtonNames.Szckx ]
+      originalData.activeButtons = [ButtonNames.Jbinfo ]
       state.allViewData.copyFrom(originalData)
     },
     INIT_PNEUMONIA_VIEW_DATA(state, seriesInfo){
@@ -804,12 +183,16 @@ export default {
   },
   actions: {
     async InitPneumoniaState({state,commit,rootState,dispatch},seriesInfo){
-      await dispatch("mprViewStore/clearAllAutoplay",null,{root:true} )
+      const result = await xhr_queryPneumonia({ computeSeriesId:seriesInfo.computeSeriesId});
+
+      if (result.serviceSuccess) {
+        console.log(result.data.resultData)
+        commit("SET_PNEUMONIA_INFO",result.data.resultData)
+      }
 
       const {mprViewStore} = rootState
       commit("INIT_PNEUMONIA_ALL_VIEW_DATA")
       commit("INIT_PNEUMONIA_VIEW_DATA",seriesInfo)
-
       commit("INIT_PNEUMONIA_RENDER_VIEW",mprViewStore)
 
     },
@@ -822,49 +205,83 @@ export default {
         await dispatch("mprViewStore/ActiveModule","pneumoniaInfoStore",{root:true})
       }else{
         await dispatch("mprViewStore/InitModuleView","pneumoniaInfoStore",{root:true})
-        dispatch("InitContours",{view:state.viewMprViews[2]})
 
       }
 
+    },
 
+    async updatePneumoniaLession({state,commit},{pneuid,key,value}){
+      console.log({pneuid,key,value})
+      const lesion = state.pneumoniaInfo.pneumoniaLesionList.find(item => item.id === pneuid);
+      commit("UPDATE_PNEUMONIA_LESSION",{pneuid,key,value})
+      if (lesion) {
+        const data = {
+          "pneumoniaLesionId":pneuid,
+          "checked":value
+        }
+
+       await xhr_updatePneuCheckStatus(data).then(res=>{
+        console.log(res)
+       })
+    }
     },
 
     async handleMousePress(
       {dispatch, commit, state, getters,rootState},
       {pickedPosition,view},
     ) {
-
       const {mprViewStore} = rootState
       const pickedX = pickedPosition[0];
       const pickedY = pickedPosition[1];
 
     },
 
-
     async UpdateSlice(
       {commit, dispatch, state,getters},
       {viewIndex, index},
     ) {
-      const pneuContours = getters.pneumoniaContours[viewIndex]
-      if(pneuContours[index]){
 
+      const view = state.viewMprViews[viewIndex]
+      const viewName = getters.viewsData[viewIndex].viewName;
+
+      console.log(view.renderer.getActors())
+      view.renderer.getActors().forEach((actor,index)=>{
+        if(index>0){
+          view.renderer.removeActor(actor);
+        }
+      })
+      // view.renderer.getActors()
+      // view.renderer.get(actor);
+      console.log("contourActorList",state.contourActorList)
+      // view.renderer.removeActor(state.contourActorList[0]);
+      // state.contourActorList.forEach(actor=>{
+      //   console.log(actor)
+      //   view.renderer.removeActor(actor);
+      // })
+      commit("SET_CONTOURS_LIST",{viewName,actorList:[]})
+
+      const contours = state.pneumoniaInfo.pneumoniaContourList.find(
+        item => item.instanceNumber === index && item.viewName === viewName
+      );
+
+      if(contours){
+        const couroursPoints =JSON.parse(contours.points.replace(/\s/g, ''));
+        dispatch("InitContours",{view,contours:couroursPoints})
       }
 
     },
 
-    async InitContours({state,rootState,dispatch},{view}){
+    async InitContours({state,rootState,dispatch,commit},{view,contours}){
+
+      console.log(view,contours)
       const { mprViewStore } = rootState;
       let boundsZ = view.image.getBounds()[2];
       if (view.viewIndex == 2) {
         boundsZ = view.image.getBounds()[5];
       }
 
-      // 假设 pointsArray 是一个包含二维点 [x1, y1, x2, y2, ...] 的数组
-      const pointsArrays =  contours["110"]
-
-      pointsArrays.forEach((pointsArray, contourIndex) => {
-        console.log(`Processing contour ${contourIndex}:`, pointsArray);
-
+      const actorList = []
+      contours.forEach((pointsArray, contourIndex) => {
         const transformedData = {};
         for (let i = 0; i < pointsArray.length; i += 2) {
           const x = pointsArray[i];
@@ -877,8 +294,6 @@ export default {
           // 设置 z 和 y 的对应关系
           transformedData[x][z] = y;
         }
-        console.log("Transformed Data:", transformedData);
-
         // 创建 vtkPoints 实例并动态设置点
         const points = vtkPoints.newInstance();
         points.setNumberOfPoints(pointsArray.length / 2);
@@ -909,9 +324,14 @@ export default {
         actor.getProperty().setColor(1, 0, 0); // 设置颜色
         actor.getProperty().setLineWidth(1); // 设置线宽
 
+        actorList.push(actor)
         console.log("Actor for contour:", contourIndex, actor);
         view.renderer.addActor(actor); // 添加 actor 到渲染器
       });
+
+
+      commit("SET_CONTOURS_LIST",{viewName:view.viewName,actorList})
+
 
       // 刷新视图
       dispatch("mprViewStore/freshView", view.viewIndex, { root: true });

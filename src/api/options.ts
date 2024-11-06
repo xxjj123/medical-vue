@@ -16,8 +16,10 @@ export const testDevOps = {
   diagnose: `/diagnose`,
   nodule: `/nodule`,
   frac: `/frac`,
+  pneumonia:"/pneumonia",
   image: `/image`,
   single:"/single" ,//单张影像,
+
 
 
 

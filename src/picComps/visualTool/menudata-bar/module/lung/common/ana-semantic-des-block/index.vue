@@ -18,7 +18,6 @@
       </div>
     </div>
     <div class="context_book">
-
       <div class="item_book" v-for="(item, index) in resultBookItems" :key="index">
         <div class="item_row" :class="item.isActive ? 'selected' : ''">{{ item.desc }}</div>
       </div>
@@ -40,7 +39,7 @@
  * ...
  */
 
-import { SortOption, mapObjectListToFindingTemplate, mapObjectListToDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
+import { SortOption, noduleFindingTemplate, noduleDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
 import Emitter from "@/assets/js/mixins/emitter.js";
@@ -101,15 +100,14 @@ export default {
           const { value } = this.selectValue;
           let resultBookItems = null;
           if (this.blockMode == 'finding') {
-            resultBookItems = mapObjectListToFindingTemplate(this.selectionValue, value, this.seriesInfo.imageCount, this.currentNum)
+            resultBookItems = noduleFindingTemplate(this.selectionValue, value, this.seriesInfo.imageCount, this.currentNum)
             console.log("resultBookItems2---", resultBookItems)
             // return resultBookItems
           } else {
-            resultBookItems = mapObjectListToDiagnoseTemplate(this.selectionValue, value)
+            resultBookItems = noduleDiagnoseTemplate(this.selectionValue, value)
             console.log("resultBookItems2", resultBookItems)
             // return resultBookItems
           }
-
 
           console.log("this.desCode", this.desCode);
           if (this.desCode === 'yxsj') {

@@ -852,9 +852,7 @@ console.log("")
     ) {
       const image = imageData;
       const view = state.viewMprViews[viewIndex];
-
       const v_view = rootState[state.activeModule].viewMprViews[viewIndex];
-
       // const view = state.viewMprViews[viewIndex];
       if (!v_view) {
         console.error("没有这个页面:", viewIndex);
@@ -864,15 +862,10 @@ console.log("")
       // view.image = image;
       v_view.sliceMapper.setInputData(image);
       dispatch(state.activeModule+"/UpdateSlice",{viewIndex,index},{root:true})
-
-
       dispatch("setupCamera", viewIndex);
-
       view.renderWindow.render();
 
       commit(state.activeModule+"/SET_VIEW_MPR_VIEW",{viewIndex , key:"pageIndex", value:index},{root:true})
-
-
       commit("SET_VIEW_DATA", {viewIndex, key: "pageIndex", value: index});
     },
     setupCamera({commit, state, getters,rootState}, viewIndex) {

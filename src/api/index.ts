@@ -3,7 +3,7 @@ import {apiOps, testDevOps} from "./options";
 import axios from 'axios'
 const {api, api2, api3, api5, api6, api7} = apiOps;
 
-const {Topbase, study, readwriteFsBase, cb, diagnose, nodule,frac, image, single,Case } = testDevOps;
+const {Topbase, study, readwriteFsBase, cb, diagnose, nodule,frac,pneumonia, image, single,Case } = testDevOps;
 
 
 // import {getBaseURL} from "@/assets/js/utils";
@@ -781,6 +781,22 @@ export const xhr_queryFrac = (formData) => {
     },
   });
 };
+
+/* ----------------------nodule----lung----api---start */
+/**
+ * 结节病变列表查询
+ * @param formData
+ * @returns
+ */
+export const xhr_queryPneumonia = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: pneumonia + urlJson["queryPneumonia"],
+    data: {
+      ...formData,
+    },
+  });
+};
 /**
  * 查询上次结节操作
  * @param formData
@@ -861,6 +877,39 @@ export const xhr_updateNoduleLesion = (formData) => {
   });
 };
 
+/**
+ * 更新结节病变信息
+ * @param formData
+ * @returns
+ */
+export const xhr_updateFracLesion = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: frac + urlJson["updateFracLesion"],
+    autoQs: false,
+    // isFormData: true,
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/**
+ * 更新结节病变信息
+ * @param formData
+ * @returns
+ */
+export const xhr_updatePneuCheckStatus = (formData) => {
+  console.log(formData)
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: pneumonia + urlJson["updateCheckStatus"],
+    // isFormData: true,
+    data: {
+      ...formData,
+    },
+  });
+};
 
 
 /**

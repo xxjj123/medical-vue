@@ -65,7 +65,16 @@ export default {
     CoronalData: new ViewData,
     AxialData: new ViewData,
     SagittalData: new ViewData,
-    noduleInfo: {},
+    noduleInfo: {
+      computeSeriesId:null,
+      hasLesion: false,
+      noduleLesionList:[],
+      seriesId:null,
+      seriesInstanceUid:null,
+      studyId:null,
+      studyInstanceUid:null
+
+    },
 
     annotations: {value: [], index: new Set()},
     picker: vtkPicker.newInstance(),
@@ -88,6 +97,7 @@ export default {
   },
   mutations: {
     SET_NODULE_INFO(state, noduleInfo) {
+      console.log("noduleInfo=======",noduleInfo)
       state.noduleInfo = noduleInfo;
     },
 
@@ -162,6 +172,10 @@ export default {
   },
   actions: {
     async InitNoduleState({state,commit,rootState,dispatch},seriesInfo){
+      const result = await xhr_queryNodule({ computeSeriesId:seriesInfo.computeSeriesId});
+      if (result.serviceSuccess) {
+        commit("SET_NODULE_INFO",result.data.resultData)
+      }
       await dispatch("mprViewStore/clearAllAutoplay",null,{root:true} )
 
       const {mprViewStore} = rootState

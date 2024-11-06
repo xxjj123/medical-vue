@@ -550,6 +550,13 @@ export default {
             key: "005",
             statu: "5",
             color: "grey"  // 取消状态，灰色
+          },
+          {
+            labName: "计算异常",
+            value: "jsyc",
+            key: "006",
+            statu: "6",
+            color: "red"  // 取消状态，灰色
           }
 
         ],
@@ -1082,16 +1089,7 @@ export default {
     current(val) {
       // console.log("current", val);
     },
-    // searchForm: {
-    //   handler(nVal, oVal) {
-    //     this.handle_queryDicomList()
-    //     // console.log("tableData==", nVal, oVal);
-    //     // this.tableData = nVal;
-    //   },
-    //   deep: true,
-    //   immediate: true,
 
-    // }
   },
   methods: {
     // ...mapMutations("mprViewStore", ["SET_SERIES_MAP_DICOM", "SET_STUDIES_SELECTED"]),
@@ -1125,7 +1123,6 @@ export default {
         // console.log("重新分析1 sub=item", item);/
       });
 
-      // console.log("main=handle_replay_xrd", rowIndex, row);
     },
     // 重新分析1
     handle_replay_xrd1(rowIndex, row) {
@@ -1159,15 +1156,6 @@ export default {
       // console.log("this.$refs['searchForm']", this.$refs["searchForm"]);
     },
     init_searchData() {
-      //初始化 form 查询条件数据
-
-      // const startDate = moment().format(this.rangeDateOb.dateFormat);
-      // const endDate = moment().format(this.rangeDateOb.dateFormat);
-
-      // const startDate = "".format(this.rangeDateOb.dateFormat);
-      // const endDate = "".format(this.rangeDateOb.dateFormat);
-      // this.form.rangeDate = [startDate, endDate];
-      // console.log(this.form)
       this.searchForm.qaTime = "custom"
       this.searchForm.patientInfo = "accessionNumber"
       this.searchForm.patientValue = ""
