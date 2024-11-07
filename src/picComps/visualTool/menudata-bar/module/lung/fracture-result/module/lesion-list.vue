@@ -4,16 +4,16 @@
       <div class="content_main">
 
         <div class="table_container">
-          <ta-big-table class="lung_table_custom" ref="tableLungNodule" :size="tableConfig.size" row-id="id"
+          <ta-big-table class="lung_table_custom" ref="tableLungFrac" :size="tableConfig.size" row-id="id"
             :checkbox-config="{ trigger: 'click', reserve: true, checkRowKeys: defaultSelecteRows }"
             :row-style="rowStyle" :keyboard-config="{ isArrow: true }" height="200" :columns="tableConfig.tableColumns"
             :data="tableData" @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent"
             :edit-config="{ trigger: 'click' }" @cell-click="handleCellClick" :sort-config="tableConfig.sortConfig">
 
             <template #checkBox="{ row }">
-
               <span class="ml-[10px]">{{ row.index }}</span>
             </template>
+
             <template #ribNumber="{ row }">
               <span class="mr-[5px]"></span><span>{{ row.ribSide.value + row.ribNum }}</span>
             </template>
@@ -22,13 +22,14 @@
               <div class="h1 cj_block">
                 <span>{{ row.ribType.label }}</span>
               </div>
-
             </template>
+
             <template #fracClass="{ row }">
               <div class="h1 mean_block">
                 <span>{{ row.fracClass.label }}</span>
               </div>
             </template>
+
             <template #delete="{ row }">
               <div class="h1 cj_block">
                 <ta-popconfirm placement="bottom" okText="确定" cancelText="取消" @confirm="deleteRow">
@@ -62,14 +63,10 @@
                             </ta-menu-item>
                           </ta-sub-menu>
                         </template>
-
                       </template>
                     </template>
                   </ta-menu>
                 </ta-dropdown>
-              </div>
-              <div class="h2 cjVal_block">
-                <span>{{ row.CHENGJI_VAL }}</span>
               </div>
             </template>
 
@@ -119,15 +116,15 @@
 
         <div class="analytic_semantic_description ">
           <anaSemanticDesBlock :des-code="'yxsj'" :bookItems.sync="anaSecDesConf.bookItems"
-            :selection.sync="checkedTableData" :blockMode="anaSecDesConf.mode" :selectVal.sync="filmIpt_curItem"
+            :selection.sync="checkedTableData" :blockMode="anaSecDesConf.mode" :selectVal="null"
             :title="anaSecDesConf.title" :current.sync="selectedFracId">
           </anaSemanticDesBlock>
         </div>
 
         <div class="analytic_semantic_description">
-          <anaSemanticDesBlock :des-code="'yxzd'" :bookItems.sync="anaSecDesConf_1.bookItems"
-            :selectVal="filmIpt_curItem_1" :blockMode="anaSecDesConf_1.mode" :title="anaSecDesConf_1.title"
-            :selection.sync="checkedTableData" :current.sync="selectedFracId">
+          <anaSemanticDesBlock :des-code="'yxzd'" :bookItems.sync="anaSecDesConf_1.bookItems" :selectVal="null"
+            :blockMode="anaSecDesConf_1.mode" :title="anaSecDesConf_1.title" :selection.sync="checkedTableData"
+            :current.sync="selectedFracId">
           </anaSemanticDesBlock>
         </div>
 
@@ -175,18 +172,7 @@ const frac_dict = {
   ],
 };
 
-const operateMenu = [
-  {
-    name: '',
-    icon: 'delete',
-    type: 'confirm',
-    confirmTitle: '确认删除该信息？',
-    onOk: (record, index) => {
-      console.log("点了山吹")
-      message.info('这里调用删除方法')
-    },
-  }
-]
+
 // 病变列表
 export default {
   name: "lesion-list",
@@ -198,12 +184,8 @@ export default {
   mixins: [Emitter],
   props: {
     menuResult: Object,
-    cKey: {
-      type: String,
-    },
   },
   computed: {
-    ...mapState("noduleInfoStore", ["noduleInfo", "selectedNoduleId"]),
     ribTypeDropDown: {
       get() {
         return {
@@ -238,7 +220,6 @@ export default {
     tableData: {
       get() {
         if (this.menuResult.fracLesionList) {
-          console.log(this.menuResult.fracLesionList)
           const mappedList = this.lessionList.map((item, index) => {
             const newItem = {
               ...item,
@@ -260,7 +241,6 @@ export default {
 
             return newItem;
           });
-          console.log(mappedList)
           return mappedList; // 返回处理后的列表
         }
         return [];
@@ -297,24 +277,15 @@ export default {
       selectedRow: null,
       selectedFracId: null,
 
-      selection: [],
-      tableCurrentIdx: -1,
-      filmIpt_curItem: null,
-      filmIpt_curItem_1: null,
-
       anaSecDesConf: {
         title: "影像所见",
         mode: "finding",
-        bookItems: [
-        ],
+        bookItems: [],
       },
       anaSecDesConf_1: {
         title: "影像诊断",
         mode: "diagnose",
-
-        bookItems: [
-
-        ],
+        bookItems: [],
       },
       tableConfig: {
         size: "small",
@@ -332,15 +303,13 @@ export default {
             type: {
               type: "checkbox",
             },
-            field: "checkBox", //危险级别
+            field: "checkBox",
             title: "全选",
             width: "75",
-            // sortable: true,
             customRender: {
               default: "checkBox",
             },
-          },
-          {
+          }, {
             field: "ribNumber",
             title: "",
             editRender: {},
@@ -349,10 +318,8 @@ export default {
               default: "ribNumber",
               edit: "RIB_NUMBER_EDIT"
             },
-          },
-
-          {
-            field: "ribType", //面积
+          }, {
+            field: "ribType",
             title: "",
             width: "80",
             editRender: {},
@@ -360,33 +327,24 @@ export default {
               default: "ribType",
               edit: "RIB_TYPE_EDIT",
             },
-          },
-          {
+          }, {
             field: "fracClass",
-            title: "", //断层扫描/层组 ctMeasures.mean HU
+            title: "",
             width: "120",
             editRender: {},
             customRender: {
               default: "fracClass",
               edit: "FRAC_CLASS_EDIT",
             },
-          },
-          {
+          }, {
             field: "delete", //危险级别
             title: "",
-            // sortable: true,
             customRender: {
               default: "delete",
             },
           },
 
-
         ],
-      },
-
-      chekboxFlag: false,
-      form: {
-        type: [], //类型1，
       },
 
     };
@@ -396,7 +354,6 @@ export default {
     setPopupContainer(trigger) {
       return trigger.parentElement;
     },
-
     rowStyle({ row, rowIndex }) {
       if (row.id == this.selectedFracId) {
         return {
@@ -408,16 +365,13 @@ export default {
     deleteRow(e) {
       message.info('删除成功.')
     },
-    handleCellClick({
-      row,
-
-    }) {
-      if (this.chekboxFlag) {
-        this.chekboxFlag = false
-        return;
+    handleCellClick(e) {
+      const { row, columnIndex, triggerCheckbox } = e
+      if (!triggerCheckbox) {
+        this.selectedRow = row
+        this.selectedFracId = row.id;
       }
-      this.selectedRow = row
-      this.selectedFracId = row.id;
+
     },
 
     selectAllEvent(ev) {
@@ -429,35 +383,20 @@ export default {
         }
       })
 
-      this.selection = selection;
-
     },
     selectChangeEvent(ev) {
       const { rowid, row, selection } = ev
       this.updateFracLession({ fracid: row.id, key: "checked", value: !row.checked })
-      this.selection = selection;
-
-
-    },
-
-    onCheckAllChange({ e, index }) {
-      console.log("onCheckAllChange", e)
-      // let isChecked = e.target.checked;
-
-    },
-    onChange({ val, index }) {
 
     },
 
     handleMenuClick_ribType(e) {
       const selectedRow = this.selectedRow
       this.updateFracLession({ fracid: selectedRow.id, key: "ribType", value: e.key })
-
     },
     handleMenuClick_fracClass(e) {
       const selectedRow = this.selectedRow
       this.updateFracLession({ fracid: selectedRow.id, key: "fracClass", value: e.key })
-
     },
     handleClick_ribNumber(e) {
       const { key } = e;
@@ -466,9 +405,7 @@ export default {
 
       this.updateFracLession({ fracid: selectedRow.id, key: "ribSide", value: arr[0] })
       this.updateFracLession({ fracid: selectedRow.id, key: "ribNum", value: Number(arr[1]) })
-
     },
-
 
   },
   created() {

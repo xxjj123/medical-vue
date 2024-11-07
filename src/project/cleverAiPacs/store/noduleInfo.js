@@ -143,7 +143,7 @@ export default {
     INIT_NODULE_VIEW_DATA(state, seriesInfo) {
       const viewTypes = [VIEW_TYPES.AXIAL, VIEW_TYPES.CORONAL, VIEW_TYPES.SAGITTAL];
       const viewNames = [VIEW_NAMES.AXIAL, VIEW_NAMES.CORONAL, VIEW_NAMES.SAGITTAL];
-      const viewDatas = ["AxialData","SagittalData", "CoronalData"]
+      const viewDatas = ["AxialData","CoronalData", "SagittalData"]
       const dimensions = [seriesInfo.axialCount, seriesInfo.coronalCount, seriesInfo.sagittalCount];
 
       viewTypes.forEach((viewType, index) => {

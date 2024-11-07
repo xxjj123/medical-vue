@@ -43,7 +43,7 @@ export default {
   mixins: [Emitter],
   props: {
     selectVal: {
-      type: [Object],
+      type: Object,
     },
     desCode: {
       type: String,

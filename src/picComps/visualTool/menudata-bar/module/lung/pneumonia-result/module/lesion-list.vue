@@ -29,15 +29,15 @@
 
         <div class="analytic_semantic_description ">
           <anaSemanticDesBlock :des-code="'yxsj'" :bookItems.sync="anaSecDesConf.bookItems"
-            :selection.sync="checkedTableData" :blockMode="anaSecDesConf.mode" :selectVal.sync="filmIpt_curItem"
-            :title="anaSecDesConf.title" :current.sync="selectedFracId">
+            :selection.sync="checkedTableData" :blockMode="anaSecDesConf.mode" :title="anaSecDesConf.title"
+            :current.sync="selectedFracId">
           </anaSemanticDesBlock>
         </div>
 
         <div class="analytic_semantic_description">
           <anaSemanticDesBlock :des-code="'yxzd'" :bookItems.sync="anaSecDesConf_1.bookItems"
-            :selectVal="filmIpt_curItem_1" :blockMode="anaSecDesConf_1.mode" :title="anaSecDesConf_1.title"
-            :selection.sync="checkedTableData" :current.sync="selectedFracId">
+            :blockMode="anaSecDesConf_1.mode" :title="anaSecDesConf_1.title" :selection.sync="checkedTableData"
+            :current.sync="selectedFracId">
           </anaSemanticDesBlock>
         </div>
 
@@ -109,16 +109,11 @@ export default {
   mixins: [Emitter],
   props: {
     menuResult: Object,
-    cKey: {
-      type: String,
-    },
   },
   computed: {
-    ...mapState("noduleInfoStore", ["noduleInfo", "selectedNoduleId"]),
     allHealth: {
       get() {
         return this.lessionList.every(item => item.diseaseClass == null);
-
       }
     },
     totalDiseaseVolume: {
@@ -249,40 +244,23 @@ export default {
       }
     }
   },
-  watch: {
-
-  },
-
   data() {
     return {
       frac_dict,
       selectedRow: null,
       selectedFracId: null,
 
-      selection: [],
-      tableCurrentIdx: -1,
-      filmIpt_curItem: null,
-      filmIpt_curItem_1: null,
-
       anaSecDesConf: {
         title: "影像所见",
         mode: "finding",
-        bookItems: [
-        ],
+        bookItems: [],
       },
       anaSecDesConf_1: {
         title: "影像诊断",
         mode: "diagnose",
-
-        bookItems: [
-
-        ],
+        bookItems: [],
       },
 
-      chekboxFlag: false,
-      form: {
-        type: [], //类型1，
-      },
 
     };
   },
@@ -292,14 +270,26 @@ export default {
       return trigger.parentElement;
     },
 
+    handleCellClick(e) {
+      const { row } = e
+      this.selectedRow = row
+      this.selectedFracId = row.id;
+    },
+
+    selectAllEvent(ev) {
+      this.chooseAll()
+    },
+
     clickHeader() {
+      this.chooseAll()
+    },
+
+    chooseAll() {
       const { isAllSelected, selection } = this.$refs.tableLungPneu
       if (isAllSelected) {
         this.$refs.tableLungPneu.clearCheckboxRow()
-
       } else {
         this.$refs.tableLungPneu.setAllCheckboxRow(true)
-
       }
       this.tableData.forEach(item => {
         if (item.checked != !isAllSelected) {
@@ -307,52 +297,11 @@ export default {
 
         }
       })
-      // this.$refs.tableLungPneu.setAllCheckboxRow(true)
-
-    },
-    handleCellClick({
-      row,
-
-    }) {
-      if (this.chekboxFlag) {
-        this.chekboxFlag = false
-        return;
-      }
-      this.selectedRow = row
-      this.selectedFracId = row.id;
-    },
-
-    selectAllEvent(ev) {
-      console.log("点击了单元格")
-      this.clickHeader()
-      // const { checked, selection } = ev;
-      // this.tableData.forEach(item => {
-      //   if (item.checked != checked) {
-      //     this.updatePneumoniaLession({ pneuid: item.id, key: "checked", value: !item.checked })
-
-      //   }
-      // })
-
-      // this.selection = selection;
-
     },
     selectChangeEvent(ev) {
       const { rowid, row, selection } = ev
       this.updatePneumoniaLession({ pneuid: row.id, key: "checked", value: !row.checked })
-      // this.selection = selection;
-
-
     },
-
-    onCheckAllChange({ e, index }) {
-      console.log("onCheckAllChange", e)
-      // let isChecked = e.target.checked;
-
-    },
-    onChange({ val, index }) {
-
-    },
-
 
 
   },

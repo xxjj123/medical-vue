@@ -144,10 +144,10 @@ export default {
       state.allViewData.copyFrom(originalData)
     },
     INIT_FRAC_VIEW_DATA(state, seriesInfo) {
-      const viewTypes = [VIEW_TYPES.AXIAL, VIEW_TYPES.SAGITTAL, VIEW_TYPES.CORONAL];
-      const viewNames = [VIEW_NAMES.AXIAL, VIEW_NAMES.SAGITTAL, VIEW_NAMES.CORONAL];
-      const viewDatas = ["AxialData","SagittalData", "CoronalData"]
-      const dimensions = [seriesInfo.axialCount, seriesInfo.sagittalCount, seriesInfo.coronalCount];
+      const viewTypes = [VIEW_TYPES.AXIAL, VIEW_TYPES.CORONAL, VIEW_TYPES.SAGITTAL];
+      const viewNames = [VIEW_NAMES.AXIAL, VIEW_NAMES.CORONAL, VIEW_NAMES.SAGITTAL];
+      const viewDatas = ["AxialData","CoronalData", "SagittalData"]
+      const dimensions = [seriesInfo.axialCount, seriesInfo.coronalCount, seriesInfo.sagittalCount];
 
       viewTypes.forEach((viewType, index) => {
           const originalData = new ViewData();

@@ -630,42 +630,15 @@ export default {
             label: "右肺",
             value: "right",
             childs: [
-              {
-                label: "上叶前段",
-                value: "1",
-              },
-              {
-                label: "上叶后段",
-                value: "2",
-              },
-              {
-                label: "上叶尖段",
-                value: "3",
-              },
-              {
-                label: "中叶内侧段",
-                value: "4",
-              },
-              {
-                label: "下叶内基底段",
-                value: "6",
-              },
-              {
-                label: "下叶前基底段",
-                value: "7",
-              },
-              {
-                label: "下叶后基底段",
-                value: "8",
-              },
-              {
-                label: "下叶外基底段",
-                value: "9",
-              },
-              {
-                label: "下叶背段",
-                value: "10",
-              },
+              { label: "上叶前段", value: "1", },
+              { label: "上叶后段", value: "2", },
+              { label: "上叶尖段", value: "3", },
+              { label: "中叶内侧段", value: "4", },
+              { label: "下叶内基底段", value: "6", },
+              { label: "下叶前基底段", value: "7", },
+              { label: "下叶后基底段", value: "8", },
+              { label: "下叶外基底段", value: "9", },
+              { label: "下叶背段", value: "10", },
             ],
           },
         ],
@@ -675,34 +648,13 @@ export default {
         type_select: {
           showValue: "按类型", //显示选中值
           list: [
-            {
-              label: "默认",
-              value: "",
-            },
-            {
-              label: "按风险",
-              value: "0",
-            },
-            {
-              label: "按IM",
-              value: "1",
-            },
-            {
-              label: "按肺段",
-              value: "2",
-            },
-            {
-              label: "按长径",
-              value: "3",
-            },
-            {
-              label: "按体积",
-              value: "4",
-            },
-            {
-              label: "按类型",
-              value: "5",
-            },
+            { label: "默认", value: "", },
+            { label: "按风险", value: "0", },
+            { label: "按IM", value: "1", },
+            { label: "按肺段", value: "2", },
+            { label: "按长径", value: "3", },
+            { label: "按体积", value: "4", },
+            { label: "按类型", value: "5", },
           ],
         },
         // 肿瘤信息类型
@@ -853,10 +805,6 @@ export default {
       this.tableConfig.tableData = filteredData
       this.selection = selection
 
-      // this.tableConfig.tableData.filter(item => item.checked);
-
-      // // console.log(column)
-      // this.$refs.tableLungNodule.setFilter(column, [{ value: "1" }])
     }
     ,
     validateObject(obj) {
@@ -888,7 +836,6 @@ export default {
       // console.log(this.$refs.tableLungNodule.getCurrentRecord())
 
       const currentid = this.$refs.tableLungNodule.getCheckboxRecords().id
-      const currentim = this.$refs.tableLungNodule.getCheckboxRecords()
 
       if (currentid !== this.selectedNoduleId) {
         const bboxindex = row.id;
