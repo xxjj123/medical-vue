@@ -140,7 +140,7 @@ export default {
       originalData.colorLevel = -500;
       originalData.isPan = false;
       originalData.layOut = LayoutIcons.MPR;
-      originalData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms ];
+      originalData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj ];
       originalData.activeButtons = [ButtonNames.Jbinfo ]
       state.allViewData.copyFrom(originalData)
     },

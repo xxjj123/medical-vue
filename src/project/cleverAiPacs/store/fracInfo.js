@@ -21,10 +21,8 @@ import {
 } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
 const coordinate = vtkCoordinate.newInstance();
-import {
-  xhr_queryFrac,
-} from "@/api";
 
+import {xhr_queryFrac,xhr_updateFracLesion} from "@/api";
 
 const VIEW_TYPES = {
   CORONAL: 1,
@@ -110,7 +108,13 @@ export default {
     ACTIVATE_ANNOTATAION(state,index){
       state.selectedFracId = index
     },
+    UPDATE_FRAC_LESSION(state,{fracid,key,value}){
+      const lesion = state.fracInfo.fracLesionList.find(item => item.id === fracid);
+      if (lesion) {
+          lesion[key] = value;
+      }
 
+    },
     INIT_FRAC_RENDER_VIEW(state,v_state){
       const indexs = [0,1,2]
 
@@ -215,7 +219,15 @@ export default {
       })
 
     },
-
+    async updateFracLession({state,commit},{fracid,key,value}){
+      const lesion = state.fracInfo.fracLesionList.find(item => item.id === fracid);
+      commit("UPDATE_FRAC_LESSION",{fracid,key,value})
+      if (lesion) {
+       await xhr_updateFracLesion(lesion).then(res=>{
+        console.log(res)
+       })
+    }
+    },
     async getAnnotationForView({state,dispatch}, {frac, viewIndex}) {
       const {fracBBox} = frac;
       const [xmin, xmax, ymin, ymax, zmin, zmax] = await dispatch("getBboxIndex",{pointsArray:fracBBox})
@@ -359,11 +371,7 @@ export default {
       actor.setVisibility(
         view.pageIndex >= boundsmin && view.pageIndex <= boundsmax,
       );
-      console.log(view.viewIndex, view.pageIndex , boundsmin,boundsmax)
 
-      // actor.setVisibility(
-      //   true
-      // );
 
       actor.setMapper(mapper);
       actor.getProperty().setColor(...BBOX_COLORS.DEFAULT);

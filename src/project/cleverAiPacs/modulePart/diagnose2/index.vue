@@ -203,6 +203,8 @@ export default {
           this.Init3DView(seriesInfo.seriesId)
           this.SET_SERIES_INFO(seriesInfo);
           await this.InitAllSlice(seriesInfo)
+          // this.SET_SERIES_INFO(seriesInfo);5
+          // await this.InitAllSlice(seriesInfo)
           // this.ActiveNoduleState()
 
         })

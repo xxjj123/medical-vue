@@ -262,9 +262,11 @@ export default {
         })
         obj.renderWindow.setInteractor(obj.interactor);
 
+
+
         return obj;
     },
-    async InitAllSlice({dispatch,rootState,commit},seriesInfo){
+    async InitAllSlice({dispatch,state,rootState,commit},seriesInfo){
       const modules = ["noduleInfoStore", "fracInfoStore", "pneumoniaInfoStore"];
 
       await Promise.all(modules.map(module => dispatch(module + "/InitModuleState", seriesInfo, { root: true })))
@@ -299,7 +301,14 @@ export default {
 
       })
 
+
+ state.viewMprViews.forEach((view, index) => {
+          dispatch("setupInteractor", {view, dimensions});
+
+        });
       dispatch("noduleInfoStore/ActiveNoduleState",null,{root:true})
+
+
       //  dispatch("InitModuleView","noduleInfoStore").then(async()=>{
       //   const {SagittalData,CoronalData,AxialData,allViewData} = state
       //  const ijk = [SagittalData.changedPageIndex,CoronalData.changedPageIndex,AxialData.changedPageIndex]
@@ -339,6 +348,8 @@ export default {
       const ijk = [SagittalData.changedPageIndex,CoronalData.changedPageIndex,AxialData.changedPageIndex]
       const dimensions = [SagittalData.dimension,CoronalData.dimension,AxialData.dimension]
       await dispatch("InitSlice",{ijk,dimensions})
+
+
         // await dispatch("InitIJK",{ijk})
 
 
@@ -398,10 +409,10 @@ export default {
 
     async InitSlice({dispatch, state, getters, commit},{ijk,dimensions}) {
       try {
-        state.viewMprViews.forEach((view, index) => {
-          dispatch("setupInteractor", {view, dimensions});
+        // state.viewMprViews.forEach((view, index) => {
+        //   dispatch("setupInteractor", {view, dimensions});
 
-        });
+        // });
         await dispatch("InitIJK", ijk);
         ijk.forEach((item, index) => {
           dispatch("UpdateDisplay", {
@@ -568,90 +579,212 @@ export default {
         key: "dimension",
         value: dimension,
       });
-      const v_view = rootState[state.activeModule].viewMprViews[viewIndex];
+
+        console.log("setupInteractor")
 
       view.interactor.onLeftButtonPress((event) => {
-        dispatch("clearAllAutoplay")
+        if(state.activeModule){
+          const v_view = rootState[state.activeModule].viewMprViews[viewIndex];
 
-        if (!state.allViewData.isPan) {
-          dispatch("handleMousePress", {event, view:v_view});
-        }else{
-          view.interactor.getInteractorStyle().startPan()
-        }
-      });
+          dispatch("clearAllAutoplay")
 
-      view.interactor.onMouseMove((event) => {
-        if (!state.allViewData.isPan) {
-          dispatch("handleMouseMove", {event, view:v_view});
-        }else{
-          dispatch('mprToolsStore/resizeSliceViews', null, { root: true });
-
-        }
-      });
-
-      view.interactor.onLeftButtonRelease(() =>
-        commit("SET_MOUSE_DOWN", false),
-      );
-
-      view.interactor.onStartMouseWheel(() => {
-
-        if(!state.autoPlayStates[viewIndex].isPlay){
-          getters.viewsData.forEach((viewdata) => {
-            commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
-            commit("UPDATE_AUTOPLAY_STATUS", {
-              viewIndex: viewdata.viewIndex,
-             updates:{
-              isAutoPlay: false,
-             }
-            });
-          });
-          let animationId;
-
-          const animate = () => {
-            if (!state.isload) {
-              dispatch("updateSliceForView", {
-                viewName: viewName,
-                viewIndex: viewIndex,
-                index: getters.viewsData[viewIndex].changedPageIndex,
-              });
-              animationId = requestAnimationFrame(animate);
-              commit("UPDATE_AUTOPLAY_STATUS", {
-                viewIndex: viewIndex,
-                updates:{
-                  timerId: null,
-                animationId: animationId,
-                isPlay: true,
-                }
-              });
-            }
-
-          };
-
-        }
-      });
-      view.interactor.onMouseWheel((event) =>
-        dispatch("handleMouseWheel", {spinY: event.spinY, view}),
-      );
-      view.interactor.onEndMouseWheel((event)=>{
-        if(state.autoPlayStates[viewIndex].isPlay){
-          commit("CLEAR_AUTOPLAY", viewIndex);
-          const viewdata = getters.viewsData[viewIndex];
-          if(viewdata.gotoPageIndex != viewdata.changedPageIndex){
-           dispatch("updateSliceForView", {
-             viewName: viewdata.viewName,
-             viewIndex: viewdata.viewIndex,
-             index: viewdata.changedPageIndex,
-           });
+          if (!state.allViewData.isPan) {
+            console.log("onLeftButtonPress")
+            dispatch("handleMousePress", {event, view:v_view});
+          }else{
+            view.interactor.getInteractorStyle().startPan()
           }
         }
 
+      });
+
+      view.interactor.onMouseMove((event) => {
+        if(state.activeModule){
+          const v_view = rootState[state.activeModule].viewMprViews[viewIndex];
+          if (!state.allViewData.isPan) {
+            dispatch("handleMouseMove", {event, view:v_view});
+          }else{
+            dispatch('mprToolsStore/resizeSliceViews', null, { root: true });
+
+          }
+        }
+
+      });
+
+      view.interactor.onLeftButtonRelease(() =>{
+         if(state.activeModule){
+           commit("SET_MOUSE_DOWN", false)
+
+        }
+      }
+
+      );
+
+      view.interactor.onStartMouseWheel(() => {
+        if(state.activeModule){
+          if(!state.autoPlayStates[viewIndex].isPlay){
+            getters.viewsData.forEach((viewdata) => {
+              commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
+              commit("UPDATE_AUTOPLAY_STATUS", {
+                viewIndex: viewdata.viewIndex,
+               updates:{
+                isAutoPlay: false,
+               }
+              });
+            });
+            let animationId;
+
+            const animate = () => {
+              if (!state.isload) {
+                dispatch("updateSliceForView", {
+                  viewName: viewName,
+                  viewIndex: viewIndex,
+                  index: getters.viewsData[viewIndex].changedPageIndex,
+                });
+                animationId = requestAnimationFrame(animate);
+                commit("UPDATE_AUTOPLAY_STATUS", {
+                  viewIndex: viewIndex,
+                  updates:{
+                    timerId: null,
+                  animationId: animationId,
+                  isPlay: true,
+                  }
+                });
+              }
+
+            };
+
+          }
+
+        }
+
+
+      });
+      view.interactor.onMouseWheel((event) =>{
+
+        if(state.activeModule){
+          dispatch("handleMouseWheel", {spinY: event.spinY, view})
+
+
+        }
+
+      }
+      );
+      view.interactor.onEndMouseWheel((event)=>{
+        if(state.activeModule){
+          if(state.autoPlayStates[viewIndex].isPlay){
+            commit("CLEAR_AUTOPLAY", viewIndex);
+            const viewdata = getters.viewsData[viewIndex];
+            if(viewdata.gotoPageIndex != viewdata.changedPageIndex){
+             dispatch("updateSliceForView", {
+               viewName: viewdata.viewName,
+               viewIndex: viewdata.viewIndex,
+               index: viewdata.changedPageIndex,
+             });
+            }
+          }
+        }
+
+
       })
 
+
+
     },
+    // setupInteractor({dispatch, state, commit,getters,rootState}, {view, dimensions}) {
+    //   const viewIndex = view.viewIndex
+    //   const dimension = dimensions[viewIndex];
+    //   commit("SET_VIEW_DATA", {
+    //     viewIndex: viewIndex,
+    //     key: "dimension",
+    //     value: dimension,
+    //   });
+    //   const v_view = rootState[state.activeModule].viewMprViews[viewIndex];
+
+    //   view.interactor.onLeftButtonPress((event) => {
+    //     dispatch("clearAllAutoplay")
+
+    //     if (!state.allViewData.isPan) {
+    //       console.log("onLeftButtonPress")
+    //       dispatch("handleMousePress", {event, view:v_view});
+    //     }else{
+    //       view.interactor.getInteractorStyle().startPan()
+    //     }
+    //   });
+
+    //   view.interactor.onMouseMove((event) => {
+    //     if (!state.allViewData.isPan) {
+    //       dispatch("handleMouseMove", {event, view:v_view});
+    //     }else{
+    //       dispatch('mprToolsStore/resizeSliceViews', null, { root: true });
+
+    //     }
+    //   });
+
+    //   view.interactor.onLeftButtonRelease(() =>
+    //     commit("SET_MOUSE_DOWN", false),
+    //   );
+
+    //   view.interactor.onStartMouseWheel(() => {
+
+    //     if(!state.autoPlayStates[viewIndex].isPlay){
+    //       getters.viewsData.forEach((viewdata) => {
+    //         commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
+    //         commit("UPDATE_AUTOPLAY_STATUS", {
+    //           viewIndex: viewdata.viewIndex,
+    //          updates:{
+    //           isAutoPlay: false,
+    //          }
+    //         });
+    //       });
+    //       let animationId;
+
+    //       const animate = () => {
+    //         if (!state.isload) {
+    //           dispatch("updateSliceForView", {
+    //             viewName: viewName,
+    //             viewIndex: viewIndex,
+    //             index: getters.viewsData[viewIndex].changedPageIndex,
+    //           });
+    //           animationId = requestAnimationFrame(animate);
+    //           commit("UPDATE_AUTOPLAY_STATUS", {
+    //             viewIndex: viewIndex,
+    //             updates:{
+    //               timerId: null,
+    //             animationId: animationId,
+    //             isPlay: true,
+    //             }
+    //           });
+    //         }
+
+    //       };
+
+    //     }
+    //   });
+    //   view.interactor.onMouseWheel((event) =>
+    //     dispatch("handleMouseWheel", {spinY: event.spinY, view}),
+    //   );
+    //   view.interactor.onEndMouseWheel((event)=>{
+    //     if(state.autoPlayStates[viewIndex].isPlay){
+    //       commit("CLEAR_AUTOPLAY", viewIndex);
+    //       const viewdata = getters.viewsData[viewIndex];
+    //       if(viewdata.gotoPageIndex != viewdata.changedPageIndex){
+    //        dispatch("updateSliceForView", {
+    //          viewName: viewdata.viewName,
+    //          viewIndex: viewdata.viewIndex,
+    //          index: viewdata.changedPageIndex,
+    //        });
+    //       }
+    //     }
+
+    //   })
+
+    // },
     async handleMousePress(
       {dispatch, commit, state, getters},
       {event, view},
     ) {
+      console.log("handleMousePress")
       const viewIndex = view.viewIndex
       commit("SET_MOUSE_DOWN", true);
       const {x, y} = event.position;
@@ -727,6 +860,7 @@ export default {
       }
     },
     handleMouseMove({commit, state, dispatch, getters}, {event, view}) {
+
       const viewIndex = view.viewIndex
       const {x, y} = event.position;
       state.picker.pick([x, y, 0], view.renderer);
@@ -751,6 +885,8 @@ export default {
           value: pixelValue[0] ,
         });
         if (state.mouseDown) {
+          console.log("handleMouseMove")
+
           const trueijk = GetTureIJK({
             viewIndex:  viewIndex,
             ijk,

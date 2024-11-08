@@ -39,7 +39,6 @@ class AllViewData {
     this.layOut = null;
     this.preLayOut = null;
 
-    this.preLayOut = null;
     this.isRecon = false;
     this.zoomView = null;
 
