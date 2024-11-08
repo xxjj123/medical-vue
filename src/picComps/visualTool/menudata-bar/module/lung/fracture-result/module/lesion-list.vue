@@ -186,6 +186,7 @@ export default {
     menuResult: Object,
   },
   computed: {
+    ...mapState("fracInfoStore", ["selectedFracId"]),
     ribTypeDropDown: {
       get() {
         return {
@@ -275,8 +276,6 @@ export default {
     return {
       frac_dict,
       selectedRow: null,
-      selectedFracId: null,
-
       anaSecDesConf: {
         title: "影像所见",
         mode: "finding",
@@ -350,7 +349,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions("fracInfoStore", ["updateFracLession"]),
+    ...mapActions("fracInfoStore", ["ChooseAnnotation", "updateFracLession"]),
     setPopupContainer(trigger) {
       return trigger.parentElement;
     },
@@ -369,7 +368,8 @@ export default {
       const { row, columnIndex, triggerCheckbox } = e
       if (!triggerCheckbox) {
         this.selectedRow = row
-        this.selectedFracId = row.id;
+        this.ChooseAnnotation({ bboxindex: row.id });
+
       }
 
     },

@@ -892,13 +892,13 @@ console.log("")
       requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
     }, 150),
     async GetSlice({ dispatch, state, commit }, { viewName, viewIndex, index }) {
+      console.log("getslice")
       try {
         let loading = setInterval(() => {
           Vue.prototype.$message.destroy();
         }, 50);
         commit("SET_VIEW_DATA", { viewIndex, key: "gotoPageIndex", value: index });
 
-        // Request DICOM slice data from the server
         const res = await xhr_getSlice({
           seriesId: state.seriesInfo.seriesId,
           viewName: viewName,
@@ -910,6 +910,11 @@ console.log("")
           clearInterval(loading);
 
           const file = new File([res.data], "image.dcm", { type: "application/dicom" });
+          // const dicomMetadata = await readDicomTags(file);
+          // const tag = '0020|0037';
+          // const imagePositionPatient = dicomMetadata.tags.find(item => item[0] === tag);
+          // console.log(index,imagePositionPatient)
+
 
           const result = await gdcmReadImage(file);
           const outputImage = result.image;
