@@ -324,7 +324,7 @@ export default {
 
       const pageIndices = [view.pageIndex, view.pageIndex - 1];
       const [positionz1, positionz2] = pageIndices.map(pageIndex =>
-        parseFloat(mprViewStore.seriesInfo.instanceMetadataList.find(item => item.instanceNumber === pageIndex).slicePosition)
+        parseFloat(mprViewStore.seriesInfo.instanceMetadataList.find(item => item.viewIndex === pageIndex).slicePosition)
       );
 
       const calculateZIndex = z => pageIndices[0] - (pageIndices[0] - pageIndices[1]) * (positionz1 - z) / (positionz1 - positionz2);

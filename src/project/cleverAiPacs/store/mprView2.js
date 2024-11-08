@@ -65,7 +65,6 @@ function GetTureIJK({viewIndex, ijk}) {
 
 const getDefaultState = () => ({
   isload: false,
-  isIjkLoad:false,
   studies_selected: {},
 
   seriesInfo: {
@@ -165,9 +164,6 @@ export default {
 ,
     UPDATE_LOAD_STATUS(state,statu) {
       state.isload = statu;
-    },
-    UPDATE_IJKLOAD_STATUS(state,statu) {
-      state.isIjkLoad = statu;
     },
     SET_STUDIES_SELECTED(state, payload) {
       state.studies_selected = payload;
@@ -517,9 +513,6 @@ export default {
 
     },
     async UpdateIJK({dispatch, getters, commit}, ijk) {
-      commit("UPDATE_IJKLOAD_STATUS",true)
-
-
       await Promise.all([
         dispatch("updateSliceForView", {
           viewName: VIEW_NAMES.SAGITTAL,
@@ -539,7 +532,6 @@ export default {
           viewIndex: VIEW_TYPES.AXIAL,
         }),
       ]);
-      commit("UPDATE_IJKLOAD_STATUS",false)
     },
 
     async InitIJK({dispatch, getters, commit}, ijk) {
@@ -939,15 +931,9 @@ console.log("")
       },
       60,
     ),
-    throttleUpdateOtherSlice({state,dispatch}, {viewIndex, ijk}){
-      if (!state.isIjkLoad) {
-        dispatch("UpdateIJK", ijk)
-      }
-
-    },
-    // throttleUpdateOtherSlice: throttle(({dispatch}, {viewIndex, ijk}) => {
-    //   requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
-    // }, 150),
+    throttleUpdateOtherSlice: throttle(({dispatch}, {viewIndex, ijk}) => {
+      requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
+    }, 150),
     async GetSlice({ dispatch, state, commit }, { viewName, viewIndex, index }) {
       console.log("getslice")
       try {
