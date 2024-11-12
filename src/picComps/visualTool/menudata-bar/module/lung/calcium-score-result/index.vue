@@ -1,11 +1,11 @@
 <template>
   <div class="nodule-result_panel">
 
-    <!-- <LesionList :menuResult="menuResult" :operateResult="operateResult"></LesionList> -->
+    <LesionList :menuResult="menuResult" :operateResult="operateResult"></LesionList>
   </div>
 </template>
 <script lang="javascript">
-// import LesionList from "./module/lesion-list.vue";
+import LesionList from "./module/lesion-list.vue";
 import { mapState, mapActions } from "vuex";
 
 
@@ -13,7 +13,7 @@ import { mapState, mapActions } from "vuex";
 export default {
   name: "nodule-result",
   components: {
-    // LesionList,
+    LesionList,
   },
   props: {
     // LESION_PART_SITE 标志
