@@ -220,31 +220,25 @@ export default {
     },
     tableData: {
       get() {
-        if (this.menuResult.fracLesionList) {
-          const mappedList = this.lessionList.map((item, index) => {
-            const newItem = {
-              ...item,
-              index: index + 1, // 添加 index 属性
-            };
-            Object.keys(item).forEach((key) => {
-              if (frac_dict[key]) {
-                const matchingValue = item[key];
-                const valueEntry = frac_dict[key].find((val) => val.value === matchingValue);
-                if (valueEntry) {
-                  const value = newItem[key];
-                  newItem[key] = {
-                    label: valueEntry.label,
-                    value: value,
-                  };
-                }
+        const mappedList = this.lessionList.map((item, index) => {
+          const newItem = {
+            ...item,
+            index: index + 1, // 添加 index 属性
+          };
+          Object.keys(item).forEach((key) => {
+            if (frac_dict[key]) {
+              const matchingValue = item[key];
+              const valueEntry = frac_dict[key].find((val) => val.value === matchingValue);
+              if (valueEntry) {
+                newItem[key] = valueEntry
               }
-            });
-
-            return newItem;
+            }
           });
-          return mappedList; // 返回处理后的列表
-        }
-        return [];
+
+          return newItem;
+        });
+        return mappedList; // 返回处理后的列表
+
 
       }
     },
@@ -349,7 +343,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions("fracInfoStore", ["ChooseAnnotation", "updateFracLession"]),
+    ...mapActions("fracInfoStore", ["ChooseAnnotation", "updateFracLesion"]),
     setPopupContainer(trigger) {
       return trigger.parentElement;
     },
@@ -378,7 +372,7 @@ export default {
       const { checked, selection } = ev;
       this.tableData.forEach(item => {
         if (item.checked != checked) {
-          this.updateFracLession({ fracid: item.id, key: "checked", value: !item.checked })
+          this.updateFracLesion({ fracid: item.id, key: "checked", value: !item.checked })
 
         }
       })
@@ -386,25 +380,25 @@ export default {
     },
     selectChangeEvent(ev) {
       const { rowid, row, selection } = ev
-      this.updateFracLession({ fracid: row.id, key: "checked", value: !row.checked })
+      this.updateFracLesion({ fracid: row.id, key: "checked", value: !row.checked })
 
     },
 
     handleMenuClick_ribType(e) {
       const selectedRow = this.selectedRow
-      this.updateFracLession({ fracid: selectedRow.id, key: "ribType", value: e.key })
+      this.updateFracLesion({ fracid: selectedRow.id, key: "ribType", value: e.key })
     },
     handleMenuClick_fracClass(e) {
       const selectedRow = this.selectedRow
-      this.updateFracLession({ fracid: selectedRow.id, key: "fracClass", value: e.key })
+      this.updateFracLesion({ fracid: selectedRow.id, key: "fracClass", value: e.key })
     },
     handleClick_ribNumber(e) {
       const { key } = e;
       const arr = key.split("_");
       const selectedRow = this.selectedRow
 
-      this.updateFracLession({ fracid: selectedRow.id, key: "ribSide", value: arr[0] })
-      this.updateFracLession({ fracid: selectedRow.id, key: "ribNum", value: Number(arr[1]) })
+      this.updateFracLesion({ fracid: selectedRow.id, key: "ribSide", value: arr[0] })
+      this.updateFracLesion({ fracid: selectedRow.id, key: "ribNum", value: Number(arr[1]) })
     },
 
   },

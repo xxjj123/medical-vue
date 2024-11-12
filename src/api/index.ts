@@ -853,6 +853,8 @@ export const xhr_saveOperate = (formData) => {
   return Base.submit(null, {
     // url: api5 + Topbase + study + urlJson['addFavorite'],
     url: nodule + urlJson["saveOperate"],
+    autoQs: false,
+
     data: {
       ...formData,
     },
@@ -876,6 +878,9 @@ export const xhr_updateNoduleLesion = (formData) => {
     },
   });
 };
+
+
+
 
 /**
  * 更新结节病变信息

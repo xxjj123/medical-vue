@@ -1,19 +1,19 @@
 <template>
   <div class="nodule-result_panel">
 
-    <!-- <LesionList :menuResult="menuResult" :operateResult="operateResult"></LesionList> -->
+    <LesionList :menuResult="menuResult" :cKey="cKey"></LesionList>
   </div>
 </template>
 <script lang="javascript">
-// import LesionList from "./module/lesion-list.vue";
+import LesionList from "./module/lesion-list.vue";
 import { mapState, mapActions } from "vuex";
 
 
 // 肺部- 结节
 export default {
-  name: "nodule-result",
+  name: "frac-result",
   components: {
-    // LesionList,
+    LesionList,
   },
   props: {
     // LESION_PART_SITE 标志
@@ -22,35 +22,31 @@ export default {
     },
   },
   computed: {
-    ...mapState("noduleInfoStore", ["noduleInfo", "operateInfo"]),
+    ...mapState("fracInfoStore", ["fracInfo"]),
 
     menuResult: {
       get() {
-        if (this.noduleInfo) {
-          return this.noduleInfo;
+        if (this.fracInfo) {
+          return this.fracInfo;
 
         } else {
           return []
         }
       },
     },
-    operateResult: {
-      get() {
-        if (this.operateInfo) {
-          return this.operateInfo;
 
-        } else {
-          return {}
-        }
+    lesionPartSite: {
+      get() { },
+      set(val) {
+        return val;
       },
     },
-
   },
   data() {
     return {};
   },
   created() {
-    // console.log(this.value);
+    console.log(this.value);
     // console.log("menuResult--", this.menuResult);
   },
 };

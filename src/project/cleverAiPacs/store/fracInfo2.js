@@ -20,9 +20,10 @@ import {
   LayoutIcons
 } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
-const coordinate = vtkCoordinate.newInstance();
 
 import {xhr_queryFrac,xhr_updateFracLesion} from "@/api";
+const coordinate = vtkCoordinate.newInstance();
+
 
 const VIEW_TYPES = {
   CORONAL: 1,
@@ -63,16 +64,13 @@ export default {
     CoronalData: new ViewData,
     AxialData: new ViewData,
     SagittalData: new ViewData,
-    fracInfo: {
-      computeSeriesId:null,
+    fracInfo: { computeSeriesId:null,
       hasLesion: false,
       fracLesionList:[],
       seriesId:null,
       seriesInstanceUid:null,
       studyId:null,
-      studyInstanceUid:null
-
-    },
+      studyInstanceUid:null},
 
     annotations: {value: [], index: new Set()},
     picker: vtkPicker.newInstance(),
@@ -95,10 +93,15 @@ export default {
   },
   mutations: {
     SET_FRAC_INFO(state, fracInfo) {
-      console.log("fracInfo=======",fracInfo)
       state.fracInfo = fracInfo;
     },
+    UPDATE_FRAC_LESSION(state,{fracid,key,value}){
+      const lesion = state.fracInfo.fracLesionList.find(item => item.id === fracid);
+      if (lesion) {
+          lesion[key] = value;
+      }
 
+    },
     ADD_ANNOTATION(state, annotation) {
       state.annotations.value.push(annotation);
       state.annotations.index.add(
@@ -108,13 +111,7 @@ export default {
     ACTIVATE_ANNOTATAION(state,index){
       state.selectedFracId = index
     },
-    UPDATE_FRAC_LESSION(state,{fracid,key,value}){
-      const lesion = state.fracInfo.fracLesionList.find(item => item.id === fracid);
-      if (lesion) {
-          lesion[key] = value;
-      }
 
-    },
     INIT_FRAC_RENDER_VIEW(state,v_state){
       const indexs = [0,1,2]
 
@@ -134,13 +131,14 @@ export default {
     SET_VIEW_MPR_VIEW(state, {viewIndex, key, value}) {
       state.viewMprViews[viewIndex][key] = value;
     },
+
     INIT_FRAC_ALL_VIEW_DATA(state){
       const originalData = new AllViewData();
       originalData.colorWindow = 1500;
       originalData.colorLevel = 300;
       originalData.isPan = false;
       originalData.layOut = LayoutIcons.MPR;
-      originalData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms];
+      originalData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj];
       originalData.activeButtons = [ButtonNames.Jbinfo,  ]
       state.allViewData.copyFrom(originalData)
     },
@@ -162,7 +160,6 @@ export default {
   },
 
     SET_STATE(state,v_state){
-      console.log("保存下来1",v_state.allViewData)
       state.allViewData.copyFrom(v_state.allViewData)
       state.CoronalData.copyFrom(v_state.CoronalData)
       state.SagittalData.copyFrom(v_state.SagittalData)
@@ -180,8 +177,10 @@ export default {
       if (result.serviceSuccess) {
         commit("SET_FRAC_INFO",result.data.resultData)
       }
-      await dispatch("mprViewStore/clearAllAutoplay",null,{root:true} )
+      console.log("fracLesionList",result.data.resultData)
 
+      console.log("fracLesionList",result.data.resultData.fracLesionList)
+      await dispatch("mprViewStore/clearAllAutoplay",null,{root:true} )
       const {mprViewStore} = rootState
       commit("INIT_FRAC_ALL_VIEW_DATA")
       commit("INIT_FRAC_VIEW_DATA",seriesInfo)
@@ -196,12 +195,24 @@ export default {
         await dispatch("mprViewStore/ActiveModule","fracInfoStore",{root:true})
       }else{
         await dispatch("mprViewStore/InitModuleView","fracInfoStore",{root:true})
-        dispatch("InitAnnotations")
+        await dispatch("InitAnnotations")
+
 
       }
     },
-    async InitAnnotations({state,rootState,dispatch},computeSeriesId){
+    async updateFracLession({state,commit},{fracid,key,value}){
+      const lesion = state.fracInfo.fracLesionList.find(item => item.id === fracid);
+      commit("UPDATE_FRAC_LESSION",{fracid,key,value})
+      if (lesion) {
+       await xhr_updateFracLesion(lesion).then(res=>{
+        console.log(res)
+       })
+    }
+    },
+
+    InitAnnotations({state,rootState,dispatch}){
       const {mprViewStore} = rootState
+      console.log(mprViewStore.seriesInfo.instanceMetadataList);
 
       state.viewMprViews.forEach((view, index) => {
         state.fracInfo.fracLesionList.forEach(async (frac) => {
@@ -219,17 +230,10 @@ export default {
       })
 
     },
-    async updateFracLesion({state,commit},{fracid,key,value}){
-      const lesion = state.fracInfo.fracLesionList.find(item => item.id === fracid);
-      commit("UPDATE_FRAC_LESSION",{fracid,key,value})
-      if (lesion) {
-       await xhr_updateFracLesion(lesion).then(res=>{
-        console.log(res)
-       })
-    }
-    },
+
     async getAnnotationForView({state,dispatch}, {frac, viewIndex}) {
       const {fracBBox} = frac;
+
       const [xmin, xmax, ymin, ymax, zmin, zmax] = await dispatch("getBboxIndex",{pointsArray:fracBBox})
       const annotations = {
         [VIEW_TYPES.CORONAL]: {
@@ -303,48 +307,29 @@ export default {
 
     },
 
-
     async UpdateSlice(
       {commit, dispatch, state},
       {viewIndex, index},
     ) {
+
       state.annotations.value.forEach((annotation) => {
         if (annotation.viewIndex === viewIndex) {
+          // annotation.actor.setVisibility(
+          //   index >= annotation.boundsmin && index <= annotation.boundsmax,
+          // );
           annotation.actor.setVisibility(
-            index >= annotation.boundsmin && index <= annotation.boundsmax,
+            true
           );
 
         }
       });
     },
-    getBboxIndex({ commit, state, rootState, dispatch }, { pointsArray }) {
-      const { mprViewStore } = rootState;
-      const view = state.viewMprViews[2];
-      const [x1, y1, z1, x2, y2, z2] = pointsArray.split(",").map(Number);
-
-      const pageIndices = [view.pageIndex, view.pageIndex - 1];
-      const [positionz1, positionz2] = pageIndices.map(pageIndex =>
-        parseFloat(mprViewStore.seriesInfo.instanceMetadataList.find(item => item.viewIndex === pageIndex).slicePosition)
-      );
-
-      const calculateZIndex = z => pageIndices[0] - (pageIndices[0] - pageIndices[1]) * (positionz1 - z) / (positionz1 - positionz2);
-      const bbox1 = view.image.worldToIndex([-x1, -y1, 0]);
-      const bbox2 = view.image.worldToIndex([-x2, -y2, 0]);
-
-      return [
-        Math.min(bbox1[0], bbox2[0]), Math.max(bbox1[0], bbox2[0]),
-        Math.min(bbox1[1], bbox2[1]), Math.max(bbox1[1], bbox2[1]),
-        Math.min(calculateZIndex(z1), calculateZIndex(z2)), Math.max(calculateZIndex(z1), calculateZIndex(z2))
-      ];
-    },
 
     addRectangleAnnotation({commit, state,rootState,dispatch}, {view, annotation, bboxindex}) {
       const {mprViewStore} = rootState
       const {xmin, ymin, xmax, ymax, boundsmin, boundsmax} = annotation;
-      let boundsZ = view.image.getBounds()[2]
-      if(view.viewIndex == 2){
-        boundsZ = view.image.getBounds()[5]
-      }
+      const bounds = view.image.getBounds()
+      const boundsZ = Math.min(bounds[2],bounds[5])
       const [worldpoint1, worldpoint2] = [
         view.image.indexToWorld([xmin, ymin, boundsZ]),
         view.image.indexToWorld([xmax, ymax,boundsZ]),
@@ -368,10 +353,12 @@ export default {
       mapper.setInputData(polyData);
 
       const actor = vtkActor.newInstance();
+      // actor.setVisibility(
+      //   view.pageIndex >= boundsmin && view.pageIndex <= boundsmax,
+      // );
       actor.setVisibility(
-        view.pageIndex >= boundsmin && view.pageIndex <= boundsmax,
+        true,
       );
-
 
       actor.setMapper(mapper);
       actor.getProperty().setColor(...BBOX_COLORS.DEFAULT);
@@ -388,19 +375,46 @@ export default {
       });
       view.renderer.addActor(actor);
     },
+    getBboxIndex({ commit, state, rootState, dispatch }, { pointsArray }) {
+      const { mprViewStore } = rootState;
+      const view = state.viewMprViews[2];
+
+      const [xmin, ymin, zmin, xmax, ymax, zmax] = pointsArray.split(",").map(Number);;
+
+      const pageIndices = [view.pageIndex, view.pageIndex - 1];
+      const positions = pageIndices.map(pageIndex => {
+        const item = mprViewStore.seriesInfo.instanceMetadataList.find(item => item.instanceNumber === pageIndex);
+        return parseFloat(item.slicePosition);
+      });
+
+      const [positionz1, positionz2] = positions;
+
+      const calculateZIndex = z => pageIndices[0] - (pageIndices[0] - pageIndices[1]) * (positionz1 - z) / (positionz1 - positionz2);
+      const zminIndex = calculateZIndex(zmin);
+      const zmaxIndex = calculateZIndex(zmax);
+
+      const bboxMin = view.image.worldToIndex([-xmin, -ymin, 0]);
+      const bboxMax = view.image.worldToIndex([-xmax, -ymax, 0]);
+
+      bboxMin[2] = zminIndex;
+      bboxMax[2] = zmaxIndex;
+
+      return [bboxMin[0], bboxMax[0], bboxMin[1], bboxMax[1], bboxMin[2], bboxMax[2]];
+    },
+
+
 
     /**
      * 结节标记选择
      * @param {number} bboxindex - 结节索引index
      */
-    async ChooseAnnotation({state, dispatch, getters, commit,rootGetters},{ bboxindex}) {
+    async ChooseAnnotation({state, dispatch, getters, commit,rootGetters},{currentim,bboxindex}) {
       dispatch("mprViewStore/clearAllAutoplay",null,{root:true})
       const viewsData = rootGetters['mprViewStore/viewsData']
 
       state.fracInfo.fracLesionList.forEach(async (frac) => {
-        const {fracBBox, id} = frac;
-        const bbox =    await dispatch("getBboxIndex",{pointsArray:fracBBox})
-
+        const {points, id} = frac;
+        const bbox = points.split(",").map(Number)
         if (id == bboxindex) {
           const ijk = [
             Math.floor((bbox[0] + bbox[1]) / 2),

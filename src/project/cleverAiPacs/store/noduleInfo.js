@@ -22,7 +22,7 @@ import {
 
 const coordinate = vtkCoordinate.newInstance();
 import {
-  xhr_queryNodule,
+  xhr_queryNodule,xhr_queryOperate,xhr_updateNoduleLesion,xhr_saveOperate
 } from "@/api";
 
 
@@ -67,13 +67,24 @@ export default {
     SagittalData: new ViewData,
     noduleInfo: {
       computeSeriesId:null,
-      hasLesion: false,
-      noduleLesionList:[],
+      studyId:null,
       seriesId:null,
       seriesInstanceUid:null,
-      studyId:null,
-      studyInstanceUid:null
+      hasLesion: false,
+      studyInstanceUid:null,
+      imageCount:null,
+      noduleLesionList:[],
 
+    },
+    operateInfo:{
+      computeSeriesId:null,
+      lesionOrderType:null,
+      riskFilter:null,
+      typeFilter :null,
+      majorAxisSelectFilter :null,
+      majorAxisScopeFilter :null,
+      findingOrderType :null,
+      diagnosisType:null
     },
 
     annotations: {value: [], index: new Set()},
@@ -99,6 +110,10 @@ export default {
     SET_NODULE_INFO(state, noduleInfo) {
       console.log("noduleInfo=======",noduleInfo)
       state.noduleInfo = noduleInfo;
+    },
+    SET_OPERATE_INFO(state, operateInfo) {
+      console.log("operateInfo=======",operateInfo)
+      state.operateInfo = operateInfo;
     },
 
     ADD_ANNOTATION(state, annotation) {
@@ -156,7 +171,24 @@ export default {
           state[viewDatas[index]].copyFrom(originalData);
       });
   },
+  UPDATE_NODULE_OPERATE(state,{updateList}){
+    updateList.forEach(item=>{
+      const {key,value} = item
+      state.operateInfo[key] = value;
 
+    })
+  },
+  UPDATE_NODULE_LESSION(state,{noduleid,updateList}){
+    const lesion = state.noduleInfo.noduleLesionList.find(item => item.id === noduleid);
+    if (lesion) {
+      updateList.forEach(item=>{
+        const {key,value} = item
+        lesion[key] = value;
+
+      })
+    }
+
+  },
     SET_STATE(state,v_state){
       console.log("保存下来1",v_state.allViewData)
       state.allViewData.copyFrom(v_state.allViewData)
@@ -172,9 +204,13 @@ export default {
   },
   actions: {
     async InitModuleState({state,commit,rootState,dispatch},seriesInfo){
-      const result = await xhr_queryNodule({ computeSeriesId:seriesInfo.computeSeriesId});
-      if (result.serviceSuccess) {
-        commit("SET_NODULE_INFO",result.data.resultData)
+      const operatequery = await xhr_queryOperate({ computeSeriesId:seriesInfo.computeSeriesId});
+      const nodulequery = await xhr_queryNodule({ computeSeriesId:seriesInfo.computeSeriesId});
+      console.log(operatequery)
+      if (nodulequery.serviceSuccess && operatequery) {
+        commit("SET_NODULE_INFO",nodulequery.data.resultData)
+        commit("SET_OPERATE_INFO",operatequery.data.resultData)
+
       }
       await dispatch("mprViewStore/clearAllAutoplay",null,{root:true} )
 
@@ -290,6 +326,28 @@ export default {
       dispatch("mprViewStore/freshView",view.viewIndex,{root:true})
 
     },
+    async updateNoduleOperate({state,commit},{updateList}){
+      commit("UPDATE_NODULE_OPERATE",{updateList})
+
+       await xhr_saveOperate(state.operateInfo).then(res=>{
+        // console.log(res)
+       })
+
+    },
+
+    async updateNoduleLesion({state,commit},{noduleid,updateList}){
+      console.log("updateNoduleLesion",noduleid,updateList)
+      const lesion = state.noduleInfo.noduleLesionList.find(item => item.id === noduleid);
+
+      commit("UPDATE_NODULE_LESSION",{noduleid,updateList})
+      if (lesion) {
+       await xhr_updateNoduleLesion(lesion).then(res=>{
+        // console.log(res)
+       })
+    }
+    },
+
+
 
 
     async UpdateSlice(

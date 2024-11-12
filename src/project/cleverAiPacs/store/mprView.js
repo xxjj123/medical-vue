@@ -762,10 +762,10 @@ export default {
             });
           }
         });
-        dispatch("throttleUpdateOtherSlice", {
-          viewIndex: viewIndex,
-          ijk: trueijk,
-        });
+        if (!state.isIjkLoad) {
+          dispatch("UpdateIJK", trueijk)
+        }
+
       } else {
         commit("SET_VIEW_DATA", {
           viewIndex: viewIndex,
@@ -838,10 +838,11 @@ export default {
             }
           });
 
-          dispatch("throttleUpdateOtherSlice", {
-            viewIndex:  viewIndex,
-            ijk: trueijk,
-          });
+          if (!state.isIjkLoad) {
+            dispatch("UpdateIJK", trueijk)
+          }
+
+
         }
       } else {
         commit("SET_VIEW_DATA", {
@@ -931,25 +932,9 @@ console.log("")
 
       }
     },
-    throttleUpdateSingleSlice: throttle(
-      ({dispatch}, {viewName, viewIndex, index}) => {
-        requestAnimationFrame(() =>
-           dispatch("updateSliceForView", {viewName, index, viewIndex}),
-        );
-      },
-      60,
-    ),
-    throttleUpdateOtherSlice({state,dispatch}, {viewIndex, ijk}){
-      if (!state.isIjkLoad) {
-        dispatch("UpdateIJK", ijk)
-      }
 
-    },
-    // throttleUpdateOtherSlice: throttle(({dispatch}, {viewIndex, ijk}) => {
-    //   requestAnimationFrame(() => dispatch("UpdateIJK", ijk));
-    // }, 150),
+
     async GetSlice({ dispatch, state, commit }, { viewName, viewIndex, index }) {
-      console.log("getslice")
       try {
         let loading = setInterval(() => {
           Vue.prototype.$message.destroy();
