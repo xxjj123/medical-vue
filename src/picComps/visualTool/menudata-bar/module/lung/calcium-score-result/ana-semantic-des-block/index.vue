@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="context_book">
-
+      <!-- {{ selectVal }} -->
       <div class="item_book" v-for="(item, index) in resultBookItems" :key="index">
         <div class="item_row" :class="item.isActive ? 'selected' : ''">{{ item.desc }}</div>
       </div>
@@ -30,7 +30,7 @@
 <script lang="javascript">
 
 
-import { SortOption, fracFindingTemplate, fracDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
+import { SortOption, noduleFindingTemplate, noduleDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
 import Emitter from "@/assets/js/mixins/emitter.js";
@@ -76,37 +76,43 @@ export default {
 
     resultBookItems: {
       get() {
-        const mode = ""
-        let resultBookItems = null;
-        if (this.blockMode == 'finding') {
-          resultBookItems = fracFindingTemplate(this.selection, this.current)
-          console.log("resultBookItems2---", resultBookItems)
-          // return resultBookItems
-        } else if (this.blockMode == 'diagnose') {
-          resultBookItems = fracDiagnoseTemplate(this.selection, this.current)
-          console.log("resultBookItems2", resultBookItems)
+        if (this.selectVal) {
+          const { value } = this.selectVal
+          let resultBookItems = null;
+          const { imageCount } = this.seriesInfo
+          const mode = value
+          if (this.blockMode == 'finding') {
+            resultBookItems = noduleFindingTemplate(this.selection, mode, imageCount, this.current)
+            console.log("resultBookItems2---", resultBookItems)
+            // return resultBookItems
+          } else if (this.blockMode == 'diagnose') {
+            resultBookItems = noduleDiagnoseTemplate(this.selection, mode, this.current)
+            console.log("resultBookItems2", resultBookItems)
 
+          }
+
+          if (this.desCode === 'yxsj') {
+            const descStrBook = this.getFullDescString(resultBookItems);
+
+            this.SET_REPORTS_MUIL_CONTEXT({
+              name: this.desCode,
+              data: descStrBook,
+            })
+
+
+          } else if (this.desCode === 'yxzd') {
+            const descStrBook = this.getFullDescString(resultBookItems);
+
+            this.SET_REPORTS_MUIL_CONTEXT({
+              name: this.desCode,
+              data: descStrBook,
+            })
+          }
+
+          return resultBookItems
         }
+        return []
 
-        if (this.desCode === 'yxsj') {
-          const descStrBook = this.getFullDescString(resultBookItems);
-
-          this.SET_REPORTS_MUIL_CONTEXT({
-            name: this.desCode,
-            data: descStrBook,
-          })
-
-
-        } else if (this.desCode === 'yxzd') {
-          const descStrBook = this.getFullDescString(resultBookItems);
-
-          this.SET_REPORTS_MUIL_CONTEXT({
-            name: this.desCode,
-            data: descStrBook,
-          })
-        }
-
-        return resultBookItems
 
       },
       set(val) {
