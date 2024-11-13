@@ -19,18 +19,22 @@ import vtkCoordinate from "@kitware/vtk.js/Rendering/Core/Coordinate";
 import vtkColorTransferFunction from "@kitware/vtk.js/Rendering/Core/ColorTransferFunction";
 import throttle from "lodash/throttle";
 import Vue from "vue";
+import {AllViewData} from './data';
 
 
-import { readImageDicomFileSeries } from '@itk-wasm/dicom';
+import { gdcmReadImage} from "@itk-wasm/image-io"
 import vtkITKHelper from "@kitware/vtk.js/Common/DataModel/ITKHelper";
 
 import {xhr_getSlice,xhr_getSingleImage} from "@/api";
-
+import {
+  ButtonNames
+} from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
 const VIEW_COLORS = {
   BACKGROUND: [0, 0, 0]
 };
 
+const basicViewData = new AllViewData()
 
 export default {
   namespaced: true,
@@ -50,46 +54,34 @@ export default {
 
     },
 
-    viewData: {
-      displayX: null,
-      displayY: null,
-      scaleLength: null,
-      Ww: null,
-      Wl: null,
-      reversed: false,
-      cameraRotate: 0,
-      hu: "",
-    },
-    diagnoseState:{
-      colorWindow:null,
-      colorLevel:null,
-      hu:'',
-      isPan:false
-    }
+    allViewData: { hu:'',reversed:false,cameraRotate:0 ,scaleLength: null,},
 
   },
 
   mutations: {
-    SET_STUDIES_SELECTED(state, payload) {
-      state.studies_selected = payload;
-    },
-    SET_SERIES_MAP_DICOM(state, payload) {
-      state.series_map_dicom = payload;
-    },
     SET_SERIES_INFO(state, seriesInfo) {
       state.seriesInfo = seriesInfo;
     },
     SET_VIEW(state,view){
       state.view = view;
     },
-    SET_VIEW_DATA(state,viewData){
-      state.viewData = viewData;
-    },
     SET_VIEW_ITEM(state, { key, value}) {
       state.view[key] = value;
     },
-    SET_STATE_DATA(state, { key, value}) {
-      state.diagnoseState[key] = value;
+
+    SET_ALL_VIEW_STATE(state, { key, value}) {
+      state.allViewData[key] = value;
+
+    },
+    INIT_NODULE_ALL_VIEW_DATA(state){
+      const originalData = new AllViewData();
+      originalData.colorWindow = 4096;
+      originalData.colorLevel = 1024;
+      originalData.isPan = true;
+      originalData.layOut = null;
+      originalData.buttons = [ButtonNames.Ckcw, ButtonNames.Jbinfo,  ButtonNames.Pyms];
+      originalData.activeButtons = [ButtonNames.Jbinfo , ButtonNames.Pyms ]
+      state.allViewData = {...state.allViewData,...originalData}
     },
 
   },
@@ -98,6 +90,7 @@ export default {
       {dispatch, commit, state},
       container
     ) {
+
 
       const grw = vtkGenericRenderWindow.newInstance();
       grw.setContainer(container);
@@ -132,7 +125,6 @@ export default {
       obj.sliceActor.setMapper(obj.sliceMapper);
       obj.renderer.addActor(obj.sliceActor);
 
-
      obj.interactor.onMouseMove((event) => {
       const view = state.view
       if(view && view.image){
@@ -153,9 +145,14 @@ export default {
             view.image.getDimensions()[0] *
             view.image.getDimensions()[1];
           const pixelValue = imageScales.getTuple(pageindex);
-          commit("SET_STATE_DATA", {
+          commit("SET_ALL_VIEW_STATE", {
             key: "hu",
             value: pixelValue[0] ,
+          });
+        }else{
+          commit("SET_ALL_VIEW_STATE", {
+            key: "hu",
+            value: '' ,
           });
         }
       }
@@ -163,7 +160,7 @@ export default {
       });
 
       obj.interactor.onLeftButtonPress((event) => {
-        if (state.diagnoseState.isPan) {
+        if (state.allViewData.isPan) {
           obj.interactor.getInteractorStyle().startPan()
 
         }else{
@@ -174,12 +171,19 @@ export default {
       commit("SET_VIEW",obj)
 
       await dispatch("GetSlice");
-      dispatch("resizeSliceViews")
+      dispatch("spineToolsStore/resizeSliceView",null,{root:true})
 
     },
+    InitViewData({state,dispatch,commit}){
 
-
-
+      commit("INIT_NODULE_ALL_VIEW_DATA")
+      const { allViewData } = state
+      dispatch("spineToolsStore/UpdateColorWindow",allViewData.colorWindow,{root:true})
+      dispatch("spineToolsStore/UpdateColorLevel",allViewData.colorLevel,{root:true})
+      commit("toolBarStore/INIT_BUTTON_SHOW_STATE",allViewData.buttons,{root:true})
+      commit("toolBarStore/INIT_BUTTON_ACTIVE_STATE",allViewData.activeButtons,{root:true})
+    },
+ 
     async GetSlice({dispatch, state,commit}) {
       console.log("getslice")
       try {
@@ -193,56 +197,30 @@ export default {
         });
 
         if (res2) {
-          console.log(res2)
-          console.log(res2.data)
-          const file = new File([res2.data],"image.dcm", { type: 'application/dicom' });
-          readImageDicomFileSeries({inputImages:[file]}).then(image=>{
-            console.log(image)
-            const outputimage = image.outputImage
-            console.log(outputimage.direction)
-            // outputimage.direction.data = null
-            const imageData = vtkITKHelper.convertItkToVtkImage(outputimage)
-            const view = state.view;
+          const file = new File([res2.data], "image.dcm", { type: "application/dicom" });
+          const result = await gdcmReadImage(file);
+          const outputImage = result.image;
+          const imageData = vtkITKHelper.convertItkToVtkImage(outputImage);
           commit("SET_VIEW_ITEM",{key:"image",value:imageData})
-
-
+          const view = state.view;
           view.sliceMapper.setInputData(imageData);
           dispatch("setupCamera");
-          })
+
+
         } else {
           console.error("Request failed: No data returned");
         }
 
-        // const res = await xhr_getSlice({
-        //   seriesId: "1836683063363411969",
-        //   viewName: "axial",
-        //   viewIndex: "67",
-        // });
 
-        // if (res) {
-        //   console.log(res.data)
-        //   clearInterval(loading)
-        //   // return res.data;
-        //   const arraybuffer = res.data;
-        //   const reader = vtkXMLImageDataReader.newInstance();
-        //   reader.parseAsArrayBuffer(arraybuffer);
-        //   const image = reader.getOutputData();
-        //   const view = state.view;
-        //   commit("SET_VIEW_ITEM",{key:"image",value:image})
-
-        //   view.sliceMapper.setInputData(image);
-        //   dispatch("setupCamera");
-
-        // } else {
-        //   console.error("Request failed: No data returned");
-        // }
       } catch (error) {
         console.error("Request failed:", error);
       }
     },
+    SetAllViewData({commit},{ key,value }){
+      commit("SET_ALL_VIEW_STATE",{ key,value })
+    },
 
     setupCamera({commit, state, getters}) {
-      console.log("setupcamera2222222222")
       const view = state.view
       const image = view.image;
       const camera = view.renderer.getActiveCamera();
@@ -294,154 +272,11 @@ export default {
     },
 
 
-    /**
-     *窗宽
-     * @param {number} value - 改变的值
-     */
-    UpdateColorWindow({state, commit}, value) {
-      const view = state.view
-      if(view.sliceActor){
-         view.sliceActor.getProperty().setColorWindow(value );
-      view.interactor.render();
 
-      }
 
-    },
-    /**
-     *窗位
-     * @param {number} value - 改变的值
-     */
-    UpdateColorLevel({state, commit}, value) {
-      const view = state.view
-      if(view.sliceActor){
-        view.sliceActor.getProperty().setColorLevel(value );
-      view.interactor.render();
-      }
 
-    },
 
-    /**
-     * 页面反向
-     * @param {number} viewType - 操作页面索引
-     */
-    ReverseWindow({commit, state, getters}, viewType) {
-      const view = state.viewMprViews[viewType].view;
-      const viewdata = getters.viewsData[viewType];
-      const colorTransferFunction = vtkColorTransferFunction.newInstance();
-      if (!viewdata.reversed) {
-        colorTransferFunction.addRGBPoint(0, 1, 1, 1); // 白色
-        colorTransferFunction.addRGBPoint(255, 0, 0, 0); // 黑色
-      } else {
-        colorTransferFunction.addRGBPoint(255, 1, 1, 1); // 白色
-        colorTransferFunction.addRGBPoint(0, 0, 0, 0); // 黑色
-      }
-      commit("SET_VIEW_DATA", {
-        viewType,
-        key: "reversed",
-        value: !viewdata.reversed,
-      });
-      view.sliceActor
-        .getProperty()
-        .setRGBTransferFunction(0, colorTransferFunction);
-      view.interactor.render();
-    },
 
-    /**
-     * 水平翻转
-     * @param {number} viewType - 操作页面索引
-     */
-    FlipHorizontal({commit, dispatch, state, getters}, viewType) {
-      const view = state.viewMprViews[viewType].view;
-      const currentScale = view.sliceActor.getScale();
-      const newScaleX = currentScale[0] === 1 ? -1 : 1; // 切换X轴的翻转状态
-
-      view.sliceActor.setScale(newScaleX, currentScale[1], currentScale[2]);
-
-      console.log("currentScale=", currentScale);
-
-      dispatch("setupCamera", viewType);
-    },
-
-    /**
-     * 垂直翻转
-     * @param {number} viewType - 操作页面索引
-     */
-    FlipVertical({commit, dispatch, state, getters}, viewType) {
-      const view = state.viewMprViews[viewType].view;
-      const currentScale = view.sliceActor.getScale();
-      const newScaleY = currentScale[1] === 1 ? -1 : 1; // 切换Y轴的翻转状态
-
-      view.sliceActor.setScale(currentScale[0], newScaleY, currentScale[2]);
-
-      console.log("currentScale=", currentScale);
-
-      dispatch("setupCamera", viewType);
-    },
-
-    /**
-     * 切片旋转
-     * @param {number} viewType - 操作页面索引
-     */
-    RotateCamera({commit, dispatch, state, getters}, viewType) {
-      commit("SET_VIEW_DATA", {
-        viewType,
-        key: "cameraRotate",
-        value: (getters.viewsData[viewType].cameraRotate - 90) % 360,
-      });
-      dispatch("setupCamera", viewType);
-      dispatch("resizeSliceViews");
-
-    },
-    // 改变平移
-    ChangePan({dispatch, state, getters, commit}) {
-      const view = state.view
-      if (state.diagnoseState.isPan) {
-        const interactorStyle = vtkInteractorStyleImage.newInstance();
-        // interactorStyle.setInteractionMode("IMAGE_PAN");
-        view.interactor.setInteractorStyle(interactorStyle);
-
-        view.interactor.onLeftButtonPress(()=>{
-          view.interactor.getInteractorStyle().endWindowLevel()
-        })
-        dispatch("setupCamera");
-        commit("SET_STATE_DATA", {
-          key: "isPan",
-          value: false,
-        });
-      } else {
-        commit("SET_STATE_DATA", {
-          key: "isPan",
-          value: true,
-        });
-        const interactorStyle = vtkInteractorStyleImage.newInstance();
-        view.interactor.setInteractorStyle(interactorStyle);
-        view.interactor.getInteractorStyle().modified();
-
-        view.interactor.initialize();
-        view.interactor.bindEvents(view.grw.getContainer());
-        view.interactor.start();
-        view.renderWindow.render();
-
-      }
-      dispatch("resizeSliceViews")
-
-    }
-    ,
-
-    /**
-     * 重置视图
-     */
-    resizeSliceViews({dispatch, state, getters, commit}) {
-      const view = state.view
-      if(view.image){
-        const container = view.grw.getContainer();
-        const {width, height} = container.getBoundingClientRect();
-
-        view.grw.resize(width, height);
-        view.renderWindow.render();
-
-      }
-    },
 
 
   },

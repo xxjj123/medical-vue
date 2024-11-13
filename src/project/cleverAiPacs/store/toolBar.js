@@ -39,8 +39,8 @@ import {
 export default {
   namespaced: true,
   state: {
-    activeViewModule:"mprViewStore",
-    activeToolModule:"mprToolsStore",
+    activeViewModule:null,
+    activeToolModule:null,
     activeButtons:[],
     slice_CT_pic_layout: null, //ct-三视图+3d,容器布局方式（ps:这个名称和icon-class对应）
     ...Object.keys(ButtonNames).reduce((acc, key) => {
@@ -51,6 +51,7 @@ export default {
       acc[`${ButtonNames[key]}${suffix_show}`] = false;
       return acc;
     }, {}),
+
   },
   getters: {
     getAllButtonActiveStates: (state) => {
@@ -65,8 +66,17 @@ export default {
         return acc;
       }, {});
     },
+    allViewData:(state, getters, rootState)=>{
+      const v_state = rootState[state.activeViewModule]
+      return v_state.allViewData
+    }
   },
   mutations: {
+    SET_ACTIVE_MODULE(state,{activeViewModule,activeToolModule}){
+      state.activeViewModule = activeViewModule
+      state.activeToolModule = activeToolModule
+    },
+
     SET_SLICE_CT_PIC_LAYOUT(state, layout) {
       state.slice_CT_pic_layout = layout;
 
@@ -100,7 +110,17 @@ export default {
     }
   },
   actions: {
-    activeButtonState({state,commit,dispatch},buttonName){
+    setActiveModule({state,commit},activeModule){
+      if(activeModule == 'MPR'){
+        commit("SET_ACTIVE_MODULE",{activeViewModule:"mprViewStore",activeToolModule:"mprToolsStore"})
+
+      }else if(activeModule == 'SPINE'){
+        commit("SET_ACTIVE_MODULE",{activeViewModule:"spineViewStore",activeToolModule:"spineToolsStore"})
+
+      }
+// commit("SET_ACTIVE_MODULE",{activeViewModule,activeToolModule})
+    },
+    activeButtonState({state,commit,dispatch,rootState},buttonName){
       commit("TOGGLE_BUTTON_ACTIVE_STATE",buttonName)
       dispatch(state.activeViewModule+"/SetAllViewData",{
         key: "activeButtons",
@@ -108,6 +128,7 @@ export default {
       },{root:true})
       switch (buttonName) {
         case ButtonNames.Pyms:
+          console.log("rootState",rootState)
           dispatch(`${state.activeToolModule}/ChangePan`, null, { root: true });
           break;
 

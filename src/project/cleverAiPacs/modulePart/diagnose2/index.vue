@@ -1,7 +1,6 @@
 <template>
   <div class="diagnose_page flex flex-col">
 
-    <!-- diagnose_page -->
     <PacsPageHeader :bread="true" :filmModeBtn="true">
       <template slot="filmModeCtrl">
 
@@ -11,18 +10,6 @@
       <template slot="vtkTool">
         <vskToolbar ref="vskToolbarRef">
         </vskToolbar>
-        <!-- <button class="mr-10" @click="nodule">结节</button>
-
-        <button class="mr-10" @click="pneumonia">肺炎</button> -->
-
-
-        <!-- <button @click="hidedraw">隐藏</button> -->
-
-
-        <!-- <button @click="clip3D">切割</button>   -->
-        <!-- <button class="mr-10" @click="initNodule">结节ini</button>
-        <button @click="initCube">initCube</button> -->
-
 
 
       </template>
@@ -30,18 +17,7 @@
     </PacsPageHeader>
     <div class="main">
       <div class="pacs_container">
-        <!-- <div class="toolBar"> -->
-        <!-- <button @click="getRecon">靶重建</button> -->
-        <!-- <button @click="add3DCube">添加3d</button>
-          <button @click="clip3D">切割</button>
-          <button @click="back">还原</button> -->
 
-
-        <!-- <vskToolbar ref="vskToolbarRef" @UpdateColorWindow="UpdateColorWindow_self"
-            @UpdateColorLevel="UpdateColorLevel_self" @ChangePan="ChangePan_self" @GetRecon="GetRecon_self"
-            :windowcolor="{ ww: 1500, wl: -500 }">
-          </vskToolbar> -->
-        <!-- </div> -->
         <div>
           <ViewBoard :seriesInfo="seriesInfo"></ViewBoard>
         </div>
@@ -116,6 +92,8 @@ export default {
 
     ...mapActions("fracInfoStore", ["InitFracState", "ActiveFracState"]),
     ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE", "SET_SLICE_CT_PIC_LAYOUT"]),
+    ...mapActions("toolBarStore", ["setActiveModule"]),
+
 
     ...mapActions("view3DStore", [
       "Init3DScene",
@@ -127,25 +105,9 @@ export default {
     ]),
 
 
-    getRecon() {
-      console.log("切换靶重建", LayoutIcons.RECON)
-      this.SET_SLICE_CT_PIC_LAYOUT(LayoutIcons.RECON);
 
-    },
     clip3D() {
       this.CubeClip()
-    },
-    add3DCube() {
-      this.AddCube()
-    },
-    back() {
-      this.Back()
-    },
-    nodule() {
-      this.ActiveNoduleState()
-    },
-    pneumonia() {
-      this.ActivePneumoniaState()
     },
 
 
@@ -181,6 +143,7 @@ export default {
   },
   created() {
     getSysDict().then(async (res) => {
+      this.setActiveModule('MPR')
       const carplay = localStorage.getItem("carplay");
       if (!carplay) {
         localStorage.setItem("carplay", JSON.stringify(res));

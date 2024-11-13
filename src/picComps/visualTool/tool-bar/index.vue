@@ -1,6 +1,7 @@
 <template>
   <div class="   flex flex-row first:ml-25">
     <!-- 视窗调整 -->
+    <!-- {{ allViewData }} -->
     <div v-if="btnShowStates.Layout_show" :class="layOutClass">
       <div class="pic mr-[5px] hover:cursor-pointer" v-tooltip="{ title: '视窗调整', visible: true }"></div>
       <div class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('1')" v-popover:mypop1>
@@ -230,7 +231,9 @@ export default {
 
   },
   computed: {
-    ...mapState("mprViewStore", ["allViewData"]),
+    // ...mapState("mprViewStore", ["allViewData"]),
+    // ...mapState("spineViewStore", ["allViewData"]),
+    ...mapGetters("toolBarStore", ["allViewData"]),
 
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
     ...mapGetters("toolBarStore", ["getAllButtonActiveStates", "getAllButtonShowStates"]),

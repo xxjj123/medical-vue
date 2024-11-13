@@ -2,7 +2,7 @@
   <div class=" ViewBoard_panel h-full w-full">
     <div ref="ViewRef" class="relative">
       <subScript class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none" :data="InitInfo"
-        :diagnoseState="diagnoseState" />
+        :allViewData="allViewData" />
     </div>
   </div>
 </template>
@@ -22,13 +22,13 @@ export default {
     };
   },
   methods: {
-    ...mapActions("picViewStore", [
+    ...mapActions("spineViewStore", [
       "InitView",
-      "resizeSliceViews"
+      "InitViewData",
     ]),
   },
   computed: {
-    ...mapState("picViewStore", ["diagnoseState"])
+    ...mapState("spineViewStore", ["allViewData"])
   },
   components: {
     subScript
@@ -42,9 +42,10 @@ export default {
 
   },
   mounted() {
-    this.$nextTick(() => {
+    this.$nextTick(async () => {
       // this.Init3DView(this.$refs.View3DRef);
-      this.InitView(this.$refs.ViewRef);
+      await this.InitView(this.$refs.ViewRef);
+      this.InitViewData()
 
       // window.addEventListener("resize", this.resizeSliceViews);
     });

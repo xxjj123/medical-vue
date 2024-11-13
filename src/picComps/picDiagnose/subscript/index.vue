@@ -19,9 +19,9 @@
 
       </div>
       <div class="absolute left-0 bottom-0">
-        <div>{{ diagnoseState.colorLevel + "/" + diagnoseState.colorWindow }}</div>
+        <div class="h-8">{{ allViewData.colorLevel + "/" + allViewData.colorWindow }}</div>
 
-        <div> {{ diagnoseState.hu }}</div>
+        <div class="h-8"> {{ allViewData.hu }}</div>
 
       </div>
       <div class="absolute right-0 bottom-0">
@@ -49,7 +49,7 @@ export default {
   },
   props: {
     data: null,
-    diagnoseState: null
+    allViewData: null
   },
   components: {
 

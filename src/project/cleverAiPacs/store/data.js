@@ -42,7 +42,6 @@ class AllViewData {
     this.isRecon = false;
     this.zoomView = null;
 
-
     this.buttons =[]
     this.activeButtons =[]
 

@@ -8,20 +8,19 @@ import {
 import router from "./router/index"; // 引入 改模块的路由模块
 // 自己引入各种插件
 
-import viewsStore from "./store/views";
-import toolsStore from "./store/tools";
+
+import viewInitStore from './store/viewInit';
+store.registerModule("viewInitStore", viewInitStore);
+
+
 import toolBarStore from "./store/toolBar";
-import viewInitStore from "./store/viewInit";
-import picViewStore from "./store/picView"
 import view3DStore from "./store/view3D";
 import viewReportsStore from './store/reports';
 
 
-store.registerModule("viewsStore", viewsStore);
-store.registerModule("toolsStore", toolsStore);
+
+
 store.registerModule("toolBarStore", toolBarStore);
-store.registerModule("viewInitStore", viewInitStore);
-store.registerModule("picViewStore", picViewStore);
 
 store.registerModule("view3DStore", view3DStore);
 store.registerModule("viewReportsStore", viewReportsStore);
@@ -33,6 +32,10 @@ import noduleInfoStore from "./store/noduleInfo"
 import pneumoniaInfoStore from "./store/pneumoniaInfo"
 import fracInfoStore from "./store/fracInfo"
 
+import spineViewStore from "./store/spineView"
+import spineToolsStore from "./store/spineTools"
+
+
 
 
 store.registerModule("mprViewStore", mprViewStore);
@@ -40,6 +43,14 @@ store.registerModule("mprToolsStore", mprToolsStore);
 store.registerModule("noduleInfoStore", noduleInfoStore);
 store.registerModule("pneumoniaInfoStore", pneumoniaInfoStore);
 store.registerModule("fracInfoStore", fracInfoStore);
+store.registerModule("spineViewStore", spineViewStore);
+store.registerModule("spineToolsStore", spineToolsStore);
+
+
+
+
+
+
 
 
 

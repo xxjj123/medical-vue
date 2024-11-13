@@ -30,17 +30,42 @@
         <div>顶锥离中线距离：15°</div>
         <div>锁骨倾斜角：5°</div>
       </div> -->
-      <div class="txt">角度</div>
-      <div class="mt-2 p-3 flex flex-wrap ">
-        <div>Cobb角：25°</div>
-        <div>顶锥离中线距离：15°</div>
-        <div>锁骨倾斜角：5°</div>
+      <div>
+        <div class="txt">角度</div>
+        <div class="mt-2 p-3 flex flex-wrap ">
+          <div>Cobb角：25°</div>
+          <div>顶锥离中线距离：15°</div>
+          <div>锁骨倾斜角：5°</div>
+        </div>
       </div>
+
+
+
+      <!-- <div class="analytic_semantic_description">
+        <anaSemanticDesBlock :des-code="'yxsj'" :bookItems.sync="anaSecDesConf.bookItems" :selection.sync="selection"
+          :blockMode="anaSecDesConf.mode" :selectVal.sync="filmIpt_curItem" :title="anaSecDesConf.title"
+          :current.sync="selectedNoduleId">
+          <filmInputState slot="searchBar" v-model="filmIpt_curItem" :typec="`dropdown`" :selectCurIdx="`0`"
+            :optionNum="`1`" @cb-click="handle_filmIptClick_yxsj"></filmInputState>
+        </anaSemanticDesBlock>
+      </div>
+
+      <div class="analytic_semantic_description">
+        <anaSemanticDesBlock :des-code="'yxzd'" :bookItems.sync="anaSecDesConf_1.bookItems"
+          :selectVal="filmIpt_curItem_1" :blockMode="anaSecDesConf_1.mode" :title="anaSecDesConf_1.title"
+          :selection.sync="selection">
+          <filmInputState slot="searchBar" v-model="filmIpt_curItem_1" :typec="`dropdown`" :selectCurIdx="`0`"
+            :optionNum="`2`" @cb-click="handle_filmIptClick_yxzd"></filmInputState>
+        </anaSemanticDesBlock>
+      </div> -->
     </div>
   </div>
 </template>
 
 <script lang="javascript">
+import anaSemanticDesBlock from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/index.vue";
+
+
 export default {
   name: "menudata-bar",
   components: {},
