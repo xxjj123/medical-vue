@@ -28,17 +28,13 @@
         </div>
 
         <div class="analytic_semantic_description ">
-          <anaSemanticDesBlock :des-code="'yxsj'" :bookItems.sync="anaSecDesConf.bookItems"
-            :selection.sync="checkedTableData" :blockMode="anaSecDesConf.mode" :title="anaSecDesConf.title"
-            :current.sync="selectedFracId">
-          </anaSemanticDesBlock>
+          <textBoard :bookItems="findingItems.list" :title="findingItems.title">
+          </textBoard>
         </div>
 
         <div class="analytic_semantic_description">
-          <anaSemanticDesBlock :des-code="'yxzd'" :bookItems.sync="anaSecDesConf_1.bookItems"
-            :blockMode="anaSecDesConf_1.mode" :title="anaSecDesConf_1.title" :selection.sync="checkedTableData"
-            :current.sync="selectedFracId">
-          </anaSemanticDesBlock>
+          <textBoard :bookItems="diagnoseItems.list" :title="diagnoseItems.title">
+          </textBoard>
         </div>
 
       </div>
@@ -54,55 +50,26 @@
 </template>
 <script lang="jsx">
 import Emitter from "@/assets/js/mixins/emitter.js";
-import anaSemanticDesBlock from "../ana-semantic-des-block/index.vue";
+import textBoard from "@/picComps/visualTool/menudata-bar/module/lung/common/textBoard/index.vue";
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
-import { CodeSandboxOutline } from "@yh/icons-svg";
-import { mapActions } from "vuex";
-import Vue from 'vue';
-import { SortOption } from "@/assets/js/utils/dicom/select";
-import { mapState } from "vuex";
-
 import reportViewBtn from "./reportView/btn.vue"
 
-import { xhr_updateNoduleLesion } from "@/api/index";
-import { isNull } from "@yh/ta-utils";
+import { CodeSandboxOutline } from "@yh/icons-svg";
+import Vue from 'vue';
+import { SortOption } from "@/assets/js/utils/dicom/select";
+import { mapState, mapActions } from "vuex";
+
 import { message } from "@yh/ta404-ui";
 
+import { pneu_dict } from "../assets/dict"
+import { pneumoniaFindingTemplate, pneumoniaDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
 
-const frac_dict = {
-  lobeName: [
-    { value: "lobe_left_top", label: "左肺上叶", order: 0 },
-    { value: "lobe_left_bottom", label: "左肺下叶", order: 1 },
-    { value: "lobe_right_top", label: "右肺上叶", order: 2 },
-    { value: "lobe_right_middle", label: "右肺中叶", order: 3 },
-    { value: "lobe_right_bottom", label: "右肺下叶", order: 4 },
-  ],
-  diseaseClass: [
-    { value: "", label: "", order: 0 },
-    { value: "HD", label: "蜂窝影", order: 1 },
-    { value: "GGO", label: "磨玻璃影", order: 2 },
 
-  ]
-
-};
-
-const operateMenu = [
-  {
-    name: '',
-    icon: 'delete',
-    type: 'confirm',
-    confirmTitle: '确认删除该信息？',
-    onOk: (record, index) => {
-      console.log("点了山吹")
-      message.info('这里调用删除方法')
-    },
-  }
-]
 // 病变列表
 export default {
   name: "lesion-list",
   components: {
-    anaSemanticDesBlock,
+    textBoard,
     filmInputState,
     reportViewBtn,
   },
@@ -201,9 +168,9 @@ export default {
               index: index + 1, // 添加 index 属性
             };
             Object.keys(item).forEach((key) => {
-              if (frac_dict[key]) {
+              if (pneu_dict[key]) {
                 const matchingValue = item[key];
-                const valueEntry = frac_dict[key].find((val) => val.value === matchingValue);
+                const valueEntry = pneu_dict[key].find((val) => val.value === matchingValue);
                 if (valueEntry) {
                   const value = newItem[key];
                   newItem[key] = valueEntry
@@ -242,24 +209,28 @@ export default {
       get() {
         return this.tableData.filter(item => item.isshow && item.checked);
       }
+    },
+    findingItems: {
+      get() {
+        return {
+          title: "影像所见",
+          list: pneumoniaFindingTemplate(this.checkedTableData, this.selectedFracId)
+        }
+      }
+    },
+    diagnoseItems: {
+      get() {
+        return {
+          title: "影像诊断",
+          list: pneumoniaDiagnoseTemplate(this.checkedTableData, this.selectedFracId)
+        }
+      }
     }
   },
   data() {
     return {
-      frac_dict,
+      pneu_dict,
       selectedRow: null,
-      selectedFracId: null,
-
-      anaSecDesConf: {
-        title: "影像所见",
-        mode: "finding",
-        bookItems: [],
-      },
-      anaSecDesConf_1: {
-        title: "影像诊断",
-        mode: "diagnose",
-        bookItems: [],
-      },
 
 
     };
@@ -273,7 +244,6 @@ export default {
     handleCellClick(e) {
       const { row } = e
       this.selectedRow = row
-      this.selectedFracId = row.id;
     },
 
     selectAllEvent(ev) {

@@ -53,7 +53,6 @@ export default {
           : `筛选条件${this.optionNum}`;
       },
       set(val) {
-        // console.log(val, "sssssssssss");
         return val;
       },
     },

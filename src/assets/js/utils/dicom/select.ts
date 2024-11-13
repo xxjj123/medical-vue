@@ -256,12 +256,12 @@ function noduleObjectToTemplate(obj:Object, template:string,imageCount?:string) 
 }
 
 export function noduleFindingTemplate(objList:Object[], mode:string,imageCount:string,currentNum:string) {
-
+  console.log("noduleFindingTemplate",objList,mode)
   let resultBookItems = []
   if (objList.length == 0 || !mode) {
    resultBookItems.push({ id: -1, isActive:false,desc: noduleFindingEnum.TEMP0 })
   }else{
-   if (mode === '0') {
+   if (mode === 1) {
     objList.sort((a, b) => {
       if (a.im < b.im) return -1;
       if (a.im > b.im) return 1;
@@ -273,7 +273,7 @@ export function noduleFindingTemplate(objList:Object[], mode:string,imageCount:s
       resultBookItems.push({ id: item.id,isActive:currentNum==item.id, desc: resultBookItem })
         })
    }
-   else if(mode === '1'){
+   else if(mode === 2){
     objList.sort((a, b) => {
       if (a.lobeSegmentSort < b.lobeSegmentSort) return -1;
       if (a.lobeSegmentSort > b.lobeSegmentSort) return 1;
@@ -285,7 +285,7 @@ export function noduleFindingTemplate(objList:Object[], mode:string,imageCount:s
     resultBookItems.push({ id: item.id,isActive:currentNum==item.id, desc: resultBookItem })
     })
 
-   }else if(mode==='2'){
+   }else if(mode===3){
     const typeMap = {};
   // 将objList中的项按type字段进行分类
 
@@ -324,7 +324,7 @@ export function noduleFindingTemplate(objList:Object[], mode:string,imageCount:s
    resultBookItems.push({ id: largestItem.id,isActive:isActive, desc: summary });
   }
 
-   }else if(mode ==='3'){
+   }else if(mode ===4){
     objList.sort((a, b) => {
       if (a.lobeSegmentSort < b.lobeSegmentSort) return -1;
       if (a.lobeSegmentSort > b.lobeSegmentSort) return 1;
@@ -335,7 +335,7 @@ export function noduleFindingTemplate(objList:Object[], mode:string,imageCount:s
        const resultBookItem = noduleObjectToTemplate(item, noduleFindingEnum.TEMP3, imageCount)
         resultBookItems.push({ id: item.id,isActive:currentNum==item.id, desc: resultBookItem })
         })
-   }else if(mode ==='4'){
+   }else if(mode ===5){
     if(objList.length===1){
       const selectedItem = objList[0]
       const resultBookItem = noduleObjectToTemplate(selectedItem, noduleFindingEnum.TEMP1, imageCount)
@@ -373,12 +373,11 @@ export const noduleDiagnoseEnum = {
 }
 export function noduleDiagnoseTemplate(objList:Object[], mode:string ) {
 
-  console.log("结果",objList,mode)
   let resultBookItems = []
   if (objList.length == 0) {
    resultBookItems.push({ id: -1, isActive:false,desc: noduleDiagnoseEnum.TEMP0 })
   }else{
-   if (mode === '0') {
+   if (mode === 1 ) {
     const massList = []
     const noduleList = []
     objList.forEach(item => {

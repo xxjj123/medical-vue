@@ -34,34 +34,12 @@ import MenuData from "@/picComps/picDiagnose/menudata/lung/index.vue"
 
 
 import {
-  ButtonNames,
-} from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
-import {
   mapState,
-  mapMutations,
   mapActions,
-  mapGetters,
-  createNamespacedHelpers,
 } from "vuex";
 
-
-import JSZip from "jszip";
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
 
-const winCtrl = {
-  lung: {
-    ww: 1500,
-    wl: -500,
-  },
-  mediastinal: {
-    ww: 300,
-    wl: 50,
-  },
-  bone: {
-    ww: 1500,
-    wl: 300,
-  },
-};
 
 export default {
   name: "diagnose",
@@ -78,34 +56,15 @@ export default {
       ActiveIndex: null,
     };
   },
-  watch: {
-
-
-  },
   computed: {
     ...mapState("spineViewStore", ["allViewData"])
   },
   methods: {
-    ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE"]),
     ...mapActions("toolBarStore", ["setActiveModule"]),
-
-
-
-    ...mapMutations("spineViewStore", ["SET_STATE_DATA"]),
-    ...mapActions("spineViewStore", [
-      "UpdateColorWindow",
-      "UpdateColorLevel",
-      "ChangePan"
-    ]),
 
   },
   created() {
-
     this.setActiveModule('SPINE')
-
-
-    this.INIT_BUTTON_SHOW_STATE([ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Pyms])
-    this.INIT_BUTTON_ACTIVE_STATE([ButtonNames.Jbinfo])
   },
   mounted() { },
 };

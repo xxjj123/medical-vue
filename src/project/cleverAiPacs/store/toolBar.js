@@ -68,7 +68,8 @@ export default {
     },
     allViewData:(state, getters, rootState)=>{
       const v_state = rootState[state.activeViewModule]
-      return v_state.allViewData
+
+      return v_state?v_state.allViewData:{}
     }
   },
   mutations: {

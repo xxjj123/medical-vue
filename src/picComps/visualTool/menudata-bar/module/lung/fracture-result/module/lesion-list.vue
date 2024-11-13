@@ -90,7 +90,6 @@
                   </ta-menu>
                 </ta-dropdown>
               </div>
-
             </template>
 
             <template #FRAC_CLASS_EDIT="{ row, column }">
@@ -115,17 +114,12 @@
         </div>
 
         <div class="analytic_semantic_description ">
-          <anaSemanticDesBlock :des-code="'yxsj'" :bookItems.sync="anaSecDesConf.bookItems"
-            :selection.sync="checkedTableData" :blockMode="anaSecDesConf.mode" :selectVal="null"
-            :title="anaSecDesConf.title" :current.sync="selectedFracId">
-          </anaSemanticDesBlock>
+          <textBoard :bookItems="findingItems.list" :title="findingItems.title">
+          </textBoard>
         </div>
-
         <div class="analytic_semantic_description">
-          <anaSemanticDesBlock :des-code="'yxzd'" :bookItems.sync="anaSecDesConf_1.bookItems" :selectVal="null"
-            :blockMode="anaSecDesConf_1.mode" :title="anaSecDesConf_1.title" :selection.sync="checkedTableData"
-            :current.sync="selectedFracId">
-          </anaSemanticDesBlock>
+          <textBoard :bookItems="diagnoseItems.list" :title="diagnoseItems.title">
+          </textBoard>
         </div>
 
       </div>
@@ -141,43 +135,25 @@
 </template>
 <script lang="jsx">
 import Emitter from "@/assets/js/mixins/emitter.js";
-import anaSemanticDesBlock from "../ana-semantic-des-block/index.vue";
+import textBoard from "@/picComps/visualTool/menudata-bar/module/lung/common/textBoard/index.vue";
+
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
 import { CodeSandboxOutline } from "@yh/icons-svg";
-import { mapActions } from "vuex";
 import Vue from 'vue';
 import { SortOption } from "@/assets/js/utils/dicom/select";
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 import reportViewBtn from "./reportView/btn.vue"
 
-import { xhr_updateNoduleLesion } from "@/api/index";
-
-
-const frac_dict = {
-  ribType: [
-    { value: "front", label: "前段", order: 0 },
-    { value: "middle", label: "腋段", order: 1 },
-    { value: "back", label: "后段", order: 2 },
-  ],
-  fracClass: [
-    { value: "old", label: "陈旧性骨折", order: 0 },
-    { value: "buckle", label: "骨皮质扭曲", order: 1 },
-    { value: "displaced", label: "错位性骨折", order: 2 },
-    { value: "nodisplaced", label: "非错位性骨折", order: 3 },
-  ],
-  ribSide: [
-    { value: "L", label: "左侧", ribNums: Array.from({ length: 12 }, (_, i) => i + 1) },
-    { value: "R", label: "右侧", ribNums: Array.from({ length: 12 }, (_, i) => i + 1) }
-  ],
-};
+import { frac_dict } from "../assets/dict"
+import { fracFindingTemplate, fracDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
 
 
 // 病变列表
 export default {
   name: "lesion-list",
   components: {
-    anaSemanticDesBlock,
+    textBoard,
     filmInputState,
     reportViewBtn,
   },
@@ -260,26 +236,32 @@ export default {
       get() {
         return this.tableData.filter(item => item.checked);
       }
+    },
+    findingItems: {
+      get() {
+        return {
+          title: "影像所见",
+          list: fracFindingTemplate(this.checkedTableData, this.selectedFracId)
+        }
+
+      }
+    },
+    diagnoseItems: {
+      get() {
+        return {
+          title: "影像诊断",
+          list: fracDiagnoseTemplate(this.checkedTableData, this.selectedFracId)
+        }
+
+      }
+
     }
   },
-  watch: {
-
-  },
-
   data() {
     return {
       frac_dict,
       selectedRow: null,
-      anaSecDesConf: {
-        title: "影像所见",
-        mode: "finding",
-        bookItems: [],
-      },
-      anaSecDesConf_1: {
-        title: "影像诊断",
-        mode: "diagnose",
-        bookItems: [],
-      },
+
       tableConfig: {
         size: "small",
         showHiddenOrSortColumn: {

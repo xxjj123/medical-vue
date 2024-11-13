@@ -23,13 +23,8 @@
       </div>
     </div>
     <!-- 面板顶部操作小按钮 end-->
-    <div class="border-2 border-blue-500 w-full h-full flex flex-col p-4">
-      <!-- <div class="txt">患者信息</div>
-      <div class="mt-2 p-3">
-        <div>Cobb角：25°</div>
-        <div>顶锥离中线距离：15°</div>
-        <div>锁骨倾斜角：5°</div>
-      </div> -->
+    <!-- <div class="border-2 border-blue-500 w-full h-full flex flex-col p-4"> -->
+    <div class=" w-full h-full flex flex-col p-4">
       <div>
         <div class="txt">角度</div>
         <div class="mt-2 p-3 flex flex-wrap ">

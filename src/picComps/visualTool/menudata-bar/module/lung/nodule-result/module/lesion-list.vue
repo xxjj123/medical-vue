@@ -1,6 +1,8 @@
 <template>
   <div class="nodule_lesion-list" tabindex="0">
     <!-- {{ lesionOrderType }} -->
+    <!-- {{ findingItems }} -->
+
     <div class="wrappbox flex flex-col justify-between">
       <div class="content_main">
         <div class="table_bar flex justify-between">
@@ -25,10 +27,10 @@
             </ta-dropdown>
           </div>
         </div>
-        <ta-popover ref="mypop" @show="beforeShowFilterForm" :visible-arrow="true" :offset="1" :appendToBody="true"
-          :placement="`bottom`" class="cus_poper">
+        <ta-popover v-model="filterForm.show" ref="mypop" @show="beforeShowFilterForm" :visible-arrow="true" :offset="1"
+          :appendToBody="true" :placement="`bottom`" class="cus_poper">
           <div slot="content" class="boxBtn_extSelect">
-            <ta-form-model :layout="'vertical'" :model="filterForm">
+            <ta-form-model :layout="'vertical'">
               <template>
                 <ta-form-model-item :label="riskFilter.label">
                   <ta-checkbox :indeterminate="checkAllRisk.indeterminate" @change="riskFilter.checkAll"
@@ -78,8 +80,6 @@
             <template #imVolume="{ row }">
               <span>IM {{ row.im }}</span><br>
               <span>{{ row.volume }} mm³</span>
-
-
             </template>
 
             <template #lobe="{ row }">
@@ -88,7 +88,6 @@
               </div>
               <div>
                 <span>{{ row.ellipsoidAxisMajor }}x{{ row.ellipsoidAxisLeast }}mm</span>
-
               </div>
             </template>
 
@@ -130,9 +129,7 @@
                 </ta-dropdown>
               </div>
               <span>{{ row.ellipsoidAxisMajor }}x{{ row.ellipsoidAxisLeast }}mm</span>
-
             </template>
-
             <template #NODULE_TYPE_EDIT="{ row, column }">
               <div class="h1 cj_block">
                 <ta-dropdown :trigger="['click']" class="flex justify-start items-center mr-[10px]"
@@ -155,27 +152,26 @@
 
             </template>
 
-
           </ta-big-table>
         </div>
 
         <div class="analytic_semantic_description ">
-          <anaSemanticDesBlock :des-code="'yxsj'" :bookItems.sync="anaSecDesConf.bookItems"
-            :selection="checkedTableData" :blockMode="anaSecDesConf.mode" :selectVal="filmIpt_curItem"
-            :title="anaSecDesConf.title" :current="selectedNoduleId">
-            <filmInputState slot="searchBar" v-model="filmIpt_curItem" :typec="`dropdown`" :selectCurIdx="`0`"
+          <textBoard :bookItems="findingItems.list" :title="findingItems.title">
+            <searchBar slot="searchBar" :options="findingOrderType.list" :selected="findingOrderType.selected"
+              @selectItem="handleMenu_findingOrderType" />
+            <!-- <filmInputState slot="searchBar" v-model="filmIpt_curItem" :typec="`dropdown`" :selectCurIdx="`0`"
               :optionNum="`1`">
-            </filmInputState>
-          </anaSemanticDesBlock>
+            </filmInputState> -->
+          </textBoard>
         </div>
-
         <div class="analytic_semantic_description">
-          <anaSemanticDesBlock :des-code="'yxzd'" :bookItems.sync="anaSecDesConf_1.bookItems"
-            :selectVal="filmIpt_curItem_1" :blockMode="anaSecDesConf_1.mode" :title="anaSecDesConf_1.title"
-            :selection="checkedTableData" :current="selectedNoduleId">
-            <filmInputState slot="searchBar" v-model="filmIpt_curItem_1" :typec="`dropdown`" :selectCurIdx="`0`"
-              :optionNum="`2`"></filmInputState>
-          </anaSemanticDesBlock>
+          <textBoard :bookItems="diagnoseItems.list" :title="diagnoseItems.title">
+            <searchBar slot="searchBar" :options="diagnosisType.list" :selected="diagnosisType.selected"
+              @selectItem="handleMenu_diagnosisType" />
+
+            <!-- <filmInputState slot="searchBar" v-model="filmIpt_curItem_1" :typec="`dropdown`" :selectCurIdx="`0`"
+              :optionNum="`2`"></filmInputState> -->
+          </textBoard>
         </div>
 
       </div>
@@ -191,111 +187,27 @@
 </template>
 <script lang="jsx">
 import Emitter from "@/assets/js/mixins/emitter.js";
-import anaSemanticDesBlock from "../ana-semantic-des-block/index.vue";
+import textBoard from "@/picComps/visualTool/menudata-bar/module/lung/common/textBoard/index.vue";
+import searchBar from "@/picComps/visualTool/menudata-bar/module/lung/common/textBoard/searchBar.vue";
+
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
 import { CodeSandboxOutline } from "@yh/icons-svg";
-import { mapActions } from "vuex";
 import Vue from 'vue';
-import { SortOption } from "@/assets/js/utils/dicom/select";
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 import reportViewBtn from "./reportView/btn.vue"
 
-import { xhr_updateNoduleLesion } from "@/api/index";
-import { color } from "echarts";
-
-const operate_dict = {
-  lesionOrderType: [
-    { value: 1, label: "IM", sortKey: "im", reverse: false, order: 1 },
-    { value: 2, label: "肺段", sortKey: "lobeSegment.order", reverse: false, order: 2 },
-    { value: 3, label: "长径", sortKey: "ellipsoidAxisMajor", reverse: true, order: 3 },
-    { value: 4, label: "体积", sortKey: "volume", reverse: true, order: 4 },
-    { value: 5, label: "风险", sortKey: "riskCode.order", reverse: true, order: 5 },
-    { value: 6, label: "类型", sortKey: "type.order", reverse: false, order: 6 },
-  ],
-  riskFilter: [
-    { value: 1, label: "低危", order: 1 },
-    { value: 2, label: "中危", order: 2 },
-    { value: 3, label: "高危", order: 3 },
-  ],
-  typeFilter: [
-    { value: "Mass", label: "肿块", order: 1 },
-    { value: "Mixed", label: "混合性", order: 2 },
-    { value: "GCN", label: "磨玻璃性", order: 3 },
-    { value: "Solid", label: "实性", order: 4 },
-    { value: "Calcified", label: "钙化", order: 5 },
-  ],
-  majorAxisSelectFilter: [
-    { value: 1, label: "0-3mm", order: 1 },
-    { value: 2, label: "3-5mm", order: 2 },
-    { value: 3, label: "5-8mm", order: 3 },
-    { value: 4, label: ">8mm", order: 4 },
-  ],
-  findingOrderType: [
-    { value: 1, label: "层数", order: 1 },
-    { value: 2, label: "肺段", order: 2 },
-    { value: 3, label: "类型", order: 3 },
-    { value: 4, label: "结构化描述", order: 4 },
-    { value: 5, label: "结节汇总", order: 5 },
-  ],
-  diagnosisType: [
-    { value: 1, label: "无", order: 1 },
-    { value: 2, label: "NCCN", order: 2 },
-  ]
-
-}
-
-const nodule_dict = {
-  riskCode: [
-    { value: 1, label: "低危", color: "green", order: 1 },
-    { value: 2, label: "中危", color: "yellow", order: 2 },
-    { value: 3, label: "高危", color: "red", order: 3 },
-  ],
-  type: [
-    { value: "Mass", label: "肿块", order: 1 },
-    { value: "Mixed", label: "混合性结节", order: 2 },
-    { value: "GCN", label: "磨玻璃性结节", order: 3 },
-    { value: "Solid", label: "实性结节", order: 4 },
-    { value: "Calcified", label: "钙化结节", order: 5 },
-  ],
-  lobe: [
-    { value: "lobe_left_top", label: "左肺上叶", order: 1 },
-    { value: "lobe_left_bottom", label: "左肺下叶", order: 2 },
-    { value: "lobe_right_top", label: "右肺上叶", order: 3 },
-    { value: "lobe_right_middle", label: "右肺中叶", order: 4 },
-    { value: "lobe_right_bottom", label: "右肺下叶", order: 5 },
-  ],
-  lobeSegment: [
-    { value: 14, label: "尖后段", lobe: "lobe_left_top", order: 1 },
-    { value: 13, label: "前段", lobe: "lobe_left_top", order: 2 },
-    { value: 11, label: "上舌段", lobe: "lobe_left_top", order: 3 },
-    { value: 12, label: "下舌段", lobe: "lobe_left_top", order: 4 },
-    { value: 18, label: "背段", lobe: "lobe_left_bottom", order: 5 },
-    { value: 15, label: "内前基底段", lobe: "lobe_left_bottom", order: 6 },
-    { value: 17, label: "外基底段", lobe: "lobe_left_bottom", order: 7 },
-    { value: 16, label: "后基底段", lobe: "lobe_left_bottom", order: 8 },
-    { value: 3, label: "尖段", lobe: "lobe_right_top", order: 9 },
-    { value: 2, label: "后段", lobe: "lobe_right_top", order: 10 },
-    { value: 1, label: "前段", lobe: "lobe_right_top", order: 11 },
-    { value: 5, label: "外侧段", lobe: "lobe_right_middle", order: 12 },
-    { value: 4, label: "内侧段", lobe: "lobe_right_middle", order: 13 },
-    { value: 10, label: "背段", lobe: "lobe_right_bottom", order: 14 },
-    { value: 6, label: "内基底段", lobe: "lobe_right_bottom", order: 15 },
-    { value: 7, label: "前基底段", lobe: "lobe_right_bottom", order: 16 },
-    { value: 9, label: "外基底段", lobe: "lobe_right_bottom", order: 17 },
-    { value: 8, label: "后基底段", lobe: "lobe_right_bottom", order: 18 }
-
-  ]
-};
-
+import { operate_dict, nodule_dict } from "../assets/dict"
+import { noduleFindingTemplate, noduleDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
 
 // 病变列表
 export default {
   name: "lesion-list",
   components: {
-    anaSemanticDesBlock,
     filmInputState,
     reportViewBtn,
+    textBoard,
+    searchBar
   },
   mixins: [Emitter],
   props: {
@@ -303,6 +215,7 @@ export default {
     operateResult: Object
   },
   computed: {
+    ...mapState("mprViewStore", ["seriesInfo"]),
     ...mapState("noduleInfoStore", ["selectedNoduleId"]),
     lobeList: {
       get() {
@@ -312,32 +225,6 @@ export default {
           segments.sort((a, b) => a.value - b.value);
           return { ...item, segments };
         })
-      }
-    },
-    ribTypeDropDown: {
-      get() {
-        return {
-          showValue: this.selectedRow ? this.selectedRow.ribType.label : "",
-          list: nodule_dict.ribType,
-        }
-      }
-
-    },
-    noduleClassDropDown: {
-      get() {
-        return {
-          showValue: this.selectedRow ? this.selectedRow.noduleClass.label : "",
-          list: nodule_dict.noduleClass,
-        }
-      }
-
-    },
-    ribNumberDropDown: {
-      get() {
-        return {
-          showValue: this.selectedRow ? this.selectedRow.ribSide.value + this.selectedRow.ribNum : "",
-          ribSideList: nodule_dict.ribSide,
-        }
       }
     },
     lessionList: {
@@ -360,7 +247,6 @@ export default {
               }
             }
           });
-
           return newItem;
         });
 
@@ -376,37 +262,30 @@ export default {
         }
 
         if (majorAxisSelectFilter) {
-          const majorAxisSelectList = majorAxisSelectFilter.split(",").map(Number)
-          mappedList = mappedList.filter(item => {
-            const ellipsoidAxisMajor = item.ellipsoidAxisMajor
-            let axisLabel = ''
-            if (ellipsoidAxisMajor < 3) {
-              axisLabel = 1
-            } else if (ellipsoidAxisMajor < 5) {
-              axisLabel = 2
-            }
-            else if (ellipsoidAxisMajor < 8) {
-              axisLabel = 3
-            } else {
-              axisLabel = 4
-            }
-            return majorAxisSelectList.includes(axisLabel)
-          })
+          const majorAxisSelectList = majorAxisSelectFilter.split(",").map(Number);
+          const getAxisLabel = (ellipsoidAxisMajor) => {
+            if (ellipsoidAxisMajor < 3) return 1;
+            if (ellipsoidAxisMajor < 5) return 2;
+            if (ellipsoidAxisMajor < 8) return 3;
+            return 4;
+          };
+          mappedList = mappedList.filter(item =>
+            majorAxisSelectList.includes(getAxisLabel(item.ellipsoidAxisMajor))
+          );
 
         }
 
         if (lesionOrderType) {
-          const valueEntry = operate_dict.lesionOrderType.find(val => val.value == Number(lesionOrderType));
+          const valueEntry = operate_dict.lesionOrderType.find(val => val.value === Number(lesionOrderType));
+          const sortKeyPath = valueEntry.sortKey.split('.');
+          const isReverse = valueEntry.reverse;
+
           mappedList.sort((a, b) => {
-            const valueA = valueEntry.sortKey.split('.').reduce(function (o, i) {
-              return o[i];
-            }, a);
-            const valueB = valueEntry.sortKey.split('.').reduce(function (o, i) {
-              return o[i];
-            }, b);
+            const getValue = (item) => sortKeyPath.reduce((o, i) => o[i], item);
+            const valueA = getValue(a);
+            const valueB = getValue(b);
 
-            return valueEntry.reverse ? valueB - valueA : valueA - valueB
-
+            return isReverse ? valueB - valueA : valueA - valueB;
           });
         }
 
@@ -480,6 +359,44 @@ export default {
           indeterminate: list.length != options.length && list.length != 0
         }
       }
+    },
+    findingOrderType: {
+      get() {
+        const { findingOrderType } = this.operate_dict
+        return {
+          selected: findingOrderType.find(item => item.value == Number(this.operateResult.findingOrderType)),
+          list: findingOrderType
+        }
+      }
+    },
+    diagnosisType: {
+      get() {
+        const { diagnosisType } = this.operate_dict
+        return {
+          selected: diagnosisType.find(item => item.value == Number(this.operateResult.diagnosisType)),
+          list: diagnosisType
+        }
+      }
+    },
+    findingItems: {
+      get() {
+        const { imageCount } = this.seriesInfo
+        return {
+          title: "影像所见",
+          list: noduleFindingTemplate(this.checkedTableData, Number(this.operateResult.findingOrderType), imageCount, this.selectedNoduleId)
+        }
+      }
+
+    },
+    diagnoseItems: {
+      get() {
+        return {
+          title: "影像诊断",
+          list: noduleDiagnoseTemplate(this.checkedTableData, Number(this.operateResult.diagnosisType))
+        }
+
+      }
+
     }
   },
   watch: {
@@ -489,7 +406,6 @@ export default {
           const checkedData = newVal.filter(item => item.checked);
           this.$refs.tableNoduleRef.setCheckboxRow(checkedData, true)
         })
-
       },
       deep: true
     }
@@ -501,19 +417,10 @@ export default {
     return {
       nodule_dict,
       operate_dict,
-      filmIpt_curItem: null,
-      filmIpt_curItem_1: null,
+      // filmIpt_curItem: null,
+      // filmIpt_curItem_1: null,
       selectedRow: null,
-      anaSecDesConf: {
-        title: "影像所见",
-        mode: "finding",
-        bookItems: [],
-      },
-      anaSecDesConf_1: {
-        title: "影像诊断",
-        mode: "diagnose",
-        bookItems: [],
-      },
+
       tableConfig: {
         size: "small",
         showHiddenOrSortColumn: {
@@ -565,7 +472,7 @@ export default {
         ],
       },
       filterForm: {
-
+        show: false
       },
       riskFilter: {
         label: "良恶性",
@@ -635,6 +542,8 @@ export default {
       this.typeFilter.list = []
       this.majorAxisSelectFilter.list = [2, 3, 4]
       this.confirmShowFilterForm()
+      this.filterForm.show = false
+
     },
     confirmShowFilterForm() {
       const updateList = [
@@ -643,6 +552,7 @@ export default {
         { key: "majorAxisSelectFilter", value: this.majorAxisSelectFilter.list ? this.majorAxisSelectFilter.list.join(",") : '' },
       ]
       this.updateNoduleOperate({ updateList })
+      this.filterForm.show = false
 
     },
     handleCellClick(e) {
@@ -658,14 +568,26 @@ export default {
       const updateList = [
         { key: "lesionOrderType", value: key },
       ]
-
       this.updateNoduleOperate({ updateList })
     },
+    handleMenu_findingOrderType(value) {
+      console.log("handleMenu_findingOrderType")
+      const updateList = [
+        { key: "findingOrderType", value },
+      ]
+      this.updateNoduleOperate({ updateList })
+    },
+    handleMenu_diagnosisType(value) {
+      console.log("handleMenu_diagnosisType")
 
+      const updateList = [
+        { key: "diagnosisType", value },
+      ]
+      this.updateNoduleOperate({ updateList })
+    },
     selectAllEvent(ev) {
       const { checked, selection } = ev;
       this.tableData.forEach(item => {
-
         if (item.checked != checked) {
           const updateList = [{ key: "checked", value: !item.checked }]
           this.updateNoduleLesion({ noduleid: item.id, updateList })
