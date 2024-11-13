@@ -208,7 +208,7 @@ const operate_dict = {
   lesionOrderType: [
     { value: 1, label: "IM", sortKey: "im", reverse: false, order: 1 },
     { value: 2, label: "肺段", sortKey: "lobeSegment.order", reverse: false, order: 2 },
-    { value: 3, label: "长径", sortKey: "ellipsoidAxisMajor", reverse: false, order: 3 },
+    { value: 3, label: "长径", sortKey: "ellipsoidAxisMajor", reverse: true, order: 3 },
     { value: 4, label: "体积", sortKey: "volume", reverse: true, order: 4 },
     { value: 5, label: "风险", sortKey: "riskCode.order", reverse: true, order: 5 },
     { value: 6, label: "类型", sortKey: "type.order", reverse: false, order: 6 },

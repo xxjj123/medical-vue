@@ -1,0 +1,288 @@
+[33mcommit a079b16583a8f1304d9700421f6cf8aac48d36cf[m[33m ([m[1;36mHEAD -> [m[1;32mxwj2[m[33m, [m[1;31mkk/xwj2[m[33m)[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Wed Nov 13 00:38:39 2024 +0800
+
+    添加过滤
+
+[33mcommit d33ecba06c8417bdefe394f06583cd067b7a010d[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Tue Nov 12 17:55:30 2024 +0800
+
+    重写结节
+
+[33mcommit 9695e5264526c34b996e726933449d9826680792[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Tue Nov 12 16:18:02 2024 +0800
+
+    每天要提交一次
+
+[33mcommit dd398bc369a8e728439248ce2561e9665fe41db2[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Fri Nov 8 14:39:39 2024 +0800
+
+    骨折换了，updateijk换稳定方法
+
+[33mcommit b86c1998d5e6ab123bf4532084b7cdb34e23cc08[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Fri Nov 8 11:56:30 2024 +0800
+
+    修改多个interactor导致的多次请求切片
+
+[33mcommit e1c6cc141ced8ab9ff156f85026bb240f06b5489[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Fri Nov 8 10:45:08 2024 +0800
+
+    添加骨折诊断
+
+[33mcommit d47646e52c69b53a3afaed606bfa88f900dacc6b[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Thu Nov 7 13:58:50 2024 +0800
+
+    行点击，checkbox分离
+
+[33mcommit 8141a6b1d52c5f427e7bb93a8374a74ec550a4cd[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Wed Nov 6 20:09:05 2024 +0800
+
+    修复初始化的时候多次下载切片
+
+[33mcommit 4016bee507be0d6fc9f7a6abb0a866b4ea9753a0[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Wed Nov 6 20:02:58 2024 +0800
+
+    修复初始化的时候多次下载切片
+
+[33mcommit 1db30167a15fccfdd91580c4f7ec825b4b8baa01[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Wed Nov 6 17:15:56 2024 +0800
+
+    初始化修改
+
+[33mcommit 615e0caac7ba6b36c0dd81707d29ea9742473274[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Wed Nov 6 16:57:51 2024 +0800
+
+    添加肺炎
+
+[33mcommit 53ed9f16e0d30b137c00382fd2185e0f68807b3c[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Sun Nov 3 00:30:45 2024 +0800
+
+    修复首页搜索
+
+[33mcommit 63359d094ee37505751dd4cd1023fcf209eed60e[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Thu Oct 31 05:41:57 2024 +0800
+
+    添加肺炎模块
+
+[33mcommit 6ff319c9f1ab514d515a26aa245e684ee3a593f7[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Thu Oct 24 14:44:30 2024 +0800
+
+    修改切片读取方式
+
+[33mcommit 99fa756c56f7e1d02c2a6367265abc8524cb32f9[m[33m ([m[1;31mkk/develop[m[33m, [m[1;32mxwj[m[33m, [m[1;32mdevelop[m[33m)[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Mon Oct 21 15:21:07 2024 +0800
+
+    添加3d读取补丁
+
+[33mcommit 23fed7271289fb55507229bd146e96ce2b72dc44[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Mon Oct 21 10:07:12 2024 +0800
+
+    修改3d读取方式
+
+[33mcommit 0fff0bc32e5767132e8d0021da7217886a211056[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Mon Oct 7 21:51:11 2024 +0800
+
+    更新3d方式
+
+[33mcommit 975d2a6f2e1e531d50c32a1f86787c329cd8194f[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Fri Sep 27 15:17:44 2024 +0800
+
+    忘了更新十字线
+
+[33mcommit 1b90d5c54c9c41f41799e32f187c648177ca7a07[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Fri Sep 27 14:27:06 2024 +0800
+
+    页面退出的状态还原
+
+[33mcommit 8ede8fe9fe5c1a82e8004480e1e8511bac0375eb[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Fri Sep 27 14:19:35 2024 +0800
+
+    鼠标滚动加载切片优化
+
+[33mcommit cdf53f8cf812475f59ce3c806efeac302175fa4a[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Fri Sep 27 10:07:58 2024 +0800
+
+    选择结节，暂停播放bug修复
+
+[33mcommit 61f1798c54df41796ab04a3904643023ffcca18d[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Fri Sep 27 09:38:56 2024 +0800
+
+    放大修复
+
+[33mcommit a2ddee5f6e041a2fa702d2150a7db70a1f7ba8df[m[33m ([m[1;32mfeature/fangh[m[33m)[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Thu Sep 26 17:31:46 2024 +0800
+
+    结节同步，自动播放修复，resize修复
+
+[33mcommit 7946c298cc57c85cbcca0d7c5bc7df919db80847[m[33m ([m[1;31mkk/feature/fangh[m[33m)[m
+Merge: 612af44 7dbf021
+Author: fangh <marklow@126.com>
+Date:   Thu Sep 26 11:31:40 2024 +0800
+
+    报告---release
+
+[33mcommit 612af44aa6b0c8126098c87823e34149cc4ab8a8[m
+Author: fangh <marklow@126.com>
+Date:   Thu Sep 26 11:13:00 2024 +0800
+
+    demo
+
+[33mcommit 7dbf021d0d095ac36387890f9144010da83c4d42[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Thu Sep 26 09:19:20 2024 +0800
+
+    工具栏优化
+
+[33mcommit 68d33072e407fa7eadb764b12434fda307c9157a[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Wed Sep 25 10:08:37 2024 +0800
+
+    工具按钮优化
+
+[33mcommit db454f5de8f2c3d984cc7166937143d29b5516a1[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Tue Sep 24 17:38:10 2024 +0800
+
+    上传单张
+
+[33mcommit 55ff72ec0fa924698f27037560916a842ef2825d[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Fri Sep 20 15:44:22 2024 +0800
+
+    toolsbar修复
+
+[33mcommit 271a010e733199619d7110589a0307cbf35d19b5[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Fri Sep 20 14:29:24 2024 +0800
+
+    切片请求方式的优化
+
+[33mcommit b5aa263ec0d053e89bf2d14591e5c44c58ac32f5[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Fri Sep 20 14:03:06 2024 +0800
+
+    添加单张查看
+
+[33mcommit 8f7d20e40a449d643b6a405b28f12d66b43ea37c[m
+Author: fangh <marklow@126.com>
+Date:   Fri Sep 6 18:42:42 2024 +0800
+
+    首次打开 读取 前端缓存数据 报告实现
+
+[33mcommit 468be2f72226c2a7e9ac3c04f4d610fad2d214c0[m
+Author: fangh <marklow@126.com>
+Date:   Fri Sep 6 14:54:18 2024 +0800
+
+    复制功能 测试通过
+
+[33mcommit 45e9d0e48f955a7b2b605767115ef9fc956643ea[m
+Author: fangh <marklow@126.com>
+Date:   Thu Sep 5 17:51:22 2024 +0800
+
+    报告----
+
+[33mcommit b850f65ade0226230eec15548ce8a276bf8a3e54[m
+Merge: 252b4d1 e418572
+Author: fangh <marklow@126.com>
+Date:   Thu Sep 5 17:20:20 2024 +0800
+
+    Merge branch 'xwj' of ssh://192.168.1.109:2222/MedicalImageDiagnosisSystem/medical-image-diagnosis-system-ui into feature/fangh
+
+[33mcommit e418572b91769c992e6097b4a8c323c2d1035a30[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Thu Sep 5 17:10:20 2024 +0800
+
+    图片方向修正
+
+[33mcommit 252b4d1a29da289c6f3ae298612d975cd8ebd9db[m
+Author: fangh <marklow@126.com>
+Date:   Mon Sep 2 15:17:03 2024 +0800
+
+    切片滚动优化
+
+[33mcommit 78db2b86c5a7f83dba99cd804c93d73571763697[m
+Author: fangh <marklow@126.com>
+Date:   Mon Sep 2 13:49:37 2024 +0800
+
+    slice-produce change
+
+[33mcommit ab4312c3c093cee1ef84299685f7ee8a4e23f141[m
+Author: fangh <marklow@126.com>
+Date:   Mon Sep 2 12:57:17 2024 +0800
+
+    截斷
+
+[33mcommit 4eedbdfa1f4c8e90ac55bfdc880e03e5ee52bb43[m
+Merge: bfdac92 9f69066
+Author: fangh <marklow@126.com>
+Date:   Mon Sep 2 12:51:58 2024 +0800
+
+    Merge branch 'xwj' of ssh://192.168.1.109:2222/MedicalImageDiagnosisSystem/medical-image-diagnosis-system-ui into feature/fangh
+
+[33mcommit bfdac92b89463e01056b3c1a537614d3291feda7[m
+Author: fangh <marklow@126.com>
+Date:   Mon Sep 2 12:51:06 2024 +0800
+
+    report----123
+
+[33mcommit ee834b61b492b9d31a00e37f356f0786cecc012c[m
+Author: fangh <marklow@126.com>
+Date:   Mon Sep 2 11:58:36 2024 +0800
+
+    1、textarea-模拟实现 2、添加文本角标
+
+[33mcommit 9f690669e1be526b595d7252364b806516d425f0[m
+Merge: 5b2c19e 8604738
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Mon Sep 2 11:58:18 2024 +0800
+
+    并
+
+[33mcommit 5b2c19e9641a76dadd7da60801f2b24790e3e160[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Mon Sep 2 10:41:23 2024 +0800
+
+    完善诊断结果
+
+[33mcommit 8604738f33f415f0ee8c0ac9907097fd3fcdef4e[m
+Author: fangh <marklow@126.com>
+Date:   Mon Sep 2 08:37:30 2024 +0800
+
+    report
+
+[33mcommit 691192405fccea17e8f1a5471980c523dc44c86f[m
+Author: xxjj123 <xwj1535217735@163.com>
+Date:   Mon Sep 2 08:35:44 2024 +0800
+
+    完善诊断结果
+
+[33mcommit f1bfe6ca41eed762d81d40a2845b390d1900f672[m
+Author: fangh <marklow@126.com>
+Date:   Fri Aug 30 18:49:07 2024 +0800
+
+    样式实现完成
+
+[33mcommit 6c22f190cbcbcb20ed4be308ad43d87fb005df4f[m
+Author: fangh <marklow@126.
