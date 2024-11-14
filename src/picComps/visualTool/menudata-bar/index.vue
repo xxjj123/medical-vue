@@ -4,7 +4,7 @@
     <div class="menuTopBox flex justify-between">
       <div class="sub_title">--</div>
       <div class="sub_tool flex items-center">
-        <div @click="handle_shouchang" class="flex hover:cursor-pointer justify-start items-center">
+        <div @click="handle_collect" class="flex hover:cursor-pointer justify-start items-center">
           <div class="icon ico_shouchang flex items-center">
             <ta-icon v-if="menuTopTool.collect === true" :style="starOn_style" type="star" theme="filled" />
             <ta-icon v-else type="star" />
@@ -22,25 +22,17 @@
         </div>
       </div>
     </div>
-    <!-- 面板顶部操作小按钮 end-->
 
-    <ta-tabs :defaultActiveKey="defaultActiveKey" @change="tab_callback">
-      <ta-tab-pane tab="结节" key="1">
-        <!-- Content of Tab Pane 1 -->
-        <noduleResult :cKey="'nodule'"></noduleResult>
+    <ta-tabs :defaultActiveKey="defaultActiveKey" :tabBarGutter="25" @change="tab_callback">
+      <ta-tab-pane :key="item.key" v-for="item in tabItems">
+        <div slot="tab">
+          <span :style="{ color: item.hasLesion ? 'rgb(24, 151, 151)' : 'grey' }">●</span>
+          <span> {{ item.title }}
+          </span>
+        </div>
+        <component :is="item.component" />
       </ta-tab-pane>
-      <ta-tab-pane tab="肺炎" key="2">
-        <!-- Content of Tab Pane 2 -->
-        <pneumonia-result :cKey="'pneumonia'"></pneumonia-result>
-      </ta-tab-pane>
-      <ta-tab-pane tab="骨折" key="3">
-        <!-- Content of Tab Pane 3 -->
-        <fracture-result :cKey="'frac'"></fracture-result>
-      </ta-tab-pane>
-      <ta-tab-pane tab="钙化积分" key="4">
-        <!-- Content of Tab Pane 4 -->
-        <calcium-score-result :cKey="'calcium'"></calcium-score-result>
-      </ta-tab-pane>
+
     </ta-tabs>
   </div>
 </template>
@@ -49,7 +41,7 @@ import noduleResult from "@/picComps/visualTool/menudata-bar/module/lung/nodule-
 import pneumoniaResult from "@/picComps/visualTool/menudata-bar/module/lung/pneumonia-result/index.vue";
 import fractureResult from "@/picComps/visualTool/menudata-bar/module/lung/fracture-result/index.vue";
 import calciumScoreResult from "@/picComps/visualTool/menudata-bar/module/lung/calcium-score-result/index.vue";
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 
 export default {
   name: "menudata-bar",
@@ -63,7 +55,7 @@ export default {
   data() {
     return {
       defaultActiveKey: "1",
-      curSelectActKey: "",
+      activeKey: "",
       menuTopTool: {
         collect: false,
       },
@@ -72,28 +64,61 @@ export default {
       },
     };
   },
+  computed: {
+    ...mapState("noduleInfoStore", ["noduleInfo"]),
+    ...mapState("pneumoniaInfoStore", ["pneumoniaInfo"]),
+    ...mapState("fracInfoStore", ["fracInfo"]),
+
+    tabItems: {
+      get() {
+        return [
+          {
+            title: "结节",
+            key: "nodule",
+            hasLesion: this.noduleInfo.hasLesion,
+            component: noduleResult,
+          },
+          {
+            title: "肺炎",
+            key: "pneumonia",
+            hasLesion: this.pneumoniaInfo.hasLesion,
+            component: pneumoniaResult,
+          },
+          {
+            title: "骨折",
+            key: "frac",
+            hasLesion: this.fracInfo.hasLesion,
+            component: fractureResult,
+          },
+          {
+            title: "钙化结节",
+            key: "calcium",
+            hasLesion: false,
+            component: calciumScoreResult,
+          },
+        ]
+      }
+    }
+  },
   methods: {
     ...mapActions("noduleInfoStore", ["ActiveNoduleState"]),
-
     ...mapActions("pneumoniaInfoStore", ["ActivePneumoniaState"]),
-
     ...mapActions("fracInfoStore", ["ActiveFracState"]),
-
 
     tab_callback(key) {
       console.log(key);
-      if (key == 1) {
+      if (key == "nodule") {
         this.ActiveNoduleState()
-      } else if (key == 2) {
+      } else if (key == "pneumonia") {
         this.ActivePneumoniaState()
-      } else if (key = 3) {
+      } else if (key = "calcium") {
         this.ActiveFracState()
 
       }
-      this.curSelectActKey = key;
+      this.activeKey = key;
 
     },
-    handle_shouchang() {
+    handle_collect() {
       this.menuTopTool.collect = !this.menuTopTool.collect;
       this.$emit("cb-sc", this.menuTopTool.collect);
     },

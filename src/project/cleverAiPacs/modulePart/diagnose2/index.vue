@@ -48,10 +48,10 @@ import {
   xhr_queryNodule,
 } from "@/api";
 
-import {
-  ButtonNames,
-  LayoutIcons
-} from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
+// import {
+//   ButtonNames,
+//   LayoutIcons
+// } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
 import JSZip from "jszip";
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
@@ -82,16 +82,18 @@ export default {
   },
   methods: {
     ...mapMutations("mprViewStore", ["SET_SERIES_INFO"]),
-    ...mapActions("mprViewStore", ["UpdateDraw", "UpdateDiagnoseState", "InitSlice", "InitAllSlice", "SetAllViewData"]),
-    ...mapActions("mprToolsStore", ["UpdateColorWindow", "UpdateColorLevel", "ChangePan"]),
+    ...mapActions("mprViewStore", ["InitAllSlice"]),
 
-    ...mapActions("noduleInfoStore", ["InitNoduleState", "ActiveNoduleState", "InitAnnotations"]),
-    ...mapMutations("noduleInfoStore", ["SET_NODULE_INFO"]),
+    // ...mapActions("mprViewStore", ["UpdateDraw", "UpdateDiagnoseState", "InitSlice", "InitAllSlice", "SetAllViewData"]),
+    // ...mapActions("mprToolsStore", ["UpdateColorWindow", "UpdateColorLevel", "ChangePan"]),
 
-    ...mapActions("pneumoniaInfoStore", ["InitPneumoniaState"]),
+    // ...mapActions("noduleInfoStore", ["InitNoduleState", "ActiveNoduleState", "InitAnnotations"]),
+    // ...mapMutations("noduleInfoStore", ["SET_NODULE_INFO"]),
 
-    ...mapActions("fracInfoStore", ["InitFracState", "ActiveFracState"]),
-    ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE", "SET_SLICE_CT_PIC_LAYOUT"]),
+    // ...mapActions("pneumoniaInfoStore", ["InitPneumoniaState"]),
+
+    // ...mapActions("fracInfoStore", ["InitFracState", "ActiveFracState"]),
+    // ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE", "SET_SLICE_CT_PIC_LAYOUT"]),
     ...mapActions("toolBarStore", ["setActiveModule"]),
 
 

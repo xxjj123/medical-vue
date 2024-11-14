@@ -256,7 +256,6 @@ function noduleObjectToTemplate(obj:Object, template:string,imageCount?:string) 
 }
 
 export function noduleFindingTemplate(objList:Object[], mode:string,imageCount:string,currentNum:string) {
-  console.log("noduleFindingTemplate",objList,mode)
   let resultBookItems = []
   if (objList.length == 0 || !mode) {
    resultBookItems.push({ id: -1, isActive:false,desc: noduleFindingEnum.TEMP0 })

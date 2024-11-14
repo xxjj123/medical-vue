@@ -356,8 +356,6 @@ export default {
 
         // await dispatch("InitIJK",{ijk})
 
-
-
        console.log("allViewData",allViewData.buttons)
        dispatch("mprToolsStore/UpdateColorWindow",allViewData.colorWindow,{root:true})
        dispatch("mprToolsStore/UpdateColorLevel",allViewData.colorLevel,{root:true})
@@ -403,6 +401,7 @@ export default {
       commit("toolBarStore/INIT_BUTTON_ACTIVE_STATE",allViewData.activeButtons,{root:true})
 
       commit("toolBarStore/SET_SLICE_CT_PIC_LAYOUT",allViewData.layOut,{root:true})
+ 
 
       // commit("UPDATE_DIAGNOSE_STATE",{store:"noduleInfoStore",v_state:active_state})
       // dispatch('mprToolsStore/resizeSliceViews', null, { root: true });
@@ -669,10 +668,8 @@ export default {
 
       });
       view.interactor.onMouseWheel((event) =>{
-
         if(state.activeModule){
           dispatch("handleMouseWheel", {spinY: event.spinY, view})
-
         }
 
       }
@@ -775,7 +772,6 @@ export default {
       }
     },
     handleMouseMove({commit, state, dispatch, getters}, {event, view}) {
-
       const viewIndex = view.viewIndex
       const {x, y} = event.position;
       state.picker.pick([x, y, 0], view.renderer);
@@ -1126,9 +1122,7 @@ console.log("")
      */
     AutoPlay({ commit, dispatch, state, getters,rootState }, { viewIndex }) {
 
-
       const view = rootState[state.activeModule].viewMprViews[viewIndex];
-
       const viewData = getters.viewsData[viewIndex]
       if (!state.autoPlayStates[viewIndex].isAutoPlay ) {
         dispatch("clearAllAutoplay")

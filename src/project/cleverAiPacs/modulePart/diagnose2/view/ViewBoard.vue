@@ -243,7 +243,7 @@ export default {
       if (newVal !== oldVal) {
         requestAnimationFrame(() => {
           this.resizeViews();
-          // this.resizeCamera(); // Uncomment if needed
+          this.resizeCamera(); // Uncomment if needed
           // dispatch("setupCamera", view.viewIndex); // Uncomment if needed
         });
       }

@@ -51,6 +51,7 @@ body {
     &.custom_modal_box {
 
       background: rgba(2, 31, 31, 0.85);
+
       box-shadow: inset 0px 0px 20px 12px rgba(24, 151, 151, 0.35);
       border-radius: 8px;
       border: 1px solid @primary-color;
@@ -115,6 +116,41 @@ body {
 
 
   }
+   .ant-tabs {
+    &.custom_report_bar {
+      .ant-tabs-tab{
+        padding: 10px 30px;
+        background-color: rgba(24, 151, 151, 0.35);
+        border: none;
+      }
+      .ant-tabs-nav {
+        .ant-tabs-tab-active{
+          color: white;
+          border: none;
+          background-color: rgba(8, 233, 233, 0.35);
+
+        }
+      }
+
+
+      .ant-tabs-left-bar {
+        border:none;
+        .ant-tabs-ink-bar{
+          display: none !important;
+
+        }
+
+      }
+
+      .ant-tabs-left-content {
+        border: none;
+
+        border-left: none;
+
+      }
+    }
+    }
+
 
   /*  ta-modal ---end */
 }

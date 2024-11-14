@@ -8,13 +8,17 @@
 </template>
 <script lang='javascript'>
 import reportModal from "./module/report-modal.vue";
-import {mapState, mapMutations, mapActions, mapGetters} from "vuex";
+import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
 
 export default {
   name: 'reportViewBtn',
   components: {
     reportModal
+  },
+  props: {
+    finding: Array,
+    diagnosis: Array
   },
   data() {
     return {
@@ -34,8 +38,8 @@ export default {
 
       console.log("this.$parent=======", this.$parent)
 
-      console.log("get_reports_yxsj_content===@", this.get_reports_yxsj_content);
-      console.log("get_reports_yxzd_content===@", this.get_reports_yxzd_content);
+      console.log("get_reports_yxsj_content===@", this.finding);
+      console.log("get_reports_yxzd_content===@", this.diagnosis);
       this.contentMainData_base.yxsj_content = this.get_reports_yxsj_content;
       this.contentMainData_base.yxzd_content = this.get_reports_yxzd_content;
 

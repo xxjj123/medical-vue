@@ -159,25 +159,19 @@
           <textBoard :bookItems="findingItems.list" :title="findingItems.title">
             <searchBar slot="searchBar" :options="findingOrderType.list" :selected="findingOrderType.selected"
               @selectItem="handleMenu_findingOrderType" />
-            <!-- <filmInputState slot="searchBar" v-model="filmIpt_curItem" :typec="`dropdown`" :selectCurIdx="`0`"
-              :optionNum="`1`">
-            </filmInputState> -->
           </textBoard>
         </div>
         <div class="analytic_semantic_description">
           <textBoard :bookItems="diagnoseItems.list" :title="diagnoseItems.title">
             <searchBar slot="searchBar" :options="diagnosisType.list" :selected="diagnosisType.selected"
               @selectItem="handleMenu_diagnosisType" />
-
-            <!-- <filmInputState slot="searchBar" v-model="filmIpt_curItem_1" :typec="`dropdown`" :selectCurIdx="`0`"
-              :optionNum="`2`"></filmInputState> -->
           </textBoard>
         </div>
 
       </div>
       <div class="btn_cxt">
         <div class="report_item_bar flex">
-          <reportViewBtn></reportViewBtn>
+          <reportViewBtn :finding="findingItems.list" :diagnosis="diagnoseItems.list"></reportViewBtn>
         </div>
       </div>
     </div>
@@ -189,13 +183,14 @@
 import Emitter from "@/assets/js/mixins/emitter.js";
 import textBoard from "@/picComps/visualTool/menudata-bar/module/lung/common/textBoard/index.vue";
 import searchBar from "@/picComps/visualTool/menudata-bar/module/lung/common/textBoard/searchBar.vue";
+import reportViewBtn from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/btn.vue"
 
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
 import { CodeSandboxOutline } from "@yh/icons-svg";
 import Vue from 'vue';
 import { mapState, mapActions } from "vuex";
 
-import reportViewBtn from "./reportView/btn.vue"
+// import reportViewBtn from "./reportView/btn.vue"
 
 import { operate_dict, nodule_dict } from "../assets/dict"
 import { noduleFindingTemplate, noduleDiagnoseTemplate } from "@/assets/js/utils/dicom/select";

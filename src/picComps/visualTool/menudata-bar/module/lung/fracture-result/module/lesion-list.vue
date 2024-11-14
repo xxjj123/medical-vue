@@ -121,21 +121,21 @@
           <textBoard :bookItems="diagnoseItems.list" :title="diagnoseItems.title">
           </textBoard>
         </div>
-
       </div>
+
       <div class="btn_cxt">
         <div class="report_item_bar flex">
-          <reportViewBtn></reportViewBtn>
+          <reportViewBtn :finding="findingItems.list" :diagnosis="diagnoseItems.list"></reportViewBtn>
         </div>
       </div>
     </div>
-
 
   </div>
 </template>
 <script lang="jsx">
 import Emitter from "@/assets/js/mixins/emitter.js";
 import textBoard from "@/picComps/visualTool/menudata-bar/module/lung/common/textBoard/index.vue";
+import reportViewBtn from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/btn.vue"
 
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
 import { CodeSandboxOutline } from "@yh/icons-svg";
@@ -143,7 +143,7 @@ import Vue from 'vue';
 import { SortOption } from "@/assets/js/utils/dicom/select";
 import { mapState, mapActions } from "vuex";
 
-import reportViewBtn from "./reportView/btn.vue"
+// import reportViewBtn from "./reportView/btn.vue"
 
 import { frac_dict } from "../assets/dict"
 import { fracFindingTemplate, fracDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
