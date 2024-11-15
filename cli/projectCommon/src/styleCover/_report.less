@@ -1,0 +1,70 @@
+.func_bgCover() {
+  background-repeat: no-repeat;
+  background-size: 100%;
+  background-position: 0 0;
+}
+
+
+
+body {
+
+   .ant-tabs {
+    &.custom_report_bar {
+      height:100%;
+      padding: 0;
+      .ant-tabs-tab{
+        padding: 10px 30px;
+
+        background-color: rgba(24, 151, 151, 0.35);
+        border: none;
+      }
+      .ant-tabs-nav {
+        .ant-tabs-tab-active{
+          color: white;
+          border: none;
+          background-color: rgba(8, 233, 233, 0.35);
+
+        }
+      }
+
+
+      .ant-tabs-left-bar {
+        width:180px;
+        border:none;
+        .ant-tabs-ink-bar{
+          display: none !important;
+
+        }
+
+      }
+
+      .ant-tabs-left-content {
+
+        border: none;
+        overflow: auto;
+        height: 100%;
+        // border:3px solid yellow;
+        border-left: none;
+        // text-align: right;
+
+      }
+    }
+  }
+  .report-container{
+    .ant-input{
+      background:#fff;
+      color:#000;
+      padding: 0 !important;
+      border-radius: 2px;
+      border-color: #000;
+      // border: none !important;
+    }
+    .ant-input:not(.ant-input-disabled){
+      border:none !important;
+    }
+  }
+
+
+
+  /*  ta-modal ---end */
+}

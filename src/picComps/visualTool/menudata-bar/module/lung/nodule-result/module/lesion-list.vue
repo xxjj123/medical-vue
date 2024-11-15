@@ -162,7 +162,7 @@
           </textBoard>
         </div>
         <div class="analytic_semantic_description">
-          <textBoard :bookItems="diagnoseItems.list" :title="diagnoseItems.title">
+          <textBoard :bookItems="diagnosisItems.list" :title="diagnosisItems.title">
             <searchBar slot="searchBar" :options="diagnosisType.list" :selected="diagnosisType.selected"
               @selectItem="handleMenu_diagnosisType" />
           </textBoard>
@@ -171,7 +171,9 @@
       </div>
       <div class="btn_cxt">
         <div class="report_item_bar flex">
-          <reportViewBtn :finding="findingItems.list" :diagnosis="diagnoseItems.list"></reportViewBtn>
+          <reportViewBtn :reportData="textReport.data" @saveResult="saveManualDiagnosis" :finding="findingItems.list"
+            :diagnosis="diagnosisItems.list">
+          </reportViewBtn>
         </div>
       </div>
     </div>
@@ -193,7 +195,12 @@ import { mapState, mapActions } from "vuex";
 // import reportViewBtn from "./reportView/btn.vue"
 
 import { operate_dict, nodule_dict } from "../assets/dict"
+import { TextReport } from "../assets/reports"
 import { noduleFindingTemplate, noduleDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
+
+import {
+  xhr_saveManualDiagnosis, xhr_queryTextReport
+} from "@/api";
 
 // 病变列表
 export default {
@@ -383,7 +390,7 @@ export default {
       }
 
     },
-    diagnoseItems: {
+    diagnosisItems: {
       get() {
         return {
           title: "影像诊断",
@@ -412,9 +419,22 @@ export default {
     return {
       nodule_dict,
       operate_dict,
-      // filmIpt_curItem: null,
-      // filmIpt_curItem_1: null,
       selectedRow: null,
+      textReport: {
+        title: "文本报告",
+        class: "textReport",
+        data: null,
+        QueryReport: () => {
+
+        },
+        UpdateReport: () => {
+
+        },
+        ResetReport: () => {
+
+        },
+      },
+
 
       tableConfig: {
         size: "small",
@@ -465,6 +485,7 @@ export default {
           }
 
         ],
+
       },
       filterForm: {
         show: false
@@ -616,6 +637,22 @@ export default {
 
       this.updateNoduleLesion({ noduleid: selectedRow.id, updateList })
     },
+    async saveManualDiagnosis() {
+      const { computeSeriesId } = this.seriesInfo
+      const manualDiagnosis = {
+        computeSeriesId,
+        diagnosis: this.diagnosisItems.list.map(item => item.desc).join("\n"),
+        finding: this.findingItems.list.map(item => item.desc).join("\n")
+      }
+      xhr_saveManualDiagnosis(manualDiagnosis).then(async res => {
+        const result = await xhr_queryTextReport({ computeSeriesId })
+        const textReport = Object.assign(new TextReport(), result.data.resultData)
+        this.textReport.data = textReport
+      })
+
+    }
+
+
 
   },
   created() {

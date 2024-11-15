@@ -837,6 +837,8 @@ export const xhr_saveManualDiagnosis = (formData) => {
   return Base.submit(null, {
     // url: api5 + Topbase + study + urlJson['addFavorite'],
     url: nodule + urlJson["saveManualDiagnosis"],
+    autoQs: false,
+
     data: {
       ...formData,
     },

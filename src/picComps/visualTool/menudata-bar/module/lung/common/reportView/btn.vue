@@ -6,8 +6,8 @@
     <!-- <reportModal :visible.sync="reportModal_visible" :findingText="findingText" :diagnosisText="diagnosisText"
       :contentMainData="contentMainData_base"></reportModal> -->
 
-    <reportView :visible.sync="reportModal_visible" :findingText="findingText" :diagnosisText="diagnosisText"
-      :contentMainData="contentMainData_base"></reportView>
+    <reportView :reportData="reportData" :visible.sync="reportModal_visible" :findingText="findingText"
+      :diagnosisText="diagnosisText" :contentMainData="contentMainData_base"></reportView>
   </div>
 </template>
 <script lang='javascript'>
@@ -26,7 +26,8 @@ export default {
   },
   props: {
     finding: Array,
-    diagnosis: Array
+    diagnosis: Array,
+    reportData: Object
   },
   data() {
     return {
@@ -53,6 +54,7 @@ export default {
   methods: {
     // ...mapMutations("viewReportsStore", ["SET_REPORTS_TAG", "SET_REPORTS_YXSJ_CONTENT", "SET_REPORTS_YXZD_CONTENT"]),
     handle_open_report() {
+      this.$emit("saveResult")
 
       console.log("this.$parent=======", this.$parent)
 

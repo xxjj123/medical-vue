@@ -1,146 +1,165 @@
 <template>
   <ta-modal :footer="null" v-model="modalVisible" class="custom_modal_box" title="影像报告" @on-ok="handleOk"
-    width="calc(1158 / 1920 * 100vw)" height="calc(900 / 1080 * 100vh - 100px)">
-    <div class="flex justify-between items-start">
-      <div class="w-50 flex items-start h-full">
-        <!-- <ta-menu theme="dark" style="width: 190px" mode="vertical" @click="handleClick_selectReport">
-          <ta-menu-item key="1">
-            <ta-icon type="mail" /> 文本报告
-          </ta-menu-item>
-          <ta-menu-item key="2">
-            <ta-icon type="mail" /> 图文报告
-          </ta-menu-item>
-        </ta-menu> -->
+    width="calc(1350 / 1920 * 100vw)" height="calc(1000 / 1080 * 100vh - 100px)">
 
-        <ta-tabs defaultActiveKey="1" tabPosition="left" :style="{ height: '100 %' }">
-          <ta-tab-pane tab="Tab 1" key="1">Content of tab 1</ta-tab-pane>
-          <ta-tab-pane tab="Tab 2" key="2">Content of tab 2</ta-tab-pane>
-        </ta-tabs>
+    <div class="card-container flex justify-between items-start h-full">
+      <ta-tabs class="custom_report_bar   " defaultActiveKey="1" tabPosition="left">
+        <ta-tab-pane key="1">
+          <div slot="tab" class="flex  items-center">
+            <ta-icon type="profile" />
+            <span>文本报告</span>
+          </div>
+          <div class="center-content   border-2 border-red-500 w-full   ">
+            <div class="content_main ">
+              <div class="a4-template" ref="printableArea" id="printMe">
 
-      </div>
-      <div class="center-content flex items-center justify-center">
-        <div class="content_main">
-          <div class="a4-template" ref="printableArea" id="printMe">
-
-            <div class="content_wrapper">
-              <div class="header_info">
-                <div class="h_1 font-bold text-center">CT影像诊断报告单</div>
-              </div>
-              <div class="layout_content">
-                <div class="patient_information">
-                  <div class="cell_row flex justify-between">
-                    <div class="itemInput flex">
-                      <div class="keyName font-bold">患者编号：</div>
-                      <div class="value">
-                        <input type="text" v-model="paperObj.patientInfo.code" class="custom_input ">
-                      </div>
-                    </div>
-                    <div class="itemInput flex">
-                      <div class="keyName font-bold">检查号：</div>
-                      <div class="value">
-                        <input type="text" v-model="paperObj.patientInfo.jianchahao" class="custom_input ">
-                      </div>
-                    </div>
-                    <div class="itemInput flex">
-                      <div class="keyName font-bold">检查日期：</div>
-                      <div class="value">
-                        <input type="text" class="custom_input " v-model="paperObj.patientInfo.jianchaDate">
-                      </div>
-                    </div>
+                <div class="content_wrapper">
+                  <div class="header_info">
+                    <div class="h_1 font-bold text-center">CT影像诊断报告单</div>
                   </div>
-                  <div class="cell_row flex justify-between">
-                    <div class="itemInput flex">
-                      <div class="keyName font-bold">姓名：</div>
-                      <div class="value">
-                        <input type="text" disabled v-model="paperObj.patientInfo.name" class="custom_input ">
+                  <div class="layout_content">
+                    <div class="patient_information">
+                      <div class="cell_row flex justify-between">
+                        <div class="itemInput flex">
+                          <div class="keyName font-bold">患者编号：</div>
+                          <div class="value">
+                            <input type="text" v-model="paperObj.patientInfo.code" class="custom_input ">
+                          </div>
+                        </div>
+                        <div class="itemInput flex">
+                          <div class="keyName font-bold">检查号：</div>
+                          <div class="value">
+                            <input type="text" v-model="paperObj.patientInfo.jianchahao" class="custom_input ">
+                          </div>
+                        </div>
+                        <div class="itemInput flex">
+                          <div class="keyName font-bold">检查日期：</div>
+                          <div class="value">
+                            <input type="text" class="custom_input " v-model="paperObj.patientInfo.jianchaDate">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="cell_row flex justify-between">
+                        <div class="itemInput flex">
+                          <div class="keyName font-bold">姓名：</div>
+                          <div class="value">
+                            <input type="text" disabled v-model="paperObj.patientInfo.name" class="custom_input ">
+                          </div>
+                        </div>
+                        <div class="itemInput flex sex">
+                          <div class="keyName font-bold">性别：</div>
+                          <div class="value">
+                            <input type="text" v-model="paperObj.patientInfo.sex" class="custom_input ">
+                          </div>
+                        </div>
+                        <div class="itemInput flex yearno">
+                          <div class="keyName font-bold">年龄：</div>
+                          <div class="value">
+                            <input type="text" v-model="paperObj.patientInfo.age" class="custom_input ">
+                          </div>
+                        </div>
+                        <div class="itemInput flex">
+                          <div class="keyName font-bold">检查项目：</div>
+                          <div class="value">
+                            <input type="text" v-model="paperObj.patientInfo.product" class="custom_input ">
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div class="itemInput flex sex">
-                      <div class="keyName font-bold">性别：</div>
-                      <div class="value">
-                        <input type="text" v-model="paperObj.patientInfo.sex" class="custom_input ">
+                    <div class="film_look_content">
+                      <div class="sub_title font-bold">影像所见</div>
+                      <div class="textarea_pre_book" :contenteditable="true" v-html="paperObj.filmLookBook"
+                        @input="filmLookBookOb.handleInput"></div>
+                      <div class="textcounter_ctrl flex justify-end">
+                        <div class="text-counter">{{ filmLookBookOb.currentLength }}/{{ filmLookBookOb.maxLen }}</div>
                       </div>
                     </div>
-                    <div class="itemInput flex yearno">
-                      <div class="keyName font-bold">年龄：</div>
-                      <div class="value">
-                        <input type="text" v-model="paperObj.patientInfo.age" class="custom_input ">
+                    <div class="film_diagnose_content">
+                      <div class="sub_title font-bold">影像诊断</div>
+                      <div class="textarea_pre_book" :contenteditable="true" v-html="paperObj.filmZdBook"
+                        @input="filmZdBookOb.handleInput" @paste="filmZdBookOb.handlePaste">
                       </div>
-                    </div>
-                    <div class="itemInput flex">
-                      <div class="keyName font-bold">检查项目：</div>
-                      <div class="value">
-                        <input type="text" v-model="paperObj.patientInfo.product" class="custom_input ">
+                      <div class="textcounter_ctrl flex justify-end">
+                        <div class="text-counter">{{ filmZdBookOb.currentLength }}/{{ filmZdBookOb.maxLen }}</div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="film_look_content">
-                  <div class="sub_title font-bold">影像所见</div>
-                  <!-- <textarea class="custom_textarea" name="description1" v-model="paperObj.filmLookBook" rows="4"
-                maxlength="500"></textarea> -->
-                  <div class="textarea_pre_book" :contenteditable="true" v-html="paperObj.filmLookBook"
-                    @input="filmLookBookOb.handleInput"></div>
-                  <div class="textcounter_ctrl flex justify-end">
-                    <div class="text-counter">{{ filmLookBookOb.currentLength }}/{{ filmLookBookOb.maxLen }}</div>
+
+                <div class="footer_boxes">
+                  <div class="footer_info">
+                    <div class="cell_row flex justify-between">
+                      <div class="itemInput flex">
+                        <div class="keyName font-bold">报告日期：</div>
+                        <div class="value">
+                          <input type="text" v-model="paperObj.footerInfo.bgdate" class="custom_input ">
+                        </div>
+                      </div>
+                      <div class="itemInput flex">
+                        <div class="keyName font-bold">报告医生：</div>
+                        <div class="value">
+                          <input type="text" v-model="paperObj.footerInfo.bgdoctor" class="custom_input ">
+                        </div>
+                      </div>
+                      <div class="itemInput flex">
+                        <div class="keyName font-bold">审核医生：</div>
+                        <div class="value">
+                          <input type="text" class="custom_input " v-model="paperObj.footerInfo.postDoctor">
+                        </div>
+                      </div>
+                    </div>
                   </div>
+
+                  <div class="foot_info">
+                    <div class="cell_row flex justify-between">
+                      <div class="remark">本报告仅供临床医生参考</div>
+                      <div class="jaobiao">
+                        <span>1</span><span>/</span><span>1</span>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
-                <div class="film_diagnose_content">
-                  <div class="sub_title font-bold">影像诊断</div>
-                  <!-- <textarea class="custom_textarea" name="description2" v-model="paperObj.filmZdBook" rows="4"
-                maxlength="500"></textarea> -->
-                  <div class="textarea_pre_book" :contenteditable="true" v-html="paperObj.filmZdBook"
-                    @input="filmZdBookOb.handleInput" @paste="filmZdBookOb.handlePaste">
-                  </div>
-                  <div class="textcounter_ctrl flex justify-end">
-                    <div class="text-counter">{{ filmZdBookOb.currentLength }}/{{ filmZdBookOb.maxLen }}</div>
-                  </div>
-                </div>
+                <!-- </div> -->
               </div>
             </div>
+          </div>
+          <div>
 
-            <div class="footer_boxes">
-              <div class="footer_info">
-                <div class="cell_row flex justify-between">
-                  <div class="itemInput flex">
-                    <div class="keyName font-bold">报告日期：</div>
-                    <div class="value">
-                      <input type="text" v-model="paperObj.footerInfo.bgdate" class="custom_input ">
-                    </div>
-                  </div>
-                  <div class="itemInput flex">
-                    <div class="keyName font-bold">报告医生：</div>
-                    <div class="value">
-                      <input type="text" v-model="paperObj.footerInfo.bgdoctor" class="custom_input ">
-                    </div>
-                  </div>
-                  <div class="itemInput flex">
-                    <div class="keyName font-bold">审核医生：</div>
-                    <div class="value">
-                      <input type="text" class="custom_input " v-model="paperObj.footerInfo.postDoctor">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="foot_info">
-                <div class="cell_row flex justify-between">
-                  <div class="remark">本报告仅供临床医生参考</div>
-                  <div class="jaobiao">
-                    <span>1</span><span>/</span><span>1</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-            <!-- </div> -->
+          </div>
+        </ta-tab-pane>
+        <ta-tab-pane key="2">
+          <div slot="tab" class="flex  justify-start"><ta-icon type="profile" /><span>图文报告</span></div>
+          图文报告
+        </ta-tab-pane>
+      </ta-tabs>
+      <div class="w-[320px] h-full flex flex-col  px-2">
+        <div class="w-full  text-lg font-bold flex items-center">
+          报告设置
+        </div>
+        <!-- 中间部分（占满剩余空间） -->
+        <div class="w-full flex-1   ">
+          <div class="mt-3 text-base font-semibold">基本操作</div>
+          <div class="mt-5 flex space-x-2">
+            <div><ta-icon type="edit" /></div>
+            <div><ta-icon type="undo" /></div>
           </div>
         </div>
-      </div>
-      <div class="   w-20">
-        <iframe id="printFrame" style="display: none;"></iframe>
+
+        <!-- 打印和下载按钮行（固定高度） -->
+        <div class="w-full h-12 flex space-x-2 items-center px-3">
+          <div class="w-1/2">
+            <ta-button class="w-full" @click="printPreview2">打印报告</ta-button>
+          </div>
+          <div class="w-1/2">
+            <ta-button class="w-full">下载报告</ta-button>
+          </div>
+        </div>
 
       </div>
+
+
+
     </div>
 
   </ta-modal>
@@ -722,6 +741,7 @@ textarea {
   color: #2E2E2E;
 
   .a4-template {
+    // width: 606px;
     width: 606px;
     /* A4 width in pixels */
     height: 803px;
