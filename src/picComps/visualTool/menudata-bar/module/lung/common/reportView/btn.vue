@@ -6,8 +6,7 @@
     <!-- <reportModal :visible.sync="reportModal_visible" :findingText="findingText" :diagnosisText="diagnosisText"
       :contentMainData="contentMainData_base"></reportModal> -->
 
-    <reportView :reportData="reportData" :visible.sync="reportModal_visible" :findingText="findingText"
-      :diagnosisText="diagnosisText" :contentMainData="contentMainData_base"></reportView>
+    <reportView :reportData="reportData" :visible="reportModal_visible"></reportView>
   </div>
 </template>
 <script lang='javascript'>
@@ -56,15 +55,15 @@ export default {
     handle_open_report() {
       this.$emit("saveResult")
 
-      console.log("this.$parent=======", this.$parent)
+      // console.log("this.$parent=======", this.$parent)
 
-      console.log("get_reports_yxsj_content===@", this.finding);
-      console.log("get_reports_yxzd_content===@", this.diagnosis);
-      // this.contentMainData_base.yxsj_content = this.get_reports_yxsj_content;
-      // this.contentMainData_base.yxzd_content = this.get_reports_yxzd_content;
+      // console.log("get_reports_yxsj_content===@", this.finding);
+      // console.log("get_reports_yxzd_content===@", this.diagnosis);
+      // // this.contentMainData_base.yxsj_content = this.get_reports_yxsj_content;
+      // // this.contentMainData_base.yxzd_content = this.get_reports_yxzd_content;
 
-      this.contentMainData_base.yxsj_content = this.finding.map(item => item.desc).join("\n");
-      this.contentMainData_base.yxzd_content = this.diagnosis.map(item => item.desc).join("\n");
+      // this.contentMainData_base.yxsj_content = this.finding.map(item => item.desc).join("\n");
+      // this.contentMainData_base.yxzd_content = this.diagnosis.map(item => item.desc).join("\n");
 
 
 
