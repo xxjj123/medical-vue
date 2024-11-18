@@ -5,13 +5,13 @@
       <div class="header ">
         <h2 class="text-[26px] font-bold ">CT影像诊断报告单</h2>
       </div>
-      <div class="w-full     text-5 border-b pb-2 mb-[20px]">
+      <div class="w-full     text-5 border-b pb-[10px] mb-[20px]">
         <div class="w-full flex justify-between  items-center space-x-4 py-2">
           <div class="  flex items-center">
             <span class="mr-2 w-[60px]">患者编号: </span>
             <div class=" w-[125px]">
               <input v-if="editAble" v-model="formData.patientId" type="text" class=" border  w-full" />
-              <p v-else class="w-full   bg-amber  my-0">
+              <p v-else class="w-full    my-0">
                 {{ formData.patientId }}
               </p>
             </div>
@@ -21,7 +21,7 @@
             <span class="mr-2 w-[48px]">检查号: </span>
             <div class=" w-[125px]">
               <input v-if="editAble" v-model="formData.accessionNumber" type="text" class=" border w-full " />
-              <p v-else class="w-full    bg-amber  my-0">
+              <p v-else class="w-full     my-0">
                 {{ formData.accessionNumber }}
               </p>
             </div>
@@ -30,7 +30,7 @@
             <span class="mr-2 w-[60px]">检查日期: </span>
             <div class=" w-[80px]">
               <input v-if="editAble" v-model="formData.studyDate" type="text" class=" border w-full" />
-              <p v-else class="w-full   bg-amber  my-0 ">
+              <p v-else class="w-full    my-0 ">
                 {{ formData.studyDate }}
               </p>
             </div>
@@ -42,7 +42,7 @@
             <span class="mr-2 w-[36px]">姓名:</span>
             <div class="w-[100px]">
               <input v-if="editAble" v-model="formData.patientName" type="text" class=" border w-full " />
-              <p v-else class="w-full    bg-amber  my-0">
+              <p v-else class="w-full     my-0">
                 {{ formData.patientName }}
               </p>
             </div>
@@ -53,7 +53,7 @@
             <span class="mr-2 w-[36px]">性别:</span>
             <div class="w-[100px]">
               <input v-if="editAble" v-model="formData.patientSex" type="text" class=" border w-full " />
-              <p v-else class=" w-full   bg-amber  my-0 inline-block">
+              <p v-else class=" w-full    my-0 inline-block">
                 {{ formData.patientSex }}
               </p>
             </div>
@@ -64,7 +64,7 @@
 
             <div class="w-[100px]">
               <input v-if="editAble" v-model="formData.patientAge" type="text" class="w-full border   " />
-              <p v-else class=" w-full   bg-amber   my-0 inline-block">
+              <p v-else class=" w-full     my-0 inline-block">
                 {{ formData.patientAge }}
               </p>
 
@@ -75,7 +75,7 @@
             <span class="mr-2 w-[60px]">检查项目: </span>
             <div class="w-[80px]">
               <input v-if="editAble" v-model="formData.examinedName" type="text" class="w-full border   " />
-              <p v-else class="flex-1   bg-amber   my-0 inline-block   ">
+              <p v-else class="flex-1     my-0 inline-block   ">
                 {{ formData.examinedName }}
               </p>
             </div>
@@ -91,7 +91,7 @@
           <ta-textarea v-if="editAble" class="  b-none bg-white" v-model="formData.finding" :max-length="400"
             :show-max-length="true" :rows="10" />
 
-          <p v-else class="flex-1   bg-amber   my-0 inline-block whitespace-pre-wrap">
+          <p v-else class="flex-1     my-0 inline-block whitespace-pre-wrap">
             {{ formData.finding }}
           </p>
 
@@ -104,19 +104,19 @@
           <ta-textarea v-if="editAble" class="  b-none bg-white" v-model="formData.diagnosis" :max-length="400"
             :show-max-length="true" :rows="10" />
 
-          <p v-else class="flex-1   bg-amber   my-0 inline-block  whitespace-pre-wrap">
+          <p v-else class="flex-1     my-0 inline-block  whitespace-pre-wrap">
             {{ formData.diagnosis }}
           </p>
 
         </div>
       </div>
-      <div class=" footer    flex justify-between">
+      <div class=" footer     flex justify-between">
         <div class="w-full flex justify-between  items-center space-x-4 py-2">
           <div class="  flex items-center">
             <span class="mr-2 w-[60px]">报告日期: </span>
             <div class=" w-[125px]">
               <input v-if="editAble" v-model="formData.reportDate" type="text" class=" border  w-full" />
-              <p v-else class="w-full   bg-amber  my-0">
+              <p v-else class="w-full    my-0">
                 {{ formData.reportDate }}
               </p>
             </div>
@@ -126,7 +126,7 @@
             <span class="mr-2 w-[60px]">报告医生: </span>
             <div class=" w-[125px]">
               <input v-if="editAble" type="text" class=" border w-full " />
-              <p v-else class="w-full    bg-amber  my-0">
+              <p v-else class="w-full     my-0">
                 {{ formData.reportDoctor }}
               </p>
             </div>
@@ -135,7 +135,7 @@
             <span class="mr-2 w-[60px]">审核医生: </span>
             <div class=" w-[125px]">
               <input v-if="editAble" type="text" class=" border w-full" />
-              <p v-else class="w-full   bg-amber  my-0 ">
+              <p v-else class="w-full    my-0 ">
                 {{ formData.auditDoctor }}
               </p>
             </div>
@@ -148,12 +148,16 @@
 
     </div>
 
+
+
   </div>
 </template>
 
 <script>
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+
+import { serializeAge } from "@/assets/js/utils/dicom/inputFormat";
 
 export default {
   name: "DiagnosisReport",
@@ -165,16 +169,22 @@ export default {
     },
     reportData: {
       type: Object,
-      required: true,
     },
   },
   watch: {
     reportData: {
       handler(newVal, oldVal) {
-        const { studyDate, reportDate, finding, diagnosis } = newVal
+        const { studyDate, reportDate, finding, diagnosis, patientAge } = newVal
         this.formData = newVal
         this.formData.studyDate = studyDate ? studyDate.split(" ")[0] : ''
         this.formData.reportDate = reportDate ? reportDate.split(" ")[0] : ''
+
+
+        this.formData.patientAge = serializeAge({
+          dataSource: patientAge,
+          unit: true,
+          language: "zh",
+        }).replaceAll('岁', '');
         this.formData.finding = finding ? finding.replace(/&sup3;/g, "³").replace(/&#xff0c;/g, "，").replace(/&#x5c;n/g, "\n") : ''
         this.formData.diagnosis = diagnosis ? diagnosis.replace(/&sup3;/g, "³").replace(/&#xff0c;/g, "，").replace(/&#x5c;n/g, "\n") : ''
       }
@@ -218,13 +228,19 @@ export default {
   }
 
   .footer {
-    padding: 0 35px;
-    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin: 0 35px;
+    /* width: 100%; */
+    width: 630px;
     position: absolute;
     left: 0px;
-    bottom: 30px;
+    bottom: 0px;
+    height: 80px;
 
   }
+
+  .footer {}
 }
 
 @media print {

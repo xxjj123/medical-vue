@@ -171,9 +171,10 @@
       </div>
       <div class="btn_cxt">
         <div class="report_item_bar flex">
-          <reportViewBtn :reportData="textReport.data" @saveResult="saveManualDiagnosis" :finding="findingItems.list"
-            :diagnosis="diagnosisItems.list">
-          </reportViewBtn>
+          <reportView :reportData="textReport.data" @saveResult="saveManualDiagnosis"
+            @resetReport="textReport.resetReport" />
+          <!-- <reportViewBtn :reportData="textReport.data" @saveResult="saveManualDiagnosis"> -->
+          <!-- </reportViewBtn> -->
         </div>
       </div>
     </div>
@@ -185,7 +186,9 @@
 import Emitter from "@/assets/js/mixins/emitter.js";
 import textBoard from "@/picComps/visualTool/menudata-bar/module/lung/common/textBoard/index.vue";
 import searchBar from "@/picComps/visualTool/menudata-bar/module/lung/common/textBoard/searchBar.vue";
-import reportViewBtn from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/btn.vue"
+// import reportViewBtn from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/btn.vue"
+import reportView from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/index.vue"
+
 
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
 import { CodeSandboxOutline } from "@yh/icons-svg";
@@ -199,7 +202,7 @@ import { TextReport } from "../assets/reports"
 import { noduleFindingTemplate, noduleDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
 
 import {
-  xhr_saveManualDiagnosis, xhr_queryTextReport
+  xhr_saveNoduleManualDiagnosis, xhr_queryNoduleTextReport, xhr_updateTextReport
 } from "@/api";
 
 // 病变列表
@@ -207,7 +210,8 @@ export default {
   name: "lesion-list",
   components: {
     filmInputState,
-    reportViewBtn,
+    // reportViewBtn,
+    reportView,
     textBoard,
     searchBar
   },
@@ -430,8 +434,12 @@ export default {
         UpdateReport: () => {
 
         },
-        ResetReport: () => {
+        resetReport: async () => {
+          const { computeSeriesId } = this.seriesInfo
 
+          const result = await xhr_queryNoduleTextReport({ computeSeriesId, reset: true })
+          const textReport = Object.assign(new TextReport(), result.data.resultData)
+          this.textReport.data = textReport
         },
       },
 
@@ -534,6 +542,10 @@ export default {
   },
   methods: {
     ...mapActions("noduleInfoStore", ["ChooseAnnotation", "updateNoduleLesion", "updateNoduleOperate"]),
+
+    async updateTextReport(updateData) {
+      await xhr_updateTextReport(updateData)
+    },
     setPopupContainer(trigger) {
       return trigger.parentElement;
     },
@@ -644,8 +656,8 @@ export default {
         diagnosis: this.diagnosisItems.list.map(item => item.desc).join("\n"),
         finding: this.findingItems.list.map(item => item.desc).join("\n")
       }
-      xhr_saveManualDiagnosis(manualDiagnosis).then(async res => {
-        const result = await xhr_queryTextReport({ computeSeriesId })
+      xhr_saveNoduleManualDiagnosis(manualDiagnosis).then(async res => {
+        const result = await xhr_queryNoduleTextReport({ computeSeriesId })
         const textReport = Object.assign(new TextReport(), result.data.resultData)
         this.textReport.data = textReport
       })

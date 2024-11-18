@@ -12,7 +12,7 @@
 <script lang='javascript'>
 // import reportModal from "./module/report-modal.vue";
 
-import reportView from "./reportView.vue";
+import reportView from "./index.vue";
 
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
@@ -31,10 +31,7 @@ export default {
   data() {
     return {
       reportModal_visible: false,
-      contentMainData_base: {
-        yxsj_content: "",
-        yxzd_content: "",
-      },
+
     }
   },
   computed: {
@@ -54,17 +51,6 @@ export default {
     // ...mapMutations("viewReportsStore", ["SET_REPORTS_TAG", "SET_REPORTS_YXSJ_CONTENT", "SET_REPORTS_YXZD_CONTENT"]),
     handle_open_report() {
       this.$emit("saveResult")
-
-      // console.log("this.$parent=======", this.$parent)
-
-      // console.log("get_reports_yxsj_content===@", this.finding);
-      // console.log("get_reports_yxzd_content===@", this.diagnosis);
-      // // this.contentMainData_base.yxsj_content = this.get_reports_yxsj_content;
-      // // this.contentMainData_base.yxzd_content = this.get_reports_yxzd_content;
-
-      // this.contentMainData_base.yxsj_content = this.finding.map(item => item.desc).join("\n");
-      // this.contentMainData_base.yxzd_content = this.diagnosis.map(item => item.desc).join("\n");
-
 
 
       this.reportModal_visible = true;

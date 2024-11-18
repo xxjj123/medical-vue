@@ -118,14 +118,15 @@
           </textBoard>
         </div>
         <div class="analytic_semantic_description">
-          <textBoard :bookItems="diagnoseItems.list" :title="diagnoseItems.title">
+          <textBoard :bookItems="diagnosisItems.list" :title="diagnosisItems.title">
           </textBoard>
         </div>
       </div>
 
       <div class="btn_cxt">
         <div class="report_item_bar flex">
-          <reportViewBtn :finding="findingItems.list" :diagnosis="diagnoseItems.list"></reportViewBtn>
+          <reportView :reportData="textReport.data" @saveResult="saveManualDiagnosis"
+            @resetReport="textReport.resetReport" />
         </div>
       </div>
     </div>
@@ -135,19 +136,24 @@
 <script lang="jsx">
 import Emitter from "@/assets/js/mixins/emitter.js";
 import textBoard from "@/picComps/visualTool/menudata-bar/module/lung/common/textBoard/index.vue";
-import reportViewBtn from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/btn.vue"
+// import reportViewBtn from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/btn.vue"
+import reportView from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/index.vue"
 
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
 import { CodeSandboxOutline } from "@yh/icons-svg";
 import Vue from 'vue';
 import { SortOption } from "@/assets/js/utils/dicom/select";
 import { mapState, mapActions } from "vuex";
+import { TextReport } from "../assets/reports"
 
 // import reportViewBtn from "./reportView/btn.vue"
 
 import { frac_dict } from "../assets/dict"
 import { fracFindingTemplate, fracDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
 
+import {
+  xhr_saveFracManualDiagnosis, xhr_queryFracTextReport, xhr_updateTextReport
+} from "@/api";
 
 // 病变列表
 export default {
@@ -155,13 +161,15 @@ export default {
   components: {
     textBoard,
     filmInputState,
-    reportViewBtn,
+    // reportViewBtn,
+    reportView
   },
   mixins: [Emitter],
   props: {
     menuResult: Object,
   },
   computed: {
+    ...mapState("mprViewStore", ["seriesInfo"]),
     ...mapState("fracInfoStore", ["selectedFracId"]),
     ribTypeDropDown: {
       get() {
@@ -246,7 +254,7 @@ export default {
 
       }
     },
-    diagnoseItems: {
+    diagnosisItems: {
       get() {
         return {
           title: "影像诊断",
@@ -261,6 +269,24 @@ export default {
     return {
       frac_dict,
       selectedRow: null,
+      textReport: {
+        title: "文本报告",
+        class: "textReport",
+        data: null,
+        QueryReport: () => {
+
+        },
+        UpdateReport: () => {
+
+        },
+        resetReport: async () => {
+          const { computeSeriesId } = this.seriesInfo
+          const result = await xhr_queryFracTextReport({ computeSeriesId, reset: true })
+          const textReport = Object.assign(new TextReport(), result.data.resultData)
+          this.textReport.data = textReport
+
+        },
+      },
 
       tableConfig: {
         size: "small",
@@ -347,6 +373,21 @@ export default {
         this.ChooseAnnotation({ bboxindex: row.id });
 
       }
+
+    },
+
+    async saveManualDiagnosis() {
+      const { computeSeriesId } = this.seriesInfo
+      const manualDiagnosis = {
+        computeSeriesId,
+        diagnosis: this.diagnosisItems.list.map(item => item.desc).join("\n"),
+        finding: this.findingItems.list.map(item => item.desc).join("\n")
+      }
+      xhr_saveFracManualDiagnosis(manualDiagnosis).then(async res => {
+        const result = await xhr_queryFracTextReport({ computeSeriesId })
+        const textReport = Object.assign(new TextReport(), result.data.resultData)
+        this.textReport.data = textReport
+      })
 
     },
 

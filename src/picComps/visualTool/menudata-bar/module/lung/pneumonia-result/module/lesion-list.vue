@@ -33,14 +33,17 @@
         </div>
 
         <div class="analytic_semantic_description">
-          <textBoard :bookItems="diagnoseItems.list" :title="diagnoseItems.title">
+          <textBoard :bookItems="diagnosisItems.list" :title="diagnosisItems.title">
           </textBoard>
         </div>
 
       </div>
       <div class="btn_cxt">
         <div class="report_item_bar flex">
-          <reportViewBtn :finding="findingItems.list" :diagnosis="diagnoseItems.list"></reportViewBtn>
+          <reportView :reportData="textReport.data" @saveResult="saveManualDiagnosis"
+            @resetReport="textReport.resetReport" />
+
+          <!-- <reportViewBtn :finding="findingItems.list" :diagnosis="diagnosisItems.list"></reportViewBtn> -->
         </div>
       </div>
     </div>
@@ -52,7 +55,9 @@
 import Emitter from "@/assets/js/mixins/emitter.js";
 import textBoard from "@/picComps/visualTool/menudata-bar/module/lung/common/textBoard/index.vue";
 import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
-import reportViewBtn from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/btn.vue"
+// import reportViewBtn from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/btn.vue"
+import reportView from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/index.vue"
+
 
 // import reportViewBtn from "./reportView/btn.vue"
 
@@ -65,7 +70,11 @@ import { message } from "@yh/ta404-ui";
 
 import { pneu_dict } from "../assets/dict"
 import { pneumoniaFindingTemplate, pneumoniaDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
+import { TextReport } from "../assets/reports"
 
+import {
+  xhr_savePneumoniaManualDiagnosis, xhr_queryPneumoniaTextReport, xhr_updateTextReport
+} from "@/api";
 
 // 病变列表
 export default {
@@ -73,13 +82,15 @@ export default {
   components: {
     textBoard,
     filmInputState,
-    reportViewBtn,
+    // reportViewBtn,
+    reportView
   },
   mixins: [Emitter],
   props: {
     menuResult: Object,
   },
   computed: {
+    ...mapState("mprViewStore", ["seriesInfo"]),
     allHealth: {
       get() {
         return this.lessionList.every(item => item.diseaseClass == null);
@@ -220,7 +231,7 @@ export default {
         }
       }
     },
-    diagnoseItems: {
+    diagnosisItems: {
       get() {
         return {
           title: "影像诊断",
@@ -233,7 +244,24 @@ export default {
     return {
       pneu_dict,
       selectedRow: null,
+      textReport: {
+        title: "文本报告",
+        class: "textReport",
+        data: null,
+        QueryReport: () => {
 
+        },
+        UpdateReport: () => {
+
+        },
+        resetReport: async () => {
+          const { computeSeriesId } = this.seriesInfo
+          const result = await xhr_queryPneumoniaTextReport({ computeSeriesId, reset: true })
+          const textReport = Object.assign(new TextReport(), result.data.resultData)
+          this.textReport.data = textReport
+
+        },
+      }
 
     };
   },
@@ -274,6 +302,20 @@ export default {
       const { rowid, row, selection } = ev
       this.updatePneumoniaLession({ pneuid: row.id, key: "checked", value: !row.checked })
     },
+    async saveManualDiagnosis() {
+      const { computeSeriesId } = this.seriesInfo
+      const manualDiagnosis = {
+        computeSeriesId,
+        diagnosis: this.diagnosisItems.list.map(item => item.desc).join("\n"),
+        finding: this.findingItems.list.map(item => item.desc).join("\n")
+      }
+      xhr_savePneumoniaManualDiagnosis(manualDiagnosis).then(async res => {
+        const result = await xhr_queryPneumoniaTextReport({ computeSeriesId })
+        const textReport = Object.assign(new TextReport(), result.data.resultData)
+        this.textReport.data = textReport
+      })
+
+    }
 
 
   },

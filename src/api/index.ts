@@ -817,7 +817,7 @@ export const xhr_queryOperate = (formData) => {
  * @param formData
  * @returns
  */
-export const xhr_queryTextReport = (formData) => {
+export const xhr_queryNoduleTextReport = (formData) => {
   return Base.submit(null, {
     // url: api5 + Topbase + study + urlJson['addFavorite'],
     url: nodule + urlJson["queryTextReport"],
@@ -827,16 +827,81 @@ export const xhr_queryTextReport = (formData) => {
   });
 };
 
+/**
+ * 查询文本报告
+ * @param formData
+ * @returns
+ */
+export const xhr_queryPneumoniaTextReport = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: pneumonia + urlJson["queryTextReport"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/**
+ * 查询文本报告
+ * @param formData
+ * @returns
+ */
+export const xhr_queryFracTextReport = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: frac + urlJson["queryTextReport"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
+
 
 /**
  * 保存人工诊断结果
  * @param formData
  * @returns
  */
-export const xhr_saveManualDiagnosis = (formData) => {
+export const xhr_saveNoduleManualDiagnosis = (formData) => {
   return Base.submit(null, {
     // url: api5 + Topbase + study + urlJson['addFavorite'],
     url: nodule + urlJson["saveManualDiagnosis"],
+    autoQs: false,
+
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/**
+ * 保存人工诊断结果
+ * @param formData
+ * @returns
+ */
+export const xhr_savePneumoniaManualDiagnosis = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: pneumonia + urlJson["saveManualDiagnosis"],
+    autoQs: false,
+
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/**
+ * 保存人工诊断结果
+ * @param formData
+ * @returns
+ */
+export const xhr_saveFracManualDiagnosis = (formData) => {
+  return Base.submit(null, {
+    // url: api5 + Topbase + study + urlJson['addFavorite'],
+    url: frac + urlJson["saveManualDiagnosis"],
     autoQs: false,
 
     data: {
