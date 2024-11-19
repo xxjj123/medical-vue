@@ -1,11 +1,13 @@
+import { overflow } from "html2canvas/dist/types/css/property-descriptors/overflow"
+
 <template>
-  <div class="AlgorithmTypeSelect_modal">
-    <ta-big-table :size="tableConfig.size" highlight-hover-row height="200" :columns="tableConfig.tableColumns"
-      :data="tableData" @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent"
-      :edit-config="{ trigger: 'click' }" @cell-click="handleCellClick">
-      <template #mathType="{}">
-        <div class="mathType_customer_block">
-          <ta-row v-if="itemData[0].Modality == 'CT'">
+  <div class="AlgorithmTypeSelect_modal  ">
+    <ta-big-table :size="tableConfig.size" highlight-hover-row :columns="tableConfig.tableColumns" :data="tableData"
+      @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent" :edit-config="{ trigger: 'click' }"
+      @cell-click="handleCellClick">
+      <template #mathType="{ row }">
+        <div class="mathType_customer_block  ">
+          <ta-row v-if="row.Modality == 'CT'">
             <ta-col>
               <ta-checkbox :indeterminate="CTmathSelectOb.indeterminate" @change="CTmathSelectOb.onCheckAllChange"
                 :checked="CTmathSelectOb.checkAll">
@@ -17,7 +19,7 @@
                 :value="CTmathSelectOb.checkedList" />
             </ta-col>
           </ta-row>
-          <ta-row v-if="itemData[0].Modality == 'CR'">
+          <ta-row v-if="row.Modality == 'CR'">
             <ta-col>
               <ta-checkbox :indeterminate="CRmathSelectOb.indeterminate" @change="CRmathSelectOb.onCheckedChange"
                 :checked="CRmathSelectOb.checked">
@@ -67,35 +69,34 @@ export default {
         // ],
         tableColumns: [
           {
-            field: "Accession_Number",
+            field: "AccessionNumber",
             title: "检查号",
-            width: "168",
+            width: "160",
           },
           {
             field: "Modality",
             title: "影像类型",
-            width: "130",
+            width: "80",
           },
           {
-            field: "Patient_ID",
+            field: "PatientID",
             title: "患者ID",
-            width: "100",
+            width: "90",
           },
           {
-            field: "Study_Instance_UID",
+            field: "StudyInstanceUID",
             title: "序号ID",
-            width: "230",
+            width: "200",
           },
           {
-            field: "Series_Description",
+            field: "SeriesDescription",
             title: "序列描述",
-            width: "130",
+            width: "200",
           },
 
           {
             field: "mathType",
             title: "算法类型",
-            // width: "260",
             customRender: {
               default: "mathType",
             },
@@ -109,7 +110,7 @@ export default {
           if (isChecked) {
             //全选
             this.CTmathSelectOb.checkAll = true;
-            this.CTmathSelectOb.checkedList = ["0", "1", "2", "3"];
+            this.CTmathSelectOb.checkedList = ["0", "1", "2", "3", "4"];
           } else {
             //反选
             this.CTmathSelectOb.checkAll = false;

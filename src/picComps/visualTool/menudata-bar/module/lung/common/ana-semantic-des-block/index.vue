@@ -237,6 +237,7 @@ export default {
   methods: {
     ...mapMutations("viewReportsStore", ["SET_REPORTS_TAG", "SET_REPORTS_MUIL_CONTEXT", "SET_REPORTS_YXSJ_CONTENT", "SET_REPORTS_YXZD_CONTENT"]),
     descCacheBk_copy_success() {
+      console.log("点击了")
       this.$message.success('复制成功');
     },
     getFullDescString(data) {

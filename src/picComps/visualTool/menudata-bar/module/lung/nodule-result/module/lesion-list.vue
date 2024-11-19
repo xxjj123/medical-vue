@@ -172,7 +172,7 @@
       <div class="btn_cxt">
         <div class="report_item_bar flex">
           <reportView :reportData="textReport.data" @saveResult="saveManualDiagnosis"
-            @resetReport="textReport.resetReport" />
+            @resetReport="textReport.resetReport" @updateReport="" />
           <!-- <reportViewBtn :reportData="textReport.data" @saveResult="saveManualDiagnosis"> -->
           <!-- </reportViewBtn> -->
         </div>
@@ -431,7 +431,8 @@ export default {
         QueryReport: () => {
 
         },
-        UpdateReport: () => {
+        updateReport: () => {
+
 
         },
         resetReport: async () => {

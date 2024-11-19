@@ -345,6 +345,8 @@ export default {
       if(view.viewIndex == 2){
         boundsZ = view.image.getBounds()[5]
       }
+      boundsZ =   boundsZ -2000
+
       const [worldpoint1, worldpoint2] = [
         view.image.indexToWorld([xmin, ymin, boundsZ-100]),
         view.image.indexToWorld([xmax, ymax,boundsZ-100]),

@@ -280,6 +280,9 @@ export default {
       if (view.viewIndex == 2) {
         boundsZ = view.image.getBounds()[5];
       }
+      console.log(view,view.image.getBounds())
+
+      boundsZ = boundsZ -2000
 
       const actorList = []
       contours.forEach((pointsArray, contourIndex) => {

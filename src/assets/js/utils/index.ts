@@ -1,3 +1,7 @@
+
+
+import { dicomTagDescriptions } from "@/assets/js/utils/dicom/tagCode";
+
 export default {
   /**
    * 获取当前域名+base的地址
@@ -40,6 +44,33 @@ export default {
           result[field] = item.sortValue;
         }
       });
+    });
+
+    // 返回结果对象
+    return result;
+  },
+
+
+  dicomTagsToValues(originalData, fieldsToMap) {
+    // 创建一个结果对象
+    const result = {};
+
+    // 遍历字段名称数组
+    fieldsToMap.forEach((field) => {
+      const key= dicomTagDescriptions[field]
+      result[field] = originalData.string(key)
+
+      // // 将下划线转换为空间，以匹配原始数据中的 engName
+      // const normalizedFieldName = field.replace(/_/g, " ");
+
+      // // 遍历原始数据数组
+      // originalData.forEach((item) => {
+      //   // 检查当前字段名称是否与原始数据的 engName 属性匹配
+      //   if (item.engName === normalizedFieldName) {
+      //     // 如果匹配，将字段名称添加到结果对象，并设置对应的 sortValue
+      //     result[field] = item.sortValue;
+      //   }
+      // });
     });
 
     // 返回结果对象

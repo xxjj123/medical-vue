@@ -76,37 +76,12 @@ export default {
 
   },
   components: {
-    // reportModal
     textReport
   },
   data() {
     return {
       editAble: false,
       visible: false,
-      // 打开时初始化一次currentLength
-
-      // 打开时初始化一次currentLength
-
-      loading: false,
-      paperObj: {
-        patientInfo: {
-          code: "",
-          jianchahao: "",
-          jianchaDate: "",
-          name: "",
-          sex: "",
-          age: "",
-          product: "胸部CT平扫",
-        },
-        footerInfo: {
-          bgdate: "",
-          bgdoctor: "",
-          postDoctor: "",
-
-        },
-        filmLookBook: "",
-        filmZdBook: "",
-      },
     }
   },
   watch: {
@@ -120,8 +95,6 @@ export default {
   methods: {
     handle_open_report() {
       this.$emit("saveResult")
-
-
       this.visible = true;
     },
     changeEditable() {
