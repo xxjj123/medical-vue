@@ -238,11 +238,14 @@
             </ta-big-table-column>
             <ta-big-table-column field="UploadTime" title="上传时间">
             </ta-big-table-column>
-            <ta-big-table-column field="state" title="状态">
+            <ta-big-table-column field="State" title="状态">
               <template #default="{ row }">
-                <template v-if="row.state === '1'">
+                <div v-if="row.State === 'uploading'">
+                  上传中
+                </div>
+                <div v-if="row.State === 'done'">
                   上传成功
-                </template>
+                </div>
               </template>
             </ta-big-table-column>
             <ta-big-table-column field="MathType" title="算法类型">
@@ -426,17 +429,20 @@ export default {
                   this.previewTable.seriesList[index][0].metadata = {
                     ...this.previewTable.seriesList[index][0].metadata,
                     UploadTime: currentTime,
+                    State: "uploading",
                     MathType: "胸肺"
                   };
-                  xhr_uploadDicom({ caseFile: zipFile }).then(() => {
+                  xhr_uploadDicom({ caseFile: zipFile }).then(res => {
                     this.$message.success(`上传成功,: ${''}`);
-
+                    this.previewTable.seriesList[index][0].metadata = {
+                      ...this.previewTable.seriesList[index][0].metadata,
+                      State: "done"
+                    };
                   })
                 } else if (seriesType == 'CR') {
                   this.previewTable.seriesList[index][0].metadata = {
                     ...this.previewTable.seriesList[index][0].metadata,
-                    UploadTime: currentTime,
-                    MathType: "脊柱"
+                    State: "done"
                   };
                   xhr_uploadSingleDicom({ dicom: zipFile }).then(() => {
                     this.$message.success(`上传成功,: ${''}`);
