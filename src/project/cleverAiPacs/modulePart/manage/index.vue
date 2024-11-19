@@ -202,6 +202,7 @@
       :headerStyle="fileDraw.headerStyle" :bodyStyle="fileDraw.bodyStyle" :wrapStyle="fileDraw.wrapStyle"
       @close="fileDraw.onClose" :visible="fileDraw.visible">
       <div>
+        {{ confirmBox.visible }}
         <div class="custom_title pb-[20px]  ">上传数据</div>
         <div class="w-full border border-dashed   h-[200px] py-[10px] flex justify-center items-center flex-wrap">
           <div class="w-full  text-center">
@@ -212,11 +213,8 @@
             </ta-button>
             <div class="mt-[10px]">文件大小最大5G,最多20个序列</div>
           </div>
-
-
         </div>
       </div>
-
       <ta-modal :width="1200" :visible="confirmBox.visible" @ok="confirmBox.handleOk" @cancel="confirmBox.handleCancel">
         <div slot="title" class="text-white"> 算法类型选择</div>
         <AlgorithmTypeSelect :itemData="previewTableSeriesInfo" />
@@ -1115,6 +1113,8 @@ export default {
       this.$refs.fileInputRef.click();
     },
     async handleFileChange(event) {
+      console.log("handleFileChange");
+
       const files = event.target.files
       if (!files.length) return;
 
@@ -1154,7 +1154,7 @@ export default {
         console.error("文件解析过程中出现错误:", error);
       }
 
-
+      event.target.value = '';
     },
     processFile(file) {
       return new Promise((resolve, reject) => {
