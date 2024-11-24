@@ -138,8 +138,6 @@ import Emitter from "@/assets/js/mixins/emitter.js";
 import textBoard from "@/picComps/visualTool/menudata-bar/module/lung/common/textBoard/index.vue";
 // import reportViewBtn from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/btn.vue"
 import reportView from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/index.vue"
-
-import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
 import { CodeSandboxOutline } from "@yh/icons-svg";
 import Vue from 'vue';
 import { SortOption } from "@/assets/js/utils/dicom/select";
@@ -160,7 +158,6 @@ export default {
   name: "lesion-list",
   components: {
     textBoard,
-    filmInputState,
     // reportViewBtn,
     reportView
   },

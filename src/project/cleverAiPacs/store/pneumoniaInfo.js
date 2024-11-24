@@ -140,7 +140,9 @@ export default {
       originalData.colorLevel = -500;
       originalData.isPan = false;
       originalData.layOut = LayoutIcons.MPR;
-      originalData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj ];
+      // originalData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj ];
+      originalData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo,  ButtonNames.Pyms, ButtonNames.Bcj ];
+
       originalData.activeButtons = [ButtonNames.Jbinfo ]
       state.allViewData.copyFrom(originalData)
     },
@@ -286,18 +288,6 @@ export default {
 
       const actorList = []
       contours.forEach((pointsArray, contourIndex) => {
-        const transformedData = {};
-        for (let i = 0; i < pointsArray.length; i += 2) {
-          const x = pointsArray[i];
-          const y = pointsArray[i + 1];
-          const z = i / 2; // z 值为索引除以 2，可以是小数
-          // 初始化 x 键的对象
-          if (!transformedData[x]) {
-            transformedData[x] = {};
-          }
-          // 设置 z 和 y 的对应关系
-          transformedData[x][z] = y;
-        }
         // 创建 vtkPoints 实例并动态设置点
         const points = vtkPoints.newInstance();
         points.setNumberOfPoints(pointsArray.length / 2);

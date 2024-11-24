@@ -160,22 +160,11 @@
         </div>
 
         <div class="analytic_semantic_description ">
-          <anaSemanticDesBlock :des-code="'yxsj'" :bookItems.sync="anaSecDesConf.bookItems"
-            :selection="checkedTableData" :blockMode="anaSecDesConf.mode" :selectVal="filmIpt_curItem"
-            :title="anaSecDesConf.title" :current="selectedNoduleId">
-            <filmInputState slot="searchBar" v-model="filmIpt_curItem" :typec="`dropdown`" :selectCurIdx="`0`"
-              :optionNum="`1`">
-            </filmInputState>
-          </anaSemanticDesBlock>
+
         </div>
 
         <div class="analytic_semantic_description">
-          <anaSemanticDesBlock :des-code="'yxzd'" :bookItems.sync="anaSecDesConf_1.bookItems"
-            :selectVal="filmIpt_curItem_1" :blockMode="anaSecDesConf_1.mode" :title="anaSecDesConf_1.title"
-            :selection="checkedTableData" :current="selectedNoduleId">
-            <filmInputState slot="searchBar" v-model="filmIpt_curItem_1" :typec="`dropdown`" :selectCurIdx="`0`"
-              :optionNum="`2`"></filmInputState>
-          </anaSemanticDesBlock>
+
         </div>
 
       </div>
@@ -191,8 +180,6 @@
 </template>
 <script lang="jsx">
 import Emitter from "@/assets/js/mixins/emitter.js";
-import anaSemanticDesBlock from "../ana-semantic-des-block/index.vue";
-import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
 import { CodeSandboxOutline } from "@yh/icons-svg";
 import { mapActions } from "vuex";
 import Vue from 'vue';
@@ -293,8 +280,6 @@ const nodule_dict = {
 export default {
   name: "lesion-list",
   components: {
-    anaSemanticDesBlock,
-    filmInputState,
     reportViewBtn,
   },
   mixins: [Emitter],

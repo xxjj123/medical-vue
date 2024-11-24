@@ -361,10 +361,8 @@ export default {
        dispatch("mprToolsStore/UpdateColorLevel",allViewData.colorLevel,{root:true})
 
 
-      //  dispatch("mprToolsStore/UpdateColorWindow",allViewData.colorWindow,{root:true})
-      //  dispatch("mprToolsStore/UpdateColorLevel",allViewData.colorLevel,{root:true})
-       commit("toolBarStore/INIT_BUTTON_SHOW_STATE",allViewData.buttons,{root:true})
-       commit("toolBarStore/INIT_BUTTON_ACTIVE_STATE",allViewData.activeButtons,{root:true})
+      dispatch("toolBarStore/initButtonState",{showButtons: allViewData.buttons ,activeButtons:allViewData.activeButtons} ,{root:true})
+
 
        commit("toolBarStore/SET_SLICE_CT_PIC_LAYOUT",allViewData.layOut,{root:true})
 
@@ -397,11 +395,12 @@ export default {
       console.log("allViewData",allViewData)
       dispatch("mprToolsStore/UpdateColorWindow",allViewData.colorWindow,{root:true})
       dispatch("mprToolsStore/UpdateColorLevel",allViewData.colorLevel,{root:true})
-      commit("toolBarStore/INIT_BUTTON_SHOW_STATE",allViewData.buttons,{root:true})
-      commit("toolBarStore/INIT_BUTTON_ACTIVE_STATE",allViewData.activeButtons,{root:true})
+      
+      dispatch("toolBarStore/initButtonState",{showButtons: allViewData.buttons ,activeButtons:allViewData.activeButtons} ,{root:true})
+
 
       commit("toolBarStore/SET_SLICE_CT_PIC_LAYOUT",allViewData.layOut,{root:true})
- 
+
 
       // commit("UPDATE_DIAGNOSE_STATE",{store:"noduleInfoStore",v_state:active_state})
       // dispatch('mprToolsStore/resizeSliceViews', null, { root: true });
@@ -1216,6 +1215,8 @@ console.log("")
     beforeViewDestory({state,commit,dispatch}){
       dispatch("clearAllAutoplay")
       commit("RESET_STATE")
+      // commit("toolBarStore/INIT_BUTTON_SHOW_STATE",[],{root:true})
+      // commit("toolBarStore/INIT_BUTTON_ACTIVE_STATE",[],{root:true})
 
     }
   },

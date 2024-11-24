@@ -1,7 +1,7 @@
 import urlJson from "./collect-api";
 import {apiOps, testDevOps} from "./options";
 import axios from 'axios'
-const {api, api2, api3, api5, api6, api7} = apiOps;
+const {api, api2, api3, api5, api6, api7,api8} = apiOps;
 
 const {Topbase, study, readwriteFsBase, cb, diagnose, nodule,frac,pneumonia, image, single,Case } = testDevOps;
 
@@ -65,6 +65,9 @@ export const xhr_uploadDicom = (formData) => {
       console.log("error", error);
     });
 };
+
+
+
 /**
  * studyId
  *
@@ -999,3 +1002,21 @@ export const xhr_updateTextReport = (formData) => {
   });
 };
 
+
+
+export const xhr_getSpineInfo = async (formData) => {
+   try {
+    const response = await axios.post(
+      '/api8/hl/BoneInfo',
+      formData,
+
+    )
+
+    return response
+  } catch (error) {
+    console.error('Error downloading the file', error)
+    throw error
+  }
+
+
+};

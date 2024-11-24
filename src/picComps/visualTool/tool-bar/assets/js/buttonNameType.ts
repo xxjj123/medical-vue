@@ -10,6 +10,18 @@ export enum ButtonNames {
   Bcj = "bcj" //靶重建
 }
 
+// export enum ButtonNamesLabel {
+//   Layout="视窗调整",//视窗调整
+//   Ckcw="窗宽窗位", // 窗宽窗位
+//   Mjtyms="密集投影", // 密集投影
+//   Jbinfo="角标信息", // 角标信息
+//   AiInfo="ai 信息", // ai 信息
+//   Szckx="十字参考线", // 十字参考线
+//   Pyms="平移模式", // 平移模式
+//   Bcj ="靶重建" //靶重建
+// }
+
+
 export enum LayoutNames {
   LGGJ="Lggj",
   MPR="Mpr",

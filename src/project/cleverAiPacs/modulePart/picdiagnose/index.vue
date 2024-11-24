@@ -1,12 +1,20 @@
 <template>
   <div class="diagnose_page flex flex-col">
-    <!-- {{ allViewData }} -->
     <PacsPageHeader :bread="true" :filmModeBtn="true">
 
-      <template slot="vtkTool">
-        <vskToolbar ref="vskToolbarRef">
-        </vskToolbar>
 
+      <template slot="filmModeCtrl">
+        <input class="hidden " ref="fileInputRef" type="file" @change="handleFileChange">
+        <ta-button @click="triggerFileInput">
+          <ta-icon type="upload" />
+          选择文件
+        </ta-button>
+
+      </template>
+
+      <template slot="vtkTool">
+        <vskToolbar ref="vskToolbarRef" class="ml-[15px]">
+        </vskToolbar>
 
       </template>
 
@@ -18,19 +26,28 @@
           <PicBoard />
         </div>
         <div class="menu_data">
-          <MenuData />
+          <ta-button @click="addAngleWidget">测量角度</ta-button>
+          <ta-button @click="hiddenAngle">隐藏角度</ta-button>
+
+
+          测量角度：{{ allViewData.cobb }}
+
+          <MenuData :boneInfo="boneInfo" />
+
         </div>
+
+
       </div>
     </div>
+  </div>
   </div>
 </template>
 <script lang="javascript">
 import vskToolbar from "@/picComps/visualTool/tool-bar/index.vue";
-import filmBar from "@/picComps/visualTool/film-bar/index.vue";
 import menudataBar from "@/picComps/visualTool/menudata-bar/index.vue";
 
 import PicBoard from "./view/PicBoard.vue"
-import MenuData from "@/picComps/picDiagnose/menudata/lung/index.vue"
+import MenuData from "@/picComps/picDiagnose/menudata/spine/index.vue"
 
 
 import {
@@ -40,20 +57,31 @@ import {
 
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
 
+import dicomParser from "dicom-parser";
+import spineInfo from './assets/boneInfo.json';
+
+import { xhr_getSpineInfo } from '@/api'
 
 export default {
   name: "diagnose",
   components: {
     PacsPageHeader,
     vskToolbar,
-    filmBar,
     menudataBar,
     MenuData,
-    PicBoard
+    PicBoard,
   },
   data() {
     return {
       ActiveIndex: null,
+      spineInfo,
+      boneInfo: {
+        angle: null,
+        dist: null,
+        horangle: null,
+
+
+      },
     };
   },
   computed: {
@@ -61,11 +89,148 @@ export default {
   },
   methods: {
     ...mapActions("toolBarStore", ["setActiveModule"]),
+    ...mapActions("spineViewStore", ["beforeViewDestory", "GetSlice", "UpdateSlice", "addBoxes", "addKeyPoints", "drawLine", "drawVerticalLine", "drawShape", "freshView"]),
+    ...mapActions("spineToolsStore", ["addAngleWidget", "hiddenAngle"]),
+
+
+
+    triggerFileInput() {
+      this.$refs.fileInputRef.click();
+    },
+    async handleFileChange(event) {
+      console.log("handleFileChange");
+
+      const files = event.target.files
+      if (files && files.length > 0) {
+        const file = files[0]
+        console.log(file);
+        await this.UpdateSlice({ file })
+        // await this.GetSlice()
+
+
+
+        // console.log(this.spineInfo.template);
+        // this.boneInfo = this.spineInfo.template
+
+        // const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
+        // this.drawLine({ points: [beginpnt1, endpnt2], color: [0, 1, 0] })
+        // this.drawLine({ points: [endpnt1, beginpnt2], color: [0, 1, 0] })
+
+        // this.drawVerticalLine({ points: [beginpnt1, endpnt2], color: [0, 1, 0] })
+        // this.drawVerticalLine({ points: [endpnt1, beginpnt2], color: [0, 1, 0] })
+
+
+
+        // this.freshView()
+
+
+
+
+        // this.addKeyPoints({ contours: keypoints })
+        // this.addBoxes({ contours: boxes })
+
+        // this.addAngleWidget()
+
+
+
+        // const image = await this.dicomToJpg(file)
+
+        // xhr_getSpineInfo({ input_para: 1, input: image }).then(res => {
+        //   if (res.data && res.data.msg == 'ok') {
+        //     this.$message.success(`上传成功,: ${''}`);
+        //     console.log(res.data);
+        //     this.boneInfo = res.data.template
+        //     this.addKeyPoints({ contours:  .keypoints })
+        //   }
+
+        // })
+
+      }
+
+
+    },
+    async dicomToJpg(file) {
+      const buffer = await file.arrayBuffer();
+      const byteArray = new Uint8Array(buffer);
+
+      const dataSet = dicomParser.parseDicom(byteArray);
+
+      const rows = dataSet.uint16('x00280010');
+      const columns = dataSet.uint16('x00280011');
+      const bitsAllocated = dataSet.uint16('x00280100');
+      const pixelRepresentation = dataSet.uint16('x00280103');
+      const pixelDataElement = dataSet.elements.x7fe00010;
+
+      if (!pixelDataElement) {
+        throw new Error('No pixel data found in the DICOM file.');
+      }
+
+      const pixelData = new DataView(
+        byteArray.buffer,
+        pixelDataElement.dataOffset,
+        pixelDataElement.length
+      );
+
+      const isSigned = pixelRepresentation === 1;
+
+      let minPixelValue = Infinity;
+      let maxPixelValue = -Infinity;
+
+      for (let i = 0; i < rows * columns; i++) {
+        let pixelValue;
+        if (bitsAllocated === 8) {
+          pixelValue = pixelData.getUint8(i);
+        } else if (bitsAllocated === 16) {
+          pixelValue = isSigned
+            ? pixelData.getInt16(i * 2, true)
+            : pixelData.getUint16(i * 2, true);
+        } else {
+          throw new Error('Unsupported bit depth: ' + bitsAllocated);
+        }
+        minPixelValue = Math.min(minPixelValue, pixelValue);
+        maxPixelValue = Math.max(maxPixelValue, pixelValue);
+      }
+
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.width = columns;
+      canvas.height = rows;
+
+      const imageData = context.createImageData(columns, rows);
+      const data = imageData.data;
+
+      for (let i = 0; i < rows * columns; i++) {
+        let pixelValue;
+        if (bitsAllocated === 8) {
+          pixelValue = pixelData.getUint8(i);
+        } else if (bitsAllocated === 16) {
+          pixelValue = isSigned
+            ? pixelData.getInt16(i * 2, true)
+            : pixelData.getUint16(i * 2, true);
+        }
+
+        const grayValue = Math.floor(((pixelValue - minPixelValue) / (maxPixelValue - minPixelValue)) * 255);
+        const index = i * 4;
+        data[index] = grayValue;
+        data[index + 1] = grayValue;
+        data[index + 2] = grayValue;
+        data[index + 3] = 255;
+      }
+
+      context.putImageData(imageData, 0, 0);
+      return canvas.toDataURL('image/jpeg');
+    }
+
 
   },
   created() {
     this.setActiveModule('SPINE')
   },
+  beforeDestroy() {
+    this.beforeViewDestory();
+  },
+
+
   mounted() { },
 };
 </script>

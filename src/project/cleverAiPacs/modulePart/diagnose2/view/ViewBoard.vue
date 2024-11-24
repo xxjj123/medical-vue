@@ -284,7 +284,7 @@ export default {
   methods: {
     ...mapActions("mprViewStore", ["InitAxialView",
       "InitCoronalView",
-      "InitSagittalView", "beforeViewDestory"]),
+      "InitSagittalView"]),
 
     ...mapActions("mprToolsStore", ["resizeSliceViews", "resizeCamera"]),
 
@@ -361,9 +361,9 @@ export default {
     }
   },
 
-  beforeDestroy() {
-    this.beforeViewDestory();
-  },
+  // beforeDestroy() {
+  //   this.beforeViewDestory();
+  // },
   mounted() {
     this.$nextTick(() => {
       // this.setSlice_CT_pic_layout("1");

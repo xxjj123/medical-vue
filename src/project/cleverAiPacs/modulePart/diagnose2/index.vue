@@ -82,18 +82,8 @@ export default {
   },
   methods: {
     ...mapMutations("mprViewStore", ["SET_SERIES_INFO"]),
-    ...mapActions("mprViewStore", ["InitAllSlice"]),
+    ...mapActions("mprViewStore", ["InitAllSlice", "beforeViewDestory"]),
 
-    // ...mapActions("mprViewStore", ["UpdateDraw", "UpdateDiagnoseState", "InitSlice", "InitAllSlice", "SetAllViewData"]),
-    // ...mapActions("mprToolsStore", ["UpdateColorWindow", "UpdateColorLevel", "ChangePan"]),
-
-    // ...mapActions("noduleInfoStore", ["InitNoduleState", "ActiveNoduleState", "InitAnnotations"]),
-    // ...mapMutations("noduleInfoStore", ["SET_NODULE_INFO"]),
-
-    // ...mapActions("pneumoniaInfoStore", ["InitPneumoniaState"]),
-
-    // ...mapActions("fracInfoStore", ["InitFracState", "ActiveFracState"]),
-    // ...mapMutations("toolBarStore", ["INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE", "SET_SLICE_CT_PIC_LAYOUT"]),
     ...mapActions("toolBarStore", ["setActiveModule"]),
 
 
@@ -184,9 +174,8 @@ export default {
 
   },
   beforeDestroy() {
-    // 执行退出前的清理操作
-    console.log('组件即将被销毁');
-  }
+    this.beforeViewDestory();
+  },
 
 };
 </script>

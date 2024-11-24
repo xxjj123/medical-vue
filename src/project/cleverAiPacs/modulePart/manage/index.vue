@@ -169,7 +169,7 @@
               <ta-row type="flex" justify="space-around">
                 <ta-col :span="18">
                   <pacs-abtn v-if="temp_isViewResultBtn(row.computeStatus)" :disabled.sync="row.isDisabled"
-                    @click="handleEdit1(rowIndex, row)">查看结果</pacs-abtn>
+                    @click="handleEdit1(rowIndex, row)">查看结果 {{ row.isDisabled }}</pacs-abtn>
                   <pacs-abtn v-else :disabled="true">查看结果</pacs-abtn>
                   <ta-divider type="vertical" />
                   <pacs-abtn v-if="temp_isViewResultBtn(row.computeStatus)" :disabled.sync="row.isDisabled"
@@ -202,7 +202,6 @@
       :headerStyle="fileDraw.headerStyle" :bodyStyle="fileDraw.bodyStyle" :wrapStyle="fileDraw.wrapStyle"
       @close="fileDraw.onClose" :visible="fileDraw.visible">
       <div>
-        {{ confirmBox.visible }}
         <div class="custom_title pb-[20px]  ">上传数据</div>
         <div class="w-full border border-dashed   h-[200px] py-[10px] flex justify-center items-center flex-wrap">
           <div class="w-full  text-center">
@@ -440,11 +439,17 @@ export default {
                 } else if (seriesType == 'CR') {
                   this.previewTable.seriesList[index][0].metadata = {
                     ...this.previewTable.seriesList[index][0].metadata,
-                    State: "done"
+                    UploadTime: currentTime,
+                    State: "uploading",
+                    MathType: "脊柱"
                   };
+
                   xhr_uploadSingleDicom({ dicom: zipFile }).then(() => {
                     this.$message.success(`上传成功,: ${''}`);
-
+                    this.previewTable.seriesList[index][0].metadata = {
+                      ...this.previewTable.seriesList[index][0].metadata,
+                      State: "done"
+                    };
                   })
                 }
 

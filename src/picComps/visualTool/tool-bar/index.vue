@@ -2,7 +2,7 @@
   <div class="   flex flex-row first:ml-25">
     <!-- 视窗调整 -->
     <!-- {{ allViewData }} -->
-    <div v-if="btnShowStates.Layout_show" :class="layOutClass">
+    <!-- <div v-if="btnShowStates.Layout_show" :class="layOutClass">
       <div class="pic mr-[5px] hover:cursor-pointer" v-tooltip="{ title: '视窗调整', visible: true }"></div>
       <div class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('1')" v-popover:mypop1>
         <div :class="[
@@ -25,9 +25,41 @@
         </div>
       </ta-popover>
 
-    </div>
+    </div> -->
+
+
+    <ta-tooltip placement="bottomLeft">
+      <template slot="title">
+        <span>视窗调整</span>
+      </template>
+      <div v-if="btnShowStates.Layout_show" :class="layOutClass">
+        <div class="pic mr-[5px] hover:cursor-pointer"></div>
+        <div class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('1')" v-popover:mypop1>
+          <div :class="[
+            'down_arrow  transform transition duration-300',
+            { 'rotate-180': rotated && current === '1' },
+          ]"></div>
+        </div>
+        <ta-popover ref="mypop1" @after-leave="afterLeaveEvents" :visible-arrow="true" :offset="2" :appendToBody="true"
+          :placement="`top`" class="cus_poper sctz_pop">
+          <div slot="content" class="boxBtn_extSelect">
+            <div class="group_tools flex flex-col">
+              <div v-for="(it, idx) in view_window.list" :key="idx" :class="[
+                `h_row    flex justify-start items-center ripple`,
+                { on: it.icon == allViewData.layOut },
+              ]" @click="handle_view_window_row(idx)">
+                <div :class="{ [`icon ${it.icon}`]: it.icon }"></div>
+                <div class="txt">{{ it.name }}</div>
+              </div>
+            </div>
+          </div>
+        </ta-popover>
+
+      </div>
+    </ta-tooltip>
+
     <!-- 窗宽窗位 -->
-    <div v-if="btnShowStates.ckcw_show" :class="[
+    <!-- <div v-if="btnShowStates.ckcw_show" :class="[
       'boxBtn ckcw_icon flex justify-start items-center',
       { on: btnActiveStates.ckcw_on },
     ]">
@@ -39,7 +71,6 @@
           { 'rotate-180': rotated && current === '2' },
         ]"></div>
       </div>
-      <!-- 窗体宽位 pop  -->
       <ta-popover ref="mypop2" @after-leave="afterLeaveEvents" :visible-arrow="true" :offset="2" :appendToBody="true"
         :placement="`top`" class="cus_poper ctkw_pop">
         <div slot="content" class="boxBtn_extSelect">
@@ -72,10 +103,63 @@
           </div>
         </div>
       </ta-popover>
-    </div>
+    </div> -->
+
+    <ta-tooltip placement="bottomLeft">
+      <template slot="title">
+        <span>窗宽窗位</span>
+      </template>
+      <div v-if="btnShowStates.ckcw_show" :class="[
+        'boxBtn ckcw_icon flex justify-start items-center',
+        { on: btnActiveStates.ckcw_on },
+      ]">
+        <div @click="handle_iconbtn(`ckcw`)" class="pic mr-[5px] hover:cursor-pointer"></div>
+        <div v-popover:mypop2 class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('2')">
+          <div :class="[
+            'down_arrow  transform transition duration-300',
+            { 'rotate-180': rotated && current === '2' },
+          ]"></div>
+        </div>
+        <!-- 窗体宽位 pop  -->
+        <ta-popover ref="mypop2" @after-leave="afterLeaveEvents" :visible-arrow="true" :offset="2" :appendToBody="true"
+          :placement="`top`" class="cus_poper ctkw_pop">
+          <div slot="content" class="boxBtn_extSelect">
+            <div class="title">窗体宽位</div>
+            <div class="rowWin flex items-center">
+              <div class="name">窗宽</div>
+              <div class="silder">
+                <ta-slider :min="view_window.win_w_min" :max="view_window.win_w_max" :value="view_window.win_w"
+                  v-model="view_window.win_w" @change="view_window.winW.onSliderChange" />
+              </div>
+              <div class="ipt">
+                <ta-input-number :min="view_window.win_w_min" :max="view_window.win_w_max"
+                  style="marginleft: 16px; width: 100px" amountPre="HU" :asAmount="true" :alignRight="true"
+                  :value="computedWinW" v-model="computedWinW" @change="view_window.winW.onNumberChange" />
+              </div>
+            </div>
+
+            <div class="rowWin flex items-center">
+              <div class="name">窗位</div>
+              <div class="silder">
+                <ta-slider :min="view_window.win_holder_min" :max="view_window.win_holder_max"
+                  :value="view_window.win_holder" v-model="view_window.win_holder"
+                  @change="view_window.winHold.onSliderChange" />
+              </div>
+              <div class="ipt">
+                <ta-input-number :min="view_window.win_holder_min" :max="view_window.win_holder_max"
+                  style="marginleft: 16px; width: 100px" amountPre="HU" :asAmount="true" :alignRight="true"
+                  :value="computedWinHolder" v-model="computedWinHolder" @change="view_window.winHold.onNumberChange" />
+              </div>
+            </div>
+          </div>
+        </ta-popover>
+      </div>
+    </ta-tooltip>
+
+
 
     <!-- 角标信息 -->
-    <div v-if="btnShowStates.jbinfo_show" :class="[
+    <!-- <div v-if="btnShowStates.jbinfo_show" :class="[
       'boxBtn jbinfo_icon flex justify-start items-center',
       {
         on: btnActiveStates.jbinfo_on,
@@ -83,10 +167,24 @@
     ]">
       <div @click="handle_iconbtn(`jbinfo`)" class="pic mr-[5px] hover:cursor-pointer"
         v-tooltip="{ title: '角标信息', visible: true }"></div>
-    </div>
+    </div> -->
+
+    <ta-tooltip placement="bottomLeft">
+      <template slot="title">
+        <span>角标信息</span>
+      </template>
+      <div v-if="btnShowStates.jbinfo_show" :class="[
+        'boxBtn jbinfo_icon flex justify-start items-center',
+        {
+          on: btnActiveStates.jbinfo_on,
+        },
+      ]">
+        <div @click="handle_iconbtn(`jbinfo`)" class="pic mr-[5px] hover:cursor-pointer"></div>
+      </div>
+    </ta-tooltip>
 
     <!-- ai信息 -->
-    <div v-if="btnShowStates.aiInfo_show" :class="[
+    <!-- <div v-if="btnShowStates.aiInfo_show" :class="[
       'boxBtn ainfo_icon flex justify-start items-center',
       {
         on: btnActiveStates.aiInfo_on,
@@ -94,10 +192,26 @@
     ]">
       <div @click="handle_iconbtn(`aiInfo`)" class="pic mr-[5px] hover:cursor-pointer"
         v-tooltip="{ title: 'Ai信息', visible: true }"></div>
-    </div>
+    </div> -->
+
+    <ta-tooltip placement="bottomLeft">
+      <template slot="title">
+        <span>Ai信息</span>
+      </template>
+      <div v-if="btnShowStates.aiInfo_show" :class="[
+        'boxBtn ainfo_icon flex justify-start items-center',
+        {
+          on: btnActiveStates.aiInfo_on,
+        },
+      ]">
+        <div @click="handle_iconbtn(`aiInfo`)" class="pic mr-[5px] hover:cursor-pointer"
+          v-tooltip="{ title: 'Ai信息', visible: true }"></div>
+      </div>
+    </ta-tooltip>
+
 
     <!-- 十字参考线 -->
-    <div v-if="btnShowStates.szckx_show" :class="[
+    <!-- <div v-if="btnShowStates.szckx_show" :class="[
       'boxBtn xline_icon flex justify-start items-center',
       {
         on: btnActiveStates.szckx_on,
@@ -105,10 +219,24 @@
     ]">
       <div @click="handle_iconbtn(`szckx`)" class="pic mr-[5px] hover:cursor-pointer"
         v-tooltip="{ title: '十字参考线', visible: true }"></div>
-    </div>
+    </div> -->
+
+    <ta-tooltip placement="bottomLeft">
+      <template slot="title">
+        <span>十字参考线</span>
+      </template>
+      <div v-if="btnShowStates.szckx_show" :class="[
+        'boxBtn xline_icon flex justify-start items-center',
+        {
+          on: btnActiveStates.szckx_on,
+        },
+      ]">
+        <div @click="handle_iconbtn(`szckx`)" class="pic mr-[5px] hover:cursor-pointer"></div>
+      </div>
+    </ta-tooltip>
 
     <!-- 密度投影模式 -->
-    <div v-if="btnShowStates.mjtyms_show" :class="[
+    <!-- <div v-if="btnShowStates.mjtyms_show" :class="[
       `boxBtn mdty_icon flex justify-start items-center`,
       { on: btnActiveStates.mjtyms_on },
     ]">
@@ -120,10 +248,28 @@
           { 'rotate-180': rotated && current === '3' },
         ]"></div>
       </div>
-    </div>
+    </div> -->
+
+    <ta-tooltip placement="bottomLeft">
+      <template slot="title">
+        <span>密度投影模式</span>
+      </template>
+      <div v-if="btnShowStates.mjtyms_show" :class="[
+        `boxBtn mdty_icon flex justify-start items-center`,
+        { on: btnActiveStates.mjtyms_on },
+      ]">
+        <div @click="handle_iconbtn(`mjtyms`)" class="pic mr-[5px] hover:cursor-pointer"></div>
+        <div v-popover:mypop3 class="h-[18px] flex items-center hover:cursor-pointer" @click="handle_openTzg('3')">
+          <div :class="[
+            'down_arrow  transform transition duration-300',
+            { 'rotate-180': rotated && current === '3' },
+          ]"></div>
+        </div>
+      </div>
+    </ta-tooltip>
 
     <!-- 平移模式 -->
-    <div v-if="btnShowStates.pyms_show" :class="[
+    <!-- <div v-if="btnShowStates.pyms_show" :class="[
       'boxBtn py_icon flex justify-start items-center',
       {
         on: btnActiveStates.pyms_on,
@@ -131,10 +277,24 @@
     ]">
       <div @click="handle_iconbtn(`pyms`)" class="pic mr-[5px] hover:cursor-pointer"
         v-tooltip="{ title: '平移模式', visible: true }"></div>
-    </div>
+    </div> -->
+
+    <ta-tooltip placement="bottomLeft">
+      <template slot="title">
+        <span>平移模式</span>
+      </template>
+      <div v-if="btnShowStates.pyms_show" :class="[
+        'boxBtn py_icon flex justify-start items-center',
+        {
+          on: btnActiveStates.pyms_on,
+        },
+      ]">
+        <div @click="handle_iconbtn(`pyms`)" class="pic mr-[5px] hover:cursor-pointer"></div>
+      </div>
+    </ta-tooltip>
 
     <!-- 靶重建 -->
-    <div v-if="btnShowStates.bcj_show" :class="[
+    <!-- <div v-if="btnShowStates.bcj_show" :class="[
       'boxBtn xline_icon flex justify-start items-center',
       {
         on: btnActiveStates.bcj_on,
@@ -142,7 +302,21 @@
     ]">
       <div @click="handle_iconbtn(`bcj`)" class="pic mr-[5px] hover:cursor-pointer"
         v-tooltip="{ title: '靶重建', visible: true }"></div>
-    </div>
+    </div> -->
+
+    <ta-tooltip placement="bottomLeft">
+      <template slot="title">
+        <span>靶重建</span>
+      </template>
+      <div v-if="btnShowStates.bcj_show" :class="[
+        'boxBtn xline_icon flex justify-start items-center',
+        {
+          on: btnActiveStates.bcj_on,
+        },
+      ]">
+        <div @click="handle_iconbtn(`bcj`)" class="pic mr-[5px] hover:cursor-pointer"></div>
+      </div>
+    </ta-tooltip>
 
     <ta-popover ref="mypop3" @after-leave="afterLeaveEvents" :visible-arrow="true" :offset="1" :appendToBody="false"
       :placement="`right`" class="cus_poper mjtyms_pop">
@@ -414,7 +588,6 @@ export default {
         case ButtonNames.Szckx:
           {
             this.activeButtonState(ButtonNames.Szckx)
-            this.toggleUpdateCrossHair(!!this.szckx_on);
           }
           break;
         case ButtonNames.Pyms:

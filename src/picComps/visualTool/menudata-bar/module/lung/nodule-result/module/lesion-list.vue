@@ -190,7 +190,6 @@ import searchBar from "@/picComps/visualTool/menudata-bar/module/lung/common/tex
 import reportView from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/index.vue"
 
 
-import filmInputState from "@/picComps/visualTool/menudata-bar/module/lung/common/ana-semantic-des-block/module/film-input-state/index.vue";
 import { CodeSandboxOutline } from "@yh/icons-svg";
 import Vue from 'vue';
 import { mapState, mapActions } from "vuex";
@@ -209,7 +208,6 @@ import {
 export default {
   name: "lesion-list",
   components: {
-    filmInputState,
     // reportViewBtn,
     reportView,
     textBoard,

@@ -50,8 +50,15 @@ export function buildProxy() {
     ["^/api7/"]: {
       // target: "http://localhost:8080/",
       target: "http://192.168.1.4:39600/",//xwj
+
       changeOrigin: true,
       rewrite: (path6) => path6.replace(/^\/api7\//, ""),
+    },
+    ["^/api8/"]: {
+      // target: "http://localhost:8080/",
+      target: "http://192.168.1.7:6092/",//xwj
+      changeOrigin: true,
+      rewrite: (path6) => path6.replace(/^\/api8\//, ""),
     },
 
     [proxyName]: {

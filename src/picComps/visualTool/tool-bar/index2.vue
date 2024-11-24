@@ -361,7 +361,7 @@ export default {
   methods: {
     // ...mapMutations("viewInitStore", ["SET_NODULE_DIAGNOSE_DATA"]),
     // ...mapActions("viewInitStore", ["ChangePan"]),
-    ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT", "TOGGLE_BUTTON_ACTIVE_STATE", "INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE"]),
+    ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT",]),
     ...mapActions("toolBarStore", ["activeButtonState"]),
 
     handle_iconbtn(name) {
@@ -400,7 +400,7 @@ export default {
             this.activeButtonState(ButtonNames.Szckx)
             // toggleButtonState(ButtonNames.Szckx, this);
             // 十字参考线
-            this.toggleUpdateCrossHair(!!this.szckx_on);
+            // this.toggleUpdateCrossHair(!!this.szckx_on);
             console.log("// 十字参考线=", !!this.szckx_on);
           }
           break;

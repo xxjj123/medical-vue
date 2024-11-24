@@ -19,15 +19,27 @@ const ButtonNames = {
   Bcj : "bcj" //靶重建
 };
 
-const LayoutNames = {
-  LGGJ:"Lggj",
-  MPR:"Mpr",
-  AXIAL:"Axial",
-  CORONAL:"Coronal",
-  SAGITTAL: "Sagittal",
-   RECON : "Recon"
-
+const ButtonNamesLabel = {
+  Layout:"视窗调整",//视窗调整
+  Ckcw: "窗宽窗位", // 窗宽窗位
+  Mjtyms: "密集投影", // 密集投影
+  Jbinfo: "角标信息", // 角标信息
+  AiInfo: "ai 信息", // ai 信息
+  Szckx: "十字参考线", // 十字参考线
+  Pyms: "平移模式", // 平移模式
+  Bcj : "靶重建" //靶重建
 };
+
+
+// const LayoutNames = {
+//   LGGJ:"Lggj",
+//   MPR:"Mpr",
+//   AXIAL:"Axial",
+//   CORONAL:"Coronal",
+//   SAGITTAL: "Sagittal",
+//    RECON : "Recon"
+
+// };
 
 const suffix_active = `_on`;
 const suffix_show = `_show`;
@@ -66,6 +78,7 @@ export default {
         return acc;
       }, {});
     },
+
     allViewData:(state, getters, rootState)=>{
       const v_state = rootState[state.activeViewModule]
 
@@ -103,10 +116,10 @@ export default {
         !state[`${buttonName}${suffix_show}`];
 
     },
-    INIT_BUTTON_SHOW_STATE(state, activeButtons) {
+    INIT_BUTTON_SHOW_STATE(state,showButtons) {
       Object.keys(ButtonNames).forEach((key) => {
         const button = ButtonNames[key];
-        state[`${button}${suffix_show}`] = activeButtons.includes(button);
+        state[`${button}${suffix_show}`] = showButtons.includes(button);
       });
     }
   },
@@ -119,8 +132,14 @@ export default {
         commit("SET_ACTIVE_MODULE",{activeViewModule:"spineViewStore",activeToolModule:"spineToolsStore"})
 
       }
-// commit("SET_ACTIVE_MODULE",{activeViewModule,activeToolModule})
     },
+
+    initButtonState({commit},{showButtons,activeButtons}){
+      commit("INIT_BUTTON_ACTIVE_STATE",activeButtons)
+      commit("INIT_BUTTON_SHOW_STATE",showButtons)
+
+    },
+
     activeButtonState({state,commit,dispatch,rootState},buttonName){
       commit("TOGGLE_BUTTON_ACTIVE_STATE",buttonName)
       dispatch(state.activeViewModule+"/SetAllViewData",{
@@ -144,9 +163,6 @@ export default {
           // 如果没有匹配的情况，可以在这里处理默认操作
           break;
       }
-    // if(buttonName == ButtonNames.Szckx||buttonName == ButtonNames.Jbinfo){
-
-    // }
     },
     activeLayout({state,dispatch,commit},layout){
       commit("SET_SLICE_CT_PIC_LAYOUT",layout)

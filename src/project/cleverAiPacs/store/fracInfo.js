@@ -303,11 +303,12 @@ export default {
 
     },
 
-
     async UpdateSlice(
       {commit, dispatch, state},
       {viewIndex, index},
     ) {
+      console.log("UpdateSlice,frac");
+
       state.annotations.value.forEach((annotation) => {
         if (annotation.viewIndex === viewIndex) {
           annotation.actor.setVisibility(
