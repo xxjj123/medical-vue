@@ -26,11 +26,11 @@
           <PicBoard />
         </div>
         <div class="menu_data">
-          <ta-button @click="addAngleWidget">测量角度</ta-button>
+          <!-- <ta-button @click="addAngleWidget">测量角度</ta-button>
           <ta-button @click="hiddenAngle">隐藏角度</ta-button>
 
 
-          测量角度：{{ allViewData.cobb }}
+          测量角度：{{ allViewData.cobb }} -->
 
           <MenuData :boneInfo="boneInfo" />
 
@@ -89,7 +89,7 @@ export default {
   },
   methods: {
     ...mapActions("toolBarStore", ["setActiveModule"]),
-    ...mapActions("spineViewStore", ["beforeViewDestory", "GetSlice", "UpdateSlice", "addBoxes", "addKeyPoints", "drawLine", "drawVerticalLine", "drawShape", "freshView"]),
+    ...mapActions("spineViewStore", ["beforeViewDestory", "GetSlice", "UpdateSlice", "addBoxes", "addKeyPoints", "drawLine", "calculateAngle", "drawVerticalLine", "drawShape", "freshView"]),
     ...mapActions("spineToolsStore", ["addAngleWidget", "hiddenAngle"]),
 
 
@@ -110,18 +110,25 @@ export default {
 
 
         // console.log(this.spineInfo.template);
-        // this.boneInfo = this.spineInfo.template
+        this.boneInfo = this.spineInfo.template
 
-        // const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
-        // this.drawLine({ points: [beginpnt1, endpnt2], color: [0, 1, 0] })
-        // this.drawLine({ points: [endpnt1, beginpnt2], color: [0, 1, 0] })
+        const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
+        this.addKeyPoints({ contours: keypoints })
+
+        const line1 = [beginpnt1, beginpnt1.map((coord, index) => (coord + endpnt1[index]) / 2)]
+        const line2 = [beginpnt2, beginpnt2.map((coord, index) => (coord + endpnt2[index]) / 2)]
+        // this.drawLine({ points: line1, color: [0, 1, 0] })
+        // this.drawLine({ points: line2, color: [0, 1, 0] })
+
+        // this.drawLine({ points: [beginpnt1, endpnt1], color: [0, 1, 0] })
+        // this.drawLine({ points: [beginpnt2, endpnt2], color: [0, 1, 0] })
 
         // this.drawVerticalLine({ points: [beginpnt1, endpnt2], color: [0, 1, 0] })
-        // this.drawVerticalLine({ points: [endpnt1, beginpnt2], color: [0, 1, 0] })
+        // this.drawVerticalLine({ points: [beginpnt2, endpnt1], color: [0, 1, 0] })
+        this.calculateAngle({ line1, line2 })
 
 
-
-        // this.freshView()
+        this.freshView()
 
 
 
@@ -133,14 +140,18 @@ export default {
 
 
 
-        // const image = await this.dicomToJpg(file)
+        const image = await this.dicomToJpg(file)
 
         // xhr_getSpineInfo({ input_para: 1, input: image }).then(res => {
         //   if (res.data && res.data.msg == 'ok') {
         //     this.$message.success(`上传成功,: ${''}`);
         //     console.log(res.data);
         //     this.boneInfo = res.data.template
-        //     this.addKeyPoints({ contours:  .keypoints })
+        //     const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
+
+        //     this.addKeyPoints({ contours: keypoints })
+        //     // this.addBoxes({ contours: boxes })
+
         //   }
 
         // })

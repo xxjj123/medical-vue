@@ -183,7 +183,7 @@ const _default: ViteCommonConfig = {
       'itk-wasm',
       'itk',
       // '@kitware/vtk.js',
-      'cornerstone',
+      // 'cornerstone',
       // 'cornerstone-tools',
       // 'cornerstone-core',
       'cornerstone-wado-image-loader',

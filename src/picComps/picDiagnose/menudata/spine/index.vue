@@ -27,22 +27,19 @@
       <div class="content_main">
         <div class="angle">
 
-          {{ boneInfo.angle }}
           <div class="mt-2  py-3 w-full">
-            <div class="h-[30px] lh-[30px]">Cobb角：{{ boneInfo.angle?.pt.angles }}°</div>
-            <div class="h-[30px] lh-[30px]">顶锥离中线距离：{{ boneInfo.dist }}</div>
-            <div class="h-[30px] lh-[30px]">锁骨倾斜角：{{ boneInfo.horangle }}°</div>
+            <div class="h-[30px] lh-[30px]">Cobb角：{{ boneInfo.angle?.mt.angle.toFixed(2) }} °</div>
+            <div class="h-[30px] lh-[30px]">顶锥离中线距离：{{ boneInfo.dist?.toFixed(2) }} </div>
+            <div class="h-[30px] lh-[30px]">锁骨倾斜角：{{ boneInfo.horangle }} °</div>
           </div>
         </div>
 
-        <!-- {{ boneInfo.keypnts }} -->
-        {{ boneInfo.beginpnt1 }}
-        {{ boneInfo.beginpnt2 }}
-        {{ boneInfo.endpnt1 }}
-        {{ boneInfo.endpnt2 }}
+        <!-- {{ boneInfo.angle }} -->
+        <!-- {{ tableData }} -->
 
 
-        <div class="analytic_semantic_description ">
+
+        <div class="analytic_semantic_description mb-10">
           <textBoard :bookItems="findingItems.list" :title="findingItems.title">
           </textBoard>
         </div>
@@ -70,6 +67,8 @@
 <script lang="javascript">
 import textBoard from "@/picComps/visualTool/menudata-bar/module/lung/common/textBoard/index.vue";
 import reportView from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/index.vue"
+import { spine_dict } from "./assets/dict"
+import { spineFindingTemplate, spineDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
 
 export default {
   name: "menudata-bar",
@@ -78,12 +77,35 @@ export default {
     boneInfo: Object,
   },
   computed: {
+    tableData: {
+      get() {
+        const angle = this.boneInfo.angle
+        const mappedList = []
+        Object.keys(spine_dict).forEach((key) => {
 
+          if (angle) {
+            if (key == 'mt') {
+              const newItem = { ...angle[key], ...spine_dict[key] }
+              console.log(newItem);
+              newItem.angle = newItem.angle.toFixed(2);
+              // newItem.angle.toFixed(2)
+              mappedList.push(newItem)
+            }
+
+
+          }
+        });
+
+        return mappedList
+
+
+      }
+    },
     findingItems: {
       get() {
         return {
           title: "影像所见",
-          list: []
+          list: spineFindingTemplate(this.tableData)
         }
 
       }
@@ -92,7 +114,7 @@ export default {
       get() {
         return {
           title: "影像诊断",
-          list: []
+          list: spineDiagnoseTemplate(this.tableData)
         }
 
       }
