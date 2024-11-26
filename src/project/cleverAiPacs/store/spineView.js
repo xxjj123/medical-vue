@@ -1,74 +1,46 @@
-import "@kitware/vtk.js/Rendering/Profiles/All";
-import {
-  readDicomTags,
-  readImageDicomFileSeriesWorkerFunction,
-} from "@itk-wasm/dicom";
-import vtkXMLImageDataReader from "@kitware/vtk.js/IO/XML/XMLImageDataReader";
-import vtkITKImageReader from "@kitware/vtk.js/IO/Misc/ITKImageReader";
-import vtkGenericRenderWindow from "@kitware/vtk.js/Rendering/Misc/GenericRenderWindow";
-import vtkImageMapper from "@kitware/vtk.js/Rendering/Core/ImageMapper";
-import vtkImageSlice from "@kitware/vtk.js/Rendering/Core/ImageSlice";
-import vtkInteractorStyleImage from "@kitware/vtk.js/Interaction/Style/InteractorStyleImage";
-import vtkActor from "@kitware/vtk.js/Rendering/Core/Actor";
-import vtkMapper from "@kitware/vtk.js/Rendering/Core/Mapper";
-import vtkPolyData from "@kitware/vtk.js/Common/DataModel/PolyData";
-import vtkPoints from "@kitware/vtk.js/Common/Core/Points";
-import vtkCellArray from "@kitware/vtk.js/Common/Core/CellArray";
-import vtkPicker from "@kitware/vtk.js/Rendering/Core/Picker";
-import vtkCoordinate from "@kitware/vtk.js/Rendering/Core/Coordinate";
-import vtkColorTransferFunction from "@kitware/vtk.js/Rendering/Core/ColorTransferFunction";
-import vtkAppendPolyData from "@kitware/vtk.js/Filters/General/AppendPolyData";
+import dicomParser from "dicom-parser";
+import { dicomTagDescriptions } from "@/assets/js/utils/dicom/tagCode";
 
-import vtkLabelWidget from '@kitware/vtk.js/Widgets/Widgets3D/LabelWidget';
 
-import vtkWidgetManager from "@kitware/vtk.js/Widgets/Core/WidgetManager";
-import vtkMath from '@kitware/vtk.js/Common/Core/Math';
+import * as cornerstone from '@cornerstonejs/core';
+import { RenderingEngine ,Enums,utilities,metaData,  } from '@cornerstonejs/core';
+// import { Types } from '@cornerstonejs/core';
 
-import throttle from "lodash/throttle";
-import Vue from "vue";
+import * as cornerstoneTools from '@cornerstonejs/tools';
+import {annotation} from '@cornerstonejs/tools';
+const { ViewportType } = Enums;
+const { MouseBindings } = cornerstoneTools.Enums;
+const renderingEngineId = 'myRenderingEngine';
+import cornerstoneDICOMImageLoader from '@cornerstonejs/dicom-image-loader';
+
+cornerstone.init();
+cornerstoneDICOMImageLoader.init();
+cornerstoneTools.init();
+
+cornerstone.imageLoader.registerImageLoader('wadouri', cornerstoneDICOMImageLoader.wadouri.loadImage);
+
+const {ToolGroupManager, LengthTool,PanTool, RectangleROITool, ZoomTool } = cornerstoneTools;
+cornerstoneTools.addTool(LengthTool)
+
+const viewportId = "spineViewPort"
+const toolGroupId = "toolGroup"
+
+
 import {AllViewData} from './data';
-
-
-import { gdcmReadImage} from "@itk-wasm/image-io"
-import vtkITKHelper from "@kitware/vtk.js/Common/DataModel/ITKHelper";
-
 import {xhr_getSlice,xhr_getSingleImage} from "@/api";
 import {
   ButtonNames
 } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
+
 const VIEW_COLORS = {
   BACKGROUND: [0, 0, 0]
-};
-
-const basicViewData = new AllViewData()
-
-
-const sortPoints = (pointsArray) => {
-
-  const center = pointsArray.reduce(
-    (acc, [x, y]) => [acc[0] + x, acc[1] + y],
-    [0, 0]
-  ).map((sum) => sum / pointsArray.length);
-
-  pointsArray.sort(([x1, y1], [x2, y2]) => {
-    const angle1 = Math.atan2(y1 - center[1], x1 - center[0]);
-    const angle2 = Math.atan2(y2 - center[1], x2 - center[0]);
-    return angle1 - angle2; // 顺时针排序
-  });
-
-  return pointsArray;
 };
 
 
 export default {
   namespaced: true,
   state: {
-    widgetManager: vtkWidgetManager.newInstance(),
-    // 选中行study信息，用于提取tags相关信息用
-    studies_selected: {},
-    picker: vtkPicker.newInstance(),
-    series_map_dicom: {},
     seriesInfo: {
       seriesId: "",
       axialCount: "",
@@ -77,9 +49,7 @@ export default {
       imageCount: "",
     },
     view:{
-
     },
-
     allViewData: { hu:'',reversed:false,cameraRotate:0 ,scaleLength: null,cobb:0},
 
   },
@@ -101,10 +71,8 @@ export default {
     },
     INIT_NODULE_ALL_VIEW_DATA(state){
       const originalData = new AllViewData();
-      // originalData.colorWindow = 4096;
-      // originalData.colorLevel = 1024;
-      originalData.colorWindow = 409;
-      originalData.colorLevel = 102;
+      originalData.colorWindow = 4096;
+      originalData.colorLevel = 1024;
       originalData.isPan = true;
       originalData.layOut = null;
       originalData.buttons = [ButtonNames.Ckcw, ButtonNames.Jbinfo,  ButtonNames.Pyms];
@@ -116,128 +84,65 @@ export default {
   actions: {
     async InitView(
       {dispatch, commit, state},
-      container
+      element
     ) {
 
+      // const renderingEngine = new RenderingEngine(renderingEngineId);
+      const renderingEngine = new RenderingEngine(renderingEngineId);
+      const toolGroup = await dispatch("initializeToolGroup")
 
-      const grw = vtkGenericRenderWindow.newInstance();
-      grw.setContainer(container);
-      const {width, height} = container.getBoundingClientRect();
-      grw.resize(width, height);
+      commit('SET_VIEW_ITEM', {key:"renderer",value:renderingEngine});
+      const viewportInput = {
+        viewportId ,
+        element,
+        type: ViewportType.STACK,
+        defaultOptions: {
+          background: VIEW_COLORS.BACKGROUND, // 黑色背景
+                    // background: [0, 0, 0], // 黑色背景
 
-      const interactorstyle = vtkInteractorStyleImage.newInstance();
-      console.log(interactorstyle)
-      interactorstyle.setInteractionMode("IMAGE2D");
-
-      const obj = {
-        grw,
-        index: null,
-        image: null,
-        renderWindow: grw.getRenderWindow(),
-        renderer: grw.getRenderer(),
-        interactor: grw.getInteractor(),
-        sliceMapper: vtkImageMapper.newInstance(),
-        sliceActor: vtkImageSlice.newInstance(),
+        },
       };
 
-      obj.renderer.setBackground(...VIEW_COLORS.BACKGROUND);
-      obj.renderWindow.addRenderer(obj.renderer);
-      obj.renderWindow.setInteractor(obj.interactor);
-      obj.interactor.initialize();
-      obj.interactor.bindEvents(container);
-      obj.interactor.setInteractorStyle(interactorstyle);
-      obj.interactor.getInteractorStyle().modified();
-      obj.interactor.onLeftButtonPress(()=>{
-        obj.interactor.getInteractorStyle().endWindowLevel()
-      })
-      obj.sliceActor.setMapper(obj.sliceMapper);
-      obj.renderer.addActor(obj.sliceActor);
 
-     obj.interactor.onMouseMove((event) => {
-      const view = state.view
-      if(view && view.image){
-        const {x, y} = event.position;
-        state.picker.pick([x, y, 0], view.renderer);
-        const pickedPositions = state.picker.getPickedPositions();
-        if (pickedPositions.length > 0) {
-          const pickedPosition = pickedPositions[0];
+      renderingEngine.enableElement(viewportInput);
+      toolGroup.addViewport(viewportId, renderingEngineId);
+      commit("SET_VIEW_ITEM",{key:"element",value:element})
+      element.addEventListener('mousemove', (evt) => {
+        const rect = element.getBoundingClientRect();
 
-          const ijk = view.image
-            .worldToIndex(pickedPosition)
-            .map(Math.round);
-          const imageScales = view.image.getPointData().getScalars();
-          const pageindex =
-            ijk[0] +
-            ijk[1] * view.image.getDimensions()[0] +
-            ijk[2] *
-            view.image.getDimensions()[0] *
-            view.image.getDimensions()[1];
-          const pixelValue = imageScales.getTuple(pageindex);
-          commit("SET_ALL_VIEW_STATE", {
-            key: "hu",
-            value: pixelValue[0] ,
-          });
-        }else{
-          commit("SET_ALL_VIEW_STATE", {
-            key: "hu",
-            value: '' ,
-          });
-        }
-      }
+        const canvasPos = [
+          Math.floor(evt.clientX - rect.left),
+          Math.floor(evt.clientY - rect.top),
+        ];
+        // Convert canvas coordinates to world coordinates
+        const viewport = state.view.renderer.getViewport(viewportId);
+        const worldPos = viewport.canvasToWorld(canvasPos);
+
+        commit("SET_ALL_VIEW_STATE", {
+          key: "hu",
+          value: `canvas: (${canvasPos[0]}, ${canvasPos[1]}),world: (${worldPos[0].toFixed(
+          2
+        )}, ${worldPos[1].toFixed(2)}, ${worldPos[2].toFixed(2)}))`,
+        });
 
       });
-
-      obj.interactor.onLeftButtonPress((event) => {
-        if (state.allViewData.isPan) {
-          obj.interactor.getInteractorStyle().startPan()
-
-        }else{
-
-        }
-      });
-
-      commit("SET_VIEW",obj)
-
-      // state.widgetManager.setRenderer(state.view.renderer);
-
-      // await dispatch("GetSlice");
-      // dispatch("spineToolsStore/resizeSliceView",null,{root:true})
 
     },
     InitViewData({state,dispatch,commit}){
 
-      commit("INIT_NODULE_ALL_VIEW_DATA")
-      const { allViewData } = state
-      dispatch("spineToolsStore/UpdateColorWindow",allViewData.colorWindow,{root:true})
-      dispatch("spineToolsStore/UpdateColorLevel",allViewData.colorLevel,{root:true})
-
-      dispatch("toolBarStore/initButtonState",{showButtons: allViewData.buttons ,activeButtons:allViewData.activeButtons} ,{root:true})
 
     },
 
     async GetSlice({dispatch, state,commit}) {
       console.log("getslice")
       try {
-        let loading = setInterval(() => {
-          Vue.prototype.$message.destroy();
-
-        }, 50)
-        const res2 = await xhr_getSingleImage({
+        const res = await xhr_getSingleImage({
           studyid: "1838512078533521409",
 
         });
-
-        if (res2) {
-          const file = new File([res2.data], "image.dcm", { type: "application/dicom" });
-          const result = await gdcmReadImage(file);
-          const outputImage = result.image;
-          const imageData = vtkITKHelper.convertItkToVtkImage(outputImage);
-          commit("SET_VIEW_ITEM",{key:"image",value:imageData})
-          const view = state.view;
-          view.sliceMapper.setInputData(imageData);
-          dispatch("setupCamera");
-
-
+        if (res) {
+          const file = new File([res.data], "image.dcm" );
+          dispatch("UpdateSlice",{file})
         } else {
           console.error("Request failed: No data returned");
         }
@@ -248,292 +153,138 @@ export default {
     },
 
 
-
-
     async UpdateSlice({dispatch, state,commit},{file}) {
-      const view = state.view;
 
-      view.renderer.getActors().forEach((actor,index)=>{
-        if(index>0){
-          view.renderer.removeActor(actor);
-        }
-      })
-      console.log("UpdateSlice")
-      try {
-        // const file = new File([image], "image.dcm", { type: "application/dicom" });
-          const result = await gdcmReadImage(file);
-          const outputImage = result.image;
-          const imageData = vtkITKHelper.convertItkToVtkImage(outputImage);
-          commit("SET_VIEW_ITEM",{key:"image",value:imageData})
-          view.sliceMapper.setInputData(imageData);
-          dispatch("setupCamera");
-           dispatch("spineToolsStore/resizeSliceView",null,{root:true})
+      const imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(file);
 
-
-      state.widgetManager.setRenderer(state.view.renderer);
-
-
-
-
-
-      } catch (error) {
-        console.error("Request failed:", error);
-      }
-    },
-
-
-    SetAllViewData({commit},{ key,value }){
-      commit("SET_ALL_VIEW_STATE",{ key,value })
-    },
-
-    setupCamera({commit, state, getters}) {
-      const view = state.view
-      const image = view.image;
-      const camera = view.renderer.getActiveCamera();
-
-      camera.setParallelProjection(true);
-      const bounds = image.getBounds();
-      const [centerX, centerY, centerZ] = [
-        (bounds[0] + bounds[1]) / 2,
-        (bounds[2] + bounds[3]) / 2,
-        (bounds[4] + bounds[5]) / 2,
-      ];
-      camera.setFocalPoint(centerX, centerY, centerZ);
-      camera.setPosition(centerX, centerY, centerZ - 1);
-      camera.setViewUp(0, -1, 0);
-      view.renderer.resetCamera();
-
-      const [point1, point2] = [
-        view.renderer.worldToNormalizedDisplay(
-          bounds[0],
-          bounds[2],
-          bounds[4],
-          true,
-        ),
-        view.renderer.worldToNormalizedDisplay(
-          bounds[1],
-          bounds[3],
-          bounds[5],
-          true,
-        ),
-      ];
-      const {width: containerWidth, height: containerHeight} = view.grw
-        .getContainer()
-        .getBoundingClientRect();
-
-      camera.zoom(
-        containerWidth * Math.abs(point1[0] - point2[0]) >
-          containerHeight * Math.abs(point1[1] - point2[1])
-          ? Math.max(
-            1 / Math.abs(point1[0] - point2[0]),
-            1 / Math.abs(point1[1] - point2[1]),
-          )
-          : Math.min(
-            1 / Math.abs(point1[0] - point2[0]),
-            1 / Math.abs(point1[1] - point2[1]),
-          ),
-      );
-
-      view.renderWindow.render();
-    },
-
-    async drawLine({ state, dispatch }, { points, color = [1, 0, 0], lineWidth = 1 }){
-      const { view } = state;
-
-      if (points.length !== 2) {
-        console.error('You must provide exactly two points to draw a line.');
-        return;
+      const imageIds = [imageId];
+      const renderer = state.view.renderer;
+      if (!renderer) {
+        throw new Error('Renderer is not initialized.');
       }
 
-      const boundsZ = Math.min(view.image.getBounds()[2], view.image.getBounds()[5]);
+      const viewport = renderer.getViewport(viewportId);
 
-      const vtkPointsInstance = vtkPoints.newInstance();
+      await viewport.setStack(imageIds);
 
-      // 将输入的两个点转换为世界坐标并插入到 vtkPoints 中
-      points.forEach(([xIndex, yIndex]) => {
-        const worldPoint = view.image.indexToWorld([xIndex, yIndex, boundsZ]);
-        vtkPointsInstance.insertNextPoint(...worldPoint);
-      });
 
-      // 定义线段的拓扑结构
-      const lines = vtkCellArray.newInstance();
-      lines.insertNextCell([0, 1]); // 连接第一个点和第二个点
 
-      // 创建 PolyData 并设置点和线段
-      const polyData = vtkPolyData.newInstance();
-      polyData.setPoints(vtkPointsInstance);
-      polyData.setLines(lines);
+      const { imagePositionPatient } = metaData.get('imagePlaneModule', imageId);
+      console.log(imagePositionPatient);
+      console.log(metaData.get('imagePlaneModule', imageId));
 
-      // 创建 Mapper 和 Actor
-      const mapper = vtkMapper.newInstance();
-      mapper.setInputData(polyData);
+      let start = [400,200]
+      let end = [600,350]
+      start = viewport.canvasToWorld([...start]);
+    end = viewport.canvasToWorld([...end]);
+    //   start = utilities.imageToWorldCoords(viewport.getCurrentImageId(),[...start]);
+    // end = utilities.imageToWorldCoords(viewport.getCurrentImageId(), [...end]);
+      await dispatch("addProgrammaticAnnotation",{start ,end })
 
-      const actor = vtkActor.newInstance();
-      actor.setMapper(mapper);
-      actor.getProperty().setColor(...color);
-      actor.getProperty().setLineWidth(lineWidth);
-      actor.setVisibility(true);
+      await dispatch("setPositionCenter")
+      console.log(      annotation.state.getAllAnnotations());
 
-      // 将 Actor 添加到渲染器中
-      view.renderer.addActor(actor);
     },
 
-   async  drawVerticalLine({ state, dispatch }, { points, color = [1, 0, 0], lineWidth = 1 }){
+    async setPositionCenter({state,dispatch}){
+      const renderer = state.view.renderer;
+      if (!renderer) {
+        throw new Error('Renderer is not initialized.');
+      }
+      const viewport = renderer.getViewport(viewportId);
+      const displayArea  =  await dispatch("createDisplayArea",{size:1,pointValue:0.5})
+      viewport.setOptions(displayArea);
+      viewport.setProperties(displayArea);
+      const { flipHorizontal } = displayArea;
+      viewport.setCamera({ flipHorizontal});
+      viewport.render();
+    },
+    async addProgrammaticAnnotation ({state},{start,end}){
+      console.log(cornerstone);
+      console.log({start,end});
 
-      const result = await dispatch("calculatePerpendicularLine",points)
-      dispatch("drawLine",{ points:result})
+      // console.log( viewport.getImageIds());
+
+
+      console.log(cornerstoneTools.utilities);
+      const renderer = state.view.renderer;
+      if (!renderer) {
+        throw new Error('Renderer is not initialized.');
+      }
+      const viewport = renderer.getViewport(viewportId);
+
+      await cornerstoneTools.utilities.annotationHydration(viewport, 'Length', [
+        start,
+        end,
+
+      ]);
+      await cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
+        viewportId
+      ]);
+
+      annotation.visibility.showAllAnnotations();
+      viewport.render();
+
+
+
+
+    },
+    initializeToolGroup({state},toolGroupId){
+      let toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(toolGroupId);
+
+      if (toolGroup) {
+        return toolGroup;
+      }
+
+      toolGroup = cornerstoneTools.ToolGroupManager.createToolGroup(toolGroupId);
+
+      console.log(LengthTool.toolName);
+
+      // Add the tools to the tool group
+      toolGroup.addTool(LengthTool.toolName);
+      // toolGroup.addTool(StackScrollTool.toolName);
+      // toolGroup.setToolPassive(cornerstoneTools.LengthTool.toolName);
+      // toolGroup.setToolActive(cornerstoneTools.StackScrollTool.toolName, {
+      //   bindings: [
+      //     {
+      //       mouseButton: MouseBindings.Wheel,
+      //     },
+      //   ],
+      // });
+
+      return toolGroup;
     },
 
-
-    calculatePerpendicularLine({state},points) {
-      console.log(points);
-
-      const length = 1000
-      const [pointbegin, pointend] = points
-
-      const [x1, y1] = pointbegin;
-      const [x2, y2] = pointend;
-
-      // 计算中点
-      const midpoint = [(x1 + x2) / 2, (y1 + y2) / 2];
-
-      // 计算连线方向向量
-      const dx = x2 - x1;
-      const dy = y2 - y1;
-
-      // 计算垂直方向向量（单位化）
-      const magnitude = Math.sqrt(dx * dx + dy * dy);
-      const perpVector = [-dy / magnitude, dx / magnitude];
-
-      // 计算垂直线段的两个端点
-      const halfLength = length / 2;
-      const point1 = [
-        midpoint[0] + halfLength * perpVector[0],
-        midpoint[1] + halfLength * perpVector[1]
-      ];
-      const point2 = [
-        midpoint[0] - halfLength * perpVector[0],
-        midpoint[1] - halfLength * perpVector[1]
-      ];
-
-      return [point1, point2];
-    },
-
-
-
-    async drawShape({ state,dispatch }, { contours, color = [1, 0, 0], lineWidth = 1 }) {
-      const { view } = state;
-      const boundsZ = Math.min(view.image.getBounds()[2], view.image.getBounds()[5]);
-
-      contours.forEach((boundsArray) => {
-        const points = vtkPoints.newInstance();
-
-        boundsArray.forEach(([xIndex, yIndex]) => {
-          const worldPoint = view.image.indexToWorld([xIndex, yIndex, boundsZ]);
-          points.insertNextPoint(...worldPoint);
-        });
-
-        const numPoints = points.getNumberOfPoints();
-        const lines = vtkCellArray.newInstance();
-        const lineIndices = Array.from({ length: numPoints }, (_, i) => i);
-        lines.insertNextCell([...lineIndices, lineIndices[0]]); // 确保闭合
-
-        const polyData = vtkPolyData.newInstance();
-        polyData.setPoints(points);
-        polyData.setLines(lines);
-
-        const mapper = vtkMapper.newInstance();
-        mapper.setInputData(polyData);
-
-        const actor = vtkActor.newInstance();
-        actor.setMapper(mapper);
-        actor.getProperty().setColor(...color);
-        actor.getProperty().setLineWidth(lineWidth);
-        actor.setVisibility(true);
-
-        view.renderer.addActor(actor);
-      });
-    },
-    async addBoxes ({ state, rootState, dispatch, commit }, { contours })  {
-      const { view } = state;
-
-      // 将每个矩形的对角点转化为四个顶点并排序
-      const formattedContours = contours.map(([x1, y1, x2, y2]) =>
-        sortPoints([
-          [x1, y1],
-          [x2, y1],
-          [x2, y2],
-          [x1, y2],
-        ])
-      );
-
-      // 调用绘制逻辑
-      await dispatch("drawShape", { contours: formattedContours });
-
-      // 调整摄像机和视图大小
-      await dispatch("setupCamera");
-      await dispatch("spineToolsStore/resizeSliceView", null, { root: true });
-    },
-    async addKeyPoints  ({ state, rootState, dispatch, commit }, { contours })  {
-      const { view } = state;
-
-      const sortedContours = contours.map(sortPoints);
-
-      await dispatch("drawShape", { contours: sortedContours });
-
-      await dispatch("setupCamera");
-      await dispatch("spineToolsStore/resizeSliceView", null, { root: true });
-    },
-    calculateAngle({state},{line1, line2}) {
-      const { view } = state;
-
-
-      const vector1 = [line1[1][0] - line1[0][0], line1[1][1] - line1[0][1], 0];
-      const vector2 = [line2[1][0] - line2[0][0], line2[1][1] - line2[0][1], 0];
-      console.log(vector1, vector2);
-
-      const dotProduct = vtkMath.dot(vector1, vector2);
-      const magnitude1 = vtkMath.norm(vector1);
-      const magnitude2 = vtkMath.norm(vector2);
-
-      const angleRad = Math.acos(dotProduct / (magnitude1 * magnitude2));
-      console.log("angleRad,angleRad",angleRad);
-
-      console.log("cobb",vtkMath.degreesFromRadians(angleRad));
-
-      const textActor = vtkLabelWidget.newInstance();
-textActor.setText('This is a note'); // 设置注释内容
-textActor.setPosition(50, 50); // 设置屏幕位置 (像素坐标)
-textActor.getTextProperty().setFontSize(24); // 设置字体大小
-textActor.getTextProperty().setColor(1.0, 0.0, 0.0); // 设置颜色 (红色)
-
-// 将文本添加到渲染器
-view.renderer.addActor(textActor);
+    createDisplayArea({state},
+      {size,
+      pointValue,
+      canvasValue = pointValue,
+      rotation = 90,
+      flipHorizontal = false}
+    ) {
+      const imagePoint = Array.isArray(pointValue)
+        ? pointValue
+        : [pointValue, pointValue];
+      const canvasPoint = Array.isArray(canvasValue)
+        ? canvasValue
+        : [canvasValue, canvasValue];
+      return {
+        rotation,
+        flipHorizontal,
+        displayArea: {
+          imageArea: Array.isArray(size) ? size : [size, size],
+          imageCanvasPoint: {
+            imagePoint,
+            canvasPoint,
+          },
+        },
+      };
     },
 
 
-
-
-
-
-
-async freshView({dispatch}){
-
-  await dispatch("setupCamera");
-  await dispatch("spineToolsStore/resizeSliceView", null, { root: true });
-},
     beforeViewDestory({state,commit,dispatch}){
-      // commit("toolBarStore/INIT_BUTTON_SHOW_STATE",[],{root:true})
-      // commit("toolBarStore/INIT_BUTTON_ACTIVE_STATE",[],{root:true})
 
     },
-
-
-
-
-
-
-
 
 
   },

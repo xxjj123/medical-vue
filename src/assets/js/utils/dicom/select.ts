@@ -492,7 +492,6 @@ export function spineFindingTemplate(objList) {
     resultBookItems.push({ id: item.id, isActive:false,desc: resultBookItem })
 
   })
-   console.log(resultBookItems);
 
   return resultBookItems;
 }
@@ -526,7 +525,6 @@ export function spineDiagnoseTemplate(objList) {
 
 
   })
-   console.log(resultBookItems);
 
   return resultBookItems;
 }

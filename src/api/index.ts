@@ -419,7 +419,7 @@ export const xhr_getSingleImageInfo = (formData) => {
  * @param formData
  * @returns
  */
-   export const xhr_getSpineInfo2 = (formData) => {
+   export const xhr_getSpineInfo = (formData) => {
     return Base.submit(null, {
       method: "POST",
       autoQs: false,
@@ -1021,19 +1021,19 @@ export const xhr_updateTextReport = (formData) => {
 
 
 
-export const xhr_getSpineInfo = async (formData) => {
-   try {
-    const response = await axios.post(
-      '/api8/hl/BoneInfo',
-      formData,
+// export const xhr_getSpineInfo = async (formData) => {
+//    try {
+//     const response = await axios.post(
+//       '/api8/hl/BoneInfo',
+//       formData,
 
-    )
+//     )
 
-    return response
-  } catch (error) {
-    console.error('Error downloading the file', error)
-    throw error
-  }
+//     return response
+//   } catch (error) {
+//     console.error('Error downloading the file', error)
+//     throw error
+//   }
 
 
-};
+// };

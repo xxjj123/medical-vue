@@ -25,6 +25,7 @@
           <PicBoard />
         </div>
         <div class="menu_data">
+          {{ allViewData }}
           <!-- <img :src="image" alt="" class="w-[200px]"> -->
 
           <!-- <ta-button @click="addAngleWidget">测量角度</ta-button>
@@ -62,7 +63,7 @@ import JSZip from "jszip";
 import dicomParser from "dicom-parser";
 import spineInfo from './assets/boneInfo.json';
 
-import { xhr_getSpineInfo, xhr_getSpineInfo2 } from '@/api'
+import { xhr_getSpineInfo } from '@/api'
 
 export default {
   name: "diagnose",
@@ -107,59 +108,44 @@ export default {
       if (files && files.length > 0) {
         const file = files[0]
         console.log(file);
+        this.boneInfo = {}
         await this.UpdateSlice({ file })
-        // await this.GetSlice()
-
 
         // console.log(this.spineInfo.template);
-        // this.boneInfo = this.spineInfo.template
-
-        // const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
+        this.boneInfo = this.spineInfo.data.resultData.data
+        console.log(this.boneInfo);
+        const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
         // this.addKeyPoints({ contours: keypoints })
-
         // const line1 = [beginpnt1, beginpnt1.map((coord, index) => (coord + endpnt1[index]) / 2)]
         // const line2 = [beginpnt2, beginpnt2.map((coord, index) => (coord + endpnt2[index]) / 2)]
 
         // this.drawLine({ points: line1, color: [0, 1, 0] })
         // this.drawLine({ points: line2, color: [0, 1, 0] })
 
-        // this.freshView()
+        // this.addBoxes({ contours: boxes })
         // this.drawVerticalLine({ points: [beginpnt1, endpnt2], color: [0, 1, 0] })
         // this.drawVerticalLine({ points: [beginpnt2, endpnt1], color: [0, 1, 0] })
-
-
-        // this.calculateAngle({ line1, line2 })
-
-
-
-
-        // this.addKeyPoints({ contours: keypoints })
-        // this.addBoxes({ contours: boxes })
-
         // this.addAngleWidget()
 
-        const zipfile = await this.zipFile(file)
-        xhr_getSpineInfo2({ dicom: zipfile }).then((res) => {
-          this.$message.success(`上传成功,: ${''}`);
-          this.boneInfo = res.data.resultData.data
-          console.log(res.data.resultData.data);
-          const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
-          this.addKeyPoints({ contours: keypoints })
-        })
+        // this.calculateAngle({ line1, line2 })
+        // this.freshView()
 
 
-
+        // const zipfile = await this.zipFile(file)
+        // xhr_getSpineInfo({ dicom: zipfile }).then((res) => {
+        //   this.$message.success(`上传成功,: ${''}`);
+        //   this.boneInfo = res.data.resultData.data
+        //   console.log(res.data.resultData.data);
+        //   const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
+        //   this.addKeyPoints({ contours: keypoints })
+        // })
 
 
         // const image = await this.dicomToJpg(file)
         // this.image = image
-
         // xhr_getSpineInfo({ input_para: 1, input: image }).then(res => {
-        //   console.log(res);
-
         //   if (res.data && res.data.msg == 'ok') {
         //     this.$message.success(`上传成功,: ${''}`);
-        //     console.log(res.data);
         //     this.boneInfo = res.data.template
         //     const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
 
@@ -167,10 +153,10 @@ export default {
         //     const line1 = [beginpnt1, beginpnt1.map((coord, index) => (coord + endpnt1[index]) / 2)]
         //     const line2 = [beginpnt2, beginpnt2.map((coord, index) => (coord + endpnt2[index]) / 2)]
 
-        //     // this.drawLine({ points: line1, color: [0, 1, 0] })
-        //     // this.drawLine({ points: line2, color: [0, 1, 0] })
+        //     this.drawLine({ points: line1, color: [0, 1, 0] })
+        //     this.drawLine({ points: line2, color: [0, 1, 0] })
         //     this.freshView()
-        //     // this.addBoxes({ contours: boxes })
+        //     this.addBoxes({ contours: boxes })
 
         //   }
 
