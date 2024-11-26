@@ -101,8 +101,10 @@ export default {
     },
     INIT_NODULE_ALL_VIEW_DATA(state){
       const originalData = new AllViewData();
-      originalData.colorWindow = 4096;
-      originalData.colorLevel = 1024;
+      // originalData.colorWindow = 4096;
+      // originalData.colorLevel = 1024;
+      originalData.colorWindow = 409;
+      originalData.colorLevel = 102;
       originalData.isPan = true;
       originalData.layOut = null;
       originalData.buttons = [ButtonNames.Ckcw, ButtonNames.Jbinfo,  ButtonNames.Pyms];
@@ -249,6 +251,13 @@ export default {
 
 
     async UpdateSlice({dispatch, state,commit},{file}) {
+      const view = state.view;
+
+      view.renderer.getActors().forEach((actor,index)=>{
+        if(index>0){
+          view.renderer.removeActor(actor);
+        }
+      })
       console.log("UpdateSlice")
       try {
         // const file = new File([image], "image.dcm", { type: "application/dicom" });
@@ -256,7 +265,6 @@ export default {
           const outputImage = result.image;
           const imageData = vtkITKHelper.convertItkToVtkImage(outputImage);
           commit("SET_VIEW_ITEM",{key:"image",value:imageData})
-          const view = state.view;
           view.sliceMapper.setInputData(imageData);
           dispatch("setupCamera");
            dispatch("spineToolsStore/resizeSliceView",null,{root:true})
@@ -489,11 +497,18 @@ export default {
       const magnitude2 = vtkMath.norm(vector2);
 
       const angleRad = Math.acos(dotProduct / (magnitude1 * magnitude2));
+      console.log("angleRad,angleRad",angleRad);
 
       console.log("cobb",vtkMath.degreesFromRadians(angleRad));
 
+      const textActor = vtkLabelWidget.newInstance();
+textActor.setText('This is a note'); // 设置注释内容
+textActor.setPosition(50, 50); // 设置屏幕位置 (像素坐标)
+textActor.getTextProperty().setFontSize(24); // 设置字体大小
+textActor.getTextProperty().setColor(1.0, 0.0, 0.0); // 设置颜色 (红色)
 
-
+// 将文本添加到渲染器
+view.renderer.addActor(textActor);
     },
 
 

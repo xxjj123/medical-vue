@@ -460,7 +460,9 @@ export function pneumoniaDiagnoseTemplate(objList,currentNum) {
 
 
 const spineFindingEnum = {
-  TEMP0: '{{spinePart}} Cobbe角为 {{cobb}} °，胸椎 {{start}}-{{end}}'
+  // TEMP0: 'Cobbe角( {{start}}椎体上缘-{{end}}椎体下缘 )约 {{cobb}} ° '
+  TEMP0: '正位片Cobbe角约 {{cobb}} ° '
+
 };
 
 const spineDiagnoseEnum = {

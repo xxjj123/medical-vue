@@ -412,6 +412,23 @@ export const xhr_getSingleImageInfo = (formData) => {
   });
 };
 
+
+/**
+ * algorithmConfig [{}]
+   dicom zip
+ * @param formData
+ * @returns
+ */
+   export const xhr_getSpineInfo2 = (formData) => {
+    return Base.submit(null, {
+      method: "POST",
+      autoQs: false,
+      isFormData: true,
+      url: single + urlJson["getSpineInfo"],
+      data: formData,
+    })
+  };
+
 // /*
 // *
 // * @param formData

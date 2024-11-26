@@ -35,6 +35,7 @@ export default {
   downloadDcmSlice:"/downloadDcmSlice",
   initInfo:"/initInfo",
   getModel3d: "/getModel3d",
+  getSpineInfo:"/getSpineInfo",
 
   /* lung nodule */
   queryNodule: "/queryNodule",
