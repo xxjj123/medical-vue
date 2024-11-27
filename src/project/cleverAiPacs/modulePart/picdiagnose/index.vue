@@ -34,6 +34,9 @@
 
           测量角度：{{ allViewData.cobb }} -->
           <!-- {{ boneInfo.angle }} -->
+          <ta-button @click="getAnnotationInfo">获取注释信息</ta-button>
+          <ta-button @click="onlyShow">改状态</ta-button>
+
 
           <MenuData :boneInfo="boneInfo" />
 
@@ -93,7 +96,7 @@ export default {
   },
   methods: {
     ...mapActions("toolBarStore", ["setActiveModule"]),
-    ...mapActions("spineViewStore", ["beforeViewDestory", "GetSlice", "UpdateSlice", "addBoxes", "addKeyPoints", "drawLine", "calculateAngle", "drawVerticalLine", "drawShape", "freshView"]),
+    ...mapActions("spineViewStore", ["beforeViewDestory", "GetSlice", "UpdateSlice", "addBoxes", "addKeyPoints", "onlyShow", "getAnnotationInfo", "drawLine", "calculateAngle", "drawVerticalLine", "drawShape", "freshView"]),
     ...mapActions("spineToolsStore", ["addAngleWidget", "hiddenAngle"]),
 
 
@@ -109,12 +112,17 @@ export default {
         const file = files[0]
         console.log(file);
         this.boneInfo = {}
-        await this.UpdateSlice({ file })
+        this.UpdateSlice({ file })
 
-        // console.log(this.spineInfo.template);
-        this.boneInfo = this.spineInfo.data.resultData.data
-        console.log(this.boneInfo);
-        const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
+        // this.boneInfo = this.spineInfo.template
+        // // this.boneInfo = this.spineInfo.data.resultData.data
+        // console.log(this.boneInfo);
+        // const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
+
+        // console.log(bboxes);
+
+        // await this.UpdateSlice({ file, contours: keypoints })
+
         // this.addKeyPoints({ contours: keypoints })
         // const line1 = [beginpnt1, beginpnt1.map((coord, index) => (coord + endpnt1[index]) / 2)]
         // const line2 = [beginpnt2, beginpnt2.map((coord, index) => (coord + endpnt2[index]) / 2)]
@@ -131,36 +139,18 @@ export default {
         // this.freshView()
 
 
-        // const zipfile = await this.zipFile(file)
-        // xhr_getSpineInfo({ dicom: zipfile }).then((res) => {
-        //   this.$message.success(`上传成功,: ${''}`);
-        //   this.boneInfo = res.data.resultData.data
-        //   console.log(res.data.resultData.data);
-        //   const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
-        //   this.addKeyPoints({ contours: keypoints })
-        // })
+        const zipfile = await this.zipFile(file)
+        xhr_getSpineInfo({ dicom: zipfile }).then(async (res) => {
+          this.$message.success(`上传成功,: ${''}`);
+          this.boneInfo = res.data.resultData.data
+          console.log(res.data.resultData.data);
+          const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
+          this.addKeyPoints({ contours: keypoints })
+
+        })
 
 
-        // const image = await this.dicomToJpg(file)
-        // this.image = image
-        // xhr_getSpineInfo({ input_para: 1, input: image }).then(res => {
-        //   if (res.data && res.data.msg == 'ok') {
-        //     this.$message.success(`上传成功,: ${''}`);
-        //     this.boneInfo = res.data.template
-        //     const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
 
-        //     this.addKeyPoints({ contours: keypoints })
-        //     const line1 = [beginpnt1, beginpnt1.map((coord, index) => (coord + endpnt1[index]) / 2)]
-        //     const line2 = [beginpnt2, beginpnt2.map((coord, index) => (coord + endpnt2[index]) / 2)]
-
-        //     this.drawLine({ points: line1, color: [0, 1, 0] })
-        //     this.drawLine({ points: line2, color: [0, 1, 0] })
-        //     this.freshView()
-        //     this.addBoxes({ contours: boxes })
-
-        //   }
-
-        // })
 
       }
       event.target.value = null

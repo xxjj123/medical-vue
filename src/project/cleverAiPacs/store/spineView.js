@@ -7,7 +7,7 @@ import { RenderingEngine ,Enums,utilities,metaData,  } from '@cornerstonejs/core
 // import { Types } from '@cornerstonejs/core';
 
 import * as cornerstoneTools from '@cornerstonejs/tools';
-import {annotation} from '@cornerstonejs/tools';
+import {annotation,SplineROITool} from '@cornerstonejs/tools';
 const { ViewportType } = Enums;
 const { MouseBindings } = cornerstoneTools.Enums;
 const renderingEngineId = 'myRenderingEngine';
@@ -19,8 +19,11 @@ cornerstoneTools.init();
 
 cornerstone.imageLoader.registerImageLoader('wadouri', cornerstoneDICOMImageLoader.wadouri.loadImage);
 
-const {ToolGroupManager, LengthTool,PanTool, RectangleROITool, ZoomTool } = cornerstoneTools;
+const {ToolGroupManager, LengthTool,PanTool,  RectangleROITool, ZoomTool } = cornerstoneTools;
 cornerstoneTools.addTool(LengthTool)
+cornerstoneTools.addTool(SplineROITool)
+cornerstoneTools.addTool(RectangleROITool)
+
 
 const viewportId = "spineViewPort"
 const toolGroupId = "toolGroup"
@@ -37,6 +40,22 @@ const VIEW_COLORS = {
   BACKGROUND: [0, 0, 0]
 };
 
+
+const sortPoints = (pointsArray) => {
+
+  const center = pointsArray.reduce(
+    (acc, [x, y]) => [acc[0] + x, acc[1] + y],
+    [0, 0]
+  ).map((sum) => sum / pointsArray.length);
+
+  pointsArray.sort(([x1, y1], [x2, y2]) => {
+    const angle1 = Math.atan2(y1 - center[1], x1 - center[0]);
+    const angle2 = Math.atan2(y2 - center[1], x2 - center[0]);
+    return angle1 - angle2; // 顺时针排序
+  });
+
+  return pointsArray;
+};
 
 export default {
   namespaced: true,
@@ -90,6 +109,7 @@ export default {
       // const renderingEngine = new RenderingEngine(renderingEngineId);
       const renderingEngine = new RenderingEngine(renderingEngineId);
       const toolGroup = await dispatch("initializeToolGroup")
+      commit("SET_VIEW_ITEM",{key:"toolGroup",value:toolGroup})
 
       commit('SET_VIEW_ITEM', {key:"renderer",value:renderingEngine});
       const viewportInput = {
@@ -118,12 +138,19 @@ export default {
         const viewport = state.view.renderer.getViewport(viewportId);
         const worldPos = viewport.canvasToWorld(canvasPos);
 
-        commit("SET_ALL_VIEW_STATE", {
-          key: "hu",
-          value: `canvas: (${canvasPos[0]}, ${canvasPos[1]}),world: (${worldPos[0].toFixed(
-          2
-        )}, ${worldPos[1].toFixed(2)}, ${worldPos[2].toFixed(2)}))`,
-        });
+        if(viewport.getImageIds()[0]){
+          // const ijk = utilities.worldToImageCoords(viewport.getImageIds()[0],worldPos)
+          // commit("SET_ALL_VIEW_STATE", {
+          //   key: "ijk",
+          //   value: ` (${ijk[0].toFixed(2)}, ${ijk[1].toFixed(2)})`,
+          // });
+          commit("SET_ALL_VIEW_STATE", {
+            key: "hu",
+            value: `canvas: (${canvasPos[0]}, ${canvasPos[1]}),world: (${worldPos[0].toFixed(
+            2
+          )}, ${worldPos[1].toFixed(2)}, ${worldPos[2].toFixed(2)}))`,
+          });
+        }
 
       });
 
@@ -155,7 +182,9 @@ export default {
 
     async UpdateSlice({dispatch, state,commit},{file}) {
 
+
       const imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(file);
+
 
       const imageIds = [imageId];
       const renderer = state.view.renderer;
@@ -164,22 +193,64 @@ export default {
       }
 
       const viewport = renderer.getViewport(viewportId);
-
       await viewport.setStack(imageIds);
 
 
+      commit("SET_VIEW_ITEM",{key:"imageId",value:imageId})
 
-      const { imagePositionPatient } = metaData.get('imagePlaneModule', imageId);
-      console.log(imagePositionPatient);
-      console.log(metaData.get('imagePlaneModule', imageId));
 
-      let start = [400,200]
-      let end = [600,350]
-      start = viewport.canvasToWorld([...start]);
-    end = viewport.canvasToWorld([...end]);
-    //   start = utilities.imageToWorldCoords(viewport.getCurrentImageId(),[...start]);
-    // end = utilities.imageToWorldCoords(viewport.getCurrentImageId(), [...end]);
-      await dispatch("addProgrammaticAnnotation",{start ,end })
+
+
+
+      const {pixelSpacing,sliceThickness,frameOfReferenceUID,rows,columns,sliceLocation,imagePositionPatient} = metaData.get('imagePlaneModule', imageId);
+
+        metaData.addProvider((type)=>{
+          if (type === 'imagePlaneModule') {
+            const imageOrientationPatient = [1, 0, 0, 0, 1, 0 ];
+            const imagePositionPatient = [0,0,0];
+            let columnPixelSpacing = null;
+            let rowPixelSpacing = null;
+            if (pixelSpacing) {
+                rowPixelSpacing = pixelSpacing[0];
+                columnPixelSpacing = pixelSpacing[1];
+            }
+            let rowCosines = null;
+            let columnCosines = null;
+            if (imageOrientationPatient) {
+                rowCosines = [
+                    parseFloat(imageOrientationPatient[0]),
+                    parseFloat(imageOrientationPatient[1]),
+                    parseFloat(imageOrientationPatient[2]),
+                ];
+                columnCosines = [
+                    parseFloat(imageOrientationPatient[3]),
+                    parseFloat(imageOrientationPatient[4]),
+                    parseFloat(imageOrientationPatient[5]),
+                ];
+            }
+            return {
+                frameOfReferenceUID,
+                rows,
+                columns ,
+                imageOrientationPatient,
+                rowCosines,
+                columnCosines,
+                imagePositionPatient,
+                sliceThickness,
+                sliceLocation ,
+                pixelSpacing,
+                rowPixelSpacing,
+                columnPixelSpacing,
+            };
+
+        }
+        })
+
+
+      await cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
+        viewportId
+      ]);
+      // await dispatch("addProgrammaticAnnotation",{worldPoints })
 
       await dispatch("setPositionCenter")
       console.log(      annotation.state.getAllAnnotations());
@@ -199,60 +270,126 @@ export default {
       viewport.setCamera({ flipHorizontal});
       viewport.render();
     },
-    async addProgrammaticAnnotation ({state},{start,end}){
-      console.log(cornerstone);
-      console.log({start,end});
+    async addProgrammaticAnnotation ({state},{worldPoints}){
+      // console.log({start,end});
 
-      // console.log( viewport.getImageIds());
-
-
-      console.log(cornerstoneTools.utilities);
       const renderer = state.view.renderer;
       if (!renderer) {
         throw new Error('Renderer is not initialized.');
       }
       const viewport = renderer.getViewport(viewportId);
 
-      await cornerstoneTools.utilities.annotationHydration(viewport, 'Length', [
-        start,
-        end,
+      const viewReference = viewport.getViewReference();
+      const { viewPlaneNormal, FrameOfReferenceUID } = viewReference;
+      const newannotation = {
+      annotationUID:   utilities.uuidv4(),
+      data: {
+      handles: {
+        points: worldPoints,
+                    },
+              },
+      highlighted: false,
+      autoGenerated: false,
+      invalidated: false,
+      isLocked: false,
+      isVisible: true,
+      metadata: {
+      toolName:LengthTool.toolName,
+      viewPlaneNormal,
+      FrameOfReferenceUID,
+      referencedImageId: viewport.getImageIds()[0],
+              },
+          };
+          annotation.state.addAnnotation(newannotation,viewport.element)
 
-      ]);
       await cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
         viewportId
       ]);
 
-      annotation.visibility.showAllAnnotations();
       viewport.render();
 
+    },
+
+    async getAnnotationInfo({state}){
+      console.log( "cornerstone",cornerstone);
+      console.log( "cornerstone.metaData",metaData);
 
 
+      console.log("cornerstone.utilities",utilities);
+
+      console.log("cornerstoneTools",cornerstoneTools);
+      console.log( "annotation.state",annotation.state);
+      console.log("allAnnotations",annotation.state.getAllAnnotations());
 
     },
+
+
     initializeToolGroup({state},toolGroupId){
       let toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(toolGroupId);
-
       if (toolGroup) {
         return toolGroup;
       }
 
       toolGroup = cornerstoneTools.ToolGroupManager.createToolGroup(toolGroupId);
 
-      console.log(LengthTool.toolName);
-
-      // Add the tools to the tool group
       toolGroup.addTool(LengthTool.toolName);
-      // toolGroup.addTool(StackScrollTool.toolName);
-      // toolGroup.setToolPassive(cornerstoneTools.LengthTool.toolName);
-      // toolGroup.setToolActive(cornerstoneTools.StackScrollTool.toolName, {
-      //   bindings: [
+      toolGroup.setToolPassive(LengthTool.toolName);
+
+      toolGroup.addTool(RectangleROITool.toolName);
+      toolGroup.setToolPassive(RectangleROITool.toolName);
+
+      console.log(SplineROITool.SplineTypes.Linear);
+
+      toolGroup.addTool(SplineROITool.toolName,{
+        getTextLines:()=>{},
+        // spline:{
+        //   type:SplineROITool.SplineTypes.Linear
+        // }
+      });
+      // toolGroup.setToolConfiguration()
+      // toolGroup.setToolEnabled(SplineROITool.toolName)
+      toolGroup.setToolEnabled(SplineROITool.toolName);
+
+      // toolGroup.setToolActive(SplineROITool.toolName,{
+      //     bindings: [
       //     {
-      //       mouseButton: MouseBindings.Wheel,
+      //       mouseButton: MouseBindings.Primary,
       //     },
       //   ],
-      // });
+      // })
+
 
       return toolGroup;
+    },
+
+    async addKeyPoints  ({ state, rootState, dispatch, commit }, { contours })  {
+      const sortedContours = contours.map(sortPoints);
+
+      // console.log("sortedContours",sortedContours);
+      const imageId = state.view.imageId
+      sortedContours.forEach((points) => {
+        const worldPoints = points.map(point=>utilities.imageToWorldCoords(imageId,point))
+      SplineROITool.hydrate(viewportId, worldPoints,{splineType:SplineROITool.SplineTypes.Linear});
+
+    })
+    },
+    onlyShow({state}){
+      const toolGroup = state.view.toolGroup
+      //  const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(toolGroupId)
+       console.log(toolGroup);
+       const mode = toolGroup.toolOptions.SplineROI.mode
+       console.log(mode);
+
+       if(mode == 'Enabled'){
+        toolGroup.setToolPassive(SplineROITool.toolName)
+
+       }else if(mode == "Passive"){
+        toolGroup.setToolEnabled(SplineROITool.toolName)
+
+       }
+
+
+
     },
 
     createDisplayArea({state},
