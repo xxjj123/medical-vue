@@ -1,307 +1,443 @@
-import "@kitware/vtk.js/Rendering/Profiles/All";
-import {
-  readDicomTags,
-  readImageDicomFileSeriesWorkerFunction,
-} from "@itk-wasm/dicom";
-import vtkXMLImageDataReader from "@kitware/vtk.js/IO/XML/XMLImageDataReader";
-import vtkGenericRenderWindow from "@kitware/vtk.js/Rendering/Misc/GenericRenderWindow";
-import vtkImageMapper from "@kitware/vtk.js/Rendering/Core/ImageMapper";
-import vtkImageSlice from "@kitware/vtk.js/Rendering/Core/ImageSlice";
-import vtkInteractorStyleImage from "@kitware/vtk.js/Interaction/Style/InteractorStyleImage";
-import vtkActor from "@kitware/vtk.js/Rendering/Core/Actor";
-import vtkMapper from "@kitware/vtk.js/Rendering/Core/Mapper";
-import vtkPolyData from "@kitware/vtk.js/Common/DataModel/PolyData";
-import vtkPoints from "@kitware/vtk.js/Common/Core/Points";
-import vtkCellArray from "@kitware/vtk.js/Common/Core/CellArray";
-import vtkPicker from "@kitware/vtk.js/Rendering/Core/Picker";
-import vtkCoordinate from "@kitware/vtk.js/Rendering/Core/Coordinate";
-import vtkColorTransferFunction from "@kitware/vtk.js/Rendering/Core/ColorTransferFunction";
-import vtkAngleWidget from '@kitware/vtk.js/Widgets/Widgets3D/AngleWidget';
 
-import throttle from "lodash/throttle";
-import Vue from "vue";
-import vtkITKHelper from "@kitware/vtk.js/Common/DataModel/ITKHelper";
+import * as cornerstoneTools from '@cornerstonejs/tools';
+const {ToolGroupManager,annotation, LengthTool,PanTool,  RectangleROITool, ZoomTool,SplineROITool ,CobbAngleTool} = cornerstoneTools;
+const { MouseBindings } = cornerstoneTools.Enums;
+import { RenderingEngine ,Enums,utilities,metaData,  getRenderingEngine} from '@cornerstonejs/core';
+import {CircularMagnifyTool} from "@/picComps/picDiagnose/menudata/spine/toolClass"
+import mutations from '@common/store/mutations';
 
-import {xhr_getSlice,xhr_getDcmSlice} from "@/api";
-const coordinate = vtkCoordinate.newInstance();
 
-import { gdcmReadImage} from "@itk-wasm/image-io"
 
-const VIEW_TYPES = {
-  CORONAL: 1,
-  AXIAL: 2,
-  SAGITTAL: 0,
-};
-
-const VIEW_NAMES = {
-  CORONAL: "coronal",
-  AXIAL: "axial",
-  SAGITTAL: "sagittal",
-};
-import {
-  ButtonNames,
-  suffix_name,
-  suffix_show,
-  LayoutIcons,
-} from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
-const VIEWDATA_NAMES = ["SagittalData", "CoronalData", "AxialData"];
 
 export default {
+  state:{
+    toolsState:{
+      // window:{show:true,active:false,windowWidth:null,windowCenter:null},
+      panTool:{show:true,active:false},
+      magnifyTool:{show:false,active:false},
+      activeBboxTool:{show:true,active:false},
+      activeCobbTool:{show:true,active:false},
+      zoomTool:{show:true,active:false},
+      invert:{show:true,active:false}
+    },
+    testdata:0,
+  },
+
+  mutations:{
+    TEST_COMMIT(state){
+      state.testdata = state.testdata +1
+    },
+    CHANGE_TOOL_STATE(state,{tool,value}){
+      state.toolsState[tool].active = value
+    },
+    UPDATE_WINDOW_WIDTH(state,value){
+      state.toolsState['window'].windowWidth = value
+    },
+    UPDATE_WINDOW_CENTER(state,value){
+      state.toolsState['window'].windowCenter = value 
+    },
+
+    // RESET_TOOL_STATE(state){
+    //   state.toolsState = {
+    //     panTool:{show:true,active:false},
+    //     magnifyTool:{show:false,active:false},
+    //     activeBboxTool:{show:true,active:false},
+    //     activeCobbTool:{show:true,active:false},
+    //     zoomTool:{show:true,active:false},
+    //     invert:{show:true,active:false}
+
+    //   }
+    // }
+  },
   namespaced: true,
   actions: {
-    UpdateColorWindow({state, commit,rootState,dispatch}, value) {
-      console.log("UpdateColorWindow");
+    // UpdateColorWindow({dispatch},value){
+    //   console.log("UpdateWindowWidth");
+    //   dispatch("UpdateWindowWidth",value)
 
-      const { spineViewStore } = rootState;
-      const view = spineViewStore.view
-      if(view.sliceActor){
-         view.sliceActor.getProperty().setColorWindow(value );
-         if(view.image ){
-          view.interactor.render();
-         }
-      dispatch("spineViewStore/SetAllViewData",{
-        key: "colorWindow",
-        value
-      },{root:true})
+    // },
+    // UpdateColorLevel({dispatch},value){
+    //   console.log("UpdateWindowCenter");
+    //   dispatch("UpdateWindowCenter",value)
+
+    // },
 
 
-      }
-    },
+    UpdateWindowCenter({state, commit,rootState,dispatch}, value) {
+      console.log("UpdateWindowCenter",value);
 
-    UpdateColorLevel({state, commit,rootState,dispatch}, value) {
-      console.log("UpdateColorLevel");
-
-      const { spineViewStore } = rootState;
-      const view = spineViewStore.view
-      if(view.sliceActor){
-        view.sliceActor.getProperty().setColorLevel(value );
-        if(view.image ){
-          view.interactor.render();
-         }
-      dispatch("spineViewStore/SetAllViewData",{
-        key: "colorLevel",
-        value
-      },{root:true})
-
-      }
-    },
-    /**
-     * 滚动条选择
-     * @param {number} viewIndex -  操作页面索引
-     * @param {number} pageIndex - 切换页面索引
-
-     */
-    async ChangeSlider({dispatch}, {viewIndex, pageIndex}) {
-      const viewName = VIEWDATA_NAMES[viewIndex]
-      commit("SET_VIEW_DATA", {
-        viewIndex: viewIndex,
-        key: "changedPageIndex",
-        value: pageIndex,
-      });
-      dispatch("throttleUpdateSingleSlice", {viewName, viewIndex, pageIndex});
-
-      dispatch("UpdateDisplay", {
-        viewIndex: viewIndex,
-        changedPageIndex: pageIndex,
-      });
-    },
-
-
-
-    /**
-     * 页面反向
-     * @param {number} viewIndex - 操作页面索引
-     */
-    ReverseWindow({commit, state,rootState,rootGetters,dispatch}, viewIndex) {
       const {spineViewStore} = rootState
-      // const view = rootState[spineViewStore.viewMprViews[viewIndex]];
-      const view = rootState[spineViewStore.activeModule].viewMprViews[viewIndex];
+      const {viewportId,renderingEngineId,renderer,imageId} =  spineViewStore.view
+      const {windowCenter,windowWidth} = spineViewStore.allViewData
 
-      const viewdata = rootGetters['spineViewStore/viewsData'][viewIndex];
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
+        const WC =  value
+        const WW = windowWidth
 
-      const colorTransferFunction = vtkColorTransferFunction.newInstance();
-      if (!viewdata.reversed) {
-        colorTransferFunction.addRGBPoint(0, 1, 1, 1); // 白色
-        colorTransferFunction.addRGBPoint(255, 0, 0, 0); // 黑色
-      } else {
-        colorTransferFunction.addRGBPoint(255, 1, 1, 1); // 白色
-        colorTransferFunction.addRGBPoint(0, 0, 0, 0); // 黑色
-      }
-      dispatch("spineViewStore/SetViewData", {
-        viewIndex,
-        key: "reversed",
-        value: !viewdata.reversed,
-      },{
-        root: true,
-      },);
+        viewport.setProperties({ voiRange: { upper: WC + WW / 2, lower: WC - WW / 2 } });
+        // commit("UPDATE_WINDOW_CENTER",value);
+        dispatch("spineViewStore/SetAllViewData", {
+          key: "colorLevel",
+          value: value,
+        },{root:true});
 
-      view.sliceActor
-        .getProperty()
-        .setRGBTransferFunction(0, colorTransferFunction);
-      dispatch("spineViewStore/freshView",null,{root:true})
 
-      // view.interactor.render();
+
+      viewport.render();
+
     },
 
-    /**
-     * 水平翻转
-     * @param {number} viewIndex - 操作页面索引
-     */
+    UpdateWindowWidth({state, commit,rootState,dispatch}, value) {
+      console.log("UpdateWindowWidth",value);
+
+      const {spineViewStore} = rootState
+      const {viewportId,renderingEngineId,imageId} =  spineViewStore.view
+      const {windowCenter,windowWidth} = spineViewStore.allViewData
+
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
+
+
+        const WC =  windowCenter
+        const WW = value
+
+        viewport.setProperties({ voiRange: { upper: WC + WW / 2, lower: WC - WW / 2 } });
+        // commit("UPDATE_WINDOW_WIDTH",value);
+        dispatch("spineViewStore/SetAllViewData", {
+          key: "colorWindow",
+          value: value,
+        },{root:true});
+
+
+      viewport.render();
+
+    },
+
+    async ChangeSlider({dispatch}, {viewIndex, pageIndex}) {
+
+    },
+
+
+    invertView({commit, state,rootState,rootGetters,dispatch}, viewIndex) {
+      const {spineViewStore} = rootState
+      const {viewportId,renderingEngineId} =spineViewStore.view
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
+      const invertState = state.toolsState['invert'].active
+      commit("CHANGE_TOOL_STATE",{tool:'invert',value:!invertState})
+
+      viewport.setProperties({ invert:!invertState,});
+
+      viewport.render()
+
+    },
+
+
     FlipHorizontal({commit, dispatch, state}, viewIndex) {
-      const view = state.viewMprViews[viewIndex];
-      const currentScale = view.sliceActor.getScale();
-      const newScaleX = currentScale[0] === 1 ? -1 : 1; // 切换X轴的翻转状态
 
-      view.sliceActor.setScale(newScaleX, currentScale[1], currentScale[2]);
-
-
-      dispatch("setupCamera", viewIndex);
     },
 
-    /**
-     * 垂直翻转
-     * @param {number} viewIndex - 操作页面索引
-     */
+
     FlipVertical({commit, dispatch, state}, viewIndex) {
-      const view = state.viewMprViews[viewIndex];
-      const currentScale = view.sliceActor.getScale();
-      const newScaleY = currentScale[1] === 1 ? -1 : 1; // 切换Y轴的翻转状态
 
-      view.sliceActor.setScale(currentScale[0], newScaleY, currentScale[2]);
-
-      dispatch("setupCamera", viewIndex);
     },
 
-    /**
-     * 切片旋转
-     * @param {number} viewIndex - 操作页面索引
-     */
     RotateCamera({commit, dispatch, state, rootGetters}, viewIndex) {
-      const viewsData = rootGetters['spineViewStore/viewsData']
-      dispatch("spineViewStore/SetViewData", {
-        viewIndex,
-        key: "cameraRotate",
-        value: (viewsData[viewIndex].cameraRotate - 90) % 360,
-      },{
-        root: true,
-      },);
-      dispatch("setupCamera", viewIndex);
-      dispatch("resizeSliceView");
 
     },
  // 改变平移
- ChangePan({dispatch, state, commit,rootState }) {
-  const { spineViewStore } = rootState;
+ async ChangePan({dispatch, state, commit,rootState }) {
+  const {spineViewStore} = rootState
 
-  const v_state = spineViewStore;
-  if(v_state.allViewData.isPan){
-    const view = v_state.view
-    const interactorStyle = vtkInteractorStyleImage.newInstance();
-    interactorStyle.setInteractionMode("IMAGE_PAN");
-    view.interactor.setInteractorStyle(interactorStyle);
+  const {viewportId,renderingEngineId,imageId,toolGroup} = spineViewStore.view
 
-    view.interactor.onLeftButtonPress(()=>{
-      view.interactor.getInteractorStyle().endWindowLevel()
-    })
-    // 确保新的 InteractorStyle 被正确设置并激活
-
-    dispatch("setupCamera", view.viewIndex,);
-    view.renderWindow.render()
+  const renderingEngine = getRenderingEngine(renderingEngineId);
+  const viewport = renderingEngine.getViewport(
+    viewportId
+  )
 
 
-    dispatch("spineViewStore/SetAllViewData",{
-        key: "isPan",
-        value: false,
-      },{root:true})
+  const PanToolInstance = toolGroup.toolOptions[PanTool.toolName]
 
+
+  if(PanToolInstance?.mode == 'Active'){
+    commit("CHANGE_TOOL_STATE",{tool:'panTool',value:false})
+
+     toolGroup.setToolPassive(PanTool.toolName);
+     viewport.element.style.cursor = 'default'
+    // await dispatch("spineViewStore/setPositionCenter",null,{root:true})
 
   }else{
-    dispatch("spineViewStore/SetAllViewData",{
-      key: "isPan",
-      value: true,
-    },{root:true})
-  }
+    // dispatch("zoomView")
+    commit("CHANGE_TOOL_STATE",{tool:'zoomTool',value:false})
 
-  dispatch("resizeSliceView")
+    //  toolGroup.setToolPassive(ZoomTool.toolName);
+
+    commit("CHANGE_TOOL_STATE",{tool:'panTool',value:true})
+
+    // toolGroup.setToolPassive(CircularMagnifyTool.toolName);
+    // await dispatch("magnifyView")
+
+    // toolGroup.setToolEnabled(SplineROITool.toolName);
+    // toolGroup.setToolEnabled(CobbAngleTool.toolName);
+
+
+    toolGroup.setToolActive(PanTool.toolName, {
+      bindings: [
+            {
+              mouseButton: MouseBindings.Primary,
+            },
+          ],
+    });
+
+  }
 
 }
 
 ,
+async zoomView({state,commit,rootState,dispatch}){
+  const {spineViewStore} = rootState
+
+  const {viewportId,renderingEngineId,imageId,toolGroup} = spineViewStore.view
+  const renderingEngine = getRenderingEngine(renderingEngineId);
+  const viewport = renderingEngine.getViewport(
+    viewportId
+  )
+
+  const ZoomToolInstance = toolGroup.toolOptions[ZoomTool.toolName]
+  if(ZoomToolInstance?.mode == 'Active'){
+    commit("CHANGE_TOOL_STATE",{tool:'zoomTool',value:false})
+
+     toolGroup.setToolPassive(ZoomTool.toolName);
+     viewport.element.style.cursor = 'default'
+    // await dispatch("spineViewStore/setPositionCenter",null,{root:true})
+
+  }else{
+    // dispatch("changePan")
+    commit("CHANGE_TOOL_STATE",{tool:'panTool',value:false})
+
+    // toolGroup.setToolPassive(PanTool.toolName);
+    commit("CHANGE_TOOL_STATE",{tool:'zoomTool',value:true})
+
+    toolGroup.setToolActive(ZoomTool.toolName, {
+      bindings: [
+            {
+              mouseButton: MouseBindings.Primary,
+            },
+          ],
+    });
+
+  }
+
+},
+editBbox({rootState,commit}){
+  console.log("editBbox");
+
+  const {spineViewStore} = rootState
+
+  const {toolGroup} = spineViewStore.view
+
+  const selectedAnnotations = annotation.selection.getAnnotationsSelected()
+  console.log(selectedAnnotations);
+  selectedAnnotations.forEach(item=>{
+    annotation.selection.deselectAnnotation(item)
+  })
+
+   const SplineROIToolInstance = toolGroup.toolOptions[SplineROITool.toolName]
+
+
+   if(SplineROIToolInstance?.mode == 'Enabled'){
+    commit("CHANGE_TOOL_STATE",{tool:'activeBboxTool',value:true})
+    // toolGroup.setToolPassive(PanTool.toolName);
+    // toolGroup.setToolEnabled(CobbAngleTool.toolName);
+    // toolGroup.setToolPassive(CircularMagnifyTool.toolName);
+
+    toolGroup.setToolPassive(SplineROITool.toolName)
+
+   }else if(SplineROIToolInstance?.mode == "Passive"){
+    commit("CHANGE_TOOL_STATE",{tool:'activeBboxTool',value:false})
+
+    toolGroup.setToolEnabled(SplineROITool.toolName)
+
+   }
+},
+editCobb({state,rootState ,commit}){
+  console.log("editCobb");
+
+  const {spineViewStore} = rootState
+
+  const {toolGroup} = spineViewStore.view
+
+  const selectedAnnotations = annotation.selection.getAnnotationsSelected()
+  console.log(selectedAnnotations);
+  selectedAnnotations.forEach(item=>{
+    annotation.selection.deselectAnnotation(item)
+  })
+  const CobbAngleToolInstance = toolGroup.toolOptions[CobbAngleTool.toolName]
+
+   if(CobbAngleToolInstance?.mode == 'Enabled' ||CobbAngleToolInstance.mode == 'Disabled'){
+    commit("CHANGE_TOOL_STATE",{tool:'activeCobbTool',value:true})
+    // toolGroup.setToolPassive(PanTool.toolName);
+    // toolGroup.setToolEnabled(SplineROITool.toolName);
+    // toolGroup.setToolPassive(CircularMagnifyTool.toolName);
+
+    toolGroup.setToolPassive(CobbAngleTool.toolName,{
+      bindings: [
+        {
+          mouseButton: MouseBindings.Primary,
+        },
+      ],
+    })
+
+   }else if(CobbAngleToolInstance?.mode == "Passive"){
+    commit("CHANGE_TOOL_STATE",{tool:'activeCobbTool',value:false})
+
+    toolGroup.setToolEnabled(CobbAngleTool.toolName)
+
+   }
+},
+// magnifyView({rootState}){
+//   console.log("magnifyView");
+
+//     const {spineViewStore} = rootState
+
+//   const {viewportId,renderer,imageId,toolGroup} = spineViewStore.view
+
+//   const viewport =  renderer.getViewport(viewportId);
+
+
+//   const MagnifyToolInstance = toolGroup.getToolInstance(MagnifyTool.toolName)
+//   console.log("MagnifyToolInstance",MagnifyToolInstance);
+//   MagnifyToolInstance.setConfiguration({
+//     magnifySize: 10, // parallel scale , higher more zoom
+//     magnifyWidth: 200, //px
+//     magnifyHeight: 200, //px
+//   })
+
+//   if(MagnifyToolInstance.mode == 'Active'){
+//      toolGroup.setToolPassive(MagnifyTool.toolName);
+//      viewport.element.style.cursor = 'default'
+
+//     //  await dispatch("spineViewStore/setPositionCenter",null,{root:true})
+
+//   }else{
+//     toolGroup.setToolPassive(PanTool.toolName);
+
+//     toolGroup.setToolActive(MagnifyTool.toolName, {
+//       bindings: [
+//             {
+//               mouseButton: MouseBindings.Primary,
+//             },
+//           ],
+//     });
+
+//   }
+
+// },
+async magnifyView({rootState,commit,dispatch}){
+  console.log("magnifyView");
+
+    const {spineViewStore} = rootState
+
+  const {viewportId,renderingEngineId,toolGroupId,imageId} = spineViewStore.view
+  const renderingEngine = getRenderingEngine(renderingEngineId);
+  const viewport = renderingEngine.getViewport(
+    viewportId
+  )
+
+  const toolGroup = ToolGroupManager.getToolGroup(toolGroupId);
+  console.log("toolGroup",toolGroup);
+
+
+  const MagnifyToolInstance = toolGroup.toolOptions[CircularMagnifyTool.toolName]
+
+  console.log("MagnifyToolInstance",MagnifyToolInstance);
+
+  // MagnifyToolInstance.setConfiguration({
+  //   magnifySize: 10, // parallel scale , higher more zoom
+  //   magnifyWidth: 200, //px
+  //   magnifyHeight: 200, //px
+  // })
+
+  if(MagnifyToolInstance?.mode == 'Active'){
+    console.log(MagnifyToolInstance.mode);
+
+     toolGroup.setToolPassive(CircularMagnifyTool.toolName);
+     viewport.element.style.cursor = 'default'
+
+
+    //  await dispatch("spineViewStore/setPositionCenter",null,{root:true})
+    // commit("CHANGE_TOOL_STATE",{tool:'magnifyTool',value:false})
+
+  }else{
+    // commit("CHANGE_TOOL_STATE",{tool:'magnifyTool',value:true})
+
+    // toolGroup.setToolPassive(PanTool.toolName);
+    // await dispatch("ChangePan")
+    // toolGroup.setToolEnabled(SplineROITool.toolName);
+    // toolGroup.setToolEnabled(CobbAngleTool.toolName);
+
+
+
+    toolGroup.setToolActive(CircularMagnifyTool.toolName, {
+      bindings: [
+            {
+              mouseButton: MouseBindings.Primary,
+              // action: debounce(CircularMagnifyTool.action, 100),
+            },
+          ],
+    })
+        // commit("CHANGE_TOOL_STATE",{tool:'magnifyTool',value:true})
+
+
+  }
+
+},
+changetoolState({state,commit}){
+  // console.log(state.toolsState['magnifyTool'].active);
+
+  // commit("CHANGE_TOOL_STATE",{tool:'magnifyTool',value:!state.toolsState['magnifyTool'].active})
+
+  // commit("TEST_COMMIT")
+
+},
+
 
 
 addAngleWidget({state,rootState,commit,dispatch}){
-  const {spineViewStore} = rootState
-  if(spineViewStore.view.angleWidget){
-    spineViewStore.view.angleWidget?.setVisibility(true)
-    dispatch("spineViewStore/freshView",null,{root:true})
 
-  }else{
-      const widget = vtkAngleWidget.newInstance();
-      spineViewStore.widgetManager.addWidget(widget);
-      spineViewStore.widgetManager.enablePicking();
-      spineViewStore.widgetManager.grabFocus(widget); //启动
-      console.log(widget);
-
-
-      widget.getWidgetState().getMoveHandle().setScale1(10);
-      widget.getWidgetState().getMoveHandle().setColor([0,0, 0]);
-
-
-      widget.getWidgetState().onModified(() => {
-        const angle = widget.getAngle() * (180 / Math.PI);
-        commit("spineViewStore/SET_ALL_VIEW_STATE",{
-        key:"cobb",
-        value:angle
-        },{root:true})
-      });
-      commit("spineViewStore/SET_VIEW_ITEM",{key:"angleWidget",value:widget},{root:true})
-
-  }
 
 },
 hiddenAngle({rootState,dispatch}){
-  const {spineViewStore} = rootState
-  console.log(spineViewStore.view);
 
-  if(spineViewStore.view.angleWidget){
-    console.log("修改可见性");
-
-    spineViewStore.view.angleWidget.setVisibility(false)
-    dispatch("spineViewStore/freshView",null,{root:true})
-
-
-  }
 
 },
+resetView({dispatch}){
 
+       dispatch("spineViewStore/resetView",null,{root:true})
+
+}
+,
 
 setupCamera({commit, state,rootState,rootGetters,dispatch}, viewIndex){
-  dispatch("spineViewStore/setupCamera",viewIndex,{root:true})
+
 },
-    /**
-     * 重置视图
-     */
+
     resizeSliceView({dispatch, state, getters, commit,rootState}) {
-      const {spineViewStore} = rootState
-      const view = spineViewStore.view
-      if(view.image){
-        const container = view.grw.getContainer();
-        const {width, height} = container.getBoundingClientRect();
 
-        view.grw.resize(width, height);
-        view.renderWindow.render();
-
-      }
     },
     resizeCamera({state,dispatch,rootGetters}){
-      const viewsData = rootGetters['spineViewStore/viewsData']
-      viewsData.forEach((view) =>{
-        dispatch("setupCamera",view.viewIndex)
-      })
+
     },
     beforeViewDestory({state,commit,dispatch}){
-      dispatch("clearAllAutoplay")
-      commit("RESET_STATE")
+
 
     }
   },

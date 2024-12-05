@@ -292,6 +292,52 @@
         <div @click="handle_iconbtn(`pyms`)" class="pic mr-[5px] hover:cursor-pointer"></div>
       </div>
     </ta-tooltip>
+    <ta-tooltip placement="bottomLeft">
+      <template slot="title">
+        <span>放缩模式</span>
+      </template>
+      <div v-if="btnShowStates.zoom_show" :class="[
+        'boxBtn zoom_icon flex justify-start items-center',
+        {
+          on: btnActiveStates.zoom_on,
+        },
+      ]">
+        <div @click="handle_iconbtn(`zoom`)" class="pic mr-[5px] hover:cursor-pointer"></div>
+      </div>
+    </ta-tooltip>
+
+    <ta-tooltip placement="bottomLeft">
+      <template slot="title">
+        <span>图像反相</span>
+      </template>
+      <div v-if="btnShowStates.invert_show" :class="[
+        'boxBtn invert_icon flex justify-start items-center',
+        {
+          on: btnActiveStates.invert_on,
+        },
+      ]">
+        <div @click="handle_iconbtn(`invert`)" class="pic mr-[5px] hover:cursor-pointer"></div>
+      </div>
+    </ta-tooltip>
+
+    <ta-tooltip placement="bottomLeft">
+      <template slot="title">
+        <span>重置</span>
+      </template>
+      <div v-if="btnShowStates.reset_show" :class="[
+        'boxBtn reset_icon flex justify-start items-center',
+        {
+          on: false,
+        },
+      ]">
+        <div @click="handle_iconbtn(`reset`)" class="pic mr-[5px] hover:cursor-pointer"></div>
+      </div>
+    </ta-tooltip>
+
+
+
+
+
 
     <!-- 靶重建 -->
     <!-- <div v-if="btnShowStates.bcj_show" :class="[
@@ -527,7 +573,6 @@ export default {
 
           },
           onNumberChange: (e) => {
-            console.log("先手")
             const { win_holder, win_holder_min, win_holder_max } = this.view_window
             if (typeof win_holder === 'number') {
               if (win_holder < win_holder_max && win_holder > win_holder_min) {
@@ -562,49 +607,72 @@ export default {
     ...mapActions("toolBarStore", ["activeButtonState", "activeLayout", "UpdateColorWindow", "UpdateColorLevel"]),
 
     handle_iconbtn(name) {
-      // debugger;
-      switch (name) {
-        case ButtonNames.Ckcw:
-          {
-            this.activeButtonState(ButtonNames.Ckcw)
-          }
-          break;
-        case ButtonNames.Mjtyms:
-          {
-            this.activeButtonState(ButtonNames.Mjtyms)
-          }
-          break;
-        // 其他按钮的逻辑...
-        case ButtonNames.Jbinfo:
-          {
-            this.activeButtonState(ButtonNames.Jbinfo)
-          }
-          break;
-        case ButtonNames.AiInfo:
-          {
-            this.activeButtonState(ButtonNames.AiInfo)
-          }
-          break;
-        case ButtonNames.Szckx:
-          {
-            this.activeButtonState(ButtonNames.Szckx)
-          }
-          break;
-        case ButtonNames.Pyms:
-          {
-            this.activeButtonState(ButtonNames.Pyms)
-          }
-          break;
-        case ButtonNames.Bcj:
-          {
-            this.activeButtonState(ButtonNames.Bcj)
-            // this.activeLayout(LayoutIcons.RECON);
 
-          }
-          break;
-        default:
-          break;
-      }
+      this.activeButtonState(name)
+      // debugger;
+      // switch (name) {
+      //   case ButtonNames.Ckcw:
+      //     {
+      //       this.activeButtonState(ButtonNames.Ckcw)
+      //     }
+      //     break;
+      //   case ButtonNames.Mjtyms:
+      //     {
+      //       this.activeButtonState(ButtonNames.Mjtyms)
+      //     }
+      //     break;
+      //   // 其他按钮的逻辑...
+      //   case ButtonNames.Jbinfo:
+      //     {
+      //       this.activeButtonState(ButtonNames.Jbinfo)
+      //     }
+      //     break;
+      //   case ButtonNames.AiInfo:
+      //     {
+      //       this.activeButtonState(ButtonNames.AiInfo)
+      //     }
+      //     break;
+      //   case ButtonNames.Szckx:
+      //     {
+      //       this.activeButtonState(ButtonNames.Szckx)
+      //     }
+      //     break;
+      //   case ButtonNames.Pyms:
+      //     {
+      //       this.activeButtonState(ButtonNames.Pyms)
+      //     }
+      //     break;
+      //   case ButtonNames.Bcj:
+      //     {
+      //       this.activeButtonState(ButtonNames.Bcj)
+      //       // this.activeLayout(LayoutIcons.RECON);
+
+      //     }
+      //     break;
+      //   case ButtonNames.Zoom:
+      //     {
+      //       this.activeButtonState(ButtonNames.Zoom)
+      //       // this.activeLayout(LayoutIcons.RECON);
+
+      //     }
+      //     break;
+      //   case ButtonNames.Invert:
+      //     {
+      //       this.activeButtonState(ButtonNames.Zoom)
+      //       // this.activeLayout(LayoutIcons.RECON);
+
+      //     }
+      //     break;
+      //   case ButtonNames.Reset:
+      //     {
+      //       this.activeButtonState(ButtonNames.Reset)
+      //       // this.activeLayout(LayoutIcons.RECON);
+
+      //     }
+      //     break;
+      //   default:
+      //     break;
+      // }
     },
 
     handle_view_window_row(idx) {
@@ -734,6 +802,30 @@ export default {
     >.pic {
       &:after {
         background-image: url(./assets/img/pingyi-mod.png);
+      }
+    }
+  }
+
+  &.zoom_icon {
+    >.pic {
+      &:after {
+        background-image: url(./assets/img/zoom.png);
+      }
+    }
+  }
+
+  &.invert_icon {
+    >.pic {
+      &:after {
+        background-image: url(./assets/img/invert.png);
+      }
+    }
+  }
+
+  &.reset_icon {
+    >.pic {
+      &:after {
+        background-image: url(./assets/img/refund.png);
       }
     }
   }

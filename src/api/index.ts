@@ -3,7 +3,7 @@ import {apiOps, testDevOps} from "./options";
 import axios from 'axios'
 const {api, api2, api3, api5, api6, api7,api8} = apiOps;
 
-const {Topbase, study, readwriteFsBase, cb, diagnose, nodule,frac,pneumonia, image, single,Case } = testDevOps;
+const {Topbase, study, readwriteFsBase, cb, diagnose, nodule,frac,pneumonia,spine, image, single,Case } = testDevOps;
 
 
 // import {getBaseURL} from "@/assets/js/utils";
@@ -379,11 +379,11 @@ export const xhr_uploadSingleDicom = (formData) => {
  * @param formData
  * @returns
  */
-export const xhr_getSingleImage = (formData) => {
+export const xhr_getDicomImage = (formData) => {
   return new Promise((resolve, reject) => {
     try {
       return Base.submit(null, {
-        url: single + urlJson["downloadImage"],
+        url: image + urlJson["downloadDicom"],
         data: {
           ...formData,
         },
@@ -403,7 +403,7 @@ export const xhr_getSingleImage = (formData) => {
  * @param formData
  * @returns
  */
-export const xhr_getSingleImageInfo = (formData) => {
+export const xhr_getSpineInitInfo = (formData) => {
   return Base.submit(null, {
     url: single + urlJson["initInfo"],
     data: {
@@ -424,40 +424,11 @@ export const xhr_getSingleImageInfo = (formData) => {
       method: "POST",
       autoQs: false,
       isFormData: true,
-      url: single + urlJson["getSpineInfo"],
+      url: spine + urlJson["getSpineInfo"],
       data: formData,
     })
   };
-
-// /*
-// *
-// * @param formData
-// * @returns */
-
-
-// export const xhr_getSlice = async (formData2) => {
-//   try {
-//     const formData = new FormData()
-//     formData.append('seriesId', formData2.seriesId)
-//     formData.append('viewName', formData2.viewName)
-//     formData.append('viewIndex', formData2.viewIndex)
-
-//     const response = await axios.post(
-//       '/api7/mids-api/image/downloadSlice',
-//       formData,
-//       {
-
-//         responseType: 'arraybuffer' // This ensures the response is treated as an ArrayBuffer
-//       }
-//     )
-
-//     return response
-//   } catch (error) {
-//     console.error('Error downloading the file', error)
-//     throw error
-//   }
-// }
-
+ 
 /**
  * seriesComputeId
  *

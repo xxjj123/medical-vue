@@ -1,12 +1,11 @@
 <template>
   <div class="ViewBoard_panel">
-
     <div :class="[
       'pic_views',
-      { pic_layout_3d: layout === '1' },
-      { pic_layout: layout === '2' },
-      { pic_layout_original: layout === '3' },
-      { pic_layout_recon: layout === '6' }
+      { pic_layout_3d: computedLayout === '1' },
+      { pic_layout: computedLayout === '2' },
+      { pic_layout_original: computedLayout === '3' },
+      { pic_layout_recon: computedLayout === '6' }
     ]">
 
       <div class="side viewbox view-3d">
@@ -17,7 +16,7 @@
       <div :class="[
         'side viewbox view-axial bg-slate-500',
         {
-          viewOriginal: layout === '3',
+          viewOriginal: computedLayout === '3',
         },
       ]">
         <div class="relative view-item bg-slate-500">
@@ -33,7 +32,7 @@
       <div :class="[
         'side viewbox view-axial bg-slate-400',
         {
-          viewOriginal: layout === '4',
+          viewOriginal: computedLayout === '4',
         },
       ]">
         <div class="relative view-item bg-slate-400">
@@ -51,7 +50,7 @@
       <div :class="[
         'side viewbox view-axial bg-slate-600',
         {
-          viewOriginal: layout === '5',
+          viewOriginal: computedLayout === '5',
         },
       ]">
         <div class="relative view-item bg-slate-600 border-t-0.2 border-l-0.2 border-titleblue">
@@ -82,15 +81,6 @@ import threeViewSecTool from "@/picComps/home/subScript/threeViewSecTool/index.v
 import view3D from "@/picComps/viewTemplate/view3D.vue";
 
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
-
-let btnStateGrp = {
-  [`${ButtonNames.Ckcw}${suffix_name}`]: false,
-  [`${ButtonNames.Mjtyms}${suffix_name}`]: false,
-  [`${ButtonNames.Jbinfo}${suffix_name}`]: false,
-  [`${ButtonNames.AiInfo}${suffix_name}`]: false,
-  [`${ButtonNames.Szckx}${suffix_name}`]: false,
-  [`${ButtonNames.Pyms}${suffix_name}`]: false,
-};
 
 import { getStorage, createWebStorage, } from '@yh/ta-utils'
 
@@ -143,7 +133,6 @@ export default {
       Axial: null, //轴切的 （原图）
       Coronal: null, //冠状的
       Sagittal: null, //矢状的
-      ...btnStateGrp,
 
       layout: "1", //1:肋骨高级图布局（pic_layout_3d） 2:mpr布局（pic_layout）3:原图（pic_layout_original）
     };
@@ -167,14 +156,17 @@ export default {
     threeViewSecTool, view3D
   },
   computed: {
-    ...mapState("viewInitStore", [
+
+    ...mapState("mprViewStore", [
       "AxialData",
       "CoronalData",
       "SagittalData",
       "showCrosshair",
-      // "seriesInfo",
+      // // "seriesInfo",
+      "allViewData",
       "series_map_dicom",
       "studies_selected",
+
     ]),
 
 
@@ -186,14 +178,6 @@ export default {
     }),
 
 
-    localSlice_CT_pic_layout: {
-      get() {
-        return this.slice_CT_pic_layout; // 从 Vuex 状态获取值
-      },
-      set(value) {
-        this.setSlice_CT_pic_layout(value); // 调用 mutation 更新 Vuex 状态
-      },
-    },
     axialCrosshairData() {
       return {
         crosshair_x: this.AxialData.displayX,
@@ -215,49 +199,49 @@ export default {
         scale_length: this.SagittalData.scaleLength,
       };
     },
+    computedLayout() {
+      if (this.allViewData.zoomView) {
+        switch (this.allViewData.zoomView) {
+          case LayoutIcons.AXIAL:
+            return "3";
+          case LayoutIcons.CORONAL:
+            return "4";
+          case LayoutIcons.SAGITTAL:
+            return "5";
+        }
+      } else {
+        switch (this.allViewData.layOut) {
+          case LayoutIcons.LGGJST:
+            return "1";
+          case LayoutIcons.MPR:
+            return this.allViewData.isRecon ? "1" : "2";
+          case LayoutIcons.AXIAL:
+            return this.allViewData.isRecon ? "6" : "3";
+          case LayoutIcons.CORONAL:
+            return "4";
+          case LayoutIcons.SAGITTAL:
+            return "5";
+          case LayoutIcons.RECON:
+            return "6";
+          default:
+            return "1";
+        }
+      }
+
+    },
   },
   watch: {
-    localSlice_CT_pic_layout: {
-      handler(nVal, oVal) {
-        // console.log("watch___localSlice_CT_pic_layout:", nVal, oVal);
-        const that = this;
-        switch (nVal) {
-          case LayoutIcons.LGGJST:
-            this.layout = "1";
-            // console.log("切换了");
-
-            break;
-          case LayoutIcons.MPR:
-            this.layout = "2";
-            break;
-          case LayoutIcons.AXIAL:
-            this.layout = "3";
-            break;
-          case LayoutIcons.CORONAL:
-            this.layout = "4";
-            break;
-          case LayoutIcons.SAGITTAL:
-            this.layout = "5";
-            break;
-          case LayoutIcons.RECON:
-            this.layout = "6";
-            break;
-          default:
-            return void 0;
-        }
-        // 设置一个延时为1000毫秒（1秒）的定时器
-        requestAnimationFrame(function () {
-          that.resizeSliceViews();
-          // that.resize3DView()
-          that.resizeCamera()
-          // dispatch("setupCamera",view.viewIndex)
+    computedLayout(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        requestAnimationFrame(() => {
+          this.resizeViews();
+          this.resizeCamera(); // Uncomment if needed
+          // dispatch("setupCamera", view.viewIndex); // Uncomment if needed
         });
-        this.$nextTick(() => {
-          this.resize3DView()
-        })
-      },
-      immediate: true,
+      }
     },
+
+
 
     AxialData: {
       handler(nVal, oVal) {
@@ -290,21 +274,20 @@ export default {
   },
 
   methods: {
-    ...mapMutations("mprTools", ["resizeSliceViews"]),
+    ...mapActions("lungViewStore", ["InitViews", "InitAllSlice"]),
 
-    ...mapActions("viewInitStore", [
-      "InitAxialView",
+
+    ...mapActions("mprViewStore", ["InitAxialView",
       "InitCoronalView",
-      "InitSagittalView",
-      "InitSlice",
-      // "resizeSliceViews",
-      "resizeCamera",
-      "beforeViewDestory"
-    ]),
+      "InitSagittalView"]),
+
+    ...mapActions("lungToolsStore", ["resizeSliceViews", "resizeCamera"]),
+
     ...mapActions("view3DStore", [
       "Init3DScene",
       "Init3DView",
-      "resize3DView"
+      "resize3DView",
+      // "setupCamera"
     ]),
 
     // ...mapActions("view3DStore", ["Init3DView", "resize3DViews"]),
@@ -314,18 +297,21 @@ export default {
       this.initCompData_AxialDataInfo();
     },
     resizeViews() {
-      // this.resize3DView()
+      // this.resize3DViews();
+      // this.setupCamera();
       this.resizeSliceViews();
+
+      this.resize3DView()
+
 
     },
     initCompData_SagittalData() {
       const { Ww, Wl, changedPageIndex, dimension, hu } = this.SagittalData;
       // let group = [
-      //   { label: 'Image', value: `${changedPageindex}/${dimension}` },
+      //   { label: 'Image', value: `${changedPageIndex}/${dimension}` },
       // ]
       // this.$set(this.SagittalDataInfo, "group", group);
       this.$set(this.SagittalDataInfo, "image", `${changedPageIndex}/${dimension}`);
-
 
       this.$set(this.SagittalDataInfo, "HuVal", hu);
 
@@ -336,24 +322,11 @@ export default {
 
       this.$set(this.CoronalDataInfo, "image", `${changedPageIndex}/${dimension}`);
 
-
       this.$set(this.CoronalDataInfo, "HuVal", hu);
-
-
 
     },
     initCompData_AxialDataInfo() {
-      const { axialCount, coronalCount, sagittalCount } = this.seriesInfo;
-      const { Ww, Wl, changedPageIndex, hu } = this.AxialData;
-      // console.log("this.seriesInfo==", this.seriesInfo);
-      // console.log("this.AxialData==", this.AxialData);
-
-      // let group = [
-      //   { label: 'Image', value: `${changedPageindex}/${axialCount}` },
-      // ]
-
-      // console.log("initCompData_AxialDataInfo_____series_map_dicom", this.series_map_dicom);
-      // console.log("query-----", this.$route.query);
+      const { Ww, Wl, changedPageIndex, dimension, hu } = this.AxialData;
 
       const localDb = getStorage('#_st', 'studySelectItem', true)
 
@@ -370,33 +343,26 @@ export default {
       }
 
 
-      this.$set(this.AxialDataInfo, "image", `${changedPageIndex}/${axialCount}`);
-
-      // this.$set(this.AxialDataInfo, "KvpVal", '120');
+      this.$set(this.AxialDataInfo, "image", `${changedPageIndex}/${dimension}`);
 
       this.$set(this.AxialDataInfo, "HuVal", hu);
-
-      // this.$set(this.AxialDataInfo, "SpacVal", "0.96/0.96");
-
-      // this.$set(this.AxialDataInfo, "DimensionVal", `${coronalCount}/${sagittalCount}`);
 
     }
   },
 
-  beforeDestroy() {
-    this.beforeViewDestory();
-  },
+  // beforeDestroy() {
+  //   this.beforeViewDestory();
+  // },
   mounted() {
     this.$nextTick(() => {
-      // this.setSlice_CT_pic_layout("1");
       this.layout = "1"
-      // this.Init3DView(this.$refs.View3DRef);/
 
       this.Init3DScene(this.$refs.View3DRef);
-      // this.Init3DView()
-      this.InitAxialView(this.$refs.ViewAxialRef);
-      this.InitCoronalView(this.$refs.ViewCoronalRef);
-      this.InitSagittalView(this.$refs.ViewSagittalRef);
+      const { ViewAxialRef, ViewCoronalRef, ViewSagittalRef } = this.$refs
+      this.InitViews({ axialElement: ViewAxialRef, coronalElement: ViewCoronalRef, sagittalElement: ViewSagittalRef })
+      // this.InitAxialView(this.$refs.ViewAxialRef);
+      // this.InitCoronalView(this.$refs.ViewCoronalRef);
+      // this.InitSagittalView(this.$refs.ViewSagittalRef);
 
       // window.addEventListener('load', this.fnOnlod)
       setTimeout(() => {

@@ -47,7 +47,7 @@ const VIEWDATA_NAMES = ["SagittalData", "CoronalData", "AxialData"];
 export default {
   namespaced: true,
   actions: {
-    UpdateColorWindow({state, commit,rootState,dispatch}, value) {
+    UpdateWindowWidth({state, commit,rootState,dispatch}, value) {
       const { mprViewStore } = rootState;
       const v_state =  rootState[mprViewStore.activeModule];
 
@@ -65,7 +65,7 @@ export default {
       },{root:true});
     },
 
-    UpdateColorLevel({state, commit,rootState,dispatch}, value) {
+    UpdateWindowCenter({state, commit,rootState,dispatch}, value) {
       const { mprViewStore } = rootState;
       const v_state =  rootState[mprViewStore.activeModule];
       v_state.viewMprViews.forEach((view, objindex) => {
@@ -199,6 +199,12 @@ export default {
       },);
       dispatch("setupCamera", viewIndex);
       dispatch("resizeSliceViews");
+
+    },
+    zoomView(){
+
+      
+
 
     },
     // 改变平移

@@ -444,7 +444,7 @@ export default {
                     MathType: "脊柱"
                   };
 
-                  xhr_uploadSingleDicom({ dicom: zipFile }).then(() => {
+                  xhr_uploadDicom({ caseFile: zipFile }).then(() => {
                     this.$message.success(`上传成功,: ${''}`);
                     this.previewTable.seriesList[index][0].metadata = {
                       ...this.previewTable.seriesList[index][0].metadata,
@@ -598,6 +598,11 @@ export default {
             label: "胸肺CT",
             value: "xf-ct",
             key: "1",
+          },
+          {
+            label: "脊柱侧弯",
+            value: "spine",
+            key: "2",
           },
         ],
         optionskV: {
@@ -843,7 +848,7 @@ export default {
                       ...this.tableData_upload_anaRes[0],
                       Upload_time: currentTime,
                       state: "1",
-                      mathtype: "1",
+                      mathtype: "2",
                     });
                     this.spinning = false;
                     this.$box.update({ visible: false });
@@ -1289,12 +1294,17 @@ export default {
     },
     handleEdit1(index, row) {
       console.log("handleEdit--manage1", index, row);
-      const { computeSeriesId } = row;
+      const { computeSeriesId, computeType } = row;
       // 同步dicom map info
+      let path
+      if (String(computeType) == '1') {
+        path = "diagnose"
+      } else if (String(computeType) == '2') {
+        path = "picdiagnose"
 
-
+      }
       this.$router.push({
-        path: "diagnose",
+        path,
         query: {
           computeSeriesId,
         },
@@ -1303,9 +1313,16 @@ export default {
     handleEdit(index, row) {
       console.log("handleEdit--manage", index, row);
       const { caseSeriesList } = row;
-      const { computeSeriesId } = caseSeriesList[0];
+      const { computeSeriesId, computeType } = caseSeriesList[0];
+      let path
+      if (String(computeType) == '1') {
+        path = "diagnose"
+      } else if (String(computeType) == '2') {
+        path = "picdiagnose"
+
+      }
       this.$router.push({
-        path: "diagnose",
+        path,
         query: {
           computeSeriesId,
         },

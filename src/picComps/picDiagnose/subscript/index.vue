@@ -19,7 +19,7 @@
 
       </div>
       <div class="absolute left-0 bottom-0">
-        <div class="h-8">{{ allViewData.colorLevel + "/" + allViewData.colorWindow }}</div>
+        <div class="h-8">WW/WL: {{ allViewData.colorWindow + "/" + allViewData.colorLevel }}</div>
 
         <div class="h-8"> {{ allViewData.hu }}</div>
 

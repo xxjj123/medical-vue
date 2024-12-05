@@ -2,17 +2,17 @@
   <div class="diagnose_page flex flex-col">
     <PacsPageHeader :bread="true" :filmModeBtn="true">
 
-      <template slot="filmModeCtrl">
+      <!-- <template slot="filmModeCtrl">
         <input class="hidden " ref="fileInputRef" type="file" @change="handleFileChange">
         <ta-button @click="triggerFileInput">
           <ta-icon type="upload" />
           选择文件
         </ta-button>
 
-      </template>
+      </template> -->
 
       <template slot="vtkTool">
-        <vskToolbar ref="vskToolbarRef" class="ml-[15px]">
+        <vskToolbar ref="vskToolbarRef" class="ml-[15px]" :toolsState="toolsState">
         </vskToolbar>
 
       </template>
@@ -20,12 +20,12 @@
     </PacsPageHeader>
     <div class="main">
       <div class="pacs_container">
-
         <div>
           <PicBoard />
         </div>
         <div class="menu_data">
-          {{ allViewData }}
+          <!-- {{ toolsState.window }} -->
+          <!-- <div>{{ allViewData }}</div> -->
           <!-- <img :src="image" alt="" class="w-[200px]"> -->
 
           <!-- <ta-button @click="addAngleWidget">测量角度</ta-button>
@@ -34,9 +34,7 @@
 
           测量角度：{{ allViewData.cobb }} -->
           <!-- {{ boneInfo.angle }} -->
-          <ta-button @click="getAnnotationInfo">获取注释信息</ta-button>
-          <ta-button @click="onlyShow">改状态</ta-button>
-
+          <!-- <ta-button @click="getAnnotationInfo">获取注释信息</ta-button>  -->
 
           <MenuData :boneInfo="boneInfo" />
 
@@ -59,6 +57,7 @@ import MenuData from "@/picComps/picDiagnose/menudata/spine/index.vue"
 import {
   mapState,
   mapActions,
+  mapGetters,
 } from "vuex";
 
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
@@ -66,7 +65,7 @@ import JSZip from "jszip";
 import dicomParser from "dicom-parser";
 import spineInfo from './assets/boneInfo.json';
 
-import { xhr_getSpineInfo } from '@/api'
+import { xhr_getSeriesInfo } from '@/api'
 
 export default {
   name: "diagnose",
@@ -92,14 +91,15 @@ export default {
     };
   },
   computed: {
-    ...mapState("spineViewStore", ["allViewData"])
+    ...mapState("spineViewStore", ["allViewData"]),
+    ...mapState("spineToolsStore", ["toolsState",]),
+    // ...mapGetters("spineToolsStore", ["toolState"])
+
   },
   methods: {
     ...mapActions("toolBarStore", ["setActiveModule"]),
-    ...mapActions("spineViewStore", ["beforeViewDestory", "GetSlice", "UpdateSlice", "addBoxes", "addKeyPoints", "onlyShow", "getAnnotationInfo", "drawLine", "calculateAngle", "drawVerticalLine", "drawShape", "freshView"]),
-    ...mapActions("spineToolsStore", ["addAngleWidget", "hiddenAngle"]),
-
-
+    ...mapActions("spineViewStore", ["InitCaseInfo", "resizeView", "beforeViewDestory", "GetSlice", "UpdateSlice", "addBoxes", "addKeyPoints", "addCobb", "getAnnotationInfo", "drawLine", "calculateAngle", "drawVerticalLine", "drawShape", "freshView"]),
+    ...mapActions("spineToolsStore", ["UpdateWindowCenter", "UpdateWindowWidth", "invertView", "editBbox", "changetoolState", "resetView", "changePan", "zoomView", "magnifyView", "editCobb", "addAngleWidget", "hiddenAngle"]),
 
     triggerFileInput() {
       this.$refs.fileInputRef.click();
@@ -112,18 +112,16 @@ export default {
         const file = files[0]
         console.log(file);
         this.boneInfo = {}
-        this.UpdateSlice({ file })
+        await this.UpdateSlice({ file })
 
-        // this.boneInfo = this.spineInfo.template
+        this.boneInfo = this.spineInfo.template
         // // this.boneInfo = this.spineInfo.data.resultData.data
         // console.log(this.boneInfo);
-        // const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
+        const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
 
-        // console.log(bboxes);
-
-        // await this.UpdateSlice({ file, contours: keypoints })
-
-        // this.addKeyPoints({ contours: keypoints })
+        console.log("keypoints", keypoints);
+        this.addKeyPoints({ contours: keypoints })
+        this.addCobb({ cobbPoints: [beginpnt1, endpnt1, beginpnt2, endpnt2] })
         // const line1 = [beginpnt1, beginpnt1.map((coord, index) => (coord + endpnt1[index]) / 2)]
         // const line2 = [beginpnt2, beginpnt2.map((coord, index) => (coord + endpnt2[index]) / 2)]
 
@@ -139,15 +137,15 @@ export default {
         // this.freshView()
 
 
-        const zipfile = await this.zipFile(file)
-        xhr_getSpineInfo({ dicom: zipfile }).then(async (res) => {
-          this.$message.success(`上传成功,: ${''}`);
-          this.boneInfo = res.data.resultData.data
-          console.log(res.data.resultData.data);
-          const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
-          this.addKeyPoints({ contours: keypoints })
+        // const zipfile = await this.zipFile(file)
+        // xhr_getSpineInfo({ dicom: zipfile }).then(async (res) => {
+        //   this.$message.success(`上传成功,: ${''}`);
+        //   this.boneInfo = res.data.resultData.data
+        //   console.log(res.data.resultData.data);
+        //   const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts } = this.boneInfo
+        //   this.addKeyPoints({ contours: keypoints })
 
-        })
+        // })
 
 
 
@@ -171,89 +169,26 @@ export default {
       });
     }
     ,
-    // async dicomToJpg(file) {
-    //   const buffer = await file.arrayBuffer();
-    //   const byteArray = new Uint8Array(buffer);
-
-    //   const dataSet = dicomParser.parseDicom(byteArray);
-
-    //   const rows = dataSet.uint16('x00280010');
-    //   const columns = dataSet.uint16('x00280011');
-    //   const bitsAllocated = dataSet.uint16('x00280100');
-    //   const pixelRepresentation = dataSet.uint16('x00280103');
-    //   const pixelDataElement = dataSet.elements.x7fe00010;
-
-    //   if (!pixelDataElement) {
-    //     throw new Error('No pixel data found in the DICOM file.');
-    //   }
-
-    //   const pixelData = new DataView(
-    //     byteArray.buffer,
-    //     pixelDataElement.dataOffset,
-    //     pixelDataElement.length
-    //   );
-
-    //   const isSigned = pixelRepresentation === 1;
-
-    //   let minPixelValue = Infinity;
-    //   let maxPixelValue = -Infinity;
-
-    //   for (let i = 0; i < rows * columns; i++) {
-    //     let pixelValue;
-    //     if (bitsAllocated === 8) {
-    //       pixelValue = pixelData.getUint8(i);
-    //     } else if (bitsAllocated === 16) {
-    //       pixelValue = isSigned
-    //         ? pixelData.getInt16(i * 2, true)
-    //         : pixelData.getUint16(i * 2, true);
-    //     } else {
-    //       throw new Error('Unsupported bit depth: ' + bitsAllocated);
-    //     }
-    //     minPixelValue = Math.min(minPixelValue, pixelValue);
-    //     maxPixelValue = Math.max(maxPixelValue, pixelValue);
-    //   }
-
-    //   const canvas = document.createElement('canvas');
-    //   const context = canvas.getContext('2d');
-    //   canvas.width = columns;
-    //   canvas.height = rows;
-
-    //   const imageData = context.createImageData(columns, rows);
-    //   const data = imageData.data;
-
-    //   for (let i = 0; i < rows * columns; i++) {
-    //     let pixelValue;
-    //     if (bitsAllocated === 8) {
-    //       pixelValue = pixelData.getUint8(i);
-    //     } else if (bitsAllocated === 16) {
-    //       pixelValue = isSigned
-    //         ? pixelData.getInt16(i * 2, true)
-    //         : pixelData.getUint16(i * 2, true);
-    //     }
-
-    //     const grayValue = Math.floor(((pixelValue - minPixelValue) / (maxPixelValue - minPixelValue)) * 255);
-    //     const index = i * 4;
-    //     data[index] = grayValue;
-    //     data[index + 1] = grayValue;
-    //     data[index + 2] = grayValue;
-    //     data[index + 3] = 255;
-    //   }
-
-    //   context.putImageData(imageData, 0, 0);
-    //   return canvas.toDataURL('image/jpeg');
-    // }
-
 
   },
-  created() {
+  async created() {
     this.setActiveModule('SPINE')
+    const { computeSeriesId } = this.$route.query;
+    const res = await xhr_getSeriesInfo({ computeSeriesId });
+    if (res) {
+      const info = res.data.resultData;
+      this.InitCaseInfo(info)
+
+    }
   },
   beforeDestroy() {
     this.beforeViewDestory();
   },
 
 
-  mounted() { },
+  mounted() {
+    window.addEventListener("resize", this.resizeView);
+  },
 };
 </script>
 <style lang="less" scoped>

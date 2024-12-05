@@ -22,6 +22,7 @@ export default {
   getVtislice:"/getVtislice",
   download3dModel:"/download3dModel",
   downloadImage:"/downloadImage",
+  downloadDicom:"/downloadDicom",
 
 
   /* fs  */

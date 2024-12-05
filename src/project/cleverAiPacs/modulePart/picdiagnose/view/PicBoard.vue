@@ -1,9 +1,10 @@
 <template>
   <div class=" ViewBoard_panel h-full w-full">
     <div ref="ViewRef" class="relative">
-      <subScript class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none" :data="InitInfo"
-        :allViewData="allViewData" />
+
     </div>
+    <subScript class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none" :data="caseInfo"
+      :allViewData="allViewData" />
   </div>
 </template>
 
@@ -12,7 +13,7 @@
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
 import subScript from "@/picComps/picDiagnose/subScript/index.vue";
-import { xhr_getSingleImageInfo } from "@/api"
+import { xhr_getSpineInfo } from "@/api"
 
 export default {
   name: "ViewBoard",
@@ -28,24 +29,28 @@ export default {
     ]),
   },
   computed: {
-    ...mapState("spineViewStore", ["allViewData"])
+    ...mapState("spineViewStore", ["caseInfo", "allViewData"]),
+    ...mapState("spineToolsStore", ["toolsState"]),
+
+
+
   },
   components: {
     subScript
   },
-  async created() {
+  // async created() {
 
 
-    const result = await xhr_getSingleImageInfo({ studyid: "1838512078533521409" });
-    this.InitInfo = result.data.resultData
-    console.log(result.data)
+  //   const result = await xhr_getSingleImageInfo({ studyid: "1838512078533521409" });
+  //   this.InitInfo = result.data.resultData
+  //   console.log(result.data)
 
-  },
+  // },
   mounted() {
     this.$nextTick(async () => {
       // this.Init3DView(this.$refs.View3DRef);
       await this.InitView(this.$refs.ViewRef);
-      this.InitViewData()
+      // this.InitViewData()
 
       // window.addEventListener("resize", this.resizeSliceViews);
     });

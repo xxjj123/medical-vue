@@ -16,7 +16,11 @@ const ButtonNames = {
   AiInfo: "aiInfo", // ai 信息
   Szckx: "szckx", // 十字参考线
   Pyms: "pyms", // 平移模式
-  Bcj : "bcj" //靶重建
+  Bcj : "bcj", //靶重建
+  EditCobb  :"editCobb",
+  Zoom : "zoom",
+  Reset :"reset",
+  Invert : "invert",
 };
 
 const ButtonNamesLabel = {
@@ -148,7 +152,12 @@ export default {
       },{root:true})
       switch (buttonName) {
         case ButtonNames.Pyms:
-          console.log("rootState",rootState)
+          if(state[`${ButtonNames.Zoom}${suffix_active}`]){
+            console.log("jinzoom");
+
+            commit("TOGGLE_BUTTON_ACTIVE_STATE",ButtonNames.Zoom)
+            dispatch(`${state.activeToolModule}/zoomView`, null, { root: true });
+          }
           dispatch(`${state.activeToolModule}/ChangePan`, null, { root: true });
           break;
 
@@ -157,6 +166,37 @@ export default {
             key: "isRecon",
             value: state[`${ButtonNames.Bcj}${suffix_active}`],
           },{root:true})
+          break;
+        case ButtonNames.Zoom:
+          if(state[`${ButtonNames.Pyms}${suffix_active}`]){
+            console.log("jinpyms");
+
+            commit("TOGGLE_BUTTON_ACTIVE_STATE",ButtonNames.Pyms)
+            dispatch(`${state.activeToolModule}/ChangePan`, null, { root: true });
+          }
+          dispatch(`${state.activeToolModule}/zoomView`, null, { root: true });
+
+          break;
+        case ButtonNames.Invert:
+            dispatch(`${state.activeToolModule}/invertView`, null, { root: true });
+
+            break;
+
+        case ButtonNames.Reset:
+          if(state[`${ButtonNames.Invert}${suffix_active}`]){
+            commit("TOGGLE_BUTTON_ACTIVE_STATE",ButtonNames.Invert)
+            dispatch(`${state.activeToolModule}/invertView`, null, { root: true });
+          }
+          if(state[`${ButtonNames.Zoom}${suffix_active}`]){
+            commit("TOGGLE_BUTTON_ACTIVE_STATE",ButtonNames.Zoom)
+            dispatch(`${state.activeToolModule}/zoomView`, null, { root: true });
+          }
+            if(state[`${ButtonNames.Pyms}${suffix_active}`]){
+              commit("TOGGLE_BUTTON_ACTIVE_STATE",ButtonNames.Pyms)
+              dispatch(`${state.activeToolModule}/ChangePan`, null, { root: true });
+            }
+            dispatch(`${state.activeViewModule}/resetView`, null, { root: true });
+
           break;
 
         default:
@@ -175,26 +215,14 @@ export default {
         value: layout,
       },{root:true})
     },
-    activeZoom({state,dispatch,commit,rootState},viewIndex){
-      const v_state = rootState[state.activeViewModule]
-      let zoomView = null
-      const views = [LayoutIcons.SAGITTAL, LayoutIcons.CORONAL,LayoutIcons.AXIAL]
-      if(!v_state.allViewData.zoomView){
-        zoomView = views[viewIndex]
-      }
-      dispatch(state.activeViewModule+"/SetAllViewData",{
-        key: "zoomView",
-        value: zoomView,
-      },{root:true})
-    },
+
     UpdateColorWindow({state,dispatch},value){
-      dispatch(`${state.activeToolModule}/UpdateColorWindow`, value, { root: true });
+      dispatch(`${state.activeToolModule}/UpdateWindowWidth`, value, { root: true });
     },
     UpdateColorLevel({state,dispatch},value){
-      dispatch(`${state.activeToolModule}/UpdateColorLevel`, value, { root: true });
+      dispatch(`${state.activeToolModule}/UpdateWindowCenter`, value, { root: true });
 
     }
-
 
   },
 };

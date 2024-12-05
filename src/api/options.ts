@@ -20,6 +20,7 @@ export const testDevOps = {
   pneumonia:"/pneumonia",
   image: `/image`,
   single:"/single" ,//单张影像,
+  spine:"/spine",
 
 
 

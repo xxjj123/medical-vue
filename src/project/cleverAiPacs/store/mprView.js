@@ -353,26 +353,21 @@ export default {
       const dimensions = [SagittalData.dimension,CoronalData.dimension,AxialData.dimension]
       await dispatch("InitSlice",{ijk,dimensions})
 
-
         // await dispatch("InitIJK",{ijk})
 
-       console.log("allViewData",allViewData.buttons)
-       dispatch("mprToolsStore/UpdateColorWindow",allViewData.colorWindow,{root:true})
-       dispatch("mprToolsStore/UpdateColorLevel",allViewData.colorLevel,{root:true})
-
+      dispatch("mprToolsStore/UpdateWindowWidth",allViewData.colorWindow,{root:true})
+      dispatch("mprToolsStore/UpdateWindowCenter",allViewData.colorLevel,{root:true})
 
       dispatch("toolBarStore/initButtonState",{showButtons: allViewData.buttons ,activeButtons:allViewData.activeButtons} ,{root:true})
 
-
-       commit("toolBarStore/SET_SLICE_CT_PIC_LAYOUT",allViewData.layOut,{root:true})
+      commit("toolBarStore/SET_SLICE_CT_PIC_LAYOUT",allViewData.layOut,{root:true})
 
 
       //  dispatch('mprToolsStore/resizeSliceViews', null, { root: true });
       },
     async ActiveModule({dispatch, state, getters, commit,rootState,rootGetters},currentState){
       // Console.LOG(getAllButtonActiveStates)
-
-
+ 
       if(state.activeModule){
         const activeButtons = rootGetters['toolBarStore/getAllButtonActiveStates']
 
@@ -395,7 +390,7 @@ export default {
       console.log("allViewData",allViewData)
       dispatch("mprToolsStore/UpdateColorWindow",allViewData.colorWindow,{root:true})
       dispatch("mprToolsStore/UpdateColorLevel",allViewData.colorLevel,{root:true})
-      
+
       dispatch("toolBarStore/initButtonState",{showButtons: allViewData.buttons ,activeButtons:allViewData.activeButtons} ,{root:true})
 
 

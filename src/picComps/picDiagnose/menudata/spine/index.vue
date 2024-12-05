@@ -28,9 +28,12 @@
         <div class="angle">
 
           <div class="mt-2  py-3 w-full">
-            <div class="h-[30px] lh-[30px]">Cobb角：{{ boneInfo.angle?.mt.angle.toFixed(2) }} °</div>
-            <div class="h-[30px] lh-[30px]">顶锥离中线距离：{{ boneInfo.dist?.toFixed(2) }} </div>
-            <div class="h-[30px] lh-[30px]">锁骨倾斜角：{{ boneInfo.horangle }} °</div>
+            <!-- {{ spineInfo.spineInfo }} -->
+            <div class="h-[30px] lh-[30px]">Cobb角：{{ spineInfo.angle?.mt.angle.toFixed(2) }} °</div>
+            <div class="h-[30px] lh-[30px]">顶锥离中线距离：{{ spineInfo.vertebralOffset }} mm</div>
+
+
+            <div class="h-[30px] lh-[30px]">锁骨倾斜角：{{ spineInfo.clavicleHorangle }} °</div>
           </div>
         </div>
 
@@ -69,6 +72,7 @@ import textBoard from "@/picComps/visualTool/menudata-bar/module/lung/common/tex
 import reportView from "@/picComps/visualTool/menudata-bar/module/lung/common/reportView/index.vue"
 import { spine_dict } from "./assets/dict"
 import { spineFindingTemplate, spineDiagnoseTemplate } from "@/assets/js/utils/dicom/select";
+import { mapState } from "vuex"
 
 export default {
   name: "menudata-bar",
@@ -77,6 +81,7 @@ export default {
     boneInfo: Object,
   },
   computed: {
+    ...mapState("spineViewStore", ["spineInfo"]),
     tableData: {
       get() {
         const angle = this.boneInfo.angle
