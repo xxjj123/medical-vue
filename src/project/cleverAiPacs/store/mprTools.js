@@ -203,7 +203,7 @@ export default {
     },
     zoomView(){
 
-      
+
 
 
     },
@@ -313,6 +313,8 @@ setupCamera({commit, state,rootState,rootGetters,dispatch}, viewIndex){
       })
     },
     beforeViewDestory({state,commit,dispatch}){
+      console.log("11");
+
       dispatch("clearAllAutoplay")
       commit("RESET_STATE")
 

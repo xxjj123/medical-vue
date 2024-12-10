@@ -1,7 +1,7 @@
 class ViewData {
   constructor() {
     this.viewIndex = null;
-    this.viewName = null;
+    // this.viewName = null;
     this.pageIndex = null;
     this.dimension = null;
     this.gotoPageIndex = null;

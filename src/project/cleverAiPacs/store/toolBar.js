@@ -21,6 +21,7 @@ const ButtonNames = {
   Zoom : "zoom",
   Reset :"reset",
   Invert : "invert",
+  AutoPlay:"autoPlay"
 };
 
 const ButtonNamesLabel = {
@@ -132,6 +133,9 @@ export default {
       if(activeModule == 'MPR'){
         commit("SET_ACTIVE_MODULE",{activeViewModule:"mprViewStore",activeToolModule:"mprToolsStore"})
 
+      }else if(activeModule == 'LUNG'){
+        commit("SET_ACTIVE_MODULE",{activeViewModule:"lungViewStore",activeToolModule:"lungToolsStore"})
+
       }else if(activeModule == 'SPINE'){
         commit("SET_ACTIVE_MODULE",{activeViewModule:"spineViewStore",activeToolModule:"spineToolsStore"})
 
@@ -182,6 +186,7 @@ export default {
 
             break;
 
+
         case ButtonNames.Reset:
           if(state[`${ButtonNames.Invert}${suffix_active}`]){
             commit("TOGGLE_BUTTON_ACTIVE_STATE",ButtonNames.Invert)
@@ -203,6 +208,11 @@ export default {
           // 如果没有匹配的情况，可以在这里处理默认操作
           break;
       }
+    },
+    AutoPlay({state,dispatch},{viewIndex}){
+      console.log("viewIndex",viewIndex);
+
+      dispatch(`${state.activeToolModule}/AutoPlay`, {viewIndex}, { root: true });
     },
     activeLayout({state,dispatch,commit},layout){
       commit("SET_SLICE_CT_PIC_LAYOUT",layout)

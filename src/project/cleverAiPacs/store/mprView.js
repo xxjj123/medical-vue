@@ -367,7 +367,7 @@ export default {
       },
     async ActiveModule({dispatch, state, getters, commit,rootState,rootGetters},currentState){
       // Console.LOG(getAllButtonActiveStates)
- 
+
       if(state.activeModule){
         const activeButtons = rootGetters['toolBarStore/getAllButtonActiveStates']
 
@@ -643,6 +643,7 @@ export default {
                   index: getters.viewsData[viewIndex].changedPageIndex,
                 });
                 animationId = requestAnimationFrame(animate);
+
                 commit("UPDATE_AUTOPLAY_STATUS", {
                   viewIndex: viewIndex,
                   updates:{
@@ -1157,6 +1158,7 @@ console.log("")
             });
           }
         }, 60);
+
           commit("UPDATE_AUTOPLAY_STATUS", {
             viewIndex: viewIndex,
            updates:{
@@ -1198,8 +1200,10 @@ console.log("")
 
     },
     clearAllAutoplay({state,getters,commit,dispatch}){
+
       getters.viewsData.forEach((viewdata) => {
         commit("CLEAR_AUTOPLAY", viewdata.viewIndex);
+
         commit("UPDATE_AUTOPLAY_STATUS", {
           viewIndex: viewdata.viewIndex,
          updates:{
@@ -1208,6 +1212,8 @@ console.log("")
         });})
     },
     beforeViewDestory({state,commit,dispatch}){
+
+
       dispatch("clearAllAutoplay")
       commit("RESET_STATE")
       // commit("toolBarStore/INIT_BUTTON_SHOW_STATE",[],{root:true})

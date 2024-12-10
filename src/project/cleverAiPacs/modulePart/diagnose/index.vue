@@ -85,8 +85,6 @@ export default {
     // ...mapActions("lungViewStore", ["InitAllSlice", "beforeViewDestory"]),
 
 
-
-
     ...mapMutations("mprViewStore", ["SET_SERIES_INFO"]),
     ...mapActions("lungViewStore", ["InitAllSlice", "beforeViewDestory"]),
 
@@ -138,7 +136,7 @@ export default {
 
   },
   async created() {
-    this.setActiveModule('MPR')
+    this.setActiveModule('LUNG')
     // const carplay = localStorage.getItem("carplay");
     // if (!carplay) {
     //   localStorage.setItem("carplay", JSON.stringify(res));
@@ -154,7 +152,7 @@ export default {
 
       this.$nextTick(async () => {
         this.Init3DView(seriesInfo.seriesId)
-        this.SET_SERIES_INFO(seriesInfo);
+        // this.SET_SERIES_INFO(seriesInfo);
         this.InitAllSlice(seriesInfo)
         // await this.InitAllSlice(seriesInfo)
 

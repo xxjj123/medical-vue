@@ -212,6 +212,8 @@ export default {
         commit("SET_OPERATE_INFO",operatequery.data.resultData)
 
       }
+      console.log("33");
+
       await dispatch("mprViewStore/clearAllAutoplay",null,{root:true} )
 
       const {mprViewStore} = rootState
@@ -221,6 +223,8 @@ export default {
 
     },
     async ActiveNoduleState({dispatch,state,rootState,commit}){
+      console.log("22");
+
       await dispatch("mprViewStore/clearAllAutoplay",null,{root:true} )
       const {mprViewStore} = rootState
 

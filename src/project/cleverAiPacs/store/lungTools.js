@@ -133,13 +133,23 @@ export default {
      * @param {number} time - 单片切换时间，单元毫秒
      */
     AutoPlay({ commit, dispatch, state ,rootState,rootGetters }, { viewIndex }) {
-      const { mprViewStore } = rootState;
-      const v_state = mprViewStore;
-      if(v_state.allViewData.isPan){
-        dispatch("toolBarStore/activeButtonState",ButtonNames.Pyms,{root:true})
+      console.log("AutoPlay=lung");
 
-      }
-      dispatch("mprViewStore/AutoPlay",{ viewIndex },{root:true})
+      // const { mprViewStore } = rootState;
+      // const v_state = mprViewStore;
+      // if(v_state.allViewData.isPan){
+      //   dispatch("toolBarStore/activeButtonState",ButtonNames.Pyms,{root:true})
+
+      // }
+      let  viewportId = 'STACK_AXIAL'
+      console.log(viewIndex);
+
+      if(viewIndex == 1)  viewportId = 'STACK_AXIAL'
+      if(viewIndex == 2)  viewportId = 'STACK_CORONAL'
+      if(viewIndex == 3)  viewportId = 'STACK_SAGITTAL'
+
+
+      dispatch("lungViewStore/AutoPlay",{ viewportId },{root:true})
     }
 ,
 

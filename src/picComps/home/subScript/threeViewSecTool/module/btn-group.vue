@@ -204,12 +204,14 @@ export default {
 
   },
   methods: {
-    ...mapActions("mprToolsStore", ["ReverseWindow", "RotateCamera", "AutoPlay", "FlipHorizontal", "FlipVertical"]),
+    ...mapActions("mprToolsStore", ["ReverseWindow", "RotateCamera", "FlipHorizontal", "FlipVertical"]),
+    ...mapActions("toolBarStore", ["AutoPlay"]),
+
 
 
 
     ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
-    ...mapActions("toolBarStore", ["activeZoom"]),
+    ...mapActions("toolBarStore", ["activeZoom", "activeButtonState"]),
 
 
     // ...mapMutations("viewInitStore", ["CLEAR_AUTO_PLAY_TIMER"]),

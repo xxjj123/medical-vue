@@ -5,7 +5,7 @@ import modulePart2 from "../modulePart/modulePart2/routes";
 //登录后首页-管理列表
 import manage from "../modulePart/manage/routes";
 //诊断分析-控制台
-import diagnose from "../modulePart/diagnose2/routes";
+import diagnose from "../modulePart/diagnose/routes";
 
 import picdiagnose from "../modulePart/picdiagnose/routes";
 

@@ -277,9 +277,9 @@ export default {
     ...mapActions("lungViewStore", ["InitViews", "InitAllSlice"]),
 
 
-    ...mapActions("mprViewStore", ["InitAxialView",
-      "InitCoronalView",
-      "InitSagittalView"]),
+    // ...mapActions("mprViewStore", ["InitAxialView",
+    //   "InitCoronalView",
+    //   "InitSagittalView"]),
 
     ...mapActions("lungToolsStore", ["resizeSliceViews", "resizeCamera"]),
 
