@@ -153,10 +153,13 @@ const _default: ViteCommonConfig = {
       // 例如某个依赖直接依赖的某个依赖需要提前优化,但这个依赖不是框架本身的依赖
       '@yh/cli-pages-index > @wcjiang/notify',
       '@yh/cli-pages-orguser > vue-cookies',
+      // '@cornerstonejs/core',
+      // '@cornerstonejs/tools',
+      "dicom-parser"
       // 'cornerstone-tools'
-      // 'cornerstone-tools', 'cornerstone-core'
-      'cornerstone-tools',
-      'cornerstone-core'
+      // 'cornerstonejs/tools', 'cornerstone-core'
+      // 'cornerstone-tools',
+      // 'cornerstone-core'
 
     ],
     entries: [
@@ -186,8 +189,9 @@ const _default: ViteCommonConfig = {
       // 'cornerstone',
       // 'cornerstone-tools',
       // 'cornerstone-core',
-      'cornerstone-wado-image-loader',
-      '@cornerstonejs/dicom-image-loader',
+      // 'cornerstone-wado-image-loader',
+            '@cornerstonejs/dicom-image-loader',
+
       // '@cornerstonejs/core',
 
       // '@cornerstonejs/tools',

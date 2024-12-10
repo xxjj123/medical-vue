@@ -62,7 +62,7 @@ import {
 
 import PacsPageHeader from "@/components/pacs-page-header/index.vue";
 import JSZip from "jszip";
-import dicomParser from "dicom-parser";
+// import dicomParser from "dicom-parser";
 import spineInfo from './assets/boneInfo.json';
 
 import { xhr_getSeriesInfo } from '@/api'

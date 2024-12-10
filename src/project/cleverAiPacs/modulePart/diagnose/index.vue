@@ -137,7 +137,7 @@ export default {
 
 
   },
-  created() {
+  async created() {
     this.setActiveModule('MPR')
     // const carplay = localStorage.getItem("carplay");
     // if (!carplay) {

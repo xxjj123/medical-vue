@@ -285,7 +285,7 @@ import { v4 as uuidv4 } from "uuid";
 // import * as cornerstone from "cornerstone-core";
 // import dicomParser from "dicom-parser";
 // import * as dicomParser from 'dicom-parser';
-import cornerstoneWADOImageLoader from "@cornerstonejs/dicom-image-loader";
+// import cornerstoneWADOImageLoader from "@cornerstonejs/dicom-image-loader";
 
 import JSZip from "jszip";
 // import cornerstone from "cornerstone-core/dist/cornerstone";
@@ -1036,9 +1036,9 @@ export default {
       setTimeout(() => {
         console.log("dicomParser===", dicomParser);
         // console.log("cornerstone==", cornerstone);
-        cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-        cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
-        console.log("cornerstoneWADOImageLoader==", cornerstoneWADOImageLoader);
+        // cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+        // cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+        // console.log("cornerstoneWADOImageLoader==", cornerstoneWADOImageLoader);
       }, 5000);
     });
   },

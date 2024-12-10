@@ -10,8 +10,7 @@ import * as cornerstoneTools from '@cornerstonejs/tools';
 const { ViewportType,MetadataModules } = Enums;
 const {Events} = cornerstoneTools.Enums
 const { MouseBindings } = cornerstoneTools.Enums;
-// import cornerstoneDICOMImageLoader from '@cornerstonejs/dicom-image-loader';
-import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
+import cornerstoneDICOMImageLoader from '@cornerstonejs/dicom-image-loader';
 const {annotation,ToolGroupManager,   LengthTool,PanTool,ZoomTool,ProbeTool,DragProbeTool,SplineROITool, RectangleROITool ,AngleTool,CobbAngleTool} = cornerstoneTools;
 
 const {drawTextBox} = cornerstoneTools.drawing
@@ -19,12 +18,9 @@ const { transformWorldToIndex } = utilities;
 
 cornerstone.init();
 cornerstoneTools.init();
-// cornerstoneDICOMImageLoader.init();
-// cornerstone.imageLoader.registerImageLoader('wadouri', cornerstoneDICOMImageLoader.wadouri.loadImage);
-cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-cornerstoneWADOImageLoader.configure({
-  useWebWorkers: true,  // 启用 Web Worker 来提升性能
-});
+cornerstoneDICOMImageLoader.init();
+cornerstone.imageLoader.registerImageLoader('wadouri', cornerstoneDICOMImageLoader.wadouri.loadImage);
+
 
 import { PointInfoTool,CircularMagnifyTool,} from "@/picComps/picDiagnose/menudata/spine/toolClass"
 
@@ -225,15 +221,11 @@ export default {
           });
           if (resfile) {
             const file = new File([resfile.data], "image.dcm" );
-            // const imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(file);
-            const imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(file);
-
-
+            const imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(file);
 
             await dispatch("UpdateSlice",{imageId})
 
-
-
+ 
             const  resinfo = await  xhr_getSpineInfo({computeSeriesId})
             if(resinfo){
               const spineInfo = resinfo.data.resultData.data

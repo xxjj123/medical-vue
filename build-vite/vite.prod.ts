@@ -3,6 +3,9 @@ import { buildBaseConfig } from './vite.base';
 import { getEnv, isEnvTrue } from './src/utils';
 import { manualChunks } from './src/chunks';
 import viteCommonConfig from '../viteCommonConfig';
+import { viteCommonjs } from "@originjs/vite-plugin-commonjs"
+import commonjs from '@rollup/plugin-commonjs';
+
 
 export async function buildProdConfig(
   mode: string,
@@ -25,7 +28,7 @@ export async function buildProdConfig(
     transformMixedEsModules: true,
     // ignoreDynamicRequires: true,
     // dynamicRequireTargets: ['image-size'],
-    exclude: ['node_modules/moment/**'],
+    exclude: ['node_modules/moment/**', '@cornerstonejs/dicom-image-loader'],
     esmExternals: true,
     // 修改需要commonjs插件处理的文件
     include: viteCommonConfig.commonjs.include,
@@ -33,6 +36,8 @@ export async function buildProdConfig(
     requireReturnsDefault: 'auto',
   };
   config.build.rollupOptions = {
+    // external:['@cornerstonejs/tools','@cornerstonejs/core'],
+
     output: {
       manualChunks(id) {
         return manualChunks(id);
@@ -45,5 +50,19 @@ export async function buildProdConfig(
     config.build.target = ['chrome99'];
   }
   // config.css.preprocessorMaxWorkers = true;
+  config.plugins.push(viteCommonjs())
+  config.worker = {
+    format: "es",
+    rollupOptions: {
+      external: ["@icr/polyseg-wasm"],
+      treeshake: viteCommonConfig.build.treeshake,
+    },
+  },
+  console.log("config",config);
+
+
+
+
+
   return config;
 }

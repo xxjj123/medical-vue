@@ -35,7 +35,8 @@ import fracInfoStore from "./store/fracInfo"
 import spineViewStore from "./store/spineView"
 import spineToolsStore from "./store/spineTools"
 
-
+import lungViewStore from "./store/lungView"
+import lungToolsStore from "./store/lungTools"
 
 
 store.registerModule("mprViewStore", mprViewStore);
@@ -46,13 +47,8 @@ store.registerModule("fracInfoStore", fracInfoStore);
 store.registerModule("spineViewStore", spineViewStore);
 store.registerModule("spineToolsStore", spineToolsStore);
 
-
-
-
-
-
-
-
+store.registerModule("lungViewStore", lungViewStore);
+store.registerModule("lungToolsStore", lungToolsStore);
 
 
 
