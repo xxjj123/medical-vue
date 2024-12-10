@@ -168,8 +168,10 @@
             <template #default="{ row, rowIndex }">
               <ta-row type="flex" justify="space-around">
                 <ta-col :span="18">
+                  <!-- ++{{ row }}++ -->
+
                   <pacs-abtn v-if="temp_isViewResultBtn(row.computeStatus)" :disabled.sync="row.isDisabled"
-                    @click="handleEdit1(rowIndex, row)">查看结果 {{ row.isDisabled }}</pacs-abtn>
+                    @click="handleEdit1(rowIndex, row)">查看结果 </pacs-abtn>
                   <pacs-abtn v-else :disabled="true">查看结果</pacs-abtn>
                   <ta-divider type="vertical" />
                   <pacs-abtn v-if="temp_isViewResultBtn(row.computeStatus)" :disabled.sync="row.isDisabled"
@@ -343,8 +345,9 @@ export default {
         return this.tableDataValue;
       },
       set(val) {
-        // return val
-        this.tableDataValue = val;
+        console.log("tableDataValue2222", val);
+        const list = val.map(vo => { return { ...vo, isDisabled: !(vo.caseSeriesList[0]?.computeStatus == '3') } })
+        this.tableDataValue = list;
       },
     },
     showTableData_anaRes: {
@@ -480,14 +483,13 @@ export default {
           const { property } = column;
           if (property !== "myFavorite") {
 
-            const { caseSeriesList, myFavorite, isDisabled } = row;
-
+            const { caseSeriesList, myFavorite } = row;
             let newSeriesList = [];
 
             newSeriesList = caseSeriesList.map((vo) => ({
               ...vo,
               myFavorite,
-              isDisabled,
+              isDisabled: !(vo.computeStatus == '3')
             }));
 
             this.selectedstudyId = row.studyId
@@ -704,6 +706,8 @@ export default {
         queryPagerInfo: () => {
           const pager = this.$refs.gridPager.getPagerInfo({ patientId: '16187278' });
           // console.log("pager--", pager);
+          console.log("pager", pager);
+
           return pager;
         },
         fnParams: () => {
@@ -740,6 +744,7 @@ export default {
 
           ExtParams.computeType = this.mathTypeMapOb.options.find(option => option.value == mathType)?.key
           ExtParams.computeStatus = this.computeStateMapOb.options.find(option => option.value == computeState)?.statu
+
 
           ExtParams.startDate = ""
           ExtParams.endDate = ""
@@ -1270,6 +1275,8 @@ export default {
     init_loadData() {
       // xhr_pageStudies
       this.$refs.gridPager?.loadData((result) => {
+        console.log("result", result);
+
 
 
       });

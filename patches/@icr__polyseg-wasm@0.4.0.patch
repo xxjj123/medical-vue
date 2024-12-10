@@ -1,0 +1,14 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+deleted file mode 100644
+index 1e06d3d7293939c70de4faba542eecaadafa3131..0000000000000000000000000000000000000000
+diff --git a/dist/index.js b/dist/index.js
+index 59432fe840e8210c3940cba521e032b3f41fe651..41eee6469e9b599d4ff27f3478ed009756b12b7a 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1,5 +1,5 @@
+ import launcher from './ICRPolySeg.js';
+-import wasm from './ICRPolySeg.wasm';
++import wasm from './ICRPolySeg.wasm?url';
+ 
+ export default class ICRPolySeg {
+   constructor() {

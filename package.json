@@ -25,6 +25,7 @@
     "@cornerstonejs/core": "^2.2.20",
     "@cornerstonejs/dicom-image-loader": "2.2.20",
     "@cornerstonejs/tools": "^2.2.20",
+    "@icr/polyseg-wasm": "^0.4.0",
     "@itk-wasm/dicom": "6.0.1",
     "@itk-wasm/image-io": "^1.3.0",
     "@kitware/vtk.js": "32.1.0",
@@ -164,7 +165,8 @@
     "patchedDependencies": {
       "vue@2.7.16": "patches/vue@2.7.16.patch",
       "itk-wasm@1.0.0-b.173": "patches/itk-wasm@1.0.0-b.173.patch",
-      "@itk-wasm/image-io@1.3.0": "patches/@itk-wasm__image-io@1.3.0.patch"
+      "@itk-wasm/image-io@1.3.0": "patches/@itk-wasm__image-io@1.3.0.patch",
+      "@icr/polyseg-wasm@0.4.0": "patches/@icr__polyseg-wasm@0.4.0.patch"
     }
   },
   "files": [
