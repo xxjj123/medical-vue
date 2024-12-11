@@ -171,18 +171,26 @@ export default {
     },
     getAnnotation({state,rootState}){
       console.log("annotation",annotation );
-      const AnnotationManager = annotation.state.getAnnotationManager()
-      console.log("AnnotationManager",AnnotationManager );
-      const viewportId = 'STACK_AXIAL'
-      const {lungViewStore} = rootState
-      const {ViewPortData,renderingEngineId,allViewData } =  lungViewStore
-      const renderingEngine = getRenderingEngine(renderingEngineId);
+      // const AnnotationManager = annotation.state.getAnnotationManager()
+      // console.log("AnnotationManager",AnnotationManager );
+      // const viewportId = 'STACK_CORONAL'
+      // const {lungViewStore} = rootState
+      // const {ViewPortData,renderingEngineId,allViewData } =  lungViewStore
+      // const renderingEngine = getRenderingEngine(renderingEngineId);
 
-      const viewport = renderingEngine.getViewport(
-        viewportId
-      )
-      console.log("getAnnotationManager",AnnotationManager.getGroupKey(viewport.element) );
+      // const viewport = renderingEngine.getViewport(
+      //   viewportId
+      // )
+      // console.log("getAnnotationManager",AnnotationManager.getGroupKey(viewport.element) );
 
+
+      // let axialannotations = annotation.state.getAnnotations(SplineROITool.toolName, viewport.element);
+
+      // console.log("axialannotations",axialannotations);
+
+      // let coronalannotations = annotation.state.getAnnotations(SplineROITool.toolName, viewport.element);
+
+      // console.log("axialannotations",coronalannotations);
 
 
       console.log("allAnnotations",annotation.state.getAllAnnotations());

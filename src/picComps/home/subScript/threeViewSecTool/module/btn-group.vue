@@ -200,7 +200,7 @@ export default {
   created() {
     // this.btnInfoItemLocal = btnInfo[this.TracheaName]
     this.btnInfoItemLocal = JSON.parse(JSON.stringify(btnInfo[this.TracheaName]));
-    console.log("created:btnInfoItemLocal==>>>", this.btnInfoItemLocal);
+    // console.log("created:btnInfoItemLocal==>>>", this.btnInfoItemLocal);
 
   },
   methods: {

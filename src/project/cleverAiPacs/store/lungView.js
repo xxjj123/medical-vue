@@ -288,7 +288,6 @@ export default {
 
     SET_ALL_VIEW_STATE(state, { key, value}) {
       state.allViewData[key] = value;
-      console.log("allViewData",state.allViewData);
 
     },
 
@@ -342,8 +341,8 @@ export default {
 
         element.addEventListener( Events.MOUSE_CLICK, (event)=>{
           const image = viewport?.getImageData()
-          console.log("isInteractingWithTool",cornerstoneTools.state.isInteractingWithTool);
-          console.log("isMultiPartToolActive",cornerstoneTools.state.isMultiPartToolActive);
+          // console.log("isInteractingWithTool",cornerstoneTools.state.isInteractingWithTool);
+          // console.log("isMultiPartToolActive",cornerstoneTools.state.isMultiPartToolActive);
 
           if(!cornerstoneTools.state.isInteractingWithTool){
             if(image ){
@@ -452,7 +451,6 @@ export default {
 
     initializeToolGroup({state},toolGroupId){
       const preToolGroup =  ToolGroupManager.getToolGroup(toolGroupId);
-      console.log("preToolGroup",preToolGroup);
 
       if (preToolGroup) {
         return preToolGroup;
@@ -526,25 +524,15 @@ export default {
       const updateSlices = async () => {
         const viewportEntries = Object.values(state.ViewPortData);
 
-        await Promise.all(
-          viewportEntries.map(async (viewInfo) => {
-            const {dimension,viewportId} = viewInfo
-            const sliceIndex = Math.round(dimension / 2) + 1;
-            console.log("sliceIndex", sliceIndex);
-            commit("SET_VIEW_DATA", {
-              viewportId,
-              key: "changedPageIndex",
-              value: sliceIndex,
-            });
+        const ijk = new Array(3);
 
-            const file = await dispatch("GetDicomFile", {
-              viewInfo,
-              index: sliceIndex,
-            });
+        viewportEntries.map(  (viewInfo) => {
+          const {dimension,viewportId} = viewInfo
+          const sliceIndex = Math.round(dimension / 2) + 1;
+          ijk[viewInfo.ijkId] = sliceIndex
 
-            await dispatch("UpdateSlice", { viewInfo, file });
-          })
-        );
+        })
+        await dispatch("UpdateIJK",ijk)
 
         await dispatch("resetView");
       };
@@ -594,17 +582,25 @@ export default {
 
       const file = await dispatch("GetDicomFile", {viewInfo, index});
       if (file) {
+        const {viewportId} = viewInfo
         commit("UPDATE_LOAD_STATUS", false);
-        await dispatch("UpdateSlice", {viewInfo, file});
-        commit("SET_VIEW_DATA", {viewportId:viewInfo.viewportId, key: "pageIndex", value: index});
-      }
-      const {renderingEngineId} = state;
-      const renderingEngine = getRenderingEngine(renderingEngineId);
-      const viewport = renderingEngine.getViewport(
-        viewInfo.viewportId
-      )
+        const imageId = await dispatch("UpdateSlice", {viewInfo, file});
+        commit("SET_VIEW_DATA", {viewportId, key: "pageIndex", value: index});
+        const {renderingEngineId} = state;
+        const renderingEngine = getRenderingEngine(renderingEngineId);
+        const viewport = renderingEngine.getViewport(
+          viewportId
+        )
 
-      viewport.render()
+        dispatch("UpdateSliceNodule",{viewInfo,imageId})
+
+        cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
+          viewportId
+        ]);
+
+        viewport.render()
+      }
+
     },
 
     async GetDicomFile({ dispatch, state, commit }, { viewInfo, index }) {
@@ -644,7 +640,7 @@ export default {
 
       // await viewport.setStack(imageIds);
       const preImageIds = viewport.getImageIds()
-      console.log("preImageIds",preImageIds);
+      // console.log("preImageIds",preImageIds);
 
 
       viewport.imageIds = imageIds
@@ -656,16 +652,26 @@ export default {
 
        viewport. setProperties({ voiRange: { upper: WC + WW / 2, lower: WC - WW / 2 } });
       }
+      const { element } = viewport;
+      let annotations = annotation.state.getAllAnnotations()
+
+      const annotationIds = []
+
+      annotations.forEach(anno=>{
+        if( anno.metadata?.type == 'nodule'  && anno.metadata?.viewportId == viewportId){
+          annotationIds.push(anno.annotationUID)
+         }
+      })
+      annotationIds.forEach(annoId=>{
+        annotation.state.removeAnnotation(annoId)
+
+      })
+
 
 
       commit("SET_VIEW_DATA", { viewportId , key: "imageId", value: imageId });
 
-      dispatch("UpdateSliceNodule",{viewInfo,imageId})
 
-      cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
-        viewportId
-      ]);
-      viewport.render()
 
 
       const {pixelSpacing,sliceThickness,frameOfReferenceUID,rows,columns,sliceLocation,imagePositionPatient } = metaData.get(MetadataModules.IMAGE_PLANE, imageId);
@@ -710,25 +716,22 @@ export default {
 
         }
       })
+      return imageId
       // console.log(pixelSpacing,sliceThickness,frameOfReferenceUID,rows,columns,sliceLocation,imagePositionPatient);
 
     },
     async UpdateSliceNodule({state,dispatch},{viewInfo,imageId}){
-      console.log("触发了UpdateSliceNodule",imageId,viewInfo);
 
       state.noduleInfo.noduleLesionList?.forEach((nodule)=>{
         const points = nodule.points
         const {viewportId, pageIndex} =  viewInfo
         const {pointsList,bounds} = viewInfo.getImagePoint(points)
         if(pageIndex > bounds[0] && pageIndex < bounds[1]){
-          console.log("show ano");
 
           const worldPoints = pointsList.map(point=>utilities.imageToWorldCoords(imageId,point))
-          console.log("worldPoints",worldPoints);
           const annotationUID =   utilities.uuidv4()
-          const options = {annotationUID,type:'nodule',viewportId,pageIndex:pageIndex}
+          const options = {annotationUID,type:'nodule',viewportId,pageIndex:pageIndex,id:nodule.id}
           dispatch("customDrawSpline", { viewInfo,points:worldPoints,options } );
-
           const styles = {
             color: 'rgb(0, 0, 255)'
           };
@@ -807,7 +810,6 @@ export default {
      */
     AutoPlay({ commit, dispatch, state, getters,rootState }, { viewportId }) {
       const viewData = state.ViewPortData[viewportId]
-      console.log("viewData.autoPlay.state",viewData );
 
       if (!viewData.autoPlay.state ) {
         dispatch("clearAllAutoplay")
@@ -816,7 +818,6 @@ export default {
          const timer = setInterval(() => {
           let newIndex =
             (viewData.changedPageIndex % viewData.dimension) + 1;
-          console.log(viewData.changedPageIndex,viewData.dimension);
 
           if (viewData.changedPageIndex === viewData.dimension) {
             newIndex = 1;
@@ -925,6 +926,7 @@ export default {
               ...options
           },
       };
+
       annotation.state.addAnnotation(newannotation,viewport.element)
 
     },
