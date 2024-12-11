@@ -156,7 +156,6 @@ export default {
     threeViewSecTool, view3D
   },
   computed: {
-
     ...mapState("mprViewStore", [
       "AxialData",
       "CoronalData",

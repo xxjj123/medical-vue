@@ -28,14 +28,16 @@ cornerstone.imageLoader.registerImageLoader('wadouri', cornerstoneDICOMImageLoad
 // });
 
 
-import {CircularMagnifyTool} from "@/picComps/picDiagnose/menudata/spine/toolClass"
-
+import {CircularMagnifyTool,PointInfoTool} from "@/picComps/picDiagnose/menudata/spine/toolClass"
 
 import {ViewData,AllViewData, ViewRenderer} from './data';
 
-import {xhr_getSlice,xhr_getDcmSlice} from "@/api";
+import {xhr_getSlice,xhr_getDcmSlice,xhr_queryNodule,xhr_queryOperate} from "@/api";
 
 import { gdcmReadImage} from "@itk-wasm/image-io"
+
+
+cornerstoneTools.addTool(SplineROITool)
 
 const VIEW_TYPES = {
   CORONAL: 1,
@@ -47,7 +49,22 @@ const VIEW_INFO = {
   AXIAL: {
     viewportId: 'STACK_AXIAL',
     viewName: 'axial',
+    ijkId:2,
     getTrueIjk: (ijk) => [ijk[0], ijk[1], ""],
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+
+      const pointsList = [
+        [xmin, ymin],
+        [xmax, ymin],
+        [xmax, ymax],
+        [xmin, ymax],
+        [xmin, ymin]
+      ];
+      const bounds = [zmin,zmax]
+      return {pointsList,bounds}
+    },
+
     autoPlay:{
       state:false,
       timerId: null,
@@ -57,7 +74,20 @@ const VIEW_INFO = {
   CORONAL: {
     viewportId: 'STACK_CORONAL',
     viewName: 'coronal',
+    ijkId:1,
     getTrueIjk: (ijk) => [ijk[0], "", ijk[1]] ,
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+      const pointsList = [
+        [xmin, zmin],
+        [xmax, zmin],
+        [xmax, zmax],
+        [xmin, zmax],
+        [xmin, zmin]
+      ];
+      const bounds = [ymin,ymax]
+      return {pointsList,bounds}
+    },
     autoPlay:{
       state:false,
       timerId: null,
@@ -67,7 +97,21 @@ const VIEW_INFO = {
   SAGITTAL: {
     viewportId: 'STACK_SAGITTAL',
     viewName: 'sagittal',
+    ijkId:0,
     getTrueIjk: (ijk) =>  ["", ijk[0], ijk[1]],
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+      const pointsList = [
+        [ymin, zmin],
+        [ymax, zmin],
+        [ymax, zmax],
+        [ymin, zmax],
+        [ymin, zmin]
+    ];
+      const bounds = [xmin,xmax]
+      return {pointsList,bounds}
+    },
+
     autoPlay:{
       state:false,
       timerId: null,
@@ -123,11 +167,14 @@ const getDefaultState = () => ({
       ...VIEW_INFO.CORONAL,
       ...new ViewData()}
   },
+  allViewData: new AllViewData(),
+  noduleInfo: {},
+  noduleLesionList:[],
+
 
   CoronalData: new ViewData(),
   AxialData: new ViewData(),
   SagittalData: new ViewData(),
-  noduleInfo: {},
 
   annotations: { value: [], index: new Set() },
   mouseDown: false,
@@ -145,14 +192,14 @@ const getDefaultState = () => ({
   activeModule: null,
   activedModules: [],
 
-  allViewData: new AllViewData(),
-  selectedNoduleId: null,
+   selectedNoduleId: null,
 });
 
 export default {
   namespaced: true,
   state: {
     renderingEngineId:'myRenderingEngine',
+    toolGroupId:"toolGroup",
     seriesInfo:{
       seriesId: "",
       axialCount: "",
@@ -167,6 +214,10 @@ export default {
   mutations: {
     SET_SERIES_INFO(state,seriesInfo){
         state.seriesInfo = seriesInfo
+    },
+    SET_NODULE_INFO(state, noduleInfo) {
+      console.log("noduleInfo=======",noduleInfo)
+      state.noduleInfo = noduleInfo;
     },
     RESET_STATE(state){
       Object.assign(state, getDefaultState())
@@ -228,18 +279,8 @@ export default {
     SET_VIEW_DATA(state, {viewportId, key, value}) {
       const view = state.ViewPortData[viewportId];
       view[key] = value;
-      // console.log("SET_VIEW_DATA",key,value);
-      // console.log("state.ViewPortData[viewportId]",state.ViewPortData[viewportId]);
-
 
     },
-    // SET_VIEW_DATA(state, {viewIndex, key, value}) {
-    //   const viewName = VIEWDATA_NAMES[viewIndex];
-    //   if (!state[viewName]) {
-    //     state[viewName] = {};
-    //   }
-    //   state[viewName][key] = value;
-    // },
 
     SET_MOUSE_DOWN(state, value) {
       state.mouseDown = value;
@@ -247,15 +288,19 @@ export default {
 
     SET_ALL_VIEW_STATE(state, { key, value}) {
       state.allViewData[key] = value;
-    },
+      console.log("allViewData",state.allViewData);
 
+    },
 
   },
   actions: {
-
-    InitViews({state,dispatch},{axialElement, coronalElement, sagittalElement }){
-      const renderingEngineId = state.renderingEngineId;
+    SetAllViewData({commit},{ key,value }){
+      commit("SET_ALL_VIEW_STATE",{ key,value })
+    },
+    async InitViews({state,commit,dispatch},{axialElement, coronalElement, sagittalElement }){
+      const {renderingEngineId,toolGroupId} = state;
       const renderingEngine = new RenderingEngine(renderingEngineId);
+      const toolGroup = await dispatch("initializeToolGroup",toolGroupId)
 
       const viewportInputArray = [
         {
@@ -283,10 +328,10 @@ export default {
           },
         },
       ];
-
-
+      commit("SET_ALL_VIEW_STATE",{key:'windowWidth',value:1000})
+      commit("SET_ALL_VIEW_STATE",{key:'windowCenter',value:500})
       renderingEngine.setViewports(viewportInputArray);
-      console.log("Events",Events);
+      // toolGroup.addViewport(viewportId, renderingEngineId);
 
 
       [VIEW_INFO.SAGITTAL, VIEW_INFO.CORONAL, VIEW_INFO.AXIAL].forEach(viewInfo=>{
@@ -297,16 +342,25 @@ export default {
 
         element.addEventListener( Events.MOUSE_CLICK, (event)=>{
           const image = viewport?.getImageData()
-          if(image){
-            const {voxelManager,imageData} = image
+          console.log("isInteractingWithTool",cornerstoneTools.state.isInteractingWithTool);
+          console.log("isMultiPartToolActive",cornerstoneTools.state.isMultiPartToolActive);
 
-            const worldPos = event.detail.currentPoints.world
-            let ijk = transformWorldToIndex(imageData,worldPos);
-            const trueijk = getTrueIjk(ijk);
+          if(!cornerstoneTools.state.isInteractingWithTool){
+            if(image ){
+              //     const toolGroup =  ToolGroupManager.getToolGroup(toolGroupId);
+              // console.log("toolGroup",toolGroup);
+              // console.log("cornerstoneTools",cornerstoneTools.state.isInteractingWithTool);
 
-             dispatch("UpdateIJK",trueijk)
+                  const {voxelManager,imageData} = image
 
-            }
+                  const worldPos = event.detail.currentPoints.world
+                  let ijk = transformWorldToIndex(imageData,worldPos);
+                  const trueijk = getTrueIjk(ijk);
+
+                   dispatch("UpdateIJK",trueijk)
+
+                  }
+          }
 
 
         })
@@ -319,25 +373,137 @@ export default {
             let ijk = transformWorldToIndex(imageData,worldPos);
             const trueijk = getTrueIjk(ijk);
 
-             dispatch("UpdateIJK",trueijk)
-
-            }
-
+            dispatch("UpdateIJK",trueijk)
+          }
 
         })
 
 
 
+        element.addEventListener( Events.MOUSE_WHEEL, (event)=>{
+          const image = viewport?.getImageData()
+          if(image){
+            const { wheel } = event.detail;
+            const { direction } = wheel;
+            const delta = direction  ;
+            const viewData = state.ViewPortData[viewportId]
+
+            let newIndex;
+          if (direction > 0) {
+            newIndex =
+              (viewData.changedPageIndex %
+                viewData.dimension) +
+              1;
+            if (
+              viewData.changedPageIndex ===
+              viewData.dimension
+            ) {
+              commit("SET_VIEW_DATA", {
+                viewportId,
+                key: "changedPageIndex",
+                value: 1,
+              });
+
+            } else {
+              commit("SET_VIEW_DATA", {
+                viewportId,
+                key: "changedPageIndex",
+                value: viewData.changedPageIndex + 1,
+              });
+            }
+          } else {
+            newIndex =
+              ((viewData.changedPageIndex -
+                2 +
+                viewData.dimension) %
+                viewData.dimension) +
+              1;
+            if (viewData.changedPageIndex === 1) {
+              commit("SET_VIEW_DATA", {
+                viewportId,
+                key: "changedPageIndex",
+                value: viewData.dimension,
+              });
+
+            } else {
+              commit("SET_VIEW_DATA", {
+                viewportId,
+                key: "changedPageIndex",
+                value: viewData.changedPageIndex - 1,
+              });
+
+            }
+          }
+          if(!state.isload){
+            dispatch("updateSliceForView", {
+              viewInfo:viewData,
+              index: viewData.changedPageIndex,
+            });
+
+          }
+          }
+
+        })
+
+        toolGroup.addViewport(viewportId, renderingEngineId);
 
       })
+    },
 
+    initializeToolGroup({state},toolGroupId){
+      const preToolGroup =  ToolGroupManager.getToolGroup(toolGroupId);
+      console.log("preToolGroup",preToolGroup);
 
+      if (preToolGroup) {
+        return preToolGroup;
+      }
 
+      const toolGroup =  ToolGroupManager.createToolGroup(toolGroupId);
+
+      toolGroup.addTool(ZoomTool.toolName)
+      toolGroup.addTool(CobbAngleTool.toolName)
+      toolGroup.addTool(PanTool.toolName);
+      toolGroup.addTool(DragProbeTool.toolName)
+
+      toolGroup.addTool(SplineROITool.toolName,{
+        getTextLines:()=>{},
+
+       });
+      toolGroup.addTool(LengthTool.toolName)
+
+      toolGroup.addTool(PointInfoTool.toolName,{
+        getTextLines:(data, targetId)=>{
+          const {pointLabel} = data
+          const textLines = [];
+          textLines.push(pointLabel)
+          return textLines;
+        }
+      })
+      toolGroup.addTool(CircularMagnifyTool.toolName)
+
+      toolGroup.setToolEnabled(SplineROITool.toolName);
+      toolGroup.setToolEnabled(CobbAngleTool.toolName);
+      toolGroup.setToolEnabled(PointInfoTool.toolName);
+      // toolGroup.setToolEnabled(LengthTool.toolName);
+      // toolGroup.setToolActive(ZoomTool.toolName, {
+      //     bindings: [
+      //           {
+      //             mouseButton: MouseBindings.Primary,
+      //           },
+      //         ],
+      //   });
+      return toolGroup;
     },
 
 
     async InitAllSlice({dispatch,state,rootState,commit},seriesInfo){
       commit("SET_SERIES_INFO",seriesInfo)
+      const operatequery = await xhr_queryOperate({ computeSeriesId:seriesInfo.computeSeriesId});
+      const nodulequery = await xhr_queryNodule({ computeSeriesId:seriesInfo.computeSeriesId});
+
+      if (nodulequery.serviceSuccess && operatequery) {
+        commit("SET_NODULE_INFO",nodulequery.data.resultData)
+      }
       const modules = ["noduleInfoStore", "fracInfoStore", "pneumoniaInfoStore"];
       // await Promise.all(modules.map(module => dispatch(module + "/InitModuleState", seriesInfo, { root: true })))
 
@@ -356,16 +522,20 @@ export default {
         key: "dimension",
         value: seriesInfo.axialCount,
       });
-      // const dimensions = [seriesInfo.sagittalCount, seriesInfo.coronalCount, seriesInfo.axialCount]
-      // const ijk = dimensions.map(item => Math.round(item / 2) + 1)
 
       const updateSlices = async () => {
         const viewportEntries = Object.values(state.ViewPortData);
 
         await Promise.all(
           viewportEntries.map(async (viewInfo) => {
-            const sliceIndex = Math.round(viewInfo.dimension / 2) + 1;
+            const {dimension,viewportId} = viewInfo
+            const sliceIndex = Math.round(dimension / 2) + 1;
             console.log("sliceIndex", sliceIndex);
+            commit("SET_VIEW_DATA", {
+              viewportId,
+              key: "changedPageIndex",
+              value: sliceIndex,
+            });
 
             const file = await dispatch("GetDicomFile", {
               viewInfo,
@@ -385,20 +555,41 @@ export default {
 
 
     },
-    async UpdateIJK({dispatch, getters, commit}, ijk) {
-      console.log( "ijk",ijk);
+    async UpdateIJK({state,dispatch, getters, commit}, ijk) {
+      [VIEW_INFO.SAGITTAL, VIEW_INFO.CORONAL, VIEW_INFO.AXIAL].map(async (viewInfo, index) => {
+        const sliceIndex = ijk[index];
+        if(sliceIndex && sliceIndex !== ''){
+          commit("SET_VIEW_DATA", {
+            viewportId:viewInfo.viewportId,
+            key: "changedPageIndex",
+            value: sliceIndex,
+          });
+        }
 
+      })
+
+      if (state.isIjkLoad)  return;
+
+      commit("UPDATE_IJKLOAD_STATUS",true)
+
+      // [VIEW_INFO.SAGITTAL, VIEW_INFO.CORONAL, VIEW_INFO.AXIAL]
+
+      const {ViewPortData  } =  state
+      const viewportEntries = Object.values(ViewPortData);
       await Promise.all(
-        [VIEW_INFO.SAGITTAL, VIEW_INFO.CORONAL, VIEW_INFO.AXIAL].map(async (viewInfo, index) => {
-          const sliceIndex = ijk[index];
+        viewportEntries.map(async (viewInfo, index) => {
+          const sliceIndex = ijk[viewInfo.ijkId];
           return dispatch("updateSliceForView",{ viewInfo ,  index:sliceIndex })
 
         })
       );
+
+      commit("UPDATE_IJKLOAD_STATUS",false)
+
       // await dispatch("resetView");
     },
     async updateSliceForView({dispatch,commit,state}, { viewInfo , index }) {
-      if(index == '') return;
+      if(index == ''  ) return;
       commit("UPDATE_LOAD_STATUS",true)
 
       const file = await dispatch("GetDicomFile", {viewInfo, index});
@@ -406,7 +597,6 @@ export default {
         commit("UPDATE_LOAD_STATUS", false);
         await dispatch("UpdateSlice", {viewInfo, file});
         commit("SET_VIEW_DATA", {viewportId:viewInfo.viewportId, key: "pageIndex", value: index});
-
       }
       const {renderingEngineId} = state;
       const renderingEngine = getRenderingEngine(renderingEngineId);
@@ -418,9 +608,7 @@ export default {
     },
 
     async GetDicomFile({ dispatch, state, commit }, { viewInfo, index }) {
-      // console.log(viewInfo,index);
       commit("SET_VIEW_DATA", { viewportId:viewInfo.viewportId, key: "gotoPageIndex", value: index });
-
       try {
         const res = await xhr_getSlice({
           seriesId: state.seriesInfo.seriesId,
@@ -430,7 +618,6 @@ export default {
 
         if (res) {
           const file = new File([res.data], "image.dcm" );
-          // dispatch("UpdateSlice",{viewInfo,file})
           return file
         } else {
           console.error("Request failed: No data returned");
@@ -442,62 +629,113 @@ export default {
       }
     },
 
-
     async UpdateSlice(
       {commit, dispatch, state,rootState},
       {viewInfo,file},
     ) {
-      // console.log("UpdateSlice");
-
       const imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(file);
-
-
+      const {viewportId} =viewInfo
       const imageIds = [imageId];
       const {renderingEngineId} = state;
       const renderingEngine = getRenderingEngine(renderingEngineId);
       const viewport = renderingEngine.getViewport(
-        viewInfo.viewportId
+         viewportId
       )
 
       // await viewport.setStack(imageIds);
       const preImageIds = viewport.getImageIds()
-      // console.log(preImageIds.length>0);
+      console.log("preImageIds",preImageIds);
 
 
-      if(viewport.getImageIds()?.length > 0 ){
-        // console.log("更新");
-        const image =await  cornerstone.imageLoader.loadImage(imageId)
+      viewport.imageIds = imageIds
+      const image =await  cornerstone.imageLoader.loadImage(imageId)
+      viewport.renderImageObject(image)
+      if( preImageIds?.length == 0) {
+        const WW = 1500
+        const WC = -500
 
-        // console.log(viewport);
-
-        const presentation = viewport.getViewPresentation()
-        // console.log(presentation);
-
-        // renderingEngine.resize(true, false);
-        viewport.renderImageObject(image)
-        // viewport.setViewPresentation(presentation);
-
-
-
-
-
-      }else{
-        // console.log("初始化");
-        // const image =await  cornerstone.imageLoader.loadImage(imageId)
-        // viewport.renderImageObject(image)
-        await viewport.setStack(imageIds);
-         const WW = 1500
-         const WC = -500
-
-        viewport. setProperties({ voiRange: { upper: WC + WW / 2, lower: WC - WW / 2 } });
-
-
+       viewport. setProperties({ voiRange: { upper: WC + WW / 2, lower: WC - WW / 2 } });
       }
-      const {pixelSpacing,sliceThickness,frameOfReferenceUID,rows,columns,sliceLocation,imagePositionPatient } = metaData.get(MetadataModules.IMAGE_PLANE, imageId);
 
+
+      commit("SET_VIEW_DATA", { viewportId , key: "imageId", value: imageId });
+
+      dispatch("UpdateSliceNodule",{viewInfo,imageId})
+
+      cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
+        viewportId
+      ]);
+      viewport.render()
+
+
+      const {pixelSpacing,sliceThickness,frameOfReferenceUID,rows,columns,sliceLocation,imagePositionPatient } = metaData.get(MetadataModules.IMAGE_PLANE, imageId);
+      metaData.addProvider((type)=>{
+        if (type === MetadataModules.IMAGE_PLANE    ) {
+          const imageOrientationPatient = [1, 0, 0, 0, 1, 0 ];
+          const imagePositionPatient = [0,0,0];
+          let columnPixelSpacing = null;
+          let rowPixelSpacing = null;
+          if (pixelSpacing) {
+              rowPixelSpacing = pixelSpacing[0];
+              columnPixelSpacing = pixelSpacing[1];
+          }
+          let rowCosines = null;
+          let columnCosines = null;
+          if (imageOrientationPatient) {
+              rowCosines = [
+                  parseFloat(imageOrientationPatient[0]),
+                  parseFloat(imageOrientationPatient[1]),
+                  parseFloat(imageOrientationPatient[2]),
+              ];
+              columnCosines = [
+                  parseFloat(imageOrientationPatient[3]),
+                  parseFloat(imageOrientationPatient[4]),
+                  parseFloat(imageOrientationPatient[5]),
+              ];
+          }
+          return {
+              frameOfReferenceUID,
+              rows,
+              columns ,
+              imageOrientationPatient,
+              rowCosines,
+              columnCosines,
+              imagePositionPatient,
+              sliceThickness,
+              sliceLocation ,
+              pixelSpacing,
+              rowPixelSpacing,
+              columnPixelSpacing,
+          };
+
+        }
+      })
       // console.log(pixelSpacing,sliceThickness,frameOfReferenceUID,rows,columns,sliceLocation,imagePositionPatient);
 
+    },
+    async UpdateSliceNodule({state,dispatch},{viewInfo,imageId}){
+      console.log("触发了UpdateSliceNodule",imageId,viewInfo);
 
+      state.noduleInfo.noduleLesionList?.forEach((nodule)=>{
+        const points = nodule.points
+        const {viewportId, pageIndex} =  viewInfo
+        const {pointsList,bounds} = viewInfo.getImagePoint(points)
+        if(pageIndex > bounds[0] && pageIndex < bounds[1]){
+          console.log("show ano");
+
+          const worldPoints = pointsList.map(point=>utilities.imageToWorldCoords(imageId,point))
+          console.log("worldPoints",worldPoints);
+          const annotationUID =   utilities.uuidv4()
+          const options = {annotationUID,type:'nodule',viewportId,pageIndex:pageIndex}
+          dispatch("customDrawSpline", { viewInfo,points:worldPoints,options } );
+
+          const styles = {
+            color: 'rgb(0, 0, 255)'
+          };
+          annotation.config.style.setAnnotationStyles( annotationUID, styles);
+        }
+
+      })
     },
 
     async resetView({state,dispatch}){
@@ -560,8 +798,6 @@ export default {
           }
         });})
 
-
-
     },
 
     /**
@@ -580,6 +816,7 @@ export default {
          const timer = setInterval(() => {
           let newIndex =
             (viewData.changedPageIndex % viewData.dimension) + 1;
+          console.log(viewData.changedPageIndex,viewData.dimension);
 
           if (viewData.changedPageIndex === viewData.dimension) {
             newIndex = 1;
@@ -633,6 +870,64 @@ export default {
       }
     },
 
+    customDrawSpline({state},{viewInfo,points,options}){
+       const { renderingEngineId  } =  state
+       const {imageId,viewportId } = viewInfo
+
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
+      const FrameOfReferenceUID = viewport.getFrameOfReferenceUID();
+      const { viewPlaneNormal, viewUp } = viewport.getCamera();
+      const instance = new SplineROITool();
+      const referencedImageId = imageId
+
+      const splineType = SplineROITool.SplineTypes.Linear;
+      const splineConfig = instance._getSplineConfig(splineType);
+      const SplineClass = splineConfig.Class;
+      const splineInstance = new SplineClass();
+      const canvasPoints = points.map((point) => viewport.worldToCanvas(point));
+      splineInstance.setControlPoints(canvasPoints);
+      const splinePolylineCanvas = splineInstance.getPolylinePoints();
+      const splinePolylineWorld = splinePolylineCanvas.map((point) => viewport.canvasToWorld(point));
+      const newannotation = {
+          annotationUID:  options?.annotationUID || utilities.uuidv4(),
+          data: {
+              handles: {
+                  activeHandleIndex:null,
+                  points,
+                  textBox:{
+
+                  }
+              },
+              label: '',
+              cachedStats: {},
+              spline: {
+                  type: splineType,
+                  instance: splineInstance,
+              },
+              contour: {
+                  closed: false,
+                  polyline: splinePolylineWorld,
+              },
+          },
+          highlighted: false,
+          autoGenerated: false,
+          // invalidated: false,
+          isLocked: false,
+          isVisible: true,
+          metadata: {
+              toolName: SplineROITool.toolName,
+              viewPlaneNormal,
+              FrameOfReferenceUID,
+              referencedImageId,
+              ...options
+          },
+      };
+      annotation.state.addAnnotation(newannotation,viewport.element)
+
+    },
 
     beforeViewDestory({state,commit,dispatch}){
       dispatch("clearAllAutoplay")

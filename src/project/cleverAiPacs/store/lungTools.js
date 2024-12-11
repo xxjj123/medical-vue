@@ -15,12 +15,6 @@ import mutations from '@common/store/mutations';
 
 
 
-
-
-
-
-
-
 import "@kitware/vtk.js/Rendering/Profiles/All";
 import {
   readDicomTags,
@@ -70,62 +64,130 @@ const VIEWDATA_NAMES = ["SagittalData", "CoronalData", "AxialData"];
 export default {
   namespaced: true,
   actions: {
-    UpdateColorWindow({state, commit,rootState,dispatch}, value) {
-      const { mprViewStore } = rootState;
-      const v_state =  rootState[mprViewStore.activeModule];
+    UpdateWindowCenter({state, commit,rootState,dispatch}) {
+      const value = 500
 
-      v_state.viewMprViews.forEach((view, objindex) => {
-        if(view){
+      console.log("UpdateWindowCenter",value);
 
-          view.sliceActor.getProperty().setColorWindow(value);
-          dispatch("mprViewStore/freshView",view.viewIndex,{root:true})
-        }
+      const {lungViewStore} = rootState
+      const {ViewPortData,renderingEngineId,allViewData } =  lungViewStore
+      console.log("allViewData",allViewData);
 
-      });
-      dispatch("mprViewStore/SetAllViewData", {
-        key: "colorWindow",
-        value: value,
-      },{root:true});
+      const {windowCenter,windowWidth} =  allViewData
+      const viewportEntries = Object.values(ViewPortData);
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+
+      const WC =  value
+      const WW = windowWidth
+      viewportEntries.map((viewInfo) =>{
+        const viewport = renderingEngine.getViewport(
+          viewInfo.viewportId
+        )
+        viewport.setProperties({ voiRange: { upper: WC + WW / 2, lower: WC - WW / 2 } });
+        // commit("UPDATE_WINDOW_CENTER",value);
+        dispatch("lungViewStore/SetAllViewData", {
+          key: "colorLevel",
+          value: value,
+        },{root:true});
+
+
+
+      viewport.render();
+      })
+
+
     },
 
-    UpdateColorLevel({state, commit,rootState,dispatch}, value) {
-      const { mprViewStore } = rootState;
-      const v_state =  rootState[mprViewStore.activeModule];
-      v_state.viewMprViews.forEach((view, objindex) => {
-        if(view ){
+    UpdateWindowWidth({state, commit,rootState,dispatch}) {
+      // const value = 500
+      // console.log("UpdateWindowWidth",value);
 
-          view.sliceActor.getProperty().setColorLevel(value);
-          dispatch("mprViewStore/freshView",view.viewIndex,{root:true})
+      // const {spineViewStore} = rootState
+      // const {viewportId,renderingEngineId,imageId} =  spineViewStore.view
+      // const {windowCenter,windowWidth} = spineViewStore.allViewData
 
-        }
+      // const renderingEngine = getRenderingEngine(renderingEngineId);
+      // const viewport = renderingEngine.getViewport(
+      //   viewportId
+      // )
 
-      });
-      dispatch("mprViewStore/SetAllViewData", {
-        key: "colorLevel",
-        value: value,
-      },{root:true});
+
+      //   const WC =  windowCenter
+      //   const WW = value
+
+      //   viewport.setProperties({ voiRange: { upper: WC + WW / 2, lower: WC - WW / 2 } });
+      //   // commit("UPDATE_WINDOW_WIDTH",value);
+      //   dispatch("lungViewStore/SetAllViewData", {
+      //     key: "colorWindow",
+      //     value: value,
+      //   },{root:true});
+
+
+      // viewport.render();
+
     },
-    /**
-     * 滚动条选择
-     * @param {number} viewIndex -  操作页面索引
-     * @param {number} pageIndex - 切换页面索引
+    addCube({state,rootState,dispatch}){
+      console.log("addCube");
 
-     */
-    async ChangeSlider({dispatch}, {viewIndex, pageIndex}) {
-      const viewName = VIEWDATA_NAMES[viewIndex]
-      commit("SET_VIEW_DATA", {
-        viewIndex: viewIndex,
-        key: "changedPageIndex",
-        value: pageIndex,
-      });
-      dispatch("throttleUpdateSingleSlice", {viewName, viewIndex, pageIndex});
+      const points = "289,335,273,326,125,188"
+      const {lungViewStore} = rootState
+      const {ViewPortData,renderingEngineId,allViewData } =  lungViewStore
 
-      dispatch("UpdateDisplay", {
-        viewIndex: viewIndex,
-        changedPageIndex: pageIndex,
-      });
+      const {windowCenter,windowWidth} =  allViewData
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewportEntries = Object.values(ViewPortData);
+
+       viewportEntries.map((viewInfo)=>{
+          const {viewportId,imageId} =  viewInfo
+          const {pointsList,bounds} = viewInfo.getImagePoint(points)
+          console.log("pointsList",pointsList);
+
+
+          const worldPoints = pointsList.map(point=>utilities.imageToWorldCoords(imageId,point))
+          console.log("worldPoints",worldPoints);
+
+          const annotationUID =   utilities.uuidv4()
+
+          const options = {annotationUID,type:'nodule',viewportId,pageIndex:''}
+          dispatch("lungViewStore/customDrawSpline", { viewInfo,points:worldPoints,options },{root:true});
+
+          const styles = {
+            color: 'rgb(0, 0, 255)'
+          };
+          annotation.config.style.setAnnotationStyles( annotationUID, styles);
+
+          cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
+            viewportId
+          ]);
+          const viewport = renderingEngine.getViewport(
+            viewportId
+          )
+          viewport.render()
+
+      })
+
+
+
     },
+    getAnnotation({state,rootState}){
+      console.log("annotation",annotation );
+      const AnnotationManager = annotation.state.getAnnotationManager()
+      console.log("AnnotationManager",AnnotationManager );
+      const viewportId = 'STACK_AXIAL'
+      const {lungViewStore} = rootState
+      const {ViewPortData,renderingEngineId,allViewData } =  lungViewStore
+      const renderingEngine = getRenderingEngine(renderingEngineId);
 
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
+      console.log("getAnnotationManager",AnnotationManager.getGroupKey(viewport.element) );
+
+
+
+      console.log("allAnnotations",annotation.state.getAllAnnotations());
+
+    },
 
     /**
      * 自动播放
@@ -217,58 +279,9 @@ export default {
       dispatch("setupCamera", viewIndex);
     },
 
-    /**
-     * 切片旋转
-     * @param {number} viewIndex - 操作页面索引
-     */
-    RotateCamera({commit, dispatch, state, rootGetters}, viewIndex) {
-      const viewsData = rootGetters['mprViewStore/viewsData']
-      dispatch("mprViewStore/SetViewData", {
-        viewIndex,
-        key: "cameraRotate",
-        value: (viewsData[viewIndex].cameraRotate - 90) % 360,
-      },{
-        root: true,
-      },);
-      dispatch("setupCamera", viewIndex);
-      dispatch("resizeSliceViews");
-
-    },
     // 改变平移
     ChangePan({dispatch, state, commit,rootState }) {
-      const { mprViewStore } = rootState;
-      const v_state = mprViewStore;
-      if(v_state.allViewData.isPan){
-        v_state.viewMprViews.forEach((view, objindex) => {
-          const interactorStyle = vtkInteractorStyleImage.newInstance();
-          interactorStyle.setInteractionMode("IMAGE_PAN");
-          view.interactor.setInteractorStyle(interactorStyle);
 
-          view.interactor.onLeftButtonPress(()=>{
-            view.interactor.getInteractorStyle().endWindowLevel()
-          })
-          // 确保新的 InteractorStyle 被正确设置并激活
-
-          dispatch("setupCamera", view.viewIndex,);
-          view.renderWindow.render()
-        })
-        dispatch("mprViewStore/SetAllViewData",{
-            key: "isPan",
-            value: false,
-          },{root:true})
-
-
-      }else{
-        v_state.viewMprViews.forEach((view, objindex) => {
-          dispatch("mprViewStore/SetAllViewData",{
-            key: "isPan",
-            value: true,
-          },{root:true})
-
-        });
-      }
-
-      dispatch("resizeSliceViews")
 
     }
 ,

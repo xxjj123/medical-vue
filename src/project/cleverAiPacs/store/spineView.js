@@ -225,7 +225,7 @@ export default {
 
             await dispatch("UpdateSlice",{imageId})
 
- 
+
             const  resinfo = await  xhr_getSpineInfo({computeSeriesId})
             if(resinfo){
               const spineInfo = resinfo.data.resultData.data
@@ -601,6 +601,8 @@ export default {
 
     },
     async addLine({state,dispatch},{linePoints,options}){
+      console.log("linePoints",linePoints);
+
       const {imageId,viewportId} = state.view
       const worldPoints = linePoints.map(point=>utilities.imageToWorldCoords(imageId,point))
       // LengthTool.hydrate(viewportId,worldPoints);
@@ -720,15 +722,7 @@ export default {
 
       console.log(cornerstoneTools.Types);
 
-      // console.log(getSvgDrawingHelper);
 
-      // drawTextBox(
-      //   SVGDrawingHelper,
-      //   annotationUID,
-      //   textUID,
-      //   ['CT5'],
-      //   [textCanvasCoordinates[0], textCanvasCoordinates[1]]
-      // );
     },
 
     customDrawSpline({state},{points,options}){

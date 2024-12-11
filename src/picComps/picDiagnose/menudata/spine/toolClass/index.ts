@@ -124,6 +124,7 @@ class CircularMagnifyTool extends  MagnifyTool {
 import {
   VolumeViewport,
 } from '@cornerstonejs/core';
+
 const {drawHandles ,drawHandle,drawTextBox ,drawLinkedTextBox} = cornerstoneTools.drawing;
 
 class PointInfoTool extends  ProbeTool {
@@ -146,11 +147,15 @@ class PointInfoTool extends  ProbeTool {
     if (!annotations?.length) {
       return renderStatus;
     }
+    console.log("before",annotations);
+    console.log("annotations");
+
 
     annotations = this.filterInteractableAnnotationsForElement(
       element,
       annotations
     );
+    console.log("after",annotations);
 
     if (!annotations?.length) {
       return renderStatus;

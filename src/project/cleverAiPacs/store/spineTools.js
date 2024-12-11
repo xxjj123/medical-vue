@@ -34,7 +34,7 @@ export default {
       state.toolsState['window'].windowWidth = value
     },
     UPDATE_WINDOW_CENTER(state,value){
-      state.toolsState['window'].windowCenter = value 
+      state.toolsState['window'].windowCenter = value
     },
 
     // RESET_TOOL_STATE(state){
