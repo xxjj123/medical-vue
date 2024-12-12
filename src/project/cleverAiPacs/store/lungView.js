@@ -12,30 +12,21 @@ const {Events} = cornerstoneTools.Enums
 const { MouseBindings } = cornerstoneTools.Enums;
 import cornerstoneDICOMImageLoader from '@cornerstonejs/dicom-image-loader';
 const {annotation,ToolGroupManager, LengthTool,PanTool,ZoomTool,DragProbeTool,SplineROITool, RectangleROITool ,CobbAngleTool} = cornerstoneTools;
-const { transformWorldToIndex } = utilities;
-
+const { transformWorldToIndex,imageToWorldCoords,transformIndexToWorld } = utilities;
+console.log("utilities",utilities);
 
 cornerstone.init();
-cornerstoneDICOMImageLoader.init();
 cornerstoneTools.init();
 
+cornerstoneDICOMImageLoader.init();
 cornerstone.imageLoader.registerImageLoader('wadouri', cornerstoneDICOMImageLoader.wadouri.loadImage);
-// import cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
-
-// cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-// cornerstoneWADOImageLoader.configure({
-//   useWebWorkers: true,  // 启用 Web Worker 来提升性能
-// });
 
 
 import {CircularMagnifyTool,PointInfoTool} from "@/picComps/picDiagnose/menudata/spine/toolClass"
 
 import {ViewData,AllViewData, ViewRenderer} from './data';
-
 import {xhr_getSlice,xhr_getDcmSlice,xhr_queryNodule,xhr_queryOperate} from "@/api";
-
 import { gdcmReadImage} from "@itk-wasm/image-io"
-
 
 cornerstoneTools.addTool(SplineROITool)
 
@@ -337,48 +328,56 @@ export default {
         const {viewportId,getTrueIjk} = viewInfo
         const viewport = renderingEngine.getViewport(viewportId)
         const element = viewport.element
-        const image = viewport?.getImageData()
+
+        const toolGroup = ToolGroupManager.getToolGroup(toolGroupId);
 
         element.addEventListener( Events.MOUSE_CLICK, (event)=>{
           const image = viewport?.getImageData()
           // console.log("isInteractingWithTool",cornerstoneTools.state.isInteractingWithTool);
           // console.log("isMultiPartToolActive",cornerstoneTools.state.isMultiPartToolActive);
+           const activeToolName =  toolGroup.getCurrentActivePrimaryToolName()
 
-          if(!cornerstoneTools.state.isInteractingWithTool){
+          if(!activeToolName){
             if(image ){
               //     const toolGroup =  ToolGroupManager.getToolGroup(toolGroupId);
               // console.log("toolGroup",toolGroup);
               // console.log("cornerstoneTools",cornerstoneTools.state.isInteractingWithTool);
 
-                  const {voxelManager,imageData} = image
+              const {voxelManager,imageData} = image
 
-                  const worldPos = event.detail.currentPoints.world
-                  let ijk = transformWorldToIndex(imageData,worldPos);
-                  const trueijk = getTrueIjk(ijk);
+              const worldPos = event.detail.currentPoints.world
+              let ijk = transformWorldToIndex(imageData,worldPos);
+              const trueijk = getTrueIjk(ijk);
+              console.log("trueijk",event.detail.currentPoints,ijk);
 
-                   dispatch("UpdateIJK",trueijk)
 
-                  }
+                dispatch("UpdateIJK",trueijk)
+
+              }
           }
 
 
         })
         element.addEventListener( Events.MOUSE_DRAG, (event)=>{
           const image = viewport?.getImageData()
-          if(image){
-            const {voxelManager,imageData} = image
+          const activeToolName =  toolGroup.getCurrentActivePrimaryToolName()
 
-            const worldPos = event.detail.currentPoints.world
-            let ijk = transformWorldToIndex(imageData,worldPos);
-            const trueijk = getTrueIjk(ijk);
+          if(!activeToolName){
+            if(image){
+              const {voxelManager,imageData} = image
 
-            dispatch("UpdateIJK",trueijk)
+              const worldPos = event.detail.currentPoints.world
+              let ijk = transformWorldToIndex(imageData,worldPos);
+              const trueijk = getTrueIjk(ijk);
+
+              dispatch("UpdateIJK",trueijk)
+            }
           }
 
         })
 
-
-
+        console.log("Events",Events);
+ 
         element.addEventListener( Events.MOUSE_WHEEL, (event)=>{
           const image = viewport?.getImageData()
           if(image){
@@ -483,7 +482,7 @@ export default {
       toolGroup.setToolEnabled(CobbAngleTool.toolName);
       toolGroup.setToolEnabled(PointInfoTool.toolName);
       // toolGroup.setToolEnabled(LengthTool.toolName);
-      // toolGroup.setToolActive(ZoomTool.toolName, {
+      // toolGroup.setToolActive(LengthTool.toolName, {
       //     bindings: [
       //           {
       //             mouseButton: MouseBindings.Primary,
@@ -674,61 +673,73 @@ export default {
 
 
 
-      const {pixelSpacing,sliceThickness,frameOfReferenceUID,rows,columns,sliceLocation,imagePositionPatient } = metaData.get(MetadataModules.IMAGE_PLANE, imageId);
-      metaData.addProvider((type)=>{
-        if (type === MetadataModules.IMAGE_PLANE    ) {
-          const imageOrientationPatient = [1, 0, 0, 0, 1, 0 ];
-          const imagePositionPatient = [0,0,0];
-          let columnPixelSpacing = null;
-          let rowPixelSpacing = null;
-          if (pixelSpacing) {
-              rowPixelSpacing = pixelSpacing[0];
-              columnPixelSpacing = pixelSpacing[1];
-          }
-          let rowCosines = null;
-          let columnCosines = null;
-          if (imageOrientationPatient) {
-              rowCosines = [
-                  parseFloat(imageOrientationPatient[0]),
-                  parseFloat(imageOrientationPatient[1]),
-                  parseFloat(imageOrientationPatient[2]),
-              ];
-              columnCosines = [
-                  parseFloat(imageOrientationPatient[3]),
-                  parseFloat(imageOrientationPatient[4]),
-                  parseFloat(imageOrientationPatient[5]),
-              ];
-          }
-          return {
-              frameOfReferenceUID,
-              rows,
-              columns ,
-              imageOrientationPatient,
-              rowCosines,
-              columnCosines,
-              imagePositionPatient,
-              sliceThickness,
-              sliceLocation ,
-              pixelSpacing,
-              rowPixelSpacing,
-              columnPixelSpacing,
-          };
+      const {pixelSpacing,sliceThickness,frameOfReferenceUID,rows,columns,sliceLocation, imagePositionPatient } = metaData.get(MetadataModules.IMAGE_PLANE, imageId);
 
-        }
-      })
+      // metaData.addProvider((type)=>{
+      //   if (type === MetadataModules.IMAGE_PLANE    ) {
+      //     const imageOrientationPatient = [1, 0, 0, 0, 1, 0 ];
+      //     const imagePositionPatient = [0,0,0];
+      //     let columnPixelSpacing = null;
+      //     let rowPixelSpacing = null;
+      //     if (pixelSpacing) {
+      //         rowPixelSpacing = pixelSpacing[0];
+      //         columnPixelSpacing = pixelSpacing[1];
+      //     }
+      //     let rowCosines = null;
+      //     let columnCosines = null;
+      //     if (imageOrientationPatient) {
+      //         rowCosines = [
+      //             parseFloat(imageOrientationPatient[0]),
+      //             parseFloat(imageOrientationPatient[1]),
+      //             parseFloat(imageOrientationPatient[2]),
+      //         ];
+      //         columnCosines = [
+      //             parseFloat(imageOrientationPatient[3]),
+      //             parseFloat(imageOrientationPatient[4]),
+      //             parseFloat(imageOrientationPatient[5]),
+      //         ];
+      //     }
+      //     return {
+      //         frameOfReferenceUID,
+      //         rows,
+      //         columns ,
+      //         imageOrientationPatient,
+      //         rowCosines,
+      //         columnCosines,
+      //         imagePositionPatient,
+      //         sliceThickness,
+      //         sliceLocation ,
+      //         pixelSpacing:[1,1],
+      //         rowPixelSpacing,
+      //         columnPixelSpacing,
+      //     };
+
+      //   }
+      // })
       return imageId
       // console.log(pixelSpacing,sliceThickness,frameOfReferenceUID,rows,columns,sliceLocation,imagePositionPatient);
 
     },
     async UpdateSliceNodule({state,dispatch},{viewInfo,imageId}){
+      const {viewportId, pageIndex} =  viewInfo
+
+      const { renderingEngineId,toolGroupId} = state
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewInfo.viewportId
+      )
+      const image = viewport?.getImageData()
+      const {voxelManager,imageData} = image
 
       state.noduleInfo.noduleLesionList?.forEach((nodule)=>{
         const points = nodule.points
-        const {viewportId, pageIndex} =  viewInfo
         const {pointsList,bounds} = viewInfo.getImagePoint(points)
+
         if(pageIndex > bounds[0] && pageIndex < bounds[1]){
 
-          const worldPoints = pointsList.map(point=>utilities.imageToWorldCoords(imageId,point))
+          const worldPoints = pointsList.map((point,index)=>{
+            return imageData.indexToWorld([...point,0]);
+          })
           const annotationUID =   utilities.uuidv4()
           const options = {annotationUID,type:'nodule',viewportId,pageIndex:pageIndex,id:nodule.id}
           dispatch("customDrawSpline", { viewInfo,points:worldPoints,options } );
@@ -739,6 +750,9 @@ export default {
         }
 
       })
+
+
+
     },
 
     async resetView({state,dispatch}){
