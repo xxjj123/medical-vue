@@ -1,3 +1,6 @@
+import { RenderingEngine ,Enums,utilities,metaData,  getRenderingEngine} from '@cornerstonejs/core';
+
+
 import "@kitware/vtk.js/Rendering/Profiles/All";
 import {
   readDicomTags,
@@ -24,6 +27,84 @@ import {xhr_queryPneumonia,xhr_updatePneuCheckStatus} from "@/api";
 const coordinate = vtkCoordinate.newInstance();
 
 import { gdcmReadImage} from "@itk-wasm/image-io"
+
+
+const VIEW_INFO = {
+  AXIAL: {
+    viewportId: 'STACK_AXIAL',
+    viewName: 'axial',
+    ijkId:2,
+    getTrueIjk: (ijk) => [ijk[0], ijk[1], ""],
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+
+      const pointsList = [
+        [xmin, ymin],
+        [xmax, ymin],
+        [xmax, ymax],
+        [xmin, ymax],
+        [xmin, ymin]
+      ];
+      const bounds = [zmin,zmax]
+      return {pointsList,bounds}
+    },
+
+    autoPlay:{
+      state:false,
+      timerId: null,
+      animationId: null,
+    }
+  },
+  CORONAL: {
+    viewportId: 'STACK_CORONAL',
+    viewName: 'coronal',
+    ijkId:1,
+    getTrueIjk: (ijk) => [ijk[0], "", ijk[1]] ,
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+      const pointsList = [
+        [xmin, zmin],
+        [xmax, zmin],
+        [xmax, zmax],
+        [xmin, zmax],
+        [xmin, zmin]
+      ];
+      const bounds = [ymin,ymax]
+      return {pointsList,bounds}
+    },
+    autoPlay:{
+      state:false,
+      timerId: null,
+      animationId: null,
+    }
+  },
+  SAGITTAL: {
+    viewportId: 'STACK_SAGITTAL',
+    viewName: 'sagittal',
+    ijkId:0,
+    getTrueIjk: (ijk) =>  ["", ijk[0], ijk[1]],
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+      const pointsList = [
+        [ymin, zmin],
+        [ymax, zmin],
+        [ymax, zmax],
+        [ymin, zmax],
+        [ymin, zmin]
+    ];
+      const bounds = [xmin,xmax]
+      return {pointsList,bounds}
+    },
+
+    autoPlay:{
+      state:false,
+      timerId: null,
+      animationId: null,
+    }
+  },
+};
+
+
 
 const VIEW_TYPES = {
   CORONAL: 1,
@@ -56,12 +137,30 @@ const BBOX_LINEWIDTH = {
 export default {
   namespaced: true,
   state: {
-    isload:false,
+    ViewPortData:{
+      [VIEW_INFO.AXIAL.viewportId]:{
+        ...VIEW_INFO.AXIAL,
+        prePresentation:null,
+        preImage:null,
+        ...new ViewData()},
+      [VIEW_INFO.SAGITTAL.viewportId]:{
+        ...VIEW_INFO.SAGITTAL,
+        prePresentation:null,
+        preImage:null,
+        ...new ViewData()},
+      [VIEW_INFO.CORONAL.viewportId]:{
+        ...VIEW_INFO.CORONAL,
+        prePresentation:null,
+        preImage:null,
+        ...new ViewData()}
+    },
+    allViewData: new AllViewData(),
+
+
+
+
+
     // 选中行study信息，用于提取tags相关信息用
-    studies_selected: {},
-
-    series_map_dicom: {},
-
     viewMprViews: Array.from({length: 3}, () => (new ViewRenderer)),
 
     CoronalData: new ViewData,
@@ -101,6 +200,26 @@ export default {
 
   },
   mutations: {
+    SAVE_MODULE(state,lungViewStore){
+      const {ViewPortData,renderingEngineId,allViewData } =  lungViewStore
+      Object.assign(state.allViewData,allViewData)
+      Object.assign(state.ViewPortData,ViewPortData)
+
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+
+      const viewportEntries = Object.values(ViewPortData);
+
+      viewportEntries.map((viewInfo) =>{
+        const viewport = renderingEngine.getViewport(
+          viewInfo.viewportId
+        )
+        const presentation = viewport.getViewPresentation()
+        state.ViewPortData[viewInfo.viewportId].prePresentation  = presentation
+        state.ViewPortData[viewInfo.viewportId].preImage = viewInfo.imageId
+
+      })
+
+    },
     SET_PNEUMONIA_INFO(state, pneumoniaInfo) {
       state.pneumoniaInfo = pneumoniaInfo;
       // state.pneumoniaInfo.focalDetailList = []
@@ -185,6 +304,29 @@ export default {
 
   },
   actions: {
+    async saveModule({commit,rootState}){
+      const {lungViewStore} = rootState
+      commit("SAVE_MODULE",lungViewStore)
+
+    },
+    async InitModule({state,commit,rootState,dispatch},seriesInfo){
+      const result = await xhr_queryPneumonia({ computeSeriesId:seriesInfo.computeSeriesId});
+
+      if (result.serviceSuccess) {
+        console.log(result.data.resultData)
+        commit("SET_PNEUMONIA_INFO",result.data.resultData)
+      }
+      const {lungViewStore} = rootState
+
+      commit("SAVE_MODULE",lungViewStore)
+      console.log("initPneumonia ok ");
+
+      // const {mprViewStore} = rootState
+      // commit("INIT_PNEUMONIA_ALL_VIEW_DATA")
+      // commit("INIT_PNEUMONIA_VIEW_DATA",seriesInfo)
+      // commit("INIT_PNEUMONIA_RENDER_VIEW",mprViewStore)
+
+    },
     async InitModuleState({state,commit,rootState,dispatch},seriesInfo){
       const result = await xhr_queryPneumonia({ computeSeriesId:seriesInfo.computeSeriesId});
 
@@ -199,6 +341,12 @@ export default {
       commit("INIT_PNEUMONIA_RENDER_VIEW",mprViewStore)
 
     },
+    async ActivePneumonia({dispatch,state,rootState,commit}){
+      console.log("肺炎");
+
+      await dispatch("lungViewStore/ActiveModule","pneumoniaStore",{root:true})
+
+   },
     async ActivePneumoniaState({dispatch,state,rootState,commit}){
       const {mprViewStore} = rootState
 
@@ -323,9 +471,7 @@ export default {
         view.renderer.addActor(actor); // 添加 actor 到渲染器
       });
 
-
       commit("SET_CONTOURS_LIST",{viewName:view.viewName,actorList})
-
 
       // 刷新视图
       dispatch("mprViewStore/freshView", view.viewIndex, { root: true });

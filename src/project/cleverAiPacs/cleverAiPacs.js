@@ -32,6 +32,11 @@ import noduleInfoStore from "./store/noduleInfo"
 import pneumoniaInfoStore from "./store/pneumoniaInfo"
 import fracInfoStore from "./store/fracInfo"
 
+import noduleStore from "./store/nodule"
+import pneumoniaStore from "./store/pneumonia"
+import fracStore from "./store/frac"
+
+
 import spineViewStore from "./store/spineView"
 import spineToolsStore from "./store/spineTools"
 
@@ -44,6 +49,11 @@ store.registerModule("mprToolsStore", mprToolsStore);
 store.registerModule("noduleInfoStore", noduleInfoStore);
 store.registerModule("pneumoniaInfoStore", pneumoniaInfoStore);
 store.registerModule("fracInfoStore", fracInfoStore);
+
+store.registerModule("noduleStore", noduleStore);
+store.registerModule("pneumoniaStore", pneumoniaStore);
+store.registerModule("fracStore", fracStore);
+
 store.registerModule("spineViewStore", spineViewStore);
 store.registerModule("spineToolsStore", spineToolsStore);
 

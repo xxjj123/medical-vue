@@ -1,8 +1,12 @@
 <template>
   <div class="   flex flex-row first:ml-25">
 
-    <ta-button @click="UpdateWindowCenter">改窗宽</ta-button>
-    <ta-button @click="addCube">加标注</ta-button>
+    <!-- <ta-button @click="UpdateWindowCenter">改窗宽</ta-button> -->
+    <ta-button @click="activeNodule">结节</ta-button>
+    <ta-button @click="activeFrac">骨折</ta-button>
+    <ta-button @click="activePenu">肺炎</ta-button>
+
+
     <ta-button @click="getAnnotation">读取注释</ta-button>
 
 
@@ -473,7 +477,7 @@ export default {
   },
 
   methods: {
-    ...mapActions("lungToolsStore", ["UpdateWindowCenter", "UpdateWindowWidth", "addCube", "getAnnotation"]),
+    ...mapActions("lungToolsStore", ["UpdateWindowCenter", "UpdateWindowWidth", "activeFrac", "activePenu", "activeNodule", "getAnnotation"]),
 
     ...mapMutations("toolBarStore", ["TOGGLE_BUTTON_ACTIVE_STATE", "INIT_BUTTON_ACTIVE_STATE", "INIT_BUTTON_SHOW_STATE"]),
     ...mapActions("toolBarStore", ["activeButtonState", "activeLayout", "UpdateColorWindow", "UpdateColorLevel"]),

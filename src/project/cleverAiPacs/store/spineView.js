@@ -414,6 +414,8 @@ export default {
 
       if (renderingEngine) {
         const presentation = viewport.getViewPresentation()
+        console.log("presentation");
+
         renderingEngine.resize(true, false);  //重置canvas
         viewport.setViewPresentation(presentation);
       }

@@ -90,8 +90,6 @@ export default {
           value: value,
         },{root:true});
 
-
-
       viewport.render();
       })
 
@@ -124,6 +122,18 @@ export default {
 
 
       // viewport.render();
+
+    },
+    activeNodule({dispatch}){
+      dispatch("noduleStore/ActiveNodule",null,{root:true})
+
+    },
+    activePenu({dispatch}){
+      dispatch("pneumoniaStore/ActivePneumonia",null,{root:true})
+
+    },
+    activeFrac({dispatch}){
+      dispatch("fracStore/ActiveFrac",null,{root:true})
 
     },
     addCube({state,rootState,dispatch}){

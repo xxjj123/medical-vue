@@ -14,6 +14,7 @@ import cornerstoneDICOMImageLoader from '@cornerstonejs/dicom-image-loader';
 const {annotation,ToolGroupManager, LengthTool,PanTool,ZoomTool,DragProbeTool,SplineROITool, RectangleROITool ,CobbAngleTool} = cornerstoneTools;
 const { transformWorldToIndex,imageToWorldCoords,transformIndexToWorld } = utilities;
 console.log("utilities",utilities);
+console.log("Events",Events);
 
 cornerstone.init();
 cornerstoneTools.init();
@@ -159,8 +160,9 @@ const getDefaultState = () => ({
       ...new ViewData()}
   },
   allViewData: new AllViewData(),
-  noduleInfo: {},
-  noduleLesionList:[],
+  activeModule: null,
+
+
 
 
   CoronalData: new ViewData(),
@@ -180,7 +182,6 @@ const getDefaultState = () => ({
     viewIndex: null,
     animationId: null,
   })),
-  activeModule: null,
   activedModules: [],
 
    selectedNoduleId: null,
@@ -203,6 +204,17 @@ export default {
   },
 
   mutations: {
+    SET_MODULE(state,{activeModule,moduleName}){
+      state.activeModule  = moduleName
+      const {ViewPortData,allViewData } =  activeModule
+
+      Object.assign(state.allViewData,allViewData)
+      Object.assign(state.ViewPortData,ViewPortData)
+
+
+
+    },
+
     SET_SERIES_INFO(state,seriesInfo){
         state.seriesInfo = seriesInfo
     },
@@ -216,8 +228,9 @@ export default {
     ADD_MODULE(state,module){
       state.activedModules.push(module);
     },
-    UPDATE_DIAGNOSE_STATE(state,{store,v_state}){
-      state.activeModule = store
+    UPDATE_DIAGNOSE_STATE(state,{stateName,v_state}){
+      state.activeModule = stateName
+      // state.
       state.allViewData.copyFrom(v_state.allViewData)
       state.CoronalData.copyFrom(v_state.CoronalData)
       state.SagittalData.copyFrom(v_state.SagittalData)
@@ -286,6 +299,65 @@ export default {
   actions: {
     SetAllViewData({commit},{ key,value }){
       commit("SET_ALL_VIEW_STATE",{ key,value })
+    },
+    async ActiveModule({dispatch, state, getters, commit,rootState,rootGetters},currentModuleState){
+      await dispatch("clearAllAutoplay" )
+
+      if(state.activeModule){
+        dispatch(state.activeModule+"/saveModule",null,{root:true})
+      }
+
+      const activeModule = rootState[currentModuleState]
+      commit("SET_MODULE",{activeModule,moduleName:currentModuleState})
+
+      const {renderingEngineId} = state
+      const {ViewPortData,allViewData } =  activeModule
+
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewportEntries = Object.values(ViewPortData);
+
+      viewportEntries.map((viewInfo) =>{
+        const {viewportId ,image} = viewInfo
+        const viewport = renderingEngine.getViewport(
+           viewportId
+        )
+        viewport.imageIds = [image.imageId]
+        viewport.renderImageObject(image)
+
+        const presentation = viewport.getViewPresentation()
+        renderingEngine.resize(true, false);  //重置canvas
+        viewport.setViewPresentation(presentation);
+        cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
+          viewportId
+        ]);
+        viewport.render()
+      })
+      // if(state.activeModule){
+      //   const activeButtons = rootGetters['toolBarStore/getAllButtonActiveStates']
+
+      //   console.log("activeButtons",activeButtons)
+      //   commit(state.activeModule+"/SET_STATE",state,{root:true})
+
+      // }
+      // const active_state = rootState[currentState]
+      // commit("UPDATE_DIAGNOSE_STATE",{stateName:currentState,v_state:active_state})
+
+
+      // state.viewMprViews.forEach((view,index)=>{
+      //   const renderWindow =  view.renderWindow
+      //    renderWindow.getRenderers().forEach(render=>{
+      //       renderWindow.removeRenderer(render)
+      //     })
+      //     renderWindow.addRenderer(active_state.viewMprViews[index].renderer)
+      // })
+      // const {SagittalData,CoronalData,AxialData,allViewData} = state
+      // dispatch("lungToolsStore/UpdateColorWindow",allViewData.colorWindow,{root:true})
+      // dispatch("lungToolsStore/UpdateColorLevel",allViewData.colorLevel,{root:true})
+
+      // dispatch("toolBarStore/initButtonState",{showButtons: allViewData.buttons ,activeButtons:allViewData.activeButtons} ,{root:true})
+
+      // commit("toolBarStore/SET_SLICE_CT_PIC_LAYOUT",allViewData.layOut,{root:true})
+
     },
     async InitViews({state,commit,dispatch},{axialElement, coronalElement, sagittalElement }){
       const {renderingEngineId,toolGroupId} = state;
@@ -376,8 +448,7 @@ export default {
 
         })
 
-        console.log("Events",Events);
- 
+
         element.addEventListener( Events.MOUSE_WHEEL, (event)=>{
           const image = viewport?.getImageData()
           if(image){
@@ -501,8 +572,6 @@ export default {
       if (nodulequery.serviceSuccess && operatequery) {
         commit("SET_NODULE_INFO",nodulequery.data.resultData)
       }
-      const modules = ["noduleInfoStore", "fracInfoStore", "pneumoniaInfoStore"];
-      // await Promise.all(modules.map(module => dispatch(module + "/InitModuleState", seriesInfo, { root: true })))
 
       commit("SET_VIEW_DATA", {
         viewportId: VIEW_INFO.SAGITTAL.viewportId,
@@ -522,7 +591,6 @@ export default {
 
       const updateSlices = async () => {
         const viewportEntries = Object.values(state.ViewPortData);
-
         const ijk = new Array(3);
 
         viewportEntries.map(  (viewInfo) => {
@@ -532,13 +600,17 @@ export default {
 
         })
         await dispatch("UpdateIJK",ijk)
-
         await dispatch("resetView");
       };
 
-      // 调用函数
       updateSlices();
+      const modules = ["noduleStore", "fracStore", "pneumoniaStore"];
+      const {noduleStore,fracStore,pneumoniaStore} = rootState
+      console.log("noduleStore,fracStore,pneumoniaStore",noduleStore,fracStore,pneumoniaStore);
 
+
+      // await Promise.all(modules.map(module => dispatch(module + "/InitModule", seriesInfo, { root: true })))
+      // dispatch("noduleStore/ActiveNodule",null,{root:true})
 
 
     },
@@ -552,11 +624,8 @@ export default {
             value: sliceIndex,
           });
         }
-
       })
-
       if (state.isIjkLoad)  return;
-
       commit("UPDATE_IJKLOAD_STATUS",true)
 
       // [VIEW_INFO.SAGITTAL, VIEW_INFO.CORONAL, VIEW_INFO.AXIAL]
@@ -572,10 +641,10 @@ export default {
       );
 
       commit("UPDATE_IJKLOAD_STATUS",false)
-
       // await dispatch("resetView");
     },
     async updateSliceForView({dispatch,commit,state}, { viewInfo , index }) {
+
       if(index == ''  ) return;
       commit("UPDATE_LOAD_STATUS",true)
 
@@ -585,18 +654,17 @@ export default {
         commit("UPDATE_LOAD_STATUS", false);
         const imageId = await dispatch("UpdateSlice", {viewInfo, file});
         commit("SET_VIEW_DATA", {viewportId, key: "pageIndex", value: index});
+
         const {renderingEngineId} = state;
         const renderingEngine = getRenderingEngine(renderingEngineId);
         const viewport = renderingEngine.getViewport(
           viewportId
         )
-
-        dispatch("UpdateSliceNodule",{viewInfo,imageId})
+        // dispatch("UpdateSliceNodule",{viewInfo,imageId})
 
         cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
           viewportId
         ]);
-
         viewport.render()
       }
 
@@ -666,58 +734,13 @@ export default {
 
       })
 
-
-
       commit("SET_VIEW_DATA", { viewportId , key: "imageId", value: imageId });
+      commit("SET_VIEW_DATA", { viewportId , key: "image", value: image });
 
 
+      // const {pixelSpacing,sliceThickness,frameOfReferenceUID,rows,columns,sliceLocation, imagePositionPatient } = metaData.get(MetadataModules.IMAGE_PLANE, imageId);
 
-
-      const {pixelSpacing,sliceThickness,frameOfReferenceUID,rows,columns,sliceLocation, imagePositionPatient } = metaData.get(MetadataModules.IMAGE_PLANE, imageId);
-
-      // metaData.addProvider((type)=>{
-      //   if (type === MetadataModules.IMAGE_PLANE    ) {
-      //     const imageOrientationPatient = [1, 0, 0, 0, 1, 0 ];
-      //     const imagePositionPatient = [0,0,0];
-      //     let columnPixelSpacing = null;
-      //     let rowPixelSpacing = null;
-      //     if (pixelSpacing) {
-      //         rowPixelSpacing = pixelSpacing[0];
-      //         columnPixelSpacing = pixelSpacing[1];
-      //     }
-      //     let rowCosines = null;
-      //     let columnCosines = null;
-      //     if (imageOrientationPatient) {
-      //         rowCosines = [
-      //             parseFloat(imageOrientationPatient[0]),
-      //             parseFloat(imageOrientationPatient[1]),
-      //             parseFloat(imageOrientationPatient[2]),
-      //         ];
-      //         columnCosines = [
-      //             parseFloat(imageOrientationPatient[3]),
-      //             parseFloat(imageOrientationPatient[4]),
-      //             parseFloat(imageOrientationPatient[5]),
-      //         ];
-      //     }
-      //     return {
-      //         frameOfReferenceUID,
-      //         rows,
-      //         columns ,
-      //         imageOrientationPatient,
-      //         rowCosines,
-      //         columnCosines,
-      //         imagePositionPatient,
-      //         sliceThickness,
-      //         sliceLocation ,
-      //         pixelSpacing:[1,1],
-      //         rowPixelSpacing,
-      //         columnPixelSpacing,
-      //     };
-
-      //   }
-      // })
       return imageId
-      // console.log(pixelSpacing,sliceThickness,frameOfReferenceUID,rows,columns,sliceLocation,imagePositionPatient);
 
     },
     async UpdateSliceNodule({state,dispatch},{viewInfo,imageId}){
@@ -750,8 +773,6 @@ export default {
         }
 
       })
-
-
 
     },
 
