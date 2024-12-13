@@ -22,7 +22,9 @@ export default {
     },
   },
   computed: {
-    ...mapState("fracInfoStore", ["fracInfo"]),
+    // ...mapState("fracInfoStore", ["fracInfo"]),
+    ...mapState("fracStore", ["fracInfo"]),
+
 
     menuResult: {
       get() {

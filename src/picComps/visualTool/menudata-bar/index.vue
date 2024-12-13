@@ -54,7 +54,7 @@ export default {
 
   data() {
     return {
-      defaultActiveKey: "1",
+      defaultActiveKey: "nodule",
       activeKey: "",
       menuTopTool: {
         collect: false,
@@ -101,18 +101,30 @@ export default {
     }
   },
   methods: {
-    ...mapActions("noduleInfoStore", ["ActiveNoduleState"]),
-    ...mapActions("pneumoniaInfoStore", ["ActivePneumoniaState"]),
-    ...mapActions("fracInfoStore", ["ActiveFracState"]),
+    // ...mapActions("noduleInfoStore", ["ActiveNoduleState"]),
+    // ...mapActions("pneumoniaInfoStore", ["ActivePneumoniaState"]),
+    // ...mapActions("fracInfoStore", ["ActiveFracState"]),
+
+    ...mapActions("noduleStore", ["ActiveNodule"]),
+    ...mapActions("pneumoniaStore", ["ActivePneumonia"]),
+    ...mapActions("fracStore", ["ActiveFrac"]),
 
     tab_callback(key) {
       console.log(key);
+      // if (key == "nodule") {
+      //   this.ActiveNoduleState()
+      // } else if (key == "pneumonia") {
+      //   this.ActivePneumoniaState()
+      // } else if (key = "calcium") {
+      //   this.ActiveFracState()
+
+      // }
       if (key == "nodule") {
-        this.ActiveNoduleState()
+        this.ActiveNodule()
       } else if (key == "pneumonia") {
-        this.ActivePneumoniaState()
+        this.ActivePneumonia()
       } else if (key = "calcium") {
-        this.ActiveFracState()
+        this.ActiveFrac()
 
       }
       this.activeKey = key;
@@ -123,6 +135,7 @@ export default {
       this.$emit("cb-sc", this.menuTopTool.collect);
     },
   },
+
 };
 </script>
 <style lang="less" scoped>

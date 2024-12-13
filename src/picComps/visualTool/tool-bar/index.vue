@@ -2,15 +2,7 @@
   <div class="   flex flex-row first:ml-25">
 
     <!-- <ta-button @click="UpdateWindowCenter">改窗宽</ta-button> -->
-    <ta-button @click="activeNodule">结节</ta-button>
-    <ta-button @click="activeFrac">骨折</ta-button>
-    <ta-button @click="activePenu">肺炎</ta-button>
-
-
-    <ta-button @click="getAnnotation">读取注释</ta-button>
-
-
-
+    <!-- <ta-button @click="getAnnotation">读取注释</ta-button> -->
 
     <ta-tooltip placement="bottomLeft">
       <template slot="title">
@@ -300,7 +292,7 @@ export default {
       },
       immediate: true,
     },
-    "allViewData.colorWindow": {
+    "allViewData.windowWidth": {
       handler(nVal, oVal) {
         if (nVal) {
           this.view_window.win_w = nVal
@@ -310,7 +302,7 @@ export default {
       immediate: true
 
     },
-    "allViewData.colorLevel": {
+    "allViewData.windowCenter": {
       handler(nVal, oVal) {
         if (nVal) {
           this.view_window.win_holder = nVal

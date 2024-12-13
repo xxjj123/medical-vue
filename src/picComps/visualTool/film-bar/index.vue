@@ -26,7 +26,9 @@ export default {
     return {};
   },
   computed: {
-    ...mapState("mprViewStore", ["allViewData"]),
+    // ...mapState("mprViewStore", ["allViewData"]),
+    ...mapState("lungViewStore", ["allViewData"]),
+
     buttons() {
       return buttons
     },
@@ -39,9 +41,9 @@ export default {
 
     },
     activeIndex() {
-      const { colorWindow, colorLevel } = this.allViewData;
+      const { windowWidth, windowCenter } = this.allViewData;
       const matchedIndex = buttons.findIndex(
-        (button) => button.ww === colorWindow && button.wl === colorLevel
+        (button) => button.ww === windowWidth && button.wl === windowCenter
       );
       return matchedIndex >= 0 ? matchedIndex : null;
     },

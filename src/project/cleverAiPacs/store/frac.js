@@ -1,4 +1,55 @@
 import { RenderingEngine ,Enums,utilities,metaData,  getRenderingEngine} from '@cornerstonejs/core';
+import * as cornerstoneTools from '@cornerstonejs/tools';
+const {annotation} = cornerstoneTools;
+
+const VIEW_METHOD = {
+  ['STACK_AXIAL']:{
+    getTrueIjk: (ijk) => [ijk[0], ijk[1], ""],
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+
+      const pointsList = [
+        [xmin, ymin],
+        [xmax, ymin],
+        [xmax, ymax],
+        [xmin, ymax],
+        [xmin, ymin]
+      ];
+      const bounds = [zmin,zmax]
+      return {pointsList,bounds}
+    },
+  },
+  ['STACK_CORONAL']:{
+    getTrueIjk: (ijk) => [ijk[0], "", ijk[1]] ,
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+      const pointsList = [
+        [xmin, zmin],
+        [xmax, zmin],
+        [xmax, zmax],
+        [xmin, zmax],
+        [xmin, zmin]
+      ];
+      const bounds = [ymin,ymax]
+      return {pointsList,bounds}
+    },
+  },
+  ['STACK_SAGITTAL']:{
+    getTrueIjk: (ijk) =>  ["", ijk[0], ijk[1]],
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+      const pointsList = [
+        [ymin, zmin],
+        [ymax, zmin],
+        [ymax, zmax],
+        [ymin, zmax],
+        [ymin, zmin]
+    ];
+  }
+  }
+}
+
+
 
 import "@kitware/vtk.js/Rendering/Profiles/All";
 import {
@@ -202,8 +253,8 @@ export default {
        console.log("allViewData",allViewData);
 
 
-      Object.assign(state.allViewData,allViewData)
-      Object.assign(state.ViewPortData,ViewPortData)
+       state.allViewData = JSON.parse(JSON.stringify(allViewData));
+       state.ViewPortData = JSON.parse(JSON.stringify(ViewPortData));
 
       const renderingEngine = getRenderingEngine(renderingEngineId);
 
@@ -215,7 +266,7 @@ export default {
         )
         const presentation = viewport.getViewPresentation()
         state.ViewPortData[viewInfo.viewportId].prePresentation  = presentation
-        state.ViewPortData[viewInfo.viewportId].preImage = viewInfo.imageId
+        // state.ViewPortData[viewInfo.viewportId].preImage = viewport.getImageData()
 
       })
 
@@ -261,6 +312,15 @@ export default {
     SET_VIEW_MPR_VIEW(state, {viewIndex, key, value}) {
       state.viewMprViews[viewIndex][key] = value;
     },
+    INIT_ALL_VIEW_DATA(state){
+      console.log("INIT_ALL_VIEW_DATA",state.allViewData);
+      state.allViewData.windowCenter = 300
+      state.allViewData.windowWidth = 1500
+      state.allViewData.isPan = false
+      state.allViewData.layOut = LayoutIcons.MPR;
+      state.allViewData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj];
+      state.allViewData.activeButtons = [ButtonNames.Jbinfo ]
+    },
     INIT_FRAC_ALL_VIEW_DATA(state){
       const originalData = new AllViewData();
       originalData.colorWindow = 1500;
@@ -303,6 +363,8 @@ export default {
   },
   actions: {
     async saveModule({commit,rootState}){
+      console.log("保存骨折数据");
+
       const {lungViewStore} = rootState
       commit("SAVE_MODULE",lungViewStore)
 
@@ -315,6 +377,7 @@ export default {
       const {lungViewStore} = rootState
 
       commit("SAVE_MODULE",lungViewStore)
+      commit("INIT_ALL_VIEW_DATA")
       console.log("initFrac ok ");
 
       // await dispatch("mprViewStore/clearAllAutoplay",null,{root:true} )
@@ -340,7 +403,13 @@ export default {
     },
     async ActiveFrac({dispatch,state,rootState,commit}){
       console.log("骨折");
+      // const renderingEngineId = "myRenderingEngine"
+      // const renderingEngine = getRenderingEngine(renderingEngineId);
 
+      // const viewport = renderingEngine.getViewport(
+      //   'STACK_AXIAL'
+      // )
+      // viewport.setProperties({ invert:true});
       await dispatch("lungViewStore/ActiveModule","fracStore",{root:true})
 
    },
@@ -458,22 +527,39 @@ export default {
       dispatch("mprViewStore/freshView",view.viewIndex,{root:true})
 
     },
+    async UpdateSlice({state,rootState,dispatch},{viewInfo,imageId}){
+      const {lungViewStore} = rootState
+      const {pageIndex,viewName,viewportId} = viewInfo
 
-    async UpdateSlice(
-      {commit, dispatch, state},
-      {viewIndex, index},
-    ) {
-      console.log("UpdateSlice,frac");
+      let annotations = annotation.state.getAllAnnotations()
+      const annotationIds = []
+      annotations.forEach(anno=>{
+        if( anno.metadata?.type == 'lessionAnno'  && anno.metadata?.viewportId == viewportId){
+          annotationIds.push(anno.annotationUID)
+         }
+      })
+      annotationIds.forEach(annoId=>{
+        annotation.state.removeAnnotation(annoId)
 
-      state.annotations.value.forEach((annotation) => {
-        if (annotation.viewIndex === viewIndex) {
-          annotation.actor.setVisibility(
-            index >= annotation.boundsmin && index <= annotation.boundsmax,
-          );
+      })
 
-        }
-      });
+
     },
+    // async UpdateSlice(
+    //   {commit, dispatch, state},
+    //   {viewIndex, index},
+    // ) {
+    //   console.log("UpdateSlice,frac");
+
+    //   state.annotations.value.forEach((annotation) => {
+    //     if (annotation.viewIndex === viewIndex) {
+    //       annotation.actor.setVisibility(
+    //         index >= annotation.boundsmin && index <= annotation.boundsmax,
+    //       );
+
+    //     }
+    //   });
+    // },
     getBboxIndex({ commit, state, rootState, dispatch }, { pointsArray }) {
       const { mprViewStore } = rootState;
       const view = state.viewMprViews[2];

@@ -1,5 +1,53 @@
 import { RenderingEngine ,Enums,utilities,metaData,  getRenderingEngine} from '@cornerstonejs/core';
+import * as cornerstoneTools from '@cornerstonejs/tools';
+const {annotation} = cornerstoneTools;
 
+const VIEW_METHOD = {
+  ['STACK_AXIAL']:{
+    getTrueIjk: (ijk) => [ijk[0], ijk[1], ""],
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+
+      const pointsList = [
+        [xmin, ymin],
+        [xmax, ymin],
+        [xmax, ymax],
+        [xmin, ymax],
+        [xmin, ymin]
+      ];
+      const bounds = [zmin,zmax]
+      return {pointsList,bounds}
+    },
+  },
+  ['STACK_CORONAL']:{
+    getTrueIjk: (ijk) => [ijk[0], "", ijk[1]] ,
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+      const pointsList = [
+        [xmin, zmin],
+        [xmax, zmin],
+        [xmax, zmax],
+        [xmin, zmax],
+        [xmin, zmin]
+      ];
+      const bounds = [ymin,ymax]
+      return {pointsList,bounds}
+    },
+  },
+  ['STACK_SAGITTAL']:{
+    getTrueIjk: (ijk) =>  ["", ijk[0], ijk[1]],
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+      const pointsList = [
+        [ymin, zmin],
+        [ymax, zmin],
+        [ymax, zmax],
+        [ymin, zmax],
+        [ymin, zmin]
+    ];
+  }
+  }
+}
 
 import "@kitware/vtk.js/Rendering/Profiles/All";
 import {
@@ -202,8 +250,8 @@ export default {
   mutations: {
     SAVE_MODULE(state,lungViewStore){
       const {ViewPortData,renderingEngineId,allViewData } =  lungViewStore
-      Object.assign(state.allViewData,allViewData)
-      Object.assign(state.ViewPortData,ViewPortData)
+      state.allViewData = JSON.parse(JSON.stringify(allViewData));
+      state.ViewPortData = JSON.parse(JSON.stringify(ViewPortData));
 
       const renderingEngine = getRenderingEngine(renderingEngineId);
 
@@ -215,13 +263,15 @@ export default {
         )
         const presentation = viewport.getViewPresentation()
         state.ViewPortData[viewInfo.viewportId].prePresentation  = presentation
-        state.ViewPortData[viewInfo.viewportId].preImage = viewInfo.imageId
+        // state.ViewPortData[viewInfo.viewportId].preImage = viewport.getImageData()
 
       })
 
     },
     SET_PNEUMONIA_INFO(state, pneumoniaInfo) {
       state.pneumoniaInfo = pneumoniaInfo;
+      console.log("pneumoniaInfo",pneumoniaInfo);
+
       // state.pneumoniaInfo.focalDetailList = []
 
     },
@@ -252,6 +302,16 @@ export default {
     },
     SET_VIEW_MPR_VIEW(state, {viewIndex, key, value}) {
       state.viewMprViews[viewIndex][key] = value;
+    },
+
+    INIT_ALL_VIEW_DATA(state){
+      console.log("INIT_ALL_VIEW_DATA",state.allViewData);
+      state.allViewData.windowCenter = -500
+      state.allViewData.windowWidth = 1500
+      state.allViewData.isPan = false
+      state.allViewData.layOut = LayoutIcons.MPR;
+      state.allViewData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj];
+      state.allViewData.activeButtons = [ButtonNames.Jbinfo ]
     },
     INIT_PNEUMONIA_ALL_VIEW_DATA(state){
       const originalData = new AllViewData();
@@ -305,6 +365,8 @@ export default {
   },
   actions: {
     async saveModule({commit,rootState}){
+      console.log("保存肺炎数据");
+
       const {lungViewStore} = rootState
       commit("SAVE_MODULE",lungViewStore)
 
@@ -319,6 +381,9 @@ export default {
       const {lungViewStore} = rootState
 
       commit("SAVE_MODULE",lungViewStore)
+
+      commit("INIT_ALL_VIEW_DATA")
+
       console.log("initPneumonia ok ");
 
       // const {mprViewStore} = rootState
@@ -386,41 +451,101 @@ export default {
       const pickedY = pickedPosition[1];
 
     },
+    async UpdateSlice({state,rootState,dispatch},{viewInfo,imageId}){
+      console.log("更新肺炎");
 
-    async UpdateSlice(
-      {commit, dispatch, state,getters},
-      {viewIndex, index},
-    ) {
 
-      const view = state.viewMprViews[viewIndex]
-      const viewName = getters.viewsData[viewIndex].viewName;
+      const {lungViewStore} = rootState
+      const { renderingEngineId} = lungViewStore
 
-      console.log(view.renderer.getActors())
-      view.renderer.getActors().forEach((actor,index)=>{
-        if(index>0){
-          view.renderer.removeActor(actor);
-        }
+      const {pageIndex,viewName,viewportId} = viewInfo
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+         viewportId
+      )
+
+      let annotations = annotation.state.getAllAnnotations()
+      const annotationIds = []
+      annotations.forEach(anno=>{
+        if( anno.metadata?.type == 'lessionAnno'  && anno.metadata?.viewportId == viewportId){
+          annotationIds.push(anno.annotationUID)
+         }
       })
-      // view.renderer.getActors()
-      // view.renderer.get(actor);
-      console.log("contourActorList",state.contourActorList)
-      // view.renderer.removeActor(state.contourActorList[0]);
-      // state.contourActorList.forEach(actor=>{
-      //   console.log(actor)
-      //   view.renderer.removeActor(actor);
-      // })
-      commit("SET_CONTOURS_LIST",{viewName,actorList:[]})
+      annotationIds.forEach(annoId=>{
+        annotation.state.removeAnnotation(annoId)
 
+      })
+
+      const image = viewport?.getImageData()
+      const {voxelManager,imageData} = image
       const contours = state.pneumoniaInfo.pneumoniaContourList.find(
-        item => item.instanceNumber === index && item.viewName === viewName
-      );
+            item => item.instanceNumber === pageIndex && item.viewName === viewName
+          );
+          if(contours){
+            const points = JSON.parse(contours.points)
+            console.log("contours.points", points.length);
 
-      if(contours){
-        const couroursPoints =JSON.parse(contours.points.replace(/\s/g, ''));
-        dispatch("InitContours",{view,contours:couroursPoints})
-      }
+            points.forEach(pointsArray=>{
+              const pointsList = []
+              for (let i = 0; i < pointsArray.length; i += 2) {
+                const x = pointsArray[i];
+                const y = pointsArray[i + 1];
+                pointsList.push([x, y]);
+              }
+              pointsList.push(pointsList[0])
+              const worldPoints = pointsList.map((point,index)=>{
+                return imageData.indexToWorld([...point,0]);
+              })
+              const annotationUID =   utilities.uuidv4()
+              const options = {annotationUID,type:'lessionAnno',viewportId,pageIndex:pageIndex,id:'pneu'}
+              dispatch("lungViewStore/customDrawSpline", { viewInfo,points:worldPoints,options },{root:true} );
+              const styles = {
+                color: 'rgb(255, 0, 0)'
+              };
+              annotation.config.style.setAnnotationStyles( annotationUID, styles);
+
+            })
+
+            // const couroursPoints =JSON.parse(contours.points.replace(/\s/g, ''));
+            // dispatch("InitContours",{view,contours:couroursPoints})
+          }
 
     },
+
+    // async UpdateSlice(
+    //   {commit, dispatch, state,getters},
+    //   {viewIndex, index},
+    // ) {
+
+    //   const view = state.viewMprViews[viewIndex]
+    //   const viewName = getters.viewsData[viewIndex].viewName;
+
+    //   console.log(view.renderer.getActors())
+    //   view.renderer.getActors().forEach((actor,index)=>{
+    //     if(index>0){
+    //       view.renderer.removeActor(actor);
+    //     }
+    //   })
+    //   // view.renderer.getActors()
+    //   // view.renderer.get(actor);
+    //   console.log("contourActorList",state.contourActorList)
+    //   // view.renderer.removeActor(state.contourActorList[0]);
+    //   // state.contourActorList.forEach(actor=>{
+    //   //   console.log(actor)
+    //   //   view.renderer.removeActor(actor);
+    //   // })
+    //   commit("SET_CONTOURS_LIST",{viewName,actorList:[]})
+
+    //   const contours = state.pneumoniaInfo.pneumoniaContourList.find(
+    //     item => item.instanceNumber === index && item.viewName === viewName
+    //   );
+
+    //   if(contours){
+    //     const couroursPoints =JSON.parse(contours.points.replace(/\s/g, ''));
+    //     dispatch("InitContours",{view,contours:couroursPoints})
+    //   }
+
+    // },
 
     async InitContours({state,rootState,dispatch,commit},{view,contours}){
 

@@ -64,14 +64,12 @@ const VIEWDATA_NAMES = ["SagittalData", "CoronalData", "AxialData"];
 export default {
   namespaced: true,
   actions: {
-    UpdateWindowCenter({state, commit,rootState,dispatch}) {
-      const value = 500
+    UpdateWindowCenter({state, commit,rootState,dispatch},value) {
 
       console.log("UpdateWindowCenter",value);
 
       const {lungViewStore} = rootState
       const {ViewPortData,renderingEngineId,allViewData } =  lungViewStore
-      console.log("allViewData",allViewData);
 
       const {windowCenter,windowWidth} =  allViewData
       const viewportEntries = Object.values(ViewPortData);
@@ -86,7 +84,7 @@ export default {
         viewport.setProperties({ voiRange: { upper: WC + WW / 2, lower: WC - WW / 2 } });
         // commit("UPDATE_WINDOW_CENTER",value);
         dispatch("lungViewStore/SetAllViewData", {
-          key: "colorLevel",
+          key: "windowCenter",
           value: value,
         },{root:true});
 
@@ -96,32 +94,29 @@ export default {
 
     },
 
-    UpdateWindowWidth({state, commit,rootState,dispatch}) {
-      // const value = 500
-      // console.log("UpdateWindowWidth",value);
+    UpdateWindowWidth({state, commit,rootState,dispatch},value) {
+      const {lungViewStore} = rootState
+      const {ViewPortData,renderingEngineId,allViewData } =  lungViewStore
 
-      // const {spineViewStore} = rootState
-      // const {viewportId,renderingEngineId,imageId} =  spineViewStore.view
-      // const {windowCenter,windowWidth} = spineViewStore.allViewData
+      const {windowCenter,windowWidth} =  allViewData
+      const viewportEntries = Object.values(ViewPortData);
+      const renderingEngine = getRenderingEngine(renderingEngineId);
 
-      // const renderingEngine = getRenderingEngine(renderingEngineId);
-      // const viewport = renderingEngine.getViewport(
-      //   viewportId
-      // )
+      const WC =  windowCenter
+      const WW = value
+      viewportEntries.map((viewInfo) =>{
+        const viewport = renderingEngine.getViewport(
+          viewInfo.viewportId
+        )
+        viewport.setProperties({ voiRange: { upper: WC + WW / 2, lower: WC - WW / 2 } });
+        // commit("UPDATE_WINDOW_CENTER",value);
+        dispatch("lungViewStore/SetAllViewData", {
+          key: "windowWidth",
+          value: value,
+        },{root:true});
 
-
-      //   const WC =  windowCenter
-      //   const WW = value
-
-      //   viewport.setProperties({ voiRange: { upper: WC + WW / 2, lower: WC - WW / 2 } });
-      //   // commit("UPDATE_WINDOW_WIDTH",value);
-      //   dispatch("lungViewStore/SetAllViewData", {
-      //     key: "colorWindow",
-      //     value: value,
-      //   },{root:true});
-
-
-      // viewport.render();
+      viewport.render();
+      })
 
     },
     activeNodule({dispatch}){
@@ -280,7 +275,7 @@ export default {
       view.sliceActor.setScale(newScaleX, currentScale[1], currentScale[2]);
 
 
-      dispatch("setupCamera", viewIndex);
+      // dispatch("setupCamera", viewIndex);
     },
 
     /**
@@ -294,7 +289,7 @@ export default {
 
       view.sliceActor.setScale(currentScale[0], newScaleY, currentScale[2]);
 
-      dispatch("setupCamera", viewIndex);
+      // dispatch("setupCamera", viewIndex);
     },
 
     // 改变平移
@@ -305,7 +300,7 @@ export default {
 ,
 
     setupCamera({commit, state,rootState,rootGetters,dispatch}, viewIndex){
-      dispatch("mprViewStore/setupCamera",viewIndex,{root:true})
+      // dispatch("mprViewStore/setupCamera",viewIndex,{root:true})
     },
     /**
      * 重置视图

@@ -90,13 +90,11 @@ export default {
 
     ...mapActions("toolBarStore", ["setActiveModule"]),
 
-
     ...mapActions("view3DStore", [
       "Init3DScene",
       "Init3DView",
       "AddCube",
       "CubeClip",
-      "setupCamera",
       "Back"
     ]),
 

@@ -219,8 +219,8 @@ export default {
     operateResult: Object
   },
   computed: {
-    ...mapState("mprViewStore", ["seriesInfo"]),
-    ...mapState("noduleInfoStore", ["selectedNoduleId"]),
+    ...mapState("lungViewStore", ["seriesInfo"]),
+    ...mapState("noduleStore", ["selectedNoduleId"]),
     lobeList: {
       get() {
         return nodule_dict.lobe.map(item => {
@@ -540,7 +540,9 @@ export default {
     };
   },
   methods: {
-    ...mapActions("noduleInfoStore", ["ChooseAnnotation", "updateNoduleLesion", "updateNoduleOperate"]),
+    // ...mapActions("noduleInfoStore", ["ChooseAnnotation", "updateNoduleLesion", "updateNoduleOperate"]),
+    ...mapActions("noduleStore", ["ChooseAnnotation", "updateNoduleLesion", "updateNoduleOperate"]),
+
 
     async updateTextReport(updateData) {
       await xhr_updateTextReport(updateData)

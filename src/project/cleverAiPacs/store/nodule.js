@@ -1,6 +1,55 @@
 import { RenderingEngine ,Enums,utilities,metaData,  getRenderingEngine} from '@cornerstonejs/core';
+import * as cornerstoneTools from '@cornerstonejs/tools';
+const {annotation} = cornerstoneTools;
 
+const VIEW_METHOD = {
+  ['STACK_AXIAL']:{
+    getTrueIjk: (ijk) => [ijk[0], ijk[1], ""],
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
 
+      const pointsList = [
+        [xmin, ymin],
+        [xmax, ymin],
+        [xmax, ymax],
+        [xmin, ymax],
+        [xmin, ymin]
+      ];
+      const bounds = [zmin,zmax]
+      return {pointsList,bounds}
+    },
+  },
+  ['STACK_CORONAL']:{
+    getTrueIjk: (ijk) => [ijk[0], "", ijk[1]] ,
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+      const pointsList = [
+        [xmin, zmin],
+        [xmax, zmin],
+        [xmax, zmax],
+        [xmin, zmax],
+        [xmin, zmin]
+      ];
+      const bounds = [ymin,ymax]
+      return {pointsList,bounds}
+    },
+  },
+  ['STACK_SAGITTAL']:{
+    getTrueIjk: (ijk) =>  ["", ijk[0], ijk[1]],
+    getImagePoint:(points)=>{
+      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+      const pointsList = [
+        [ymin, zmin],
+        [ymax, zmin],
+        [ymax, zmax],
+        [ymin, zmax],
+        [ymin, zmin]
+      ];
+      const bounds = [ymin,ymax]
+      return {pointsList,bounds}
+    }
+  }
+}
 
 
 import "@kitware/vtk.js/Rendering/Profiles/All";
@@ -35,21 +84,6 @@ const VIEW_INFO = {
     viewportId: 'STACK_AXIAL',
     viewName: 'axial',
     ijkId:2,
-    getTrueIjk: (ijk) => [ijk[0], ijk[1], ""],
-    getImagePoint:(points)=>{
-      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
-
-      const pointsList = [
-        [xmin, ymin],
-        [xmax, ymin],
-        [xmax, ymax],
-        [xmin, ymax],
-        [xmin, ymin]
-      ];
-      const bounds = [zmin,zmax]
-      return {pointsList,bounds}
-    },
-
     autoPlay:{
       state:false,
       timerId: null,
@@ -60,19 +94,6 @@ const VIEW_INFO = {
     viewportId: 'STACK_CORONAL',
     viewName: 'coronal',
     ijkId:1,
-    getTrueIjk: (ijk) => [ijk[0], "", ijk[1]] ,
-    getImagePoint:(points)=>{
-      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
-      const pointsList = [
-        [xmin, zmin],
-        [xmax, zmin],
-        [xmax, zmax],
-        [xmin, zmax],
-        [xmin, zmin]
-      ];
-      const bounds = [ymin,ymax]
-      return {pointsList,bounds}
-    },
     autoPlay:{
       state:false,
       timerId: null,
@@ -83,19 +104,6 @@ const VIEW_INFO = {
     viewportId: 'STACK_SAGITTAL',
     viewName: 'sagittal',
     ijkId:0,
-    getTrueIjk: (ijk) =>  ["", ijk[0], ijk[1]],
-    getImagePoint:(points)=>{
-      const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
-      const pointsList = [
-        [ymin, zmin],
-        [ymax, zmin],
-        [ymax, zmax],
-        [ymin, zmax],
-        [ymin, zmin]
-    ];
-      const bounds = [xmin,xmax]
-      return {pointsList,bounds}
-    },
 
     autoPlay:{
       state:false,
@@ -217,8 +225,12 @@ export default {
     },
     SAVE_MODULE(state,lungViewStore){
       const {ViewPortData,renderingEngineId,allViewData } =  lungViewStore
-      Object.assign(state.allViewData,allViewData)
-      Object.assign(state.ViewPortData,ViewPortData)
+      state.allViewData = JSON.parse(JSON.stringify(allViewData));
+      state.ViewPortData = JSON.parse(JSON.stringify(ViewPortData));
+
+
+      console.log("save",ViewPortData);
+
 
       const renderingEngine = getRenderingEngine(renderingEngineId);
       const viewportEntries = Object.values(ViewPortData);
@@ -227,9 +239,11 @@ export default {
         const viewport = renderingEngine.getViewport(
           viewInfo.viewportId
         )
+        console.log(viewport.getImageData());
+
         const presentation = viewport.getViewPresentation()
         state.ViewPortData[viewInfo.viewportId].prePresentation  = presentation
-        state.ViewPortData[viewInfo.viewportId].preImage = viewInfo.imageId
+        // state.ViewPortData[viewInfo.viewportId].preImage = viewport.getImageData()
 
       })
 
@@ -263,6 +277,16 @@ export default {
     },
     SET_VIEW_MPR_VIEW(state, {viewIndex, key, value}) {
       state.viewMprViews[viewIndex][key] = value;
+    },
+    INIT_ALL_VIEW_DATA(state){
+      console.log("INIT_ALL_VIEW_DATA",state.allViewData);
+      state.allViewData.windowCenter = -500
+      state.allViewData.windowWidth = 1500
+      state.allViewData.isPan = false
+      state.allViewData.layOut = LayoutIcons.AXIAL;
+      state.allViewData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj];
+      state.allViewData.activeButtons = [ButtonNames.Jbinfo ]
+
     },
     INIT_NODULE_ALL_VIEW_DATA(state){
       const originalData = new AllViewData();
@@ -322,7 +346,9 @@ export default {
 
   },
   actions: {
-    async saveModule({commit}){
+    async saveModule({commit,rootState}){
+      console.log("保存结节数据");
+
       const {lungViewStore} = rootState
       commit("SAVE_MODULE",lungViewStore)
 
@@ -342,6 +368,8 @@ export default {
       //   viewInfo.viewportId
       // )
       commit("SAVE_MODULE",lungViewStore)
+      commit("INIT_ALL_VIEW_DATA")
+
       console.log("initNodule ok ");
 
     },
@@ -362,7 +390,7 @@ export default {
 
     },
     async ActiveNodule({dispatch,state,rootState,commit}){
-      console.log("结节");
+      console.log("触发了结节");
 
        await dispatch("lungViewStore/ActiveModule","noduleStore",{root:true})
 
@@ -391,25 +419,40 @@ export default {
       const { renderingEngineId,toolGroupId} = lungViewStore
       const renderingEngine = getRenderingEngine(renderingEngineId);
       const viewport = renderingEngine.getViewport(
-        viewInfo.viewportId
+         viewportId
       )
       const image = viewport?.getImageData()
       const {voxelManager,imageData} = image
 
+      const {getImagePoint} = VIEW_METHOD[viewportId]
+
+      let annotations = annotation.state.getAllAnnotations()
+      const annotationIds = []
+      annotations.forEach(anno=>{
+        if( anno.metadata?.type == 'lessionAnno'  && anno.metadata?.viewportId == viewportId){
+          annotationIds.push(anno.annotationUID)
+         }
+      })
+      annotationIds.forEach(annoId=>{
+        annotation.state.removeAnnotation(annoId)
+
+      })
+
       state.noduleInfo.noduleLesionList?.forEach((nodule)=>{
         const points = nodule.points
-        const {pointsList,bounds} = viewInfo.getImagePoint(points)
 
-        if(pageIndex > bounds[0] && pageIndex < bounds[1]){
+        const result = getImagePoint(points)
+         const {pointsList,bounds} =  result
 
+        if(pageIndex >= bounds[0] && pageIndex <= bounds[1]){
           const worldPoints = pointsList.map((point,index)=>{
             return imageData.indexToWorld([...point,0]);
           })
           const annotationUID =   utilities.uuidv4()
-          const options = {annotationUID,type:'nodule',viewportId,pageIndex:pageIndex,id:nodule.id}
-          dispatch("noduleInfo/customDrawSpline", { viewInfo,points:worldPoints,options } );
+          const options = {annotationUID,type:'lessionAnno',viewportId,pageIndex:pageIndex,id:nodule.id}
+          dispatch("lungViewStore/customDrawSpline", { viewInfo,points:worldPoints,options },{root:true} );
           const styles = {
-            color: 'rgb(0, 0, 255)'
+            color: nodule.id == state.selectedNoduleId?'rgb(255, 255, 0)' :'rgb(0, 0, 255)'
           };
           annotation.config.style.setAnnotationStyles( annotationUID, styles);
         }
@@ -486,53 +529,23 @@ export default {
      */
     async ChooseAnnotation({state, dispatch, getters, commit,rootGetters},{currentim,bboxindex}) {
       dispatch("lungViewStore/clearAllAutoplay",null,{root:true})
-      const viewsData = rootGetters['lungViewStore/viewsData']
 
-      state.noduleInfo.noduleLesionList.forEach(async (nodule) => {
-        const {points, id} = nodule;
-        const bbox = points.split(",").map(Number)
-        if (id == bboxindex) {
-          const ijk = [
-            Math.floor((bbox[0] + bbox[1]) / 2),
-            Math.floor((bbox[2] + bbox[3]) / 2),
-            Math.floor((bbox[4] + bbox[5]) / 2),
-          ];
-          state.annotations.value.forEach((anno) => {
+      const nodule = state.noduleInfo.noduleLesionList.find((nodule) => nodule.id === bboxindex);
+      if (nodule) {
+        const { points, id } = nodule;
+        commit("ACTIVATE_ANNOTATAION", id);
 
-            let color = BBOX_COLORS.DEFAULT
-            let lineWidth = BBOX_LINEWIDTH.DEFAULT
-            if (anno.bboxIndex === bboxindex) {
-              commit("ACTIVATE_ANNOTATAION",bboxindex)
-              color = BBOX_COLORS.SELECTED
-              lineWidth = BBOX_LINEWIDTH.SELECTED
-            }
-            anno.actor
-              .getProperty()
-              .setColor(
-                ...color
-              )
-            anno.actor.getProperty().setLineWidth(lineWidth);
-          });
-          viewsData.forEach((viewdata, index) => {
-            dispatch("lungViewStore/SetViewData", {
-              viewIndex: viewdata.viewIndex,
-              key: "changedPageIndex",
-              value: ijk[viewdata.viewIndex],
-            },{
-              root: true,
-            },);
+        const bbox = points.split(",").map(Number);
+        const ijk = [
+          Math.floor((bbox[0] + bbox[1]) / 2),
+          Math.floor((bbox[2] + bbox[3]) / 2),
+          Math.floor((bbox[4] + bbox[5]) / 2),
+        ];
 
-          });
-          await dispatch("lungViewStore/UpdateIJK", ijk,{root:true});
+        await dispatch("lungViewStore/UpdateIJK", ijk, { root: true });
+      }
 
-          viewsData.forEach((viewdata, index) => {
-            dispatch("lungViewStore/UpdateDisplay", {
-              viewIndex: viewdata.viewIndex,
-              changedPageIndex: viewdata.changedPageIndex,
-            },{root:true});
-          });
-        }
-      });
+
     },
 
   },

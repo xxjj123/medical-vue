@@ -22,7 +22,9 @@ export default {
     },
   },
   computed: {
-    ...mapState("noduleInfoStore", ["noduleInfo", "operateInfo"]),
+    // ...mapState("noduleInfoStore", ["noduleInfo", "operateInfo"]),
+    ...mapState("noduleStore", ["noduleInfo", "operateInfo"]),
+
 
     menuResult: {
       get() {

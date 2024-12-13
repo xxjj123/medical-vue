@@ -22,7 +22,9 @@ export default {
     },
   },
   computed: {
-    ...mapState("pneumoniaInfoStore", ["pneumoniaInfo"]),
+    // ...mapState("pneumoniaInfoStore", ["pneumoniaInfo"]),
+    ...mapState("pneumoniaStore", ["pneumoniaInfo"]),
+
 
     menuResult: {
       get() {

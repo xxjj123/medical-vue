@@ -1,5 +1,6 @@
 <template>
   <div class="ViewBoard_panel">
+    <!-- {{ this.allViewData }} -->
     <div :class="[
       'pic_views',
       { pic_layout_3d: computedLayout === '1' },
@@ -7,6 +8,7 @@
       { pic_layout_original: computedLayout === '3' },
       { pic_layout_recon: computedLayout === '6' }
     ]">
+
 
       <div class="side viewbox view-3d">
         <div class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue" ref="View3DRef"></div>
@@ -162,11 +164,19 @@ export default {
       "SagittalData",
       "showCrosshair",
       // // "seriesInfo",
-      "allViewData",
-      "series_map_dicom",
       "studies_selected",
 
     ]),
+
+    ...mapState("lungViewStore", [
+      // // "seriesInfo",
+      "ViewportData",
+      "allViewData",
+
+    ]),
+    // AxialData() {
+    //   return this.ViewportData["STACK_AXIAL"]
+    // },
 
 
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
