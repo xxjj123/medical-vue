@@ -243,7 +243,7 @@ export default {
               dispatch("spineToolsStore/UpdateWindowCenter",WC,{root:true})
 
 
-              const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts,dist,horangle,maxind,cobbID,closepnt } = spineInfo
+              const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts,dist,horangle,maxind,cobbID,closepnt,SeccobbID,SecAngle,SecDist,Secclosepnt } = spineInfo
 
               console.log(pixelSpacing);
               console.log(dist);
@@ -263,7 +263,7 @@ export default {
 
               const firstBone = sortedContours[0]
               const midLine = [pointsCenter([firstBone.bbox[0],firstBone.bbox[1]]),keypnts[2]]
-              await dispatch("addLine",{linePoints:midLine})
+              await dispatch("addLine",{linePoints:midLine })
 
               const midLine2 = sortedContours.map(bone=>pointsCenter(bone.bbox))
               await dispatch("addLine",{linePoints:midLine2,options:{color:'yellow'}})
@@ -273,12 +273,30 @@ export default {
               const maxindBoneCenter = pointsCenter(maxindBone.bbox)
 
               const fastLine = [maxindBoneCenter,closepnt]
-              await dispatch("addLength",{linePoints:fastLine})
+              await dispatch("addLength",{linePoints:fastLine,options:{color:'red'}})
 
-               cobbID.forEach(async eachId=>{
+              cobbID.forEach(async eachId=>{
                 const bone = sortedContours[eachId]
                 await dispatch("addPointInfo",{point:pointsCenter(bone.bbox),pointLabel:bone.boneCode })
               })
+
+              if(SeccobbID[0] != -1){
+                spineInfo.sShape = true;
+                console.log("SeccobbID",SeccobbID);
+                SeccobbID.forEach(async eachId=>{
+                  const bone = sortedContours[eachId]
+                  await dispatch("addPointInfo",{point:pointsCenter(bone.bbox),pointLabel:bone.boneCode,options:{color:'green'} })
+                })
+                const maxindBone2 = sortedContours[SeccobbID[1]]
+                const maxindBoneCenter2 = pointsCenter(maxindBone2.bbox)
+
+                const fastLine2 = [maxindBoneCenter2,Secclosepnt]
+                await dispatch("addLength",{linePoints:fastLine2,options:{color:'green'}})
+
+                const vertebralOffset2 = calculateLength(imageId,maxindBoneCenter2,Secclosepnt)
+              spineInfo.vertebralOffset2 = vertebralOffset2.toFixed(2)
+
+              }
 
               const vertebralOffset = calculateLength(imageId,maxindBoneCenter,closepnt)
               spineInfo.vertebralOffset = vertebralOffset.toFixed(2)
@@ -619,15 +637,15 @@ export default {
 
     // viewport.render()
     },
-    async addLength({state,dispatch},{linePoints}){
+    async addLength({state,dispatch},{linePoints,options}){
       const {imageId,viewportId} = state.view
       const worldPoints = linePoints.map(point=>utilities.imageToWorldCoords(imageId,point))
       // LengthTool.hydrate(viewportId,worldPoints);
 
       const annotationUID = utilities.uuidv4()
       const styles = {
-        color: 'rgb(127, 255, 212)',
-        textBoxColor:'rgb(127, 255, 212)',
+        color: options?.color||'rgb(127, 255, 212)',
+        textBoxColor:options?.color||'rgb(127, 255, 212)',
         // textBoxColor:'rgb(255, 0, 0)',
         // color: 'pink',
         // textBoxColor:'pink',
@@ -650,13 +668,13 @@ export default {
 
     },
 
-    async addPointInfo({state,dispatch},{point,pointLabel}){
+    async addPointInfo({state,dispatch},{point,pointLabel,options}){
       const {imageId,viewportId} = state.view
       const worldPoint  =  utilities.imageToWorldCoords(imageId,point)
       const annotationUID = utilities.uuidv4()
       const styles = {
-        color: 'rgb(255, 0, 0)',
-        textBoxColor:'rgb(255, 0, 0)'
+        color: options?.color||'rgb(255, 0, 0)',
+        textBoxColor: options?.color||'rgb(255, 0, 0)'
       };
       dispatch("customDrawPoint",{point:worldPoint,options:{annotationUID,pointLabel }})
 

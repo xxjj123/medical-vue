@@ -27,14 +27,22 @@
       <div class="content_main">
         <div class="angle">
 
-          <div class="mt-2  py-3 w-full">
+          <div class="mt-2  py-2 w-full">
             <!-- {{ spineInfo.spineInfo }} -->
             <div class="h-[30px] lh-[30px]">Cobb角：{{ spineInfo.angle?.mt.angle.toFixed(2) }} °</div>
             <div class="h-[30px] lh-[30px]">顶锥离中线距离：{{ spineInfo.vertebralOffset }} mm</div>
 
 
-            <div class="h-[30px] lh-[30px]">锁骨倾斜角：{{ spineInfo.clavicleHorangle }} °</div>
           </div>
+
+          <div class="mt-2  py-2 w-full" v-if="spineInfo.sShape">
+            <!-- {{ spineInfo.spineInfo }} -->
+            <div class="h-[30px] lh-[30px]">Cobb角：{{ spineInfo.SecAngle?.toFixed(2) }} °</div>
+            <div class="h-[30px] lh-[30px]">顶锥离中线距离：{{ spineInfo.vertebralOffset2 }} mm</div>
+
+          </div>
+          <div class="h-[30px] lh-[30px]">锁骨倾斜角：{{ spineInfo.clavicleHorangle }} °</div>
+
         </div>
 
         <!-- {{ boneInfo.angle }} -->
