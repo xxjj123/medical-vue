@@ -440,11 +440,12 @@ export default {
 
       state.noduleInfo.noduleLesionList?.forEach((nodule)=>{
         const points = nodule.points
-
         const result = getImagePoint(points)
          const {pointsList,bounds} =  result
 
         if(pageIndex >= bounds[0] && pageIndex <= bounds[1]){
+          console.log("绘制",viewportId,);
+
           const worldPoints = pointsList.map((point,index)=>{
             return imageData.indexToWorld([...point,0]);
           })

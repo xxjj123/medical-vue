@@ -197,6 +197,7 @@ export default {
   state: {
     renderingEngineId:'myRenderingEngine',
     toolGroupId:"toolGroup",
+
     seriesInfo:{
       seriesId: "",
       axialCount: "",
@@ -206,6 +207,17 @@ export default {
     },
     ...getDefaultState(),
 
+  },
+  getters :{
+    AxialViewData: state => {
+      return state.ViewPortData[VIEW_INFO.AXIAL.viewportId]
+    },
+    CoronalViewData: state => {
+      return state.ViewPortData[VIEW_INFO.CORONAL.viewportId]
+    },
+    SagittalViewData: state => {
+      return state.ViewPortData[VIEW_INFO.SAGITTAL.viewportId]
+    },
   },
 
   mutations: {
@@ -408,7 +420,9 @@ export default {
           type: ViewportType.STACK,
           element: axialElement,
           defaultOptions: {
-            background:  [1, 0, 0.2],
+            // background:  [1, 0, 0.2],
+            background:  [0,0,0],
+
           },
         },
         {
@@ -416,7 +430,9 @@ export default {
           type: ViewportType.STACK,
           element: coronalElement,
           defaultOptions: {
-            background:  [0.2, 0, 1],
+            // background:  [0.2, 0, 1],
+            background:  [0,0,0],
+
           },
         },
         {
@@ -424,7 +440,9 @@ export default {
           type: ViewportType.STACK,
           element: sagittalElement,
           defaultOptions: {
-            background:  [1, 0, 1],
+            // background:  [1, 0, 1],
+            background:  [0,0,0],
+
           },
         },
       ];

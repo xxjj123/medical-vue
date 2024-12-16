@@ -9,7 +9,6 @@
       { pic_layout_recon: computedLayout === '6' }
     ]">
 
-
       <div class="side viewbox view-3d">
         <div class="view-item bg-slate-300 border-r-0.2 border-b-0.2 border-titleblue" ref="View3DRef"></div>
         <!-- <view3D class="h-full w-full" ref="view3DRef" :seriesId="seriesInfo.seriesId" /> -->
@@ -22,13 +21,13 @@
         },
       ]">
         <div class="relative view-item bg-slate-500">
-          <threeViewSecTool :sheetStyle="sheetStyle_AxialData" :dicomTags_msg="AxialDataInfo"
-            :viewType="AxialData.viewIndex" class="absolute z-2" :TracheaName="`lung`">
+          <lungSubscript :sheetStyle="sheetStyle_AxialData" :viewInfo="AxialViewData" :viewType="AxialData.viewIndex"
+            class="absolute z-2" :TracheaName="`lung`">
             <div class="relative view-item bg-slate-500" ref="ViewAxialRef">
               <crossHair v-if="AxialData.displayX && AxialData.displayY" class="absolute top-0 h-full w-full left-0 z-1"
                 :crosshairData="axialCrosshairData" />
             </div>
-          </threeViewSecTool>
+          </lungSubscript>
         </div>
       </div>
       <div :class="[
@@ -38,7 +37,7 @@
         },
       ]">
         <div class="relative view-item bg-slate-400">
-          <threeViewSecTool :dicomTags_msg="CoronalDataInfo" :viewType="CoronalData.viewIndex" class="absolute z-2"
+          <lungSubscript :viewInfo="CoronalViewData" :viewType="CoronalData.viewIndex" class="absolute z-2"
             :TracheaName="`lung`">
             <div class="relative view-item bg-slate-400" ref="ViewCoronalRef">
               <crossHair v-if="CoronalData.displayX && CoronalData.displayY"
@@ -46,7 +45,7 @@
                 :crosshairData="coronalCrosshairData" />
 
             </div>
-          </threeViewSecTool>
+          </lungSubscript>
         </div>
       </div>
       <div :class="[
@@ -56,14 +55,14 @@
         },
       ]">
         <div class="relative view-item bg-slate-600 border-t-0.2 border-l-0.2 border-titleblue">
-          <threeViewSecTool :dicomTags_msg="SagittalDataInfo" :viewType="SagittalData.viewIndex" class="absolute z-2"
+          <lungSubscript :viewInfo="SagittalViewData" :viewType="SagittalData.viewIndex" class="absolute z-2"
             :TracheaName="`lung`">
             <div class="relative view-item bg-slate-600" ref="ViewSagittalRef">
               <crossHair v-if="SagittalData.displayX && SagittalData.displayY"
                 class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
                 :crosshairData="sagittalCrosshairData" />
             </div>
-          </threeViewSecTool>
+          </lungSubscript>
         </div>
       </div>
     </div>
@@ -79,7 +78,7 @@ import {
 
 import subScript from "@/picComps/home/subScript/subScript.vue";
 import crossHair from "@/picComps/home/subScript/crossHair.vue";
-import threeViewSecTool from "@/picComps/home/subScript/threeViewSecTool/index.vue";
+import lungSubscript from "@/picComps/home/subScript/lungSubscript/index.vue";
 import view3D from "@/picComps/viewTemplate/view3D.vue";
 
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
@@ -155,7 +154,9 @@ export default {
   components: {
     subScript,
     crossHair,
-    threeViewSecTool, view3D
+    // threeViewSecTool,
+    lungSubscript,
+    view3D
   },
   computed: {
     ...mapState("mprViewStore", [
@@ -174,10 +175,16 @@ export default {
       "allViewData",
 
     ]),
+    ...mapGetters("lungViewStore", [
+      // // "seriesInfo",
+      "AxialViewData",
+      "CoronalViewData",
+      "SagittalViewData"
+
+    ]),
     // AxialData() {
     //   return this.ViewportData["STACK_AXIAL"]
     // },
-
 
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
     ...mapState("toolBarStore", {
@@ -376,6 +383,8 @@ export default {
       // window.addEventListener('load', this.fnOnlod)
       setTimeout(() => {
         this.fnOnlod();
+        console.log("ViewportData", this.ViewportData);
+
 
       }, 3000)
       window.addEventListener("resize", this.resizeViews);

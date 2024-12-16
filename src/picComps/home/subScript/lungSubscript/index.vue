@@ -1,9 +1,9 @@
 <template>
   <div class="threeViewSecTool ">
     <slot></slot>
-    <dicomTags v-show="jbinfoButtonState" :datav="dicomTags_msg"></dicomTags>
-    <orientationTags v-show="jbinfoButtonState" :datav="orientationTags_msg"></orientationTags>
-    <btnGroup :viewType="viewType" :TracheaName="TracheaName !== '' ? TracheaName : 'lung'"></btnGroup>
+    <dicomTags v-show="jbinfoButtonState" :data="viewInfo"></dicomTags>
+    <!-- <orientationTags v-show="jbinfoButtonState" :datav="orientationTags_msg"></orientationTags> -->
+    <btnGroup :data="viewInfo" :viewType="viewType" :TracheaName="TracheaName !== '' ? TracheaName : 'lung'"></btnGroup>
 
   </div>
 </template>
@@ -32,7 +32,7 @@ export default {
     viewType: {
       type: [String, Number],
     },
-    dicomTags_msg: {
+    viewInfo: {
       type: Object,
       default: () => ({})
     },
@@ -57,7 +57,6 @@ export default {
 
     }),
   }
-
 
 }
 </script>
