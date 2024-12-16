@@ -1,15 +1,22 @@
 <template>
   <div v-show="szckxButtonState" ref="container">
+    {{ crosshairData.displayX }}
     <svg ref="svg" class="absolute select-none pointer-events-none w-full h-full">
-      <line :x1="0" :y1="height - crosshairData.crosshair_y / screenRatio" :x2="width"
-        :y2="height - crosshairData.crosshair_y / screenRatio" stroke="#2cf66c" :stroke-width="1.5 / screenRatio"
+      <line :x1="0" :y1="height - crosshairData.displayY / screenRatio" :x2="width"
+        :y2="height - crosshairData.displayY / screenRatio" stroke="#2cf66c" :stroke-width="1.5 / screenRatio"
         :stroke-dasharray="dashArray" vector-effect="non-scaling-stroke" />
-      <line :x1="crosshairData.crosshair_x / screenRatio" :y1="0" :x2="crosshairData.crosshair_x / screenRatio"
-        :y2="height" stroke="#2cf66c" :stroke-width="1.5 / screenRatio" :stroke-dasharray="dashArray"
+      <line :x1="crosshairData.displayX / screenRatio" :y1="0" :x2="crosshairData.displayX / screenRatio" :y2="height"
+        stroke="#2cf66c" :stroke-width="1.5 / screenRatio" :stroke-dasharray="dashArray"
         vector-effect="non-scaling-stroke" />
 
-      <!-- <line :x1="10" :y1="height - 30" :x2="10 + crosshairData.scale_length / screenRatio" :y2="height - 30"
-        stroke="yellow" :stroke-width="3 / screenRatio" /> -->
+      <!-- <line :x1="0" :y1="height - crosshairData.crosshair_y / screenRatio" :x2="width"
+        :y2="height - crosshairData.crosshair_y / screenRatio" stroke="#2cf66c" :stroke-width="1.5 / screenRatio"
+        :stroke-dasharray="dashArray" vector-effect="non-scaling-stroke" />
+      <line :x1="crosshairData.displayX / screenRatio" :y1="0" :x2="crosshairData.displayX / screenRatio"
+        :y2="height" stroke="#2cf66c" :stroke-width="1.5 / screenRatio" :stroke-dasharray="dashArray"
+        vector-effect="non-scaling-stroke" /> -->
+
+
     </svg>
   </div>
 </template>
@@ -66,7 +73,7 @@ export default {
         ratio = window.outerWidth / window.innerWidth;
       }
       this.screenRatio = ratio;
-      this.resizeSliceViews();
+      // this.resizeSliceViews();
     },
     updateDimensions() {
       if (this.$refs.container) {

@@ -3,14 +3,20 @@
     <slot></slot>
     <dicomTags v-show="jbinfoButtonState" :data="viewInfo"></dicomTags>
     <!-- <orientationTags v-show="jbinfoButtonState" :datav="orientationTags_msg"></orientationTags> -->
-    <btnGroup :data="viewInfo" :viewType="viewType" :TracheaName="TracheaName !== '' ? TracheaName : 'lung'"></btnGroup>
+    <crossHair v-show="crossHairButtonState" :data="viewInfo"></crossHair>
+
+    <subTools :data="viewInfo" :viewType="viewType" :TracheaName="TracheaName !== '' ? TracheaName : 'lung'"></subTools>
 
   </div>
 </template>
 
 <script lang="javascript">
 import btnGroup from "./module/btn-group.vue";
+import subTools from "./module/subTools.vue";
+
 import dicomTags from "./module/dicom-tags.vue";
+import crossHair from "./module/crossHair.vue";
+
 import orientationTags from "./module/orientation-tags.vue";
 
 import { mapActions, mapState } from "vuex";
@@ -44,7 +50,9 @@ export default {
   },
   components: {
     btnGroup,
+    subTools,
     dicomTags,
+    crossHair,
     orientationTags,
 
   },
@@ -54,6 +62,7 @@ export default {
   computed: {
     ...mapState("toolBarStore", {
       jbinfoButtonState: state => state[`${ButtonNames.Jbinfo}${suffix_name}`],
+      crossHairButtonState: state => state[`${ButtonNames.Szckx}${suffix_name}`],
 
     }),
   }

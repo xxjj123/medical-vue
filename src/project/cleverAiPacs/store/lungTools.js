@@ -207,7 +207,7 @@ export default {
      * @param {number} viewIndex - 操作页面索引
      * @param {number} time - 单片切换时间，单元毫秒
      */
-    AutoPlay({ commit, dispatch, state ,rootState,rootGetters }, { viewIndex }) {
+    AutoPlay({ commit, dispatch, state ,rootState,rootGetters },viewportId) {
       console.log("AutoPlay=lung");
 
       // const { mprViewStore } = rootState;
@@ -216,17 +216,52 @@ export default {
       //   dispatch("toolBarStore/activeButtonState",ButtonNames.Pyms,{root:true})
 
       // }
-      let  viewportId = 'STACK_AXIAL'
-      console.log(viewIndex);
+      // let  viewportId = 'STACK_AXIAL'
+      // console.log(viewIndex);
 
-      if(viewIndex == 1)  viewportId = 'STACK_AXIAL'
-      if(viewIndex == 2)  viewportId = 'STACK_CORONAL'
-      if(viewIndex == 3)  viewportId = 'STACK_SAGITTAL'
-
+      // if(viewIndex == 1)  viewportId = 'STACK_AXIAL'
+      // if(viewIndex == 2)  viewportId = 'STACK_CORONAL'
+      // if(viewIndex == 3)  viewportId = 'STACK_SAGITTAL'
+      // const {lungViewStore} = rootState
+      // const { ViewPortData,renderingEngineId} =lungViewStore
+      // const renderingEngine = getRenderingEngine(renderingEngineId);
+      // const viewport = renderingEngine.getViewport(
+      //   viewportId
+      // )
+      // const viewData = ViewPortData[viewportId]
 
       dispatch("lungViewStore/AutoPlay",{ viewportId },{root:true})
-    }
-,
+      // commit("lungViewStore/SET_VIEW_DATA", {
+      //   viewportId,
+      //   key: "autoPlay",
+      //   value: !viewData.autoPlay,
+      // },{root:true});
+    },
+    invertView({commit, state,rootState,rootGetters,dispatch}, viewportId) {
+      const {lungViewStore} = rootState
+      const { ViewPortData,renderingEngineId} =lungViewStore
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
+      const viewData = ViewPortData[viewportId]
+      console.log("!viewData.invert",!viewData.invert);
+      commit("lungViewStore/SET_VIEW_DATA", {
+        viewportId,
+        key: "invert",
+        value: !viewData.invert,
+      },{root:true});
+
+      viewport.setProperties({ invert:!viewData.invert});
+      viewport.render()
+
+
+    },
+
+
+
+
+
 
     /**
      * 页面反向
@@ -294,6 +329,43 @@ export default {
 
     // 改变平移
     ChangePan({dispatch, state, commit,rootState }) {
+      console.log("ChangePan");
+
+      const {lungViewStore} = rootState
+
+      const {renderingEngineId,imageId,toolGroupId} = lungViewStore
+
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      // const viewport = renderingEngine.getViewport(
+      //   viewportId
+      // )
+
+      const toolGroup =  ToolGroupManager.getToolGroup(toolGroupId);
+
+      const PanToolInstance = toolGroup.toolOptions[PanTool.toolName]
+
+      if(PanToolInstance?.mode == 'Active'){
+         toolGroup.setToolPassive(PanTool.toolName);
+         const viewportEntries = Object.values(lungViewStore.ViewPortData);
+         viewportEntries.map(viewinfo=>{
+          const viewport = renderingEngine.getViewport( viewinfo.viewportId )
+            viewport.element.style.cursor = 'default'
+         })
+
+        //  viewport.element.style.cursor = 'default'
+        // await dispatch("spineViewStore/setPositionCenter",null,{root:true})
+
+      }else{
+
+        toolGroup.setToolActive(PanTool.toolName, {
+          bindings: [
+                {
+                  mouseButton: MouseBindings.Primary,
+                },
+              ],
+        });
+
+      }
 
 
     }
@@ -314,13 +386,14 @@ export default {
         const viewport = renderingEngine.getViewport(
           viewInfo.viewportId
         )
-
         if (renderingEngine) {
           const presentation = viewport.getViewPresentation()
           renderingEngine.resize(true, false);  //重置canvas
+          console.log("presentation",presentation);
           viewport.setViewPresentation(presentation);
         }
       })
+      commit("lungViewStore/UPDATE_CROSS_HAIR",null,{root:true})
 
     },
     resizeCamera({state,dispatch,rootGetters}){

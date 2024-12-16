@@ -1,288 +1,316 @@
 <template>
-  <div class="" :class="[
-    'dicom-tags',
-    'absolute',
-    { leftTop: fixHere === 'leftTop' },
-    { rightTop: fixHere === 'rightTop' },
-    { leftBottom: fixHere === 'leftBottom' }
-  ]" :style="{ ...sheetStyleTag }">
-    <template>
-      <div class="item_row flex">
-        <!-- {{ data }} -->
-        <!-- {{ data.hu }} -->
-        <!-- {{ seriesInfo }} -->
+  <div class="btn-group">
+    <div class="btn_grp_item flex items-center">
+      <template v-if="btnInfoItem && Object.keys(btnInfoItem).length > 0">
+        <template v-for="(btn, key) in btnInfoItem">
+          <div
+            :class="[`btn flex`, { selected: btn.code == 'autoplay' ? currentViewAutopalyState : btn.on && btn.mode !== 'more' && btn.mode !== 'other' }, { ripple: btn.mode === 'more' || btn.mode === 'other' }]"
+            :key="`${key}_a`" @click.stop="handle_click(btn, key)">
+            <div :class="['ifontyhpacs', { [`${btn.icon}`]: btn.icon && btn.icon !== '' }]">
+            </div>
 
-        <div class="label">WW/WL:</div>
-        <div class="val">{{ dicomTags.WindowColorLevel }}</div>
-      </div>
 
-    </template>
-    <template>
-      <div class="item_row flex">
-        <div class="label">Image:</div>
-        <div class="val">{{ dicomTags.image }}</div>
-      </div>
-    </template>
-
-    <template v-if="ThicknessShow">
-      <div class="item_row flex">
-        <div class="label">Thickness:</div>
-        <div class="val">{{ ThicknessVal }}</div>
-      </div>
-
-    </template>
-    <template v-if="dicomTags.showMore">
-      <div class="KVP_block absolute leftBottom">
-        <div class="item_row flex">
-          <div class="label">kVp:</div>
-          <div class="val">{{ dicomTags.KvpVal }}</div>
-        </div>
-      </div>
-    </template>
-    <template>
-      <div class="Hu_block absolute leftBottom">
-        <div class="item_row flex">
-          <div class="label">Hu:</div>
-          <div class="val">{{ dicomTags.hu }}</div>
-        </div>
-      </div>
-    </template>
-    <template v-if="dicomTags.showMore">
-      <div class="spac_block absolute leftBottom">
-        <div class="item_row flex">
-          <div class="label">Spacing:</div>
-          <div class="val">{{ dicomTags.SpacVal }}</div>
-        </div>
-      </div>
-    </template>
-    <template v-if="dicomTags.showMore">
-      <div class="dimension_block absolute leftBottom">
-        <div class="item_row flex">
-          <div class="label">Dimension:</div>
-          <div class="val">{{ dicomTags.DimensionVal }}</div>
-        </div>
-      </div>
-    </template>
-    <template v-if="verseTag">
-      <div class="absolute leftBottom">
-        <div class="item_row flex ruleLine items-center">
-          <div class="label flex items-center">
-            <span>{{ scaleplate.value }}</span><span>{{ scaleplate.unit }}</span>
           </div>
-          <div class="val mt-[3px]">
-            <i></i>
-          </div>
-        </div>
-      </div>
-    </template>
-    <template v-if="dicomTags.showMore">
-      <div class="tagsOther absolute rightTop">
-        <div class="item_row flex justify-end">
-          <div class="val">{{ seriesInfo.institutionName }}</div>
-        </div>
-        <div class="item_row flex justify-end">
-          <div class="val">{{ seriesInfo.patientName }}</div>
-        </div>
-        <div class="item_row flex justify-end">
-          <div class="val">F&nbsp;{{ seriesInfo.patientAge }}&nbsp;{{ seriesInfo.patientId }}</div>
-        </div>
-        <div class="item_row flex justify-end">
-          <div class="val">{{ seriesInfo.studyDateAndTime | dateTimeFormat }}</div>
-        </div>
-        <div class="item_row flex justify-end">
-          <div class="val">{{ seriesInfo.manufacturer }}</div>
-        </div>
+          <div class="more_wrap flex items-center" :key="`${key}_b`">
 
-      </div>
-    </template>
+            <template v-if="btn.child && btn.child.length > 0">
+              <template v-if="btn.moreClickOn">
+                <ta-dropdown :placement="'topCenter'" :getPopupContainer="setPopupContainer" :trigger="['click']"
+                  class="flex justify-start items-center mr-[10px]">
+                  <a href="javascript:;" style="color:#fff;">
+                    <ta-icon type="down" v-if="btn.dropdownIconDown" />
+                    <ta-icon type="up" v-else />
+                  </a>
+                  <ta-menu slot="overlay" @click="(e) => handleMenuClick_noduleList(e, { btn, key })">
+                    <ta-menu-item v-for="(item, index) in btn.child" :key="`${index}_${item.altName}`">
+                      <div class="flex">
+                        <div :class="['ifontyhpacs', { [`${item.icon}`]: item.icon && item.icon !== '' }, 'pr-[10px]']">
+
+                        </div>
+                        <div>{{ item.altName }}</div>
+                      </div>
+                    </ta-menu-item>
+                  </ta-menu>
+                </ta-dropdown>
+              </template>
+            </template>
+          </div>
+        </template>
+      </template>
+
+    </div>
+
   </div>
 </template>
+<script lang='javascript'>
+import { btnKey, btnLungCodes, rotateChildBtnCodes, autoPlayCodes, btnInfo } from "./btn-group-assets/btn-t-info";
+import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
-<script>
-import { mapState } from 'vuex';
+import {
+  LayoutIcons,
+} from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
 export default {
-  name: 'dicom-tags',
+  name: 'btn-group',
   props: {
     data: {
       type: Object,
       required: true
     },
-    sheetStyle: {
-      type: Object,
-      default: () => ({})
-    }
-  },
-  computed: {
-    ...mapState("lungViewStore", ["seriesInfo", "allViewData"]),
-
-    dicomTags: {
-      get() {
-        const { changedPageIndex, dimension, hu, viewportId } = this.data
-        const { windowWidth, windowCenter } = this.allViewData
-        const { coronalCount, sagittalCount, kvp } = this.seriesInfo
-        let SpacVal = ''
-        if (this.seriesInfo.pixelSpacing) {
-          const [coronalThick, sagittalThick] = this.seriesInfo.pixelSpacing.split(",").map(item => parseFloat(item).toFixed(2));
-          SpacVal = coronalThick + "/" + sagittalThick || '';
-        }
-        return {
-          image: changedPageIndex + "/" + dimension,
-          hu: hu,
-          showMore: viewportId == 'STACK_AXIAL',
-          WindowColorLevel: windowWidth + "/" + windowCenter,
-          SpacVal: SpacVal,
-          DimensionVal: coronalCount + "/" + sagittalCount,
-          KvpVal: kvp
-
-        }
-
-      }
+    TracheaName: {
+      type: String,
+      default: "" //lung ,heart, brain ,...
     },
+    viewType: {
+      type: [String, Number],
+    },
+  },
 
-    sheetStyleTag: {
+  computed: {
+    btnInfoItem: {
       get() {
-        return this.sheetStyle;
+        const { TracheaName, btnInfoItemLocal } = this
+        return [
+          ...btnInfoItemLocal
+        ]
       },
       set(val) {
-        this.$emit("update:sheetStyle", val)
+        console.log("val----", val);
+        console.log("this.btnInfoItemLocal;____", this.btnInfoItemLocal)
       },
     },
-    group() {
-      return this.data.group || [];
-    },
-    studies_selected() {
-      let studies = this.data.studies_selected;
-      return studies && Object.keys(studies).length > 0 ? studies : false
-    },
-    // WindowColorLevel() {
-    //   return this.allViewData.windowWidth + "/" + this.allViewData.windowCenter || false;
-    // },
+    ...mapState("mprViewStore", ["allViewData"]),
+    ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
 
-    verseTag() {
-      return this.data.verseTag || false;
+    ...mapState("viewInitStore", ["autoPlayStates"]),
+    ...mapGetters("viewInitStore", ["viewAutopalyState"]),
+
+    localSlice_CT_pic_layout: {
+      get() {
+        return this.slice_CT_pic_layout; // 从 Vuex 状态获取值
+      },
+      set(value) {
+        console.log("set___localSlice_CT_pic_layout", value);
+
+        // this.setSlice_CT_pic_layout(value); // 调用 mutation 更新 Vuex 状态
+      },
     },
-    scaleplate() {
-      return this.data.scaleplate || { unit: 'cm', value: '1', width: '16px', verse: true };
+
+    currentViewAutopalyState: {
+      get() {
+        if (this.autoPlayStates[this.viewType]) {
+          return this.autoPlayStates[this.viewType].isAutoPlay;
+        }
+
+      },
+
     },
-    fixHere() {
-      return this.data.fixHere || 'leftTop';
-    }
   },
-  filters: {
-    dateTimeFormat(value) {
-      if (value) {
-        return value.replaceAll('-', '')
+  watch: {
+    btnInfoItem: {
+      handler(nVal, oVal) {
+        // console.log("watch____btnInfoItem", nVal, oVal);
+        // console.log("this.btnInfoItemLocal--waaww", this.btnInfoItemLocal);
+
+      },
+      immediate: true,
+      deep: true,
+    },
+    localSlice_CT_pic_layout: {
+      handler(nVal, oVal) {
+        const that = this;
+
+        // console.log("localSlice_CT_pic_layout___btngroup-nVal, oVal", nVal, oVal);
+
+        switch (nVal) {
+          case LayoutIcons.LGGJST:
+            this.layout = "1";
+            break;
+          case LayoutIcons.MPR:
+            this.layout = "2";
+            break;
+          case LayoutIcons.AXIAL:
+            this.layout = "3";
+            break;
+          case LayoutIcons.CORONAL:
+            this.layout = "4";
+            break;
+          case LayoutIcons.SAGITTAL:
+            this.layout = "5";
+            break;
+          default:
+            return void 0;
+        }
+
+      },
+      immediate: true
+    },
+    currentViewAutopalyState: {
+      handler(nVal, oVal) {
+        // if (nVal) {
+        //   this.$set(this.btnInfoItem[2], "icon", autoPlayCodes.ICO_PACSBOFANG);
+        // } else {
+        //   this.$set(this.btnInfoItem[2], "icon", autoPlayCodes.ICO_PACSZANTING);
+        // }
 
       }
-      return ''
     }
+
   },
   data() {
-    return {}
+    return {
+      btnInfoItemLocal: [],
+      current: "",
+      nextChildCurrent: "",
+      layout: 1,
+      i: 0,
+    }
   },
   created() {
-    // console.log("this.data===", this.data);
+    // this.btnInfoItemLocal = btnInfo[this.TracheaName]
+    this.btnInfoItemLocal = JSON.parse(JSON.stringify(btnInfo[this.TracheaName]));
+    // console.log("created:btnInfoItemLocal==>>>", this.btnInfoItemLocal);
 
-  }
+  },
+  methods: {
+    ...mapActions("mprToolsStore", ["ReverseWindow", "RotateCamera", "FlipHorizontal", "FlipVertical"]),
+    // ...mapActions("toolBarStore", ["AutoPlay"]),
+    ...mapActions("lungToolsStore", ["AutoPlay", "invertView"]),
+
+
+    ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
+    ...mapActions("toolBarStore", ["activeZoom", "activeButtonState"]),
+
+
+    // ...mapMutations("viewInitStore", ["CLEAR_AUTO_PLAY_TIMER"]),
+
+    // ...mapActions("viewInitStore", ["ReverseWindow", "RotateCamera", "AutoPlay", "FlipHorizontal", "FlipVertical"]),
+    handle_click_more(btn, index) {
+      console.log("this.btnInfoItem==start", btn, index);
+
+      this.$set(this.btnInfoItem[index], "moreClickOn", !btn.moreClickOn)
+
+      // console.log("this.btnInfoItem==", this.btnInfoItem);
+
+    },
+    handleMenuClick_noduleList(e, item) {
+      // console.log("handleMenuClick_noduleList", e, item);
+      let { btn, key: index } = item;
+
+      let { keyPath } = e;
+
+      let dropValues = keyPath[0].split("_")
+
+      console.log("dropValues=", dropValues);
+
+      let dropCode = dropValues[0];
+
+      console.log("btn", btn);
+      const { child } = btn;
+
+      if (child) {
+        const selectIcon = child[dropCode]?.icon;
+        console.log("selectIcon_", selectIcon);
+        this.$set(this.btnInfoItem[index], "icon", selectIcon)
+      }
+
+    },
+    setPopupContainer(trigger) {
+      return trigger.parentElement;
+    },
+    handle_click(btn, index) {
+      console.log("btnInfoItemLocal==start", btn, index);
+
+      this.$set(this.btnInfoItem[index], "on", !btn.on)
+      this.current = index;
+
+      console.log("viewType==handle_click=", this.viewType);
+
+      const { code } = btn;
+
+      switch (code) {
+        case btnLungCodes.REBACK: {
+          // this.ReverseWindow(this.viewType)
+          this.invertView(this.data.viewportId)
+
+        }
+          break;
+        case btnLungCodes.XZFZ: {
+          console.log("btn.icon==", btn.icon);
+
+          if (btn.icon === rotateChildBtnCodes.ICO_PACSSHUPING) {
+            this.RotateCamera(this.viewType)
+          } else if (btn.icon === rotateChildBtnCodes.ICO_PACSSHUIPINGFANZHUAN) {
+            this.FlipHorizontal(this.viewType)
+          } else if (btn.icon === rotateChildBtnCodes.ICO_PACSCHUIZHIFANZHUAN) {
+            this.FlipVertical(this.viewType)
+          }
+        }
+          break;
+        case btnLungCodes.AUTOPLAY: {
+          console.log("btnLungCodes.AUTOPLAY", btnLungCodes.AUTOPLAY);
+
+          const { icon, toggle, child } = btn;
+
+
+          switch (icon) {
+            case autoPlayCodes.ICO_PACSBOFANG: {
+              // console.log("icon----------start", icon, autoPlayCodes.ICO_PACSBOFANG);
+              console.log("this.viewType", this.viewType)
+              this.AutoPlay(this.data.viewportId)
+              // this.$set(this.btnInfoItem[index], "icon", autoPlayCodes.ICO_PACSZANTING);
+            }
+              break;
+            case autoPlayCodes.ICO_PACSZANTING: {
+              this.CLEAR_AUTO_PLAY_TIMER(this.viewType)
+              this.$set(this.btnInfoItem[index], "icon", autoPlayCodes.ICO_PACSBOFANG);
+              // console.log("icon----------stop", icon, autoPlayCodes.ICO_PACSZANTING);
+            }
+              break;
+          }
+
+
+        }
+          break;
+        case btnLungCodes.SCREEN: {
+          console.log(this.viewType)
+          this.activeZoom(this.data.layoutIcon)
+
+
+        }
+          break;
+        default:
+          return void 0;
+
+      }
+
+    }
+  },
 }
 </script>
-
 <style lang='less' scoped>
-.dicom-tags {
-  box-sizing: border-box;
-  user-select: none;
-  pointer-events: none;
-  width: 100%;
-  height: 100%;
-}
-
-.leftTop {
-  left: 0;
-  top: 0;
-}
-
-.rightTop {
-  right: 0;
-  top: 0;
-}
-
-
-.leftBottom {
-  left: 0;
-  bottom: 0;
-}
-
-.item_row {
-  box-sizing: border-box;
-  font-size: 12px;
-  font-weight: 100;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-shadow: rgb(0, 0, 0) 1px 1px 0px;
-  margin-bottom: 1px;
-  color: #2cf66c;
-}
-
-.ruleLine {
-  line-height: 1;
-
-  .label {
-    padding-right: 10px;
-    font-size: 13px;
-
-    span {
-      margin-right: 2px;
-    }
-  }
-
-  .val {
-    i {
-      display: block;
-      width: 16px;
-      position: relative;
-      border-bottom: 1px solid hsla(150, 84%, 70%, 0.986);
-
-      &:before,
-      &:after {
-        content: "";
-        display: inline-block;
-        width: 1px;
-        height: 3px;
-        background: hsla(150, 84%, 70%, 0.986);
-        position: absolute;
-      }
-
-      &:before {
-        left: 0;
-        top: 0;
-        bottom: 0;
-        margin: auto;
-      }
-
-      &:after {
-        right: 0;
-        top: 0;
-        bottom: 0;
-        margin: auto;
-      }
-    }
-  }
-}
-
-.KVP_block {
-  bottom: 57px;
-}
-
-.Hu_block {
-  bottom: 43px;
-}
-
-.spac_block {
-  bottom: 28px;
-}
-
-.dimension_block {
+.btn-group {
+  position: absolute;
+  right: 10px;
   bottom: 10px;
+}
+
+.btn_grp_item {
+  .btn {
+    padding: 5px;
+    border-radius: 5px;
+
+    .ifontyhpacs {
+      color: #989EA4;
+    }
+
+    &.selected {
+      background: @primary-color;
+
+      .ifontyhpacs {
+        color: #fff;
+      }
+    }
+  }
 }
 </style>

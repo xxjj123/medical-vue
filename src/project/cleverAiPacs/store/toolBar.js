@@ -214,7 +214,6 @@ export default {
     },
     activeLayout({state,dispatch,commit},layout){
       console.log("layout",layout);
-
       commit("SET_SLICE_CT_PIC_LAYOUT",layout)
       dispatch(state.activeViewModule+"/SetAllViewData",{
         key: "zoomView",
@@ -224,6 +223,13 @@ export default {
         key: "layOut",
         value: layout,
       },{root:true})
+    },
+    activeZoom({state,dispatch,rootState},layoutIcon){
+      dispatch(state.activeViewModule+"/SetAllViewData",{
+        key: "zoomView",
+        value: layoutIcon,
+      },{root:true})
+
     },
 
     UpdateColorWindow({state,dispatch},value){

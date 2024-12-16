@@ -317,6 +317,8 @@ export default {
       state.allViewData.windowCenter = 300
       state.allViewData.windowWidth = 1500
       state.allViewData.isPan = false
+      state.allViewData.invert = false
+
       state.allViewData.layOut = LayoutIcons.MPR;
       state.allViewData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj];
       state.allViewData.activeButtons = [ButtonNames.Jbinfo ]

@@ -8,8 +8,7 @@
   ]" :style="{ ...sheetStyleTag }">
     <template>
       <div class="item_row flex">
-        <!-- {{ data }} -->
-        <!-- {{ data.hu }} -->
+
         <!-- {{ seriesInfo }} -->
 
         <div class="label">WW/WL:</div>
@@ -24,10 +23,10 @@
       </div>
     </template>
 
-    <template v-if="ThicknessShow">
+    <template v-if="dicomTags.showMore">
       <div class="item_row flex">
         <div class="label">Thickness:</div>
-        <div class="val">{{ ThicknessVal }}</div>
+        <div class="val">{{ dicomTags.ThicknessVal }}</div>
       </div>
 
     </template>
@@ -118,9 +117,9 @@ export default {
 
     dicomTags: {
       get() {
-        const { changedPageIndex, dimension, hu, viewportId } = this.data
+        const { changedPageIndex, dimension, hu, viewportId, invert } = this.data
         const { windowWidth, windowCenter } = this.allViewData
-        const { coronalCount, sagittalCount, kvp } = this.seriesInfo
+        const { coronalCount, sagittalCount, sliceThickness, kvp } = this.seriesInfo
         let SpacVal = ''
         if (this.seriesInfo.pixelSpacing) {
           const [coronalThick, sagittalThick] = this.seriesInfo.pixelSpacing.split(",").map(item => parseFloat(item).toFixed(2));
@@ -133,7 +132,9 @@ export default {
           WindowColorLevel: windowWidth + "/" + windowCenter,
           SpacVal: SpacVal,
           DimensionVal: coronalCount + "/" + sagittalCount,
-          KvpVal: kvp
+          KvpVal: kvp,
+          ThicknessVal: parseFloat(sliceThickness).toFixed(2),
+          Invert: invert
 
         }
 
@@ -158,7 +159,42 @@ export default {
     // WindowColorLevel() {
     //   return this.allViewData.windowWidth + "/" + this.allViewData.windowCenter || false;
     // },
+    HuShow() {
+      return this.data.HuShow || false;
+    },
+    HuVal() {
+      return this.data.HuVal || '';
+    },
+    ThicknessShow() {
+      return this.data.ThicknessShow || false
+    },
+    ThicknessVal() {
+      return parseFloat(this.seriesInfo.sliceThickness).toFixed(2) || '';
+    },
+    SpacVal() {
+      if (this.seriesInfo.pixelSpacing) {
+        const [coronalThick, sagittalThick] = this.seriesInfo.pixelSpacing.split(",").map(item => parseFloat(item).toFixed(2));
+        return coronalThick + "/" + sagittalThick || '';
+      } else {
+        return ''
+      }
 
+    },
+    SpaceShow() {
+      return this.data.SpaceShow || false;
+    },
+    KvpShow() {
+      return this.data.KvpShow || false;
+    },
+    KvpVal() {
+      return this.seriesInfo.kvp || '';
+    },
+    DimensionShow() {
+      return this.data.DimensionShow || false;
+    },
+    DimensionVal() {
+      return this.seriesInfo.coronalCount + "/" + this.seriesInfo.sagittalCount || '';
+    },
     verseTag() {
       return this.data.verseTag || false;
     },

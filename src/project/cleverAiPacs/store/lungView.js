@@ -28,6 +28,10 @@ import {CircularMagnifyTool,PointInfoTool} from "@/picComps/picDiagnose/menudata
 import {ViewData,AllViewData, ViewRenderer} from './data';
 import {xhr_getSlice,xhr_getDcmSlice,xhr_queryNodule,xhr_queryOperate} from "@/api";
 import { gdcmReadImage} from "@itk-wasm/image-io"
+import {
+  LayoutIcons,
+} from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
+
 
 cornerstoneTools.addTool(SplineROITool)
 
@@ -36,6 +40,7 @@ const VIEW_INFO = {
   AXIAL: {
     viewportId: 'STACK_AXIAL',
     viewName: 'axial',
+    layoutIcon:LayoutIcons.AXIAL,
     ijkId:2,
     autoPlay:{
       state:false,
@@ -46,6 +51,8 @@ const VIEW_INFO = {
   CORONAL: {
     viewportId: 'STACK_CORONAL',
     viewName: 'coronal',
+    layoutIcon:LayoutIcons.CORONAL,
+
     ijkId:1,
     autoPlay:{
       state:false,
@@ -56,6 +63,8 @@ const VIEW_INFO = {
   SAGITTAL: {
     viewportId: 'STACK_SAGITTAL',
     viewName: 'sagittal',
+    layoutIcon:LayoutIcons.SAGITTAL,
+
     ijkId:0,
     autoPlay:{
       state:false,
@@ -169,7 +178,6 @@ const getDefaultState = () => ({
 
 
 
-
   CoronalData: new ViewData(),
   AxialData: new ViewData(),
   SagittalData: new ViewData(),
@@ -188,8 +196,7 @@ const getDefaultState = () => ({
     animationId: null,
   })),
   activedModules: [],
-
-   selectedNoduleId: null,
+  selectedNoduleId: null,
 });
 
 export default {
@@ -233,11 +240,34 @@ export default {
     },
     SET_ACTIVE_IJK(state,{index,value}){
       state.activeIJK[index] = value
-      const viewportEntries = Object.values(state.ViewPortData);
+
+    },
+    UPDATE_CROSS_HAIR(state){
+
+      const {renderingEngineId,ViewPortData } =  state
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+
+      const viewportEntries = Object.values(ViewPortData);
       viewportEntries.map(viewInfo=>{
-        const {ijkToImage} = VIEW_METHOD[viewInfo.viewportId]
+        const {viewportId} = viewInfo
+        const {ijkToImage} = VIEW_METHOD[viewportId]
         const imageIJ = ijkToImage(state.activeIJK)
-        // console.log(imageIJ);
+
+
+        const viewport = renderingEngine.getViewport(
+          viewportId
+       )
+        const image = viewport?.getImageData()
+        if(image){
+          const {imageData} = image
+
+          const worldPos = imageData.indexToWorld([...imageIJ,0]);
+          const canvasPos = viewport.worldToCanvas(worldPos)
+          const view = state.ViewPortData[viewportId];
+          view['displayX'] = canvasPos[0]||0;
+          view['displayY'] = canvasPos[1]||0;
+        }
+
 
       })
     },
@@ -317,14 +347,21 @@ export default {
     },
 
 
-
-
     SET_MOUSE_DOWN(state, value) {
       state.mouseDown = value;
     },
 
     SET_ALL_VIEW_STATE(state, { key, value}) {
-      state.allViewData[key] = value;
+      if(key == 'zoomView'){
+        if(state.allViewData['zoomView']){
+          state.allViewData['zoomView'] = null
+        }else{
+          state.allViewData[key] = value;
+        }
+      }else{
+        state.allViewData[key] = value;
+
+      }
 
     },
 
@@ -334,8 +371,6 @@ export default {
       commit("SET_ALL_VIEW_STATE",{ key,value })
     },
     async ActiveModule({dispatch, state, getters, commit,rootState,rootGetters},currentModuleState){
-      console.log("ActiveModule",currentModuleState);
-
       await dispatch("clearAllAutoplay" )
 
       if(state.activeModule){
@@ -368,6 +403,7 @@ export default {
         console.log("prePresentation",prePresentation);
 
         // renderingEngine.resize(true, false);  //重置canvas
+
         viewport.setViewPresentation(prePresentation);
         cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
           viewportId
@@ -478,6 +514,8 @@ export default {
 
         })
         element.addEventListener( Events.MOUSE_CLICK, (event)=>{
+          dispatch("clearAllAutoplay")
+
           const image = viewport?.getImageData()
           // console.log("isInteractingWithTool",cornerstoneTools.state.isInteractingWithTool);
           // console.log("isMultiPartToolActive",cornerstoneTools.state.isMultiPartToolActive);
@@ -502,6 +540,8 @@ export default {
 
         })
         element.addEventListener( Events.MOUSE_DRAG, (event)=>{
+          dispatch("clearAllAutoplay")
+
           const image = viewport?.getImageData()
           const activeToolName =  toolGroup.getCurrentActivePrimaryToolName()
 
@@ -521,6 +561,8 @@ export default {
 
 
         element.addEventListener( Events.MOUSE_WHEEL, (event)=>{
+          dispatch("clearAllAutoplay")
+
           const image = viewport?.getImageData()
           if(image){
             const { wheel } = event.detail;
@@ -720,6 +762,8 @@ export default {
     async updateSliceForView({dispatch,commit,state}, { viewInfo , index }) {
       if(index == ''  ) return;
       const {viewportId,ijkId} = viewInfo
+      commit("SET_ACTIVE_IJK",{index:ijkId,value:index})
+      commit("UPDATE_CROSS_HAIR")
 
       const viewInstance =  state.ViewPortInstanceData[viewportId]
       if(viewInstance.pageIndex != index) {
@@ -730,7 +774,7 @@ export default {
           commit("UPDATE_LOAD_STATUS", false);
           const imageId = await dispatch("UpdateSlice", {viewInfo, file});
           commit("SET_VIEW_DATA", {viewportId, key: "pageIndex", value: index});
-          commit("SET_ACTIVE_IJK",{index:ijkId,value:index})
+
 
         }
 
@@ -801,7 +845,7 @@ export default {
         const WW = 1500
         const WC = -500
 
-       viewport. setProperties({ voiRange: { upper: WC + WW / 2, lower: WC - WW / 2 } });
+       viewport.setProperties({ voiRange: { upper: WC + WW / 2, lower: WC - WW / 2 } });
       }
       const { element } = viewport;
       // let annotations = annotation.state.getAllAnnotations()

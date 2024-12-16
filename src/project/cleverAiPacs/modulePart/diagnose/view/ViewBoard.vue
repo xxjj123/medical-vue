@@ -24,8 +24,7 @@
           <lungSubscript :sheetStyle="sheetStyle_AxialData" :viewInfo="AxialViewData" :viewType="AxialData.viewIndex"
             class="absolute z-2" :TracheaName="`lung`">
             <div class="relative view-item bg-slate-500" ref="ViewAxialRef">
-              <crossHair v-if="AxialData.displayX && AxialData.displayY" class="absolute top-0 h-full w-full left-0 z-1"
-                :crosshairData="axialCrosshairData" />
+              <crossHair class="absolute top-0 h-full w-full left-0 z-1" :crosshairData="AxialViewData" />
             </div>
           </lungSubscript>
         </div>
@@ -40,9 +39,9 @@
           <lungSubscript :viewInfo="CoronalViewData" :viewType="CoronalData.viewIndex" class="absolute z-2"
             :TracheaName="`lung`">
             <div class="relative view-item bg-slate-400" ref="ViewCoronalRef">
-              <crossHair v-if="CoronalData.displayX && CoronalData.displayY"
+              <crossHair v-if="CoronalViewData.displayX && CoronalViewData.displayY"
                 class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
-                :crosshairData="coronalCrosshairData" />
+                :crosshairData="CoronalViewData" />
 
             </div>
           </lungSubscript>
@@ -58,9 +57,9 @@
           <lungSubscript :viewInfo="SagittalViewData" :viewType="SagittalData.viewIndex" class="absolute z-2"
             :TracheaName="`lung`">
             <div class="relative view-item bg-slate-600" ref="ViewSagittalRef">
-              <crossHair v-if="SagittalData.displayX && SagittalData.displayY"
+              <crossHair v-if="SagittalViewData.displayX && SagittalViewData.displayY"
                 class="absolute top-0 h-full w-full left-0 z-99 select-none pointer-events-none border-amber border-spacing-1"
-                :crosshairData="sagittalCrosshairData" />
+                :crosshairData="SagittalViewData" />
             </div>
           </lungSubscript>
         </div>
@@ -196,23 +195,23 @@ export default {
 
     axialCrosshairData() {
       return {
-        crosshair_x: this.AxialData.displayX,
-        crosshair_y: this.AxialData.displayY,
-        scale_length: this.AxialData.scaleLength,
+        crosshair_x: this.AxialViewData.displayX,
+        crosshair_y: this.AxialViewData.displayY,
+        scale_length: this.AxialViewData.scaleLength,
       };
     },
     coronalCrosshairData() {
       return {
-        crosshair_x: this.CoronalData.displayX,
-        crosshair_y: this.CoronalData.displayY,
-        scale_length: this.CoronalData.scaleLength,
+        crosshair_x: this.CoronalViewData.displayX,
+        crosshair_y: this.CoronalViewData.displayY,
+        scale_length: this.CoronalViewData.scaleLength,
       };
     },
     sagittalCrosshairData() {
       return {
-        crosshair_x: this.SagittalData.displayX,
-        crosshair_y: this.SagittalData.displayY,
-        scale_length: this.SagittalData.scaleLength,
+        crosshair_x: this.SagittalViewData.displayX,
+        crosshair_y: this.SagittalViewData.displayY,
+        scale_length: this.SagittalViewData.scaleLength,
       };
     },
     computedLayout() {
