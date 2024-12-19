@@ -1,4 +1,4 @@
-import { RenderingEngine ,Enums,utilities,metaData,  getRenderingEngine} from '@cornerstonejs/core';
+import { RenderingEngine ,Enums,utilities,metaData,cache,  getRenderingEngine,imageLoader} from '@cornerstonejs/core';
 import * as cornerstoneTools from '@cornerstonejs/tools';
 const {annotation} = cornerstoneTools;
 
@@ -45,7 +45,7 @@ const VIEW_METHOD = {
         [ymin, zmax],
         [ymin, zmin]
       ];
-      const bounds = [ymin,ymax]
+      const bounds = [xmin,xmax]
       return {pointsList,bounds}
     }
   }
@@ -234,16 +234,20 @@ export default {
 
       const renderingEngine = getRenderingEngine(renderingEngineId);
       const viewportEntries = Object.values(ViewPortData);
-
-      viewportEntries.map((viewInfo) =>{
+      // cache.purgeCache()
+      viewportEntries.map(async (viewInfo) =>{
         const viewport = renderingEngine.getViewport(
           viewInfo.viewportId
         )
-        console.log(viewport.getImageData());
-
         const presentation = viewport.getViewPresentation()
         state.ViewPortData[viewInfo.viewportId].prePresentation  = presentation
+        state.ViewPortData[viewInfo.viewportId].pan  = viewport.getPan()
+        state.ViewPortData[viewInfo.viewportId].imageId = viewInfo.imageId
+        console.log("保存",viewInfo.imageId);
+
+        await imageLoader.loadAndCacheImage(viewInfo.imageId)
         // state.ViewPortData[viewInfo.viewportId].preImage = viewport.getImageData()
+
       })
 
     },
@@ -436,7 +440,6 @@ export default {
       })
       annotationIds.forEach(annoId=>{
         annotation.state.removeAnnotation(annoId)
-
       })
 
       state.noduleInfo.noduleLesionList?.forEach((nodule)=>{
@@ -445,7 +448,6 @@ export default {
          const {pointsList,bounds} =  result
 
         if(pageIndex >= bounds[0] && pageIndex <= bounds[1]){
-          console.log("绘制",viewportId,);
 
           const worldPoints = pointsList.map((point,index)=>{
             return imageData.indexToWorld([...point,0]);
@@ -535,6 +537,8 @@ export default {
       const nodule = state.noduleInfo.noduleLesionList.find((nodule) => nodule.id === bboxindex);
       if (nodule) {
         const { points, id } = nodule;
+        console.log("id",id);
+
         commit("ACTIVATE_ANNOTATAION", id);
 
         const bbox = points.split(",").map(Number);

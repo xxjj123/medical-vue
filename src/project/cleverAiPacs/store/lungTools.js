@@ -379,20 +379,32 @@ export default {
      */
     resizeSliceViews({dispatch, state,   commit,rootState,rootGetters}) {
       const {lungViewStore} = rootState
-      const { renderingEngineId} =lungViewStore
-      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const {ViewPortData,renderingEngineId } =  lungViewStore
 
-      [VIEW_INFO.SAGITTAL, VIEW_INFO.CORONAL, VIEW_INFO.AXIAL].forEach(viewInfo=>{
+
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewportEntries = Object.values(ViewPortData);
+
+       viewportEntries.map((viewInfo)=>{
         const viewport = renderingEngine.getViewport(
           viewInfo.viewportId
         )
         if (renderingEngine) {
           const presentation = viewport.getViewPresentation()
           renderingEngine.resize(true, false);  //重置canvas
-          console.log("presentation",presentation);
-          viewport.setViewPresentation(presentation);
+          requestAnimationFrame(()=>{
+            console.log("presentation",presentation);
+            viewport.setViewPresentation(presentation);
+            viewport.render()
+            commit("lungViewStore/UPDATE_CROSS_HAIR",null,{root:true})
+
+          })
+
+
         }
-      })
+       })
+
+
       commit("lungViewStore/UPDATE_CROSS_HAIR",null,{root:true})
 
     },

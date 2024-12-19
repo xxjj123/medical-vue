@@ -1,4 +1,4 @@
-import { RenderingEngine ,Enums,utilities,metaData,  getRenderingEngine} from '@cornerstonejs/core';
+import { RenderingEngine ,Enums,utilities,metaData,cache,  getRenderingEngine,imageLoader} from '@cornerstonejs/core';
 import * as cornerstoneTools from '@cornerstonejs/tools';
 const {annotation} = cornerstoneTools;
 
@@ -259,17 +259,21 @@ export default {
       const renderingEngine = getRenderingEngine(renderingEngineId);
 
       const viewportEntries = Object.values(ViewPortData);
-
-      viewportEntries.map((viewInfo) =>{
+      // cache.purgeCache()
+      viewportEntries.map(async (viewInfo) =>{
         const viewport = renderingEngine.getViewport(
           viewInfo.viewportId
         )
         const presentation = viewport.getViewPresentation()
         state.ViewPortData[viewInfo.viewportId].prePresentation  = presentation
+        state.ViewPortData[viewInfo.viewportId].pan  = viewport.getPan()
+        state.ViewPortData[viewInfo.viewportId].imageId = viewInfo.imageId
+        console.log("保存",viewInfo.imageId);
+
+        await imageLoader.loadAndCacheImage(viewInfo.imageId)
         // state.ViewPortData[viewInfo.viewportId].preImage = viewport.getImageData()
 
       })
-
     },
 
     SET_FRAC_INFO(state, fracInfo) {

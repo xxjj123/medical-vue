@@ -5,7 +5,6 @@
       <PacsPageHeader></PacsPageHeader>
     </div>
     <div style="height: 80px"></div>
-
     <div class="contentMain">
       <div class="headerBox">
         <ta-row type="flex" justify="space-between">
@@ -24,12 +23,10 @@
               </ta-form-model-item>
               <ta-form-model-item label="患者信息" prop="patientValue">
                 <ta-input-group compact>
-
                   <ta-select style="width: 100px" v-model="searchForm.patientInfo" @change="patientMapOb.onChange"
                     :options="patientMapOb.options" :options-key="patientMapOb.optionskV">
                   </ta-select>
                   <ta-input-search allowClear style="width: 120px" @search="patientMapOb.searchInfo" />
-
 
                 </ta-input-group>
               </ta-form-model-item>
@@ -46,15 +43,14 @@
               <ta-form-model-item>
                 <!-- <ta-button type="primary" class="mr-[8px]" @click="handle_queryDicomList">查询</ta-button> -->
                 <ta-button @click="handle_searchItem_reset">重置</ta-button>
-                <ta-button @click="goto_workplatform">跳转</ta-button>
+                <!-- <ta-button @click="goto_workplatform">跳转</ta-button> -->
               </ta-form-model-item>
             </ta-form-model>
           </ta-col>
           <ta-col>
             <div class="btn_ctrl flex justify-start">
               <ta-button @click="handle_favorite_querylist" class="aghost__border-grey-1 flex items-center mr-[12px]"
-                :ghost="!managerDicomTableConf.myFavorite"><i
-                  class="ico_star mr-[5px]"></i><span>我的收藏</span></ta-button>
+                :ghost="!searchForm.myFavorite"><i class="ico_star mr-[5px]"></i><span>我的收藏</span></ta-button>
               <ta-button class="aghost__border-grey-1 flex items-center" :ghost="true" @click="handle_openfiledraw"><i
                   class="ico_upd mr-[5px]"></i><span>上传文件</span></ta-button>
             </div>
@@ -62,7 +58,7 @@
         </ta-row>
       </div>
       <div class="tableBox">
-        <ta-big-table ref="xTable" height="auto" auto-resize :data="tableData"
+        <ta-big-table ref="xTable" height="auto" auto-resize :data="tableData" :row-style="rowStyle"
           @cell-click="tableDataConfig.cellClickEvent" highlight-hover-row border="inner">
           <ta-big-table-column field="myFavorite" title="#" width="60" fixed="left">
             <template #default="{ row, rowIndex }">
@@ -120,8 +116,7 @@
               :showSizeChanger="false" :url="managerDicomTableConf.queryUrl" :params="managerDicomTableConf.fnParams"
               :pageSize.sync="managerDicomTableConf.pageInfo.pageSize"
               @showSizeChange="managerDicomTableConf.onShowSizeChange" @change="managerDicomTableConf.onChange"
-              :defaultCurrent="managerDicomTableConf.pageInfo.pageNumber" :total="managerDicomTableConf.pageInfo.total"
-              ref="gridPager" />
+              :defaultCurrent="searchForm.pageNumber" :total="managerDicomTableConf.pageInfo.total" ref="gridPager" />
           </template>
         </ta-big-table>
       </div>
@@ -335,6 +330,7 @@ export default {
     AlgorithmTypeSelect,
   },
   computed: {
+    //...mapState("caseSearchStore", ["searchForm"]),
     previewTableSeriesInfo: {
       get() {
         return this.previewTable.seriesList.map(series => series[0].metadata);
@@ -345,15 +341,30 @@ export default {
         return this.tableDataValue;
       },
       set(val) {
-        console.log("tableDataValue2222", val);
+        // console.log("tableDataValue2222", val);
         const list = val.map(vo => { return { ...vo, isDisabled: !(vo.caseSeriesList[0]?.computeStatus == '3') } })
         this.tableDataValue = list;
       },
     },
     showTableData_anaRes: {
       get() {
-        const isShow = this.tableDataValue.some(row => row.studyId === this.selectedstudyId);
-        return isShow ? this.tableData_anaRes : [];
+        // const isShow = this.tableDataValue.some(row => row.studyId === this.searchForm.selectedStudyId);
+        const tableData_anaRes = this.tableDataValue.find(item => item.studyId === this.searchForm.selectedStudyId)
+        console.log(tableData_anaRes);
+
+        if (tableData_anaRes) {
+          const { caseSeriesList, myFavorite, studyId } = tableData_anaRes;
+
+          let newSeriesList = [];
+
+          newSeriesList = caseSeriesList.map((vo) => ({
+            ...vo,
+            myFavorite,
+            isDisabled: !(vo.computeStatus == '3')
+          }));
+          return newSeriesList
+        }
+        return []
 
       }
     }
@@ -482,32 +493,37 @@ export default {
         cellClickEvent: ({ row, rowIndex, $rowIndex, column }) => {
           const { property } = column;
           if (property !== "myFavorite") {
+            const { caseSeriesList, myFavorite, studyId } = row;
 
-            const { caseSeriesList, myFavorite } = row;
-            let newSeriesList = [];
+            this.searchForm.selectedStudyId = studyId
 
-            newSeriesList = caseSeriesList.map((vo) => ({
-              ...vo,
-              myFavorite,
-              isDisabled: !(vo.computeStatus == '3')
-            }));
 
-            this.selectedstudyId = row.studyId
-            this.tableData_anaRes = newSeriesList;
-            const row1 = row;
-            const { seriesList: _, ...studySelectItem } = row1;
-            const localDb = getStorage('#_st', 'studySelectItem', true)
+            // let newSeriesList = [];
 
-            if (localDb) {
-              const storage = createWebStorage('#_st', { isLocal: true, })
-              const skItem = storage.get('studySelectItem')
-              // storage.remove('studySelectItem');
-              storage.set('studySelectItem', studySelectItem)
+            // newSeriesList = caseSeriesList.map((vo) => ({
+            //   ...vo,
+            //   myFavorite,
+            //   isDisabled: !(vo.computeStatus == '3')
+            // }));
+            // console.log("newSeriesList", newSeriesList);
 
-            } else {
-              const storage = createWebStorage('#_st', { isLocal: true, })
-              storage.set('studySelectItem', studySelectItem)
-            }
+
+            // this.selectedstudyId = row.studyId
+            // this.tableData_anaRes = newSeriesList;
+            // const row1 = row;
+            // const { seriesList: _, ...studySelectItem } = row1;
+            // const localDb = getStorage('#_st', 'studySelectItem', true)
+
+            // if (localDb) {
+            //   const storage = createWebStorage('#_st', { isLocal: true, })
+            //   const skItem = storage.get('studySelectItem')
+            //   // storage.remove('studySelectItem');
+            //   storage.set('studySelectItem', studySelectItem)
+
+            // } else {
+            //   const storage = createWebStorage('#_st', { isLocal: true, })
+            //   storage.set('studySelectItem', studySelectItem)
+            // }
 
 
           }
@@ -537,7 +553,14 @@ export default {
           console.log(`selected ${value}`);
         },
         searchInfo: (value) => {
+          //  const itemList = [
+          //  {key:'patientValue',value:value}
+          // ]
+          //this.setSearchForm(itemList)
+
           this.searchForm.patientValue = value
+          this.searchForm.pageNumber = 1
+
           this.handle_queryDicomList()
 
         },
@@ -567,6 +590,7 @@ export default {
       },
       mathTypeMapOb: {
         onChange: (value) => {
+          this.searchForm.pageNumber = 1
           this.handle_queryDicomList()
 
         },
@@ -617,6 +641,8 @@ export default {
       computeStateMapOb: {
         onChange: (value) => {
           console.log(`selected ${value}`);
+          this.searchForm.pageNumber = 1
+
           this.handle_queryDicomList()
 
         },
@@ -684,6 +710,7 @@ export default {
         onChange: (page, pageSize) => {
           console.log("onChange--page, pageSize", page, pageSize);
           this.managerDicomTableConf.pageInfo.pageNumber = page;
+          this.searchForm.pageNumber = page
           this.managerDicomTableConf.pageInfo.pageSize = pageSize;
 
           this.managerDicomTableConf.queryPagerInfo();
@@ -716,7 +743,9 @@ export default {
           };
           // console.log("fnParams----this.form", this.form);
           let ExtParams = {};
-          const { patientInfo, patientValue, rangeDate, mathType, computeState } = this.searchForm;
+          const { patientInfo, patientValue, rangeDate, mathType, computeState, myFavorite, pageNumber } = this.searchForm;
+          console.log("rangeDate", rangeDate);
+
           // debugger
           const isisPatientOptionValid_state =
             isPatientOptionValid(patientInfo);
@@ -758,10 +787,11 @@ export default {
             ExtParams.endDate = rangeDate[1].format(this.rangeDateOb.dateFormat)
 
           }
-
-          if (this.managerDicomTableConf.myFavorite) {
-            ExtParams.myFavorite = true;
+          if (myFavorite) {
+            ExtParams.myFavorite = myFavorite;
           }
+          ExtParams.pageNumber = pageNumber
+
 
           const fullExtParam = Object.assign({}, baseModel, ExtParams);
 
@@ -1019,7 +1049,11 @@ export default {
         rangeDate: ["", ""],
         patientInfo: "",
         patientValue: "",
+        selectedStudyId: "",
+        pageNumber: 1,
+
         mathType: "",
+        myFavorite: false,
         computeState: "",
       },
       examinationTime: {
@@ -1047,13 +1081,21 @@ export default {
             case "inweek":
               startDate = today.clone().subtract(7, 'days')
               endDate = today
+
               break;
             default:
               startDate = "";
               endDate = "";
           }
 
+          // const itemList = [
+          //    {key:'rangeDate',value:[startDate, endDate]}
+          // ]
+          // this.setSearchForm(itemList)
+
           this.searchForm.rangeDate = [startDate, endDate];
+          this.searchForm.pageNumber = 1
+
 
           this.handle_queryDicomList()
 
@@ -1115,6 +1157,16 @@ export default {
       deep: true,
       immediate: true,
     },
+    searchForm: {
+      handler(nVal, oVal) {
+        if (nVal) {
+          sessionStorage.setItem('searchForm', JSON.stringify(nVal));
+        }
+        // this.tableData = nVal;
+      },
+      deep: true,
+      // immediate: true,
+    },
     pageSize(val) {
       // console.log("pageSize", val);
     },
@@ -1124,6 +1176,15 @@ export default {
 
   },
   methods: {
+    //...mapActions("caseSearchStore",["setSearchForm"]),
+    rowStyle({ row }) {
+      if (row.studyId == this.searchForm.selectedStudyId) {
+        return {
+          backgroundColor: 'rgba(128, 128, 128, 0.3)',
+          // color: '#ffffff'
+        }
+      }
+    },
     triggerFileInput() {
       this.$refs.fileInputRef.click();
     },
@@ -1189,7 +1250,6 @@ export default {
               "SeriesDescription",
               "Modality",
             ];
-
             const metadata = this.$ut.dicomTagsToValues(dataSet, fieldsToMap);
             // zip.file(file.name, file);
             resolve({ metadata, file });
@@ -1247,15 +1307,22 @@ export default {
       });
     },
     handle_favorite_querylist() {
-      const { myFavorite } = this.managerDicomTableConf;
+      const { myFavorite } = this.searchForm;
       if (!myFavorite) {
-        this.$set(this.managerDicomTableConf, "myFavorite", true);
+        this.searchForm.myFavorite = true
+        this.searchForm.pageNumber = 1
+
+        // this.$set(this.managerDicomTableConf, "myFavorite", true);
         this.init_loadData();
-        this.$message.success(`切换查看我的收藏列表`);
+        // this.$message.success(`切换查看我的收藏列表`);
       } else {
-        this.$set(this.managerDicomTableConf, "myFavorite", false);
+        this.searchForm.myFavorite = false
+        this.searchForm.pageNumber = 1
+
+
+        // this.$set(this.managerDicomTableConf, "myFavorite", false);
         this.init_loadData();
-        this.$message.success(`返回默认查询列表数据`);
+        // this.$message.success(`返回默认查询列表数据`);
       }
     },
     handle_searchItem_reset() {
@@ -1264,10 +1331,18 @@ export default {
       this.handle_queryDicomList()
     },
     init_searchData() {
+      // const itemList = [
+      //   {key:'qaTime',value:'custom'}
+      // ]
+      // this.setSearchForm()
       this.searchForm.qaTime = "custom"
       this.searchForm.patientInfo = "accessionNumber"
       this.searchForm.patientValue = ""
+      this.searchForm.selectedStudyId = ""
+      this.searchForm.pageNumber = 1
+
       this.searchForm.mathType = ""
+      this.searchForm.myFavorite = false
       this.searchForm.computeState = ""
       this.searchForm.rangeDate = ["", ""]
       this.rangeDateOb.show = true;
@@ -1282,11 +1357,10 @@ export default {
       });
     },
     handle_queryDicomList() {
-      this.cache_init_pageData();
+      this.init_loadData();
     },
     async cache_init_pageData() {
       this.init_loadData();
-
     },
     handleFile(e) {
 
@@ -1300,15 +1374,18 @@ export default {
       });
     },
     handleEdit1(index, row) {
-      console.log("handleEdit--manage1", index, row);
-      const { computeSeriesId, computeType } = row;
+      const { computeSeriesId, computeType, studyId } = row;
+      console.log("studyId", studyId);
+
+
+      console.log("handleEdit--manage1", this.searchForm);
+
       // 同步dicom map info
       let path
       if (String(computeType) == '1') {
         path = "diagnose"
       } else if (String(computeType) == '2') {
         path = "picdiagnose"
-
       }
       this.$router.push({
         path,
@@ -1316,10 +1393,12 @@ export default {
           computeSeriesId,
         },
       });
+
     },
     handleEdit(index, row) {
       console.log("handleEdit--manage", index, row);
-      const { caseSeriesList } = row;
+      const { caseSeriesList, studyId } = row;
+      this.searchForm.selectedStudyId = studyId
       const { computeSeriesId, computeType } = caseSeriesList[0];
       let path
       if (String(computeType) == '1') {
@@ -1328,12 +1407,15 @@ export default {
         path = "picdiagnose"
 
       }
-      this.$router.push({
-        path,
-        query: {
-          computeSeriesId,
-        },
-      });
+      requestAnimationFrame(() => {
+        this.$router.push({
+          path,
+          query: {
+            computeSeriesId,
+          },
+        });
+      })
+
     },
 
     handle_openfiledraw() {
@@ -1347,6 +1429,9 @@ export default {
           xhr_removeFavorite({
             studyId,
           }).then((item) => {
+            // this.searchForm.myFavorite = false
+            // this.searchForm.pageNumber = 1
+
             this.$set(this.tableData[rowIndex], "myFavorite", false);
             this.$message.success("取消收藏成功");
           });
@@ -1354,6 +1439,9 @@ export default {
           xhr_addFavorite({
             studyId,
           }).then((item) => {
+            // this.searchForm.myFavorite = true
+            // this.searchForm.pageNumber = 1
+
             this.$set(this.tableData[rowIndex], "myFavorite", true);
             this.$message.success("收藏成功");
           });
@@ -1411,9 +1499,37 @@ export default {
   },
 
   created() {
-    this.init_searchData();
+    // this.init_searchData();
     this.$nextTick(() => {
+      const searchForm = JSON.parse(sessionStorage.getItem('searchForm'));
+
+      if (searchForm) {
+        if (searchForm.rangeDate[0] == '' && searchForm.rangeDate[1] == '') {
+          searchForm.rangeDate = ["", ""]
+        } else {
+          searchForm.rangeDate = searchForm.rangeDate.map(item => {
+            console.log(item);
+            if (item) {
+              return moment(item)
+            } else {
+              return moment()
+            }
+
+          })
+        }
+
+        // const savedTime = moment(searchForm.rangeDate[0]);
+        // console.log(savedTime);
+
+
+        this.searchForm = searchForm
+        this.rangeDateOb.show = true;
+
+      } else {
+        this.init_searchData();
+      }
       this.cache_init_pageData();
+
 
       // setTimeout(() => {
       //   cornerstoneWADOImageLoader.external.cornerstone = cornerstone;

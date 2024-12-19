@@ -158,8 +158,6 @@
       </div>
     </ta-tooltip>
 
-
-
     <ta-tooltip placement="bottomLeft">
       <template slot="title">
         <span>平移模式</span>

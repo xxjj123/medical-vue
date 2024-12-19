@@ -3,7 +3,7 @@ import { dicomTagDescriptions } from "@/assets/js/utils/dicom/tagCode";
 
 import Vue from 'vue';
 import * as cornerstone from '@cornerstonejs/core';
-import { RenderingEngine ,Enums,utilities,metaData,getRenderingEngine  } from '@cornerstonejs/core';
+import { RenderingEngine ,Enums,utilities,metaData,getRenderingEngine ,imageLoader} from '@cornerstonejs/core';
 // import { Types } from '@cornerstonejs/core';
 
 import * as cornerstoneTools from '@cornerstonejs/tools';
@@ -11,17 +11,19 @@ const { ViewportType,MetadataModules } = Enums;
 const {Events} = cornerstoneTools.Enums
 const { MouseBindings } = cornerstoneTools.Enums;
 import cornerstoneDICOMImageLoader from '@cornerstonejs/dicom-image-loader';
-const {annotation,ToolGroupManager, LengthTool,PanTool,ZoomTool,DragProbeTool,SplineROITool, RectangleROITool ,CobbAngleTool} = cornerstoneTools;
+const {annotation,ToolGroupManager, LengthTool,PanTool,ZoomTool,DragProbeTool,SplineROITool, RectangleROITool } = cornerstoneTools;
 const { transformWorldToIndex,imageToWorldCoords,transformIndexToWorld } = utilities;
 console.log("utilities",utilities);
 console.log("Events",Events);
+
+// cornerstone.Events
 
 cornerstone.init();
 cornerstoneTools.init();
 
 cornerstoneDICOMImageLoader.init();
-cornerstone.imageLoader.registerImageLoader('wadouri', cornerstoneDICOMImageLoader.wadouri.loadImage);
-
+imageLoader.registerImageLoader('wadouri', cornerstoneDICOMImageLoader.wadouri.loadImage);
+// cornerstone.cache.setMaxCacheSize(10000000)
 
 import {CircularMagnifyTool,PointInfoTool} from "@/picComps/picDiagnose/menudata/spine/toolClass"
 
@@ -241,9 +243,35 @@ export default {
     SET_ACTIVE_IJK(state,{index,value}){
       state.activeIJK[index] = value
 
+      const {renderingEngineId,ViewPortData } =  state
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+
+      const viewportEntries = Object.values(ViewPortData);
+      viewportEntries.map(viewInfo=>{
+        const {viewportId} = viewInfo
+        const {ijkToImage} = VIEW_METHOD[viewportId]
+        const imageIJ = ijkToImage(state.activeIJK)
+
+
+        const viewport = renderingEngine.getViewport(
+          viewportId
+       )
+        const image = viewport?.getImageData()
+        if(image){
+          const {imageData} = image
+
+          const worldPos = imageData.indexToWorld([...imageIJ,0]);
+          const canvasPos = viewport.worldToCanvas(worldPos)
+          const view = state.ViewPortData[viewportId];
+          view['displayX'] = canvasPos[0]||0;
+          view['displayY'] = canvasPos[1]||0;
+        }
+
+
+      })
+
     },
     UPDATE_CROSS_HAIR(state){
-
       const {renderingEngineId,ViewPortData } =  state
       const renderingEngine = getRenderingEngine(renderingEngineId);
 
@@ -360,9 +388,7 @@ export default {
         }
       }else{
         state.allViewData[key] = value;
-
       }
-
     },
 
   },
@@ -373,9 +399,16 @@ export default {
     async ActiveModule({dispatch, state, getters, commit,rootState,rootGetters},currentModuleState){
       await dispatch("clearAllAutoplay" )
 
+
+      // await imageLoader.loadAndCacheImage(viewInfo.imageId)
+      console.log("cornerstone.cache",cornerstone.cache);
+
+
       if(state.activeModule){
         dispatch(state.activeModule+"/saveModule",null,{root:true})
       }
+
+
       const activeModule = rootState[currentModuleState]
       commit("SET_MODULE",{activeModule,moduleName:currentModuleState})
 
@@ -384,31 +417,60 @@ export default {
       const renderingEngine = getRenderingEngine(renderingEngineId);
       const viewportEntries = Object.values(ViewPortData);
 
-      const ijk = new Array(3);
-      viewportEntries.map((viewInfo) => {
-        const {pageIndex} = viewInfo
-        ijk[viewInfo.ijkId] = pageIndex
+      // const ijk = new Array(3);
+      // viewportEntries.map((viewInfo) => {
+      //   const {pageIndex} = viewInfo
+      //   ijk[viewInfo.ijkId] = pageIndex
 
-      })
-      console.log("ijk",ijk);
+      // })
+      // console.log("ijk",ijk);
 
-      await dispatch("UpdateIJK",ijk)
+      // await dispatch("UpdateIJK",ijk)
 
-      viewportEntries.map((viewInfo) =>{
+      viewportEntries.map(async (viewInfo) =>{
         const {viewportId } = viewInfo
         const viewport = renderingEngine.getViewport(
            viewportId
         )
-        const prePresentation = viewInfo.prePresentation
-        console.log("prePresentation",prePresentation);
 
-        // renderingEngine.resize(true, false);  //重置canvas
+        const pan = viewInfo.pan
+
+        if(cornerstone.cache.getImageLoadObject(viewInfo.imageId)){
+          console.log("加载缓存",viewInfo.imageId);
+
+          const cachedImage = await  cornerstone.cache.getImageLoadObject(viewInfo.imageId).promise;
+          viewport.renderImageObject(cachedImage)
+
+        }else{
+          console.log("在线下载",viewInfo.imageId);
+
+          dispatch("updateSliceForView", {
+            viewInfo,
+            index: viewInfo.pageIndex,
+          });
+        }
+
+
+
+        if(pan){
+          viewport.setPan(pan)
+        }
+        const prePresentation = viewInfo.prePresentation
+        // console.log("prePresentation",prePresentation);
+
+        // // renderingEngine.resize(true, false);  //重置canvas
 
         viewport.setViewPresentation(prePresentation);
-        cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
-          viewportId
-        ]);
-        viewport.render()
+
+        console.log("state.activeModule",state.activeModule);
+
+           cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
+            viewportId
+          ]);
+          viewport.render()
+          dispatch(state.activeModule+"/UpdateSlice",{viewInfo,imageId:state.ViewPortData[viewInfo.viewportId].imageId},{root:true})
+
+
       })
       dispatch("lungToolsStore/UpdateWindowCenter",allViewData.windowCenter,{root:true})
       dispatch("lungToolsStore/UpdateWindowWidth",allViewData.windowWidth,{root:true})
@@ -519,9 +581,12 @@ export default {
           const image = viewport?.getImageData()
           // console.log("isInteractingWithTool",cornerstoneTools.state.isInteractingWithTool);
           // console.log("isMultiPartToolActive",cornerstoneTools.state.isMultiPartToolActive);
-           const activeToolName =  toolGroup.getCurrentActivePrimaryToolName()
 
-          if(!activeToolName){
+          const toolGroup =  ToolGroupManager.getToolGroup(toolGroupId);
+
+           const PanToolInstance = toolGroup.toolOptions[PanTool.toolName]
+
+          if(!( PanToolInstance?.mode =='active')){
             if(image ){
               //     const toolGroup =  ToolGroupManager.getToolGroup(toolGroupId);
               // console.log("toolGroup",toolGroup);
@@ -540,6 +605,8 @@ export default {
 
         })
         element.addEventListener( Events.MOUSE_DRAG, (event)=>{
+           // if()
+
           dispatch("clearAllAutoplay")
 
           const image = viewport?.getImageData()
@@ -558,7 +625,21 @@ export default {
           }
 
         })
+        element.addEventListener( cornerstone.EVENTS.IMAGE_RENDERED, (event)=>{
+          const {viewportId} = event.detail
+          const {renderingEngineId} = state;
 
+          const renderingEngine = getRenderingEngine(renderingEngineId);
+          const viewport = renderingEngine.getViewport(
+            viewportId
+          )
+          const image = viewport?.getImageData()
+          if(image){
+            commit("UPDATE_CROSS_HAIR" )
+
+          }
+
+        })
 
         element.addEventListener( Events.MOUSE_WHEEL, (event)=>{
           dispatch("clearAllAutoplay")
@@ -642,7 +723,6 @@ export default {
       const toolGroup =  ToolGroupManager.createToolGroup(toolGroupId);
 
       toolGroup.addTool(ZoomTool.toolName)
-      toolGroup.addTool(CobbAngleTool.toolName)
       toolGroup.addTool(PanTool.toolName);
       toolGroup.addTool(DragProbeTool.toolName)
 
@@ -663,8 +743,10 @@ export default {
       toolGroup.addTool(CircularMagnifyTool.toolName)
 
       toolGroup.setToolEnabled(SplineROITool.toolName);
-      toolGroup.setToolEnabled(CobbAngleTool.toolName);
       toolGroup.setToolEnabled(PointInfoTool.toolName);
+
+
+      const PanToolInstance = toolGroup.toolOptions[PanTool.toolName]
       // toolGroup.setToolEnabled(LengthTool.toolName);
       // toolGroup.setToolActive(ZoomTool.toolName, {
       //     bindings: [
@@ -731,6 +813,8 @@ export default {
 
     },
     async UpdateIJK({state,dispatch, getters, commit}, ijk) {
+      console.log("ijk",ijk);
+
       [VIEW_INFO.SAGITTAL, VIEW_INFO.CORONAL, VIEW_INFO.AXIAL].map(async (viewInfo, index) => {
         const sliceIndex = ijk[index];
         if(sliceIndex && sliceIndex !== ''){
@@ -743,7 +827,6 @@ export default {
       })
       if (state.isIjkLoad)  return;
       commit("UPDATE_IJKLOAD_STATUS",true)
-
       // [VIEW_INFO.SAGITTAL, VIEW_INFO.CORONAL, VIEW_INFO.AXIAL]
 
       const {ViewPortData  } =  state
@@ -763,37 +846,43 @@ export default {
       if(index == ''  ) return;
       const {viewportId,ijkId} = viewInfo
       commit("SET_ACTIVE_IJK",{index:ijkId,value:index})
-      commit("UPDATE_CROSS_HAIR")
+      // commit("UPDATE_CROSS_HAIR")
 
       const viewInstance =  state.ViewPortInstanceData[viewportId]
       if(viewInstance.pageIndex != index) {
         commit("UPDATE_LOAD_STATUS",true)
+        console.log(cornerstone.cache);
 
         const file = await dispatch("GetDicomFile", {viewInfo, index});
         if (file) {
           commit("UPDATE_LOAD_STATUS", false);
           const imageId = await dispatch("UpdateSlice", {viewInfo, file});
           commit("SET_VIEW_DATA", {viewportId, key: "pageIndex", value: index});
+          commit("SET_VIEW_DATA", {viewportId, key: "imageId", value: imageId});
+
 
 
         }
 
       }
       const {renderingEngineId} = state;
-        const renderingEngine = getRenderingEngine(renderingEngineId);
-        const viewport = renderingEngine.getViewport(
-          viewportId
-        )
-        // dispatch("UpdateSliceNodule",{viewInfo,imageId})
-        if(state.activeModule){
-          dispatch(state.activeModule+"/UpdateSlice",{viewInfo,imageId:viewInfo.imageId},{root:true})
 
-        }
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
+      // console.log("viewport",viewport);
 
-        cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
-          viewportId
-        ]);
-        viewport.render()
+      // dispatch("UpdateSliceNodule",{viewInfo,imageId})
+      if(state.activeModule){
+        dispatch(state.activeModule+"/UpdateSlice",{viewInfo,imageId:viewInfo.imageId},{root:true})
+
+      }
+
+      cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
+        viewportId
+      ]);
+      viewport.render()
 
     },
 
@@ -839,6 +928,10 @@ export default {
 
       viewport.imageIds = imageIds
       const image =await  cornerstone.imageLoader.loadImage(imageId)
+      // const image =await  cornerstone.imageLoader.loadAndCacheImage(imageId)
+
+
+
 
       viewport.renderImageObject(image)
       if( preImageIds?.length == 0) {

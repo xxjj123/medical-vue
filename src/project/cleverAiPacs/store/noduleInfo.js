@@ -431,6 +431,8 @@ export default {
         const {points, id} = nodule;
         const bbox = points.split(",").map(Number)
         if (id == bboxindex) {
+          console.log("id",id);
+          
           const ijk = [
             Math.floor((bbox[0] + bbox[1]) / 2),
             Math.floor((bbox[2] + bbox[3]) / 2),
