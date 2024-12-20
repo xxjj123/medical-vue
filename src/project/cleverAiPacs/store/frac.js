@@ -1,4 +1,6 @@
 import { RenderingEngine ,Enums,utilities,metaData,cache,  getRenderingEngine,imageLoader} from '@cornerstonejs/core';
+const { transformWorldToIndex,imageToWorldCoords,transformIndexToWorld } = utilities;
+
 import * as cornerstoneTools from '@cornerstonejs/tools';
 const {annotation} = cornerstoneTools;
 
@@ -279,6 +281,8 @@ export default {
     SET_FRAC_INFO(state, fracInfo) {
       console.log("fracInfo=======",fracInfo)
       state.fracInfo = fracInfo;
+
+
     },
 
     ADD_ANNOTATION(state, annotation) {
@@ -381,10 +385,13 @@ export default {
         commit("SET_FRAC_INFO",result.data.resultData)
       }
       const {lungViewStore} = rootState
+      const {ViewPortData} = lungViewStore
 
       commit("SAVE_MODULE",lungViewStore)
       commit("INIT_ALL_VIEW_DATA")
       console.log("initFrac ok ");
+      console.log("ViewPortData",ViewPortData['STACK_AXIAL'].imageId);
+
 
       // await dispatch("mprViewStore/clearAllAutoplay",null,{root:true} )
 
@@ -493,47 +500,94 @@ export default {
 
     async handleMousePress(
       {dispatch, commit, state, getters,rootState},
-      {pickedPosition,view},
+      {viewportId,pointIjk},
     ) {
+      console.log("trueijk",pointIjk);
 
-      const {mprViewStore} = rootState
-      const pickedX = pickedPosition[0];
-      const pickedY = pickedPosition[1];
+       const points = state.fracInfo.fracLesionList[0].fracBBox
+      const [x1, y1, z1, x2, y2, z2] = points.split(",").map(Number);
+      const point1 = [x1, y1, z1]
+      const point2 = [x2, y2, z2]
 
-      state.annotations.value.forEach((annotation) => {
-        if (annotation.viewIndex === view.viewIndex) {
-          if (
-            view.pageIndex >= annotation.boundsmin &&
-            view.pageIndex <= annotation.boundsmax &&
-            annotation.worldpoint1[0] <= pickedX &&
-            annotation.worldpoint2[0] >= pickedX &&
-            annotation.worldpoint1[1] <= pickedY &&
-            annotation.worldpoint2[1] >= pickedY
-          ) {
-            const selectedAnnotation = annotation.bboxIndex;
-            state.annotations.value.forEach((anno) => {
-              let color = BBOX_COLORS.DEFAULT
-              let lineWidth = BBOX_LINEWIDTH.DEFAULT
-              if (anno.bboxIndex == selectedAnnotation) {
-                commit("ACTIVATE_ANNOTATAION",selectedAnnotation)
-                color = BBOX_COLORS.SELECTED
-                lineWidth = BBOX_LINEWIDTH.SELECTED
-              }
-              anno.actor
-                .getProperty()
-                .setColor(
-                  ...color
-                )
-              anno.actor.getProperty().setLineWidth(lineWidth);
+      console.log("state.fracInfo.fracLesionList",state.fracInfo.fracLesionList[0].fracBBox);
 
-            });
-          }
-        }
-      });
-      dispatch("mprViewStore/freshView",view.viewIndex,{root:true})
+      const {lungViewStore} = rootState
+      const {renderingEngineId,ViewPortData } =  lungViewStore
+
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
+      const image = viewport?.getImageData()
+      if(image){
+        const {voxelManager,imageData} = image
+        const ijk = transformWorldToIndex(imageData,point1);
+        console.log("ijk",ijk);
+
+
+
+        const view = ViewPortData[viewportId]
+        const pageIndices = [view.pageIndex, view.pageIndex - 1];
+        const [positionz1, positionz2] = pageIndices.map(pageIndex =>
+          parseFloat(lungViewStore.seriesInfo.instanceMetadataList.find(item => item.viewIndex === pageIndex).slicePosition)
+        );
+
+        const calculateZIndex = z => pageIndices[0] - (pageIndices[0] - pageIndices[1]) * (positionz1 - z) / (positionz1 - positionz2);
+        const bbox1 =  transformWorldToIndex(imageData,[-x1, -y1, 0]);
+        const bbox2 = transformWorldToIndex(imageData,[-x2, -y2, 0]);
+
+        console.log("bbox",[
+          Math.min(bbox1[0], bbox2[0]), Math.max(bbox1[0], bbox2[0]),
+          Math.min(bbox1[1], bbox2[1]), Math.max(bbox1[1], bbox2[1]),
+          Math.min(calculateZIndex(z1), calculateZIndex(z2)), Math.max(calculateZIndex(z1), calculateZIndex(z2))
+        ]);
+
+
+      }
+
+
+
+
+      // const {mprViewStore} = rootState
+      // const pickedX = pickedPosition[0];
+      // const pickedY = pickedPosition[1];
+
+      // state.annotations.value.forEach((annotation) => {
+      //   if (annotation.viewIndex === view.viewIndex) {
+      //     if (
+      //       view.pageIndex >= annotation.boundsmin &&
+      //       view.pageIndex <= annotation.boundsmax &&
+      //       annotation.worldpoint1[0] <= pickedX &&
+      //       annotation.worldpoint2[0] >= pickedX &&
+      //       annotation.worldpoint1[1] <= pickedY &&
+      //       annotation.worldpoint2[1] >= pickedY
+      //     ) {
+      //       const selectedAnnotation = annotation.bboxIndex;
+      //       state.annotations.value.forEach((anno) => {
+      //         let color = BBOX_COLORS.DEFAULT
+      //         let lineWidth = BBOX_LINEWIDTH.DEFAULT
+      //         if (anno.bboxIndex == selectedAnnotation) {
+      //           commit("ACTIVATE_ANNOTATAION",selectedAnnotation)
+      //           color = BBOX_COLORS.SELECTED
+      //           lineWidth = BBOX_LINEWIDTH.SELECTED
+      //         }
+      //         anno.actor
+      //           .getProperty()
+      //           .setColor(
+      //             ...color
+      //           )
+      //         anno.actor.getProperty().setLineWidth(lineWidth);
+
+      //       });
+      //     }
+      //   }
+      // });
+      // dispatch("mprViewStore/freshView",view.viewIndex,{root:true})
 
     },
     async UpdateSlice({state,rootState,dispatch},{viewInfo,imageId}){
+      console.log("更新了frac页面");
+
       const {lungViewStore} = rootState
       const {pageIndex,viewName,viewportId} = viewInfo
 
@@ -645,7 +699,7 @@ export default {
      * @param {number} bboxindex - 结节索引index
      */
     async ChooseAnnotation({state, dispatch, getters, commit,rootGetters},{ bboxindex}) {
-      dispatch("mprViewStore/clearAllAutoplay",null,{root:true})
+      dispatch("lungViewStore/clearAllAutoplay",null,{root:true})
       const viewsData = rootGetters['mprViewStore/viewsData']
 
       state.fracInfo.fracLesionList.forEach(async (frac) => {

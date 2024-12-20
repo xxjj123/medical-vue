@@ -452,14 +452,17 @@ export default {
 
     async handleMousePress(
       {dispatch, commit, state, getters,rootState},
-      {pickedPosition,view},
+      {viewportId,pointIjk},
     ) {
-      const {mprViewStore} = rootState
-      const pickedX = pickedPosition[0];
-      const pickedY = pickedPosition[1];
+      console.log("trueijk",pointIjk);
+
+      // const {lungViewStore} = rootState
+      // const pickedX = pickedPosition[0];
+      // const pickedY = pickedPosition[1];
 
     },
     async UpdateSlice({state,rootState,dispatch},{viewInfo,imageId}){
+      console.log("更新了pneu页面");
 
       const {lungViewStore} = rootState
       const { renderingEngineId} = lungViewStore
@@ -469,7 +472,6 @@ export default {
       const viewport = renderingEngine.getViewport(
          viewportId
       )
-
       let annotations = annotation.state.getAllAnnotations()
       const annotationIds = []
       annotations.forEach(anno=>{
@@ -488,6 +490,8 @@ export default {
             item => item.instanceNumber === pageIndex && item.viewName === viewName
           );
           if(contours){
+            console.log("加了轮廓pneu");
+
             const points = JSON.parse(contours.points)
             console.log("contours.points", points.length);
 

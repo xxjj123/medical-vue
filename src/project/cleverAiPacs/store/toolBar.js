@@ -213,7 +213,7 @@ export default {
       dispatch(`${state.activeToolModule}/AutoPlay`, {viewIndex}, { root: true });
     },
     activeLayout({state,dispatch,commit},layout){
-      console.log("layout",layout);
+      // console.log("layout",layout);
       commit("SET_SLICE_CT_PIC_LAYOUT",layout)
       dispatch(state.activeViewModule+"/SetAllViewData",{
         key: "zoomView",

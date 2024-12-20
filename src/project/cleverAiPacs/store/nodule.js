@@ -417,6 +417,8 @@ export default {
     // UpdateSliceNodule
 
     async UpdateSlice({state,rootState,dispatch},{viewInfo,imageId}){
+      console.log("更新了nodule页面");
+
       const {lungViewStore} = rootState
 
       const {viewportId, pageIndex} =  viewInfo
@@ -465,44 +467,82 @@ export default {
 
     async handleMousePress(
       {dispatch, commit, state, getters,rootState},
-      {pickedPosition,view},
+      {viewportId,pointIjk},
     ) {
 
-      const {lungViewStore} = rootState
-      const pickedX = pickedPosition[0];
-      const pickedY = pickedPosition[1];
 
-      state.annotations.value.forEach((annotation) => {
-        if (annotation.viewIndex === view.viewIndex) {
-          if (
-            view.pageIndex >= annotation.boundsmin &&
-            view.pageIndex <= annotation.boundsmax &&
-            annotation.worldpoint1[0] <= pickedX &&
-            annotation.worldpoint2[0] >= pickedX &&
-            annotation.worldpoint1[1] <= pickedY &&
-            annotation.worldpoint2[1] >= pickedY
-          ) {
-            const selectedAnnotation = annotation.bboxIndex;
-            state.annotations.value.forEach((anno) => {
-              let color = BBOX_COLORS.DEFAULT
-              let lineWidth = BBOX_LINEWIDTH.DEFAULT
-              if (anno.bboxIndex == selectedAnnotation) {
-                commit("ACTIVATE_ANNOTATAION",selectedAnnotation)
-                color = BBOX_COLORS.SELECTED
-                lineWidth = BBOX_LINEWIDTH.SELECTED
-              }
-              anno.actor
-                .getProperty()
-                .setColor(
-                  ...color
-                )
-              anno.actor.getProperty().setLineWidth(lineWidth);
+      // const result = getImagePoint(points)
+      // const {pointsList,bounds} =  result
+      console.log("trueijk",viewportId,pointIjk);
 
-            });
-          }
-        }
+      const nodule = state.noduleInfo.noduleLesionList.find((nodule) => {
+        const points = nodule.points
+        const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
+        const [pointx,pointy,pointz] = pointIjk
+
+        const isWithinRange = (
+          pointx >= xmin && pointx <= xmax &&
+          pointy >= ymin && pointy <= ymax &&
+          pointz >= zmin && pointz <= zmax
+      );
+         if(isWithinRange){
+            commit("ACTIVATE_ANNOTATAION", nodule.id);
+            const {lungViewStore} = rootState
+            const {ViewPortData} = lungViewStore
+
+            const viewInfo = ViewPortData[viewportId]
+            // dispatch("lungViewStore/updateSliceForView", {
+            //   viewInfo,
+            //   index: viewInfo.pageIndex,
+            // },{root:true});
+            dispatch("UpdateSlice",{viewInfo:ViewPortData[viewportId],imageId:ViewPortData[viewportId].imageId})
+            cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
+                        viewportId
+                      ]);
+                      // viewport.render()
+
+         }
+
+
       });
-      dispatch("lungViewStore/freshView",view.viewIndex,{root:true})
+
+
+
+      // const {lungViewStore} = rootState
+      // const pickedX = pickedPosition[0];
+      // const pickedY = pickedPosition[1];
+
+      // state.annotations.value.forEach((annotation) => {
+      //   if (annotation.viewIndex === view.viewIndex) {
+      //     if (
+      //       view.pageIndex >= annotation.boundsmin &&
+      //       view.pageIndex <= annotation.boundsmax &&
+      //       annotation.worldpoint1[0] <= pickedX &&
+      //       annotation.worldpoint2[0] >= pickedX &&
+      //       annotation.worldpoint1[1] <= pickedY &&
+      //       annotation.worldpoint2[1] >= pickedY
+      //     ) {
+      //       const selectedAnnotation = annotation.bboxIndex;
+      //       state.annotations.value.forEach((anno) => {
+      //         let color = BBOX_COLORS.DEFAULT
+      //         let lineWidth = BBOX_LINEWIDTH.DEFAULT
+      //         if (anno.bboxIndex == selectedAnnotation) {
+      //           commit("ACTIVATE_ANNOTATAION",selectedAnnotation)
+      //           color = BBOX_COLORS.SELECTED
+      //           lineWidth = BBOX_LINEWIDTH.SELECTED
+      //         }
+      //         anno.actor
+      //           .getProperty()
+      //           .setColor(
+      //             ...color
+      //           )
+      //         anno.actor.getProperty().setLineWidth(lineWidth);
+
+      //       });
+      //     }
+      //   }
+      // });
+      // dispatch("lungViewStore/freshView",view.viewIndex,{root:true})
 
     },
 

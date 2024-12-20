@@ -13,6 +13,10 @@ const { MouseBindings } = cornerstoneTools.Enums;
 import cornerstoneDICOMImageLoader from '@cornerstonejs/dicom-image-loader';
 const {annotation,ToolGroupManager, LengthTool,PanTool,ZoomTool,DragProbeTool,SplineROITool, RectangleROITool } = cornerstoneTools;
 const { transformWorldToIndex,imageToWorldCoords,transformIndexToWorld } = utilities;
+
+import debounce from 'lodash/debounce';
+
+
 console.log("utilities",utilities);
 console.log("Events",Events);
 
@@ -177,6 +181,7 @@ const getDefaultState = () => ({
   allViewData: new AllViewData(),
   activeModule: null,
   activeIJK:new Array(3),
+  actualIJK:new Array(3),
 
 
 
@@ -185,7 +190,6 @@ const getDefaultState = () => ({
   SagittalData: new ViewData(),
 
   annotations: { value: [], index: new Set() },
-  mouseDown: false,
   autoPlayStates: Array.from({ length: 3 }, () => ({
     isPlay: false,
     isAutoPlay: false,
@@ -240,9 +244,8 @@ export default {
       state.ViewPortData = JSON.parse(JSON.stringify(ViewPortData));
 
     },
-    SET_ACTIVE_IJK(state,{index,value}){
-      state.activeIJK[index] = value
 
+    UPDATE_ALL_CROSS_HAIR(state){
       const {renderingEngineId,ViewPortData } =  state
       const renderingEngine = getRenderingEngine(renderingEngineId);
 
@@ -251,7 +254,6 @@ export default {
         const {viewportId} = viewInfo
         const {ijkToImage} = VIEW_METHOD[viewportId]
         const imageIJ = ijkToImage(state.activeIJK)
-
 
         const viewport = renderingEngine.getViewport(
           viewportId
@@ -271,16 +273,13 @@ export default {
       })
 
     },
-    UPDATE_CROSS_HAIR(state){
-      const {renderingEngineId,ViewPortData } =  state
-      const renderingEngine = getRenderingEngine(renderingEngineId);
+    UPDATE_CROSS_HAIR(state,viewportId){
+      if(viewportId){
+        const {renderingEngineId } =  state
+        const renderingEngine = getRenderingEngine(renderingEngineId);
 
-      const viewportEntries = Object.values(ViewPortData);
-      viewportEntries.map(viewInfo=>{
-        const {viewportId} = viewInfo
         const {ijkToImage} = VIEW_METHOD[viewportId]
         const imageIJ = ijkToImage(state.activeIJK)
-
 
         const viewport = renderingEngine.getViewport(
           viewportId
@@ -288,16 +287,13 @@ export default {
         const image = viewport?.getImageData()
         if(image){
           const {imageData} = image
-
           const worldPos = imageData.indexToWorld([...imageIJ,0]);
           const canvasPos = viewport.worldToCanvas(worldPos)
           const view = state.ViewPortData[viewportId];
           view['displayX'] = canvasPos[0]||0;
           view['displayY'] = canvasPos[1]||0;
         }
-
-
-      })
+      }
     },
 
     SET_SERIES_INFO(state,seriesInfo){
@@ -368,15 +364,32 @@ export default {
     SET_VIEW_DATA(state, {viewportId, key, value}) {
       const view = state.ViewPortData[viewportId];
       view[key] = value;
+      if(key=='pageIndex'){
+        state.actualIJK[view.ijkId] = value
+      }
 
-      const viewInstance = state.ViewPortInstanceData[viewportId];
-      viewInstance[key] = value;
+      if(key=='changedPageIndex'){
+        state.activeIJK[view.ijkId] = value
+        const {renderingEngineId } =  state
+        const renderingEngine = getRenderingEngine(renderingEngineId);
 
-    },
+        const {ijkToImage} = VIEW_METHOD[viewportId]
+        const imageIJ = ijkToImage(state.activeIJK)
 
+        const viewport = renderingEngine.getViewport(
+          viewportId
+       )
+        const image = viewport?.getImageData()
+        if(image){
+          const {imageData} = image
+          const worldPos = imageData.indexToWorld([...imageIJ,0]);
+          const canvasPos = viewport.worldToCanvas(worldPos)
+          const view = state.ViewPortData[viewportId];
+          view['displayX'] = canvasPos[0]||0;
+          view['displayY'] = canvasPos[1]||0;
+        }
 
-    SET_MOUSE_DOWN(state, value) {
-      state.mouseDown = value;
+      }
     },
 
     SET_ALL_VIEW_STATE(state, { key, value}) {
@@ -398,16 +411,12 @@ export default {
     },
     async ActiveModule({dispatch, state, getters, commit,rootState,rootGetters},currentModuleState){
       await dispatch("clearAllAutoplay" )
-
-
       // await imageLoader.loadAndCacheImage(viewInfo.imageId)
       console.log("cornerstone.cache",cornerstone.cache);
-
 
       if(state.activeModule){
         dispatch(state.activeModule+"/saveModule",null,{root:true})
       }
-
 
       const activeModule = rootState[currentModuleState]
       commit("SET_MODULE",{activeModule,moduleName:currentModuleState})
@@ -435,10 +444,12 @@ export default {
 
         const pan = viewInfo.pan
 
-        if(cornerstone.cache.getImageLoadObject(viewInfo.imageId)){
+        const cachedImage = await  cornerstone.cache.getImageLoadObject(viewInfo.imageId).promise;
+
+        if(cachedImage){
           console.log("加载缓存",viewInfo.imageId);
 
-          const cachedImage = await  cornerstone.cache.getImageLoadObject(viewInfo.imageId).promise;
+          viewport.imageIds = [viewInfo.imageId]
           viewport.renderImageObject(cachedImage)
 
         }else{
@@ -549,7 +560,6 @@ export default {
       renderingEngine.setViewports(viewportInputArray);
       // toolGroup.addViewport(viewportId, renderingEngineId);
 
-
       [VIEW_INFO.SAGITTAL, VIEW_INFO.CORONAL, VIEW_INFO.AXIAL].forEach(viewInfo=>{
         const {viewportId, } = viewInfo
         const {getTrueIjk} = VIEW_METHOD[viewInfo.viewportId]
@@ -596,23 +606,54 @@ export default {
 
               const worldPos = event.detail.currentPoints.world
               let ijk = transformWorldToIndex(imageData,worldPos);
-              const trueijk = getTrueIjk(ijk);
-              dispatch("UpdateIJK",trueijk)
+
+               const viewData = state.ViewPortData[viewportId]
+               const trueijk = getTrueIjk(ijk);
+              const pointIjk = trueijk.map(item=>item==''?viewData.pageIndex:item)
+
+              dispatch(state.activeModule+"/handleMousePress",{viewportId,pointIjk},{root:true})
+
+               dispatch("UpdateIJK",trueijk)
 
               }
           }
 
-
         })
-        element.addEventListener( Events.MOUSE_DRAG, (event)=>{
-           // if()
 
+        const onMouseDragStop = debounce(() => {
+          console.log('Mouse Drag has stopped!');
+          const {actualIJK,activeIJK} = state
+          let equal = true
+          for (let i = 0; i < actualIJK.length; i++) {
+            if (actualIJK[i] !== activeIJK[i]) {
+              equal = false;
+            }
+          }
+          if(!equal){
+            commit("UPDATE_IJKLOAD_STATUS",false) //强制最后一次
+            dispatch("UpdateIJK",activeIJK)
+
+          }
+          // const viewData = state.ViewPortData[viewportId]
+          // if(viewData.pageIndex !== viewData.changedPageIndex){
+          //   dispatch("updateSliceForView", {
+          //     viewInfo:viewData,
+          //     index: viewData.changedPageIndex,
+          //   });
+          // }
+      }, 200);
+        element.addEventListener( Events.MOUSE_DRAG, (event)=>{
           dispatch("clearAllAutoplay")
 
           const image = viewport?.getImageData()
-          const activeToolName =  toolGroup.getCurrentActivePrimaryToolName()
 
-          if(!activeToolName){
+          const toolGroup =  ToolGroupManager.getToolGroup(toolGroupId);
+
+          const PanToolInstance = toolGroup.toolOptions[PanTool.toolName]
+
+         if(!( PanToolInstance?.mode =='Active')){
+          console.log(" PanToolInstance?.mode",PanToolInstance?.mode);
+
             if(image){
               const {voxelManager,imageData} = image
 
@@ -623,6 +664,8 @@ export default {
               dispatch("UpdateIJK",trueijk)
             }
           }
+
+          onMouseDragStop()
 
         })
         element.addEventListener( cornerstone.EVENTS.IMAGE_RENDERED, (event)=>{
@@ -635,12 +678,22 @@ export default {
           )
           const image = viewport?.getImageData()
           if(image){
-            commit("UPDATE_CROSS_HAIR" )
-
+            commit("UPDATE_ALL_CROSS_HAIR")
+            // commit("UPDATE_CROSS_HAIR",viewportId)
           }
 
         })
 
+        const onMouseWheelStop = debounce(() => {
+            console.log('Mouse wheel has stopped!');
+            const viewData = state.ViewPortData[viewportId]
+            if(viewData.pageIndex !== viewData.changedPageIndex){
+              dispatch("updateSliceForView", {
+                viewInfo:viewData,
+                index: viewData.changedPageIndex,
+              });
+            }
+        }, 200);
         element.addEventListener( Events.MOUSE_WHEEL, (event)=>{
           dispatch("clearAllAutoplay")
 
@@ -652,51 +705,55 @@ export default {
             const viewData = state.ViewPortData[viewportId]
 
             let newIndex;
-          if (direction > 0) {
-            newIndex =
-              (viewData.changedPageIndex %
-                viewData.dimension) +
-              1;
-            if (
-              viewData.changedPageIndex ===
-              viewData.dimension
-            ) {
-              commit("SET_VIEW_DATA", {
-                viewportId,
-                key: "changedPageIndex",
-                value: 1,
-              });
+            if (direction > 0) {
+              newIndex =
+                (viewData.changedPageIndex %
+                  viewData.dimension) +
+                1;
+              if (
+                viewData.changedPageIndex ===
+                viewData.dimension
+              ) {
+                commit("SET_VIEW_DATA", {
+                  viewportId,
+                  key: "changedPageIndex",
+                  value: 1,
+                });
 
+              } else {
+                commit("SET_VIEW_DATA", {
+                  viewportId,
+                  key: "changedPageIndex",
+                  value: viewData.changedPageIndex + 1,
+                });
+              }
             } else {
-              commit("SET_VIEW_DATA", {
-                viewportId,
-                key: "changedPageIndex",
-                value: viewData.changedPageIndex + 1,
-              });
-            }
-          } else {
-            newIndex =
-              ((viewData.changedPageIndex -
-                2 +
-                viewData.dimension) %
-                viewData.dimension) +
-              1;
-            if (viewData.changedPageIndex === 1) {
-              commit("SET_VIEW_DATA", {
-                viewportId,
-                key: "changedPageIndex",
-                value: viewData.dimension,
-              });
+              newIndex =
+                ((viewData.changedPageIndex -
+                  2 +
+                  viewData.dimension) %
+                  viewData.dimension) +
+                1;
+              if (viewData.changedPageIndex === 1) {
+                commit("SET_VIEW_DATA", {
+                  viewportId,
+                  key: "changedPageIndex",
+                  value: viewData.dimension,
+                });
 
-            } else {
-              commit("SET_VIEW_DATA", {
-                viewportId,
-                key: "changedPageIndex",
-                value: viewData.changedPageIndex - 1,
-              });
+              } else {
+                commit("SET_VIEW_DATA", {
+                  viewportId,
+                  key: "changedPageIndex",
+                  value: viewData.changedPageIndex - 1,
+                });
+
+              }
 
             }
-          }
+            commit("UPDATE_ALL_CROSS_HAIR")
+
+            // commit("UPDATE_CROSS_HAIR",viewData.viewportId)
           if(!state.isload){
             dispatch("updateSliceForView", {
               viewInfo:viewData,
@@ -706,6 +763,8 @@ export default {
           }
           }
 
+
+          onMouseWheelStop();
         })
 
         toolGroup.addViewport(viewportId, renderingEngineId);
@@ -812,9 +871,9 @@ export default {
 
 
     },
-    async UpdateIJK({state,dispatch, getters, commit}, ijk) {
-      console.log("ijk",ijk);
 
+    async UpdateIJK({state,dispatch, getters, commit}, ijk) {
+      // console.log("ijk",ijk);
       [VIEW_INFO.SAGITTAL, VIEW_INFO.CORONAL, VIEW_INFO.AXIAL].map(async (viewInfo, index) => {
         const sliceIndex = ijk[index];
         if(sliceIndex && sliceIndex !== ''){
@@ -825,6 +884,9 @@ export default {
           });
         }
       })
+
+      commit("UPDATE_ALL_CROSS_HAIR")
+
       if (state.isIjkLoad)  return;
       commit("UPDATE_IJKLOAD_STATUS",true)
       // [VIEW_INFO.SAGITTAL, VIEW_INFO.CORONAL, VIEW_INFO.AXIAL]
@@ -845,13 +907,11 @@ export default {
     async updateSliceForView({dispatch,commit,state}, { viewInfo , index }) {
       if(index == ''  ) return;
       const {viewportId,ijkId} = viewInfo
-      commit("SET_ACTIVE_IJK",{index:ijkId,value:index})
-      // commit("UPDATE_CROSS_HAIR")
+
 
       const viewInstance =  state.ViewPortInstanceData[viewportId]
       if(viewInstance.pageIndex != index) {
         commit("UPDATE_LOAD_STATUS",true)
-        console.log(cornerstone.cache);
 
         const file = await dispatch("GetDicomFile", {viewInfo, index});
         if (file) {
@@ -1090,6 +1150,8 @@ export default {
               value: viewData.changedPageIndex + 1,
             });
           }
+          // commit("UPDATE_CROSS_HAIR",viewData.viewportId)
+
           if(!state.isload){
             dispatch("updateSliceForView", {
               viewInfo:viewData,
@@ -1111,6 +1173,8 @@ export default {
             state: true,
           }
         });
+        // commit("UPDATE_ALL_CROSS_HAIR")
+
       } else {
          commit("CLEAR_AUTOPLAY", viewportId);
          if(viewData.gotoPageIndex != viewData.changedPageIndex){

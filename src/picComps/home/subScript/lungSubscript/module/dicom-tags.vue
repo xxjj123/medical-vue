@@ -18,10 +18,33 @@
     </template>
     <template>
       <div class="item_row flex">
+        <div class="label">PageIndex:</div>
+        <div class="val">{{ dicomTags.pageIndex }}</div>
+      </div>
+    </template>
+    <template>
+      <div class="item_row flex">
         <div class="label">Image:</div>
         <div class="val">{{ dicomTags.image }}</div>
       </div>
     </template>
+    <template>
+      <div class="item_row flex">
+        <div class="label">display:</div>
+        <div class="val">{{ dicomTags.display }}</div>
+      </div>
+    </template>
+
+    <template>
+      <div class="item_row flex">
+        <div class="label">activeIJK:</div>
+        <div class="val">{{ activeIJK }}</div>
+      </div>
+    </template>
+
+
+
+
 
     <template v-if="dicomTags.showMore">
       <div class="item_row flex">
@@ -113,11 +136,10 @@ export default {
     }
   },
   computed: {
-    ...mapState("lungViewStore", ["seriesInfo", "allViewData"]),
-
+    ...mapState("lungViewStore", ["seriesInfo", "allViewData", "activeIJK"]),
     dicomTags: {
       get() {
-        const { changedPageIndex, dimension, hu, viewportId, invert } = this.data
+        const { changedPageIndex, pageIndex, dimension, hu, viewportId, invert, displayX, displayY } = this.data
         const { windowWidth, windowCenter } = this.allViewData
         const { coronalCount, sagittalCount, sliceThickness, kvp } = this.seriesInfo
         let SpacVal = ''
@@ -127,6 +149,8 @@ export default {
         }
         return {
           image: changedPageIndex + "/" + dimension,
+          display: displayX + "/" + displayY,
+          pageIndex: pageIndex,
           hu: hu,
           showMore: viewportId == 'STACK_AXIAL',
           WindowColorLevel: windowWidth + "/" + windowCenter,

@@ -393,7 +393,7 @@ export default {
           const presentation = viewport.getViewPresentation()
           renderingEngine.resize(true, false);  //重置canvas
           requestAnimationFrame(()=>{
-            console.log("presentation",presentation);
+            // console.log("presentation",presentation);
             viewport.setViewPresentation(presentation);
             viewport.render()
             commit("lungViewStore/UPDATE_CROSS_HAIR",null,{root:true})
