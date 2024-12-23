@@ -166,8 +166,8 @@ export default {
     menuResult: Object,
   },
   computed: {
-    ...mapState("mprViewStore", ["seriesInfo"]),
-    ...mapState("fracInfoStore", ["selectedFracId"]),
+    ...mapState("lungViewStore", ["seriesInfo"]),
+    ...mapState("fracStore", ["selectedFracId"]),
     ribTypeDropDown: {
       get() {
         return {
@@ -348,7 +348,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions("fracInfoStore", ["ChooseAnnotation", "updateFracLesion"]),
+    ...mapActions("fracStore", ["ChooseAnnotation", "updateFracLesion"]),
     setPopupContainer(trigger) {
       return trigger.parentElement;
     },

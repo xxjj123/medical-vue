@@ -16,7 +16,6 @@ const { transformWorldToIndex,imageToWorldCoords,transformIndexToWorld } = utili
 
 import debounce from 'lodash/debounce';
 
-
 console.log("utilities",utilities);
 console.log("Events",Events);
 
@@ -37,7 +36,6 @@ import { gdcmReadImage} from "@itk-wasm/image-io"
 import {
   LayoutIcons,
 } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
-
 
 cornerstoneTools.addTool(SplineROITool)
 
@@ -236,12 +234,15 @@ export default {
   mutations: {
     SET_MODULE(state,{activeModule,moduleName}){
       state.activeModule  = moduleName
-      const {ViewPortData,allViewData } =  activeModule
-      console.log("allViewData",allViewData);
-      console.log("ViewPortData",ViewPortData);
+      const {ViewPortData,allViewData ,activeIJK} =  activeModule
+      console.log("activeIJK",activeIJK);
+
+      // console.log("allViewData",allViewData);
+      // console.log("ViewPortData",ViewPortData);
 
       state.allViewData = JSON.parse(JSON.stringify(allViewData)); //深拷贝
       state.ViewPortData = JSON.parse(JSON.stringify(ViewPortData));
+      state.activeIJK = activeIJK
 
     },
 
@@ -279,6 +280,8 @@ export default {
         const renderingEngine = getRenderingEngine(renderingEngineId);
 
         const {ijkToImage} = VIEW_METHOD[viewportId]
+        console.log("UPDATE_CROSS_HAIR",state.activeIJK);
+
         const imageIJ = ijkToImage(state.activeIJK)
 
         const viewport = renderingEngine.getViewport(
@@ -412,16 +415,17 @@ export default {
     async ActiveModule({dispatch, state, getters, commit,rootState,rootGetters},currentModuleState){
       await dispatch("clearAllAutoplay" )
       // await imageLoader.loadAndCacheImage(viewInfo.imageId)
-      console.log("cornerstone.cache",cornerstone.cache);
 
       if(state.activeModule){
         dispatch(state.activeModule+"/saveModule",null,{root:true})
       }
+      console.log("stateall",state.allViewData.activeButtons.join(","));
+
 
       const activeModule = rootState[currentModuleState]
       commit("SET_MODULE",{activeModule,moduleName:currentModuleState})
 
-      const {renderingEngineId,ViewPortData,allViewData } =  state
+      const {renderingEngineId,ViewPortData,allViewData,toolGroupId } =  state
 
       const renderingEngine = getRenderingEngine(renderingEngineId);
       const viewportEntries = Object.values(ViewPortData);
@@ -437,23 +441,30 @@ export default {
       // await dispatch("UpdateIJK",ijk)
 
       viewportEntries.map(async (viewInfo) =>{
-        const {viewportId } = viewInfo
+        const {viewportId,camera,prop,changedPageIndex } = viewInfo
         const viewport = renderingEngine.getViewport(
            viewportId
         )
 
-        const pan = viewInfo.pan
-
+        commit("SET_VIEW_DATA", {viewportId, key: "changedPageIndex", value: changedPageIndex});
         const cachedImage = await  cornerstone.cache.getImageLoadObject(viewInfo.imageId).promise;
 
+
         if(cachedImage){
-          console.log("加载缓存",viewInfo.imageId);
+          // console.log("加载缓存",viewInfo.imageId);
+          const camera = viewInfo.camera
+          // console.log("camera",camera);
+
 
           viewport.imageIds = [viewInfo.imageId]
           viewport.renderImageObject(cachedImage)
+          if(camera){
+            viewport.setCamera(camera)
+            viewport.setProperties(prop)
+          }
 
         }else{
-          console.log("在线下载",viewInfo.imageId);
+          // console.log("在线下载",viewInfo.imageId);
 
           dispatch("updateSliceForView", {
             viewInfo,
@@ -461,61 +472,49 @@ export default {
           });
         }
 
-
-
-        if(pan){
-          viewport.setPan(pan)
-        }
-        const prePresentation = viewInfo.prePresentation
-        // console.log("prePresentation",prePresentation);
-
-        // // renderingEngine.resize(true, false);  //重置canvas
-
-        viewport.setViewPresentation(prePresentation);
-
-        console.log("state.activeModule",state.activeModule);
-
-           cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
-            viewportId
-          ]);
-          viewport.render()
-          dispatch(state.activeModule+"/UpdateSlice",{viewInfo,imageId:state.ViewPortData[viewInfo.viewportId].imageId},{root:true})
-
+        // console.log("state.activeModule",state.activeModule);
+        commit("UPDATE_CROSS_HAIR" )
 
       })
-      dispatch("lungToolsStore/UpdateWindowCenter",allViewData.windowCenter,{root:true})
-      dispatch("lungToolsStore/UpdateWindowWidth",allViewData.windowWidth,{root:true})
 
+      requestAnimationFrame(()=>{
+        viewportEntries.map(async (viewInfo) =>{
+          const {viewportId,camera,prop } = viewInfo
+          const viewport = renderingEngine.getViewport(
+             viewportId
+          )
+
+            cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
+              viewportId
+            ]);
+            viewport.render()
+            dispatch(state.activeModule+"/UpdateSlice",{viewInfo,imageId:state.ViewPortData[viewInfo.viewportId].imageId},{root:true})
+
+
+        })
+      })
+
+      const toolGroup =  ToolGroupManager.getToolGroup(toolGroupId);
+      const cornerstoneToolButtom = [ZoomTool,PanTool]
+      cornerstoneToolButtom.forEach(tool=>{
+        console.log("禁止了",tool.toolName);
+
+        toolGroup.setToolPassive(tool.toolName);
+      })
+
+      viewportEntries.map(viewinfo=>{
+       const viewport = renderingEngine.getViewport( viewinfo.viewportId)
+         viewport.element.style.cursor = 'default'
+      })
+ 
+      console.log("allViewData.activeButtons",allViewData.activeButtons.join(","));
+
+      // dispatch("lungToolsStore/UpdateWindowCenter",allViewData.windowCenter,{root:true})
+      // dispatch("lungToolsStore/UpdateWindowWidth",allViewData.windowWidth,{root:true})
       dispatch("toolBarStore/initButtonState",{showButtons: allViewData.buttons ,activeButtons:allViewData.activeButtons} ,{root:true})
-
       commit("toolBarStore/SET_SLICE_CT_PIC_LAYOUT",allViewData.layOut,{root:true})
 
 
-      // if(state.activeModule){
-      //   const activeButtons = rootGetters['toolBarStore/getAllButtonActiveStates']
-
-      //   console.log("activeButtons",activeButtons)
-      //   commit(state.activeModule+"/SET_STATE",state,{root:true})
-
-      // }
-      // const active_state = rootState[currentState]
-      // commit("UPDATE_DIAGNOSE_STATE",{stateName:currentState,v_state:active_state})
-
-
-      // state.viewMprViews.forEach((view,index)=>{
-      //   const renderWindow =  view.renderWindow
-      //    renderWindow.getRenderers().forEach(render=>{
-      //       renderWindow.removeRenderer(render)
-      //     })
-      //     renderWindow.addRenderer(active_state.viewMprViews[index].renderer)
-      // })
-      // const {SagittalData,CoronalData,AxialData,allViewData} = state
-      // dispatch("lungToolsStore/UpdateColorWindow",allViewData.colorWindow,{root:true})
-      // dispatch("lungToolsStore/UpdateColorLevel",allViewData.colorLevel,{root:true})
-
-      // dispatch("toolBarStore/initButtonState",{showButtons: allViewData.buttons ,activeButtons:allViewData.activeButtons} ,{root:true})
-
-      // commit("toolBarStore/SET_SLICE_CT_PIC_LAYOUT",allViewData.layOut,{root:true})
 
     },
     async InitViews({state,commit,dispatch},{axialElement, coronalElement, sagittalElement }){
@@ -651,7 +650,12 @@ export default {
 
           const PanToolInstance = toolGroup.toolOptions[PanTool.toolName]
 
-         if(!( PanToolInstance?.mode =='Active')){
+          const ZoomToolInstance = toolGroup.toolOptions[ZoomTool.toolName]
+
+          const isAllowed = !( PanToolInstance?.mode =='Active') && !( ZoomToolInstance?.mode =='Active')
+
+
+         if(isAllowed){
           console.log(" PanToolInstance?.mode",PanToolInstance?.mode);
 
             if(image){
@@ -685,7 +689,7 @@ export default {
         })
 
         const onMouseWheelStop = debounce(() => {
-            console.log('Mouse wheel has stopped!');
+            // console.log('Mouse wheel has stopped!');
             const viewData = state.ViewPortData[viewportId]
             if(viewData.pageIndex !== viewData.changedPageIndex){
               dispatch("updateSliceForView", {
@@ -853,18 +857,30 @@ export default {
           ijk[viewInfo.ijkId] = sliceIndex
 
         })
+        viewportEntries.map(  (viewInfo) => {
+          const {viewportId} = viewInfo
+          commit("SET_VIEW_DATA", {
+            viewportId,
+            key: "invert",
+            value: false,
+          });
+
+
+        })
+
         await dispatch("UpdateIJK",ijk)
         await dispatch("resetView");
       };
 
       await updateSlices();
 
+
+
       const modules = ["noduleStore", "fracStore", "pneumoniaStore"];
       const {noduleStore,fracStore,pneumoniaStore} = rootState
       // console.log("noduleStore,fracStore,pneumoniaStore",noduleStore,fracStore,pneumoniaStore);
 
-
-      await Promise.all(modules.map(module => dispatch(module + "/InitModule", seriesInfo, { root: true })))
+       await Promise.all(modules.map(module => dispatch(module + "/InitModule", seriesInfo, { root: true })))
       console.log("准备就绪");
 
       dispatch("noduleStore/ActiveNodule",null,{root:true})
@@ -1127,8 +1143,13 @@ export default {
      */
     AutoPlay({ commit, dispatch, state, getters,rootState }, { viewportId }) {
       const viewData = state.ViewPortData[viewportId]
-
+      const { renderingEngineId} = state
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
       if (!viewData.autoPlay.state ) {
+
         dispatch("clearAllAutoplay")
         // 定义一个变量来保存 requestAnimationFrame 的 ID
          // 创建定时器，每隔 50ms 触发
@@ -1158,6 +1179,7 @@ export default {
               index: viewData.changedPageIndex,
             });
           }
+          viewport.render()
         }, 60);
           commit("UPDATE_AUTOPLAY_STATUS", {
             viewportId,

@@ -246,17 +246,65 @@ export default {
       )
       const viewData = ViewPortData[viewportId]
       console.log("!viewData.invert",!viewData.invert);
+      viewport.setProperties({ invert:!viewData.invert});
+
       commit("lungViewStore/SET_VIEW_DATA", {
         viewportId,
         key: "invert",
         value: !viewData.invert,
       },{root:true});
 
-      viewport.setProperties({ invert:!viewData.invert});
-      viewport.render()
+      requestAnimationFrame(()=>{
+        viewport.render()
+      })
+
 
 
     },
+
+
+
+    zoomView({commit, state,rootState,rootGetters,dispatch}) {
+      console.log("zoomView");
+      const {lungViewStore} = rootState
+      const {renderingEngineId,imageId,toolGroupId} = lungViewStore
+
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      // const viewport = renderingEngine.getViewport(
+      //   viewportId
+      // )
+
+      const toolGroup =  ToolGroupManager.getToolGroup(toolGroupId);
+      const ZoomToolInstance = toolGroup.toolOptions[ZoomTool.toolName]
+
+      console.log("toolGroup",toolGroup);
+
+      if(ZoomToolInstance?.mode == 'Active'){
+         toolGroup.setToolPassive(ZoomTool.toolName);
+         const viewportEntries = Object.values(lungViewStore.ViewPortData);
+         viewportEntries.map(viewinfo=>{
+          const viewport = renderingEngine.getViewport( viewinfo.viewportId )
+            viewport.element.style.cursor = 'default'
+         })
+
+        //  viewport.element.style.cursor = 'default'
+        // await dispatch("spineViewStore/setPositionCenter",null,{root:true})
+
+      }else{
+        toolGroup.setToolActive(ZoomTool.toolName, {
+          bindings: [
+                {
+                  mouseButton: MouseBindings.Primary,
+                },
+              ],
+        });
+
+      }
+
+
+
+    },
+
 
 
 
@@ -385,24 +433,46 @@ export default {
       const renderingEngine = getRenderingEngine(renderingEngineId);
       const viewportEntries = Object.values(ViewPortData);
 
-       viewportEntries.map((viewInfo)=>{
+      const savedState =  {}
+      viewportEntries.map((viewInfo)=>{
         const viewport = renderingEngine.getViewport(
           viewInfo.viewportId
         )
         if (renderingEngine) {
           const presentation = viewport.getViewPresentation()
-          renderingEngine.resize(true, false);  //重置canvas
-          requestAnimationFrame(()=>{
-            // console.log("presentation",presentation);
-            viewport.setViewPresentation(presentation);
-            viewport.render()
-            commit("lungViewStore/UPDATE_CROSS_HAIR",null,{root:true})
 
-          })
+          savedState[viewInfo.viewportId] = {
+            camera: viewport.getCamera(),
+            properties: viewport.getProperties(),
+          };
+
+        }
+      })
+
+      renderingEngine.resize(false, false);  //重置canvas
+      viewportEntries.map((viewInfo)=>{
+        const viewport = renderingEngine.getViewport(
+          viewInfo.viewportId
+        )
+        if (renderingEngine) {
+          const {camera,properties} =  savedState[viewInfo.viewportId]
+          viewport.setCamera(camera)
+          viewport.setProperties(properties)
 
 
         }
-       })
+      })
+      requestAnimationFrame(()=>{
+        viewportEntries.map((viewInfo)=>{
+          const viewport = renderingEngine.getViewport(
+            viewInfo.viewportId
+          )
+          viewport.render()
+
+        })
+
+      })
+
 
 
       commit("lungViewStore/UPDATE_CROSS_HAIR",null,{root:true})

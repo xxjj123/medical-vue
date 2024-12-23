@@ -164,7 +164,10 @@ export default {
         ...new ViewData()}
     },
     allViewData: new AllViewData(),
+    activeIJK:new Array(3),
+
     noduleInfo: {},
+
 
 
     isload:false,
@@ -224,9 +227,12 @@ export default {
       state.operateInfo = operateInfo;
     },
     SAVE_MODULE(state,lungViewStore){
-      const {ViewPortData,renderingEngineId,allViewData } =  lungViewStore
+      const {ViewPortData,renderingEngineId,allViewData ,activeIJK} =  lungViewStore
       state.allViewData = JSON.parse(JSON.stringify(allViewData));
       state.ViewPortData = JSON.parse(JSON.stringify(ViewPortData));
+
+      console.log("保存nodule allViewData",allViewData);
+
 
 
       console.log("save",ViewPortData);
@@ -235,15 +241,21 @@ export default {
       const renderingEngine = getRenderingEngine(renderingEngineId);
       const viewportEntries = Object.values(ViewPortData);
       // cache.purgeCache()
+      state.activeIJK = activeIJK
+
       viewportEntries.map(async (viewInfo) =>{
         const viewport = renderingEngine.getViewport(
           viewInfo.viewportId
         )
         const presentation = viewport.getViewPresentation()
-        state.ViewPortData[viewInfo.viewportId].prePresentation  = presentation
-        state.ViewPortData[viewInfo.viewportId].pan  = viewport.getPan()
         state.ViewPortData[viewInfo.viewportId].imageId = viewInfo.imageId
-        console.log("保存",viewInfo.imageId);
+
+        state.ViewPortData[viewInfo.viewportId].camera = viewport.getCamera()
+        state.ViewPortData[viewInfo.viewportId].prop = viewport.getProperties()
+
+        //  console.log("保存",viewInfo.imageId);
+        // console.log("viewport.getCamera()",viewport.getCamera());
+
 
         await imageLoader.loadAndCacheImage(viewInfo.imageId)
         // state.ViewPortData[viewInfo.viewportId].preImage = viewport.getImageData()
@@ -262,63 +274,25 @@ export default {
       state.selectedNoduleId = index
     },
 
-    INIT_NODULE_RENDER_VIEW(state,v_state){
-      const indexs = [0,1,2]
 
-      state.viewMprViews.forEach((view,index) => {
-        const originalView = new ViewRenderer();
-        originalView.viewIndex = indexs[index]
-        originalView.renderer = vtkRenderer.newInstance();
-        originalView.image = null
-        originalView.sliceMapper = vtkImageMapper.newInstance()
-        originalView.sliceActor = vtkImageSlice.newInstance()
-        originalView.sliceActor.setMapper(originalView.sliceMapper);
-        originalView.renderer.addActor(originalView.sliceActor);
-        originalView.renderer.setBackground(...VIEW_COLORS.BACKGROUND);
-        view.copyFrom(originalView)
-      });
-    },
     SET_VIEW_MPR_VIEW(state, {viewIndex, key, value}) {
       state.viewMprViews[viewIndex][key] = value;
     },
     INIT_ALL_VIEW_DATA(state){
       console.log("INIT_ALL_VIEW_DATA",state.allViewData);
+
+
       state.allViewData.windowCenter = -500
       state.allViewData.windowWidth = 1500
       state.allViewData.invert = false
       state.allViewData.isPan = false
 
       state.allViewData.layOut = LayoutIcons.AXIAL;
-      state.allViewData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj];
+      state.allViewData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms,ButtonNames.Zoom, ButtonNames.Bcj];
       state.allViewData.activeButtons = [ButtonNames.Jbinfo ]
 
     },
-    INIT_NODULE_ALL_VIEW_DATA(state){
-      const originalData = new AllViewData();
-      originalData.colorWindow = 1500;
-      originalData.colorLevel = -500;
-      originalData.isPan = false;
-      originalData.layOut = LayoutIcons.AXIAL;
-      originalData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj];
-      originalData.activeButtons = [ButtonNames.Jbinfo,  ]
-      state.allViewData.copyFrom(originalData)
-    },
-    INIT_NODULE_VIEW_DATA(state, seriesInfo) {
-      const viewTypes = [VIEW_TYPES.AXIAL, VIEW_TYPES.CORONAL, VIEW_TYPES.SAGITTAL];
-      const viewNames = [VIEW_NAMES.AXIAL, VIEW_NAMES.CORONAL, VIEW_NAMES.SAGITTAL];
-      const viewDatas = ["AxialData","CoronalData", "SagittalData"]
-      const dimensions = [seriesInfo.axialCount, seriesInfo.coronalCount, seriesInfo.sagittalCount];
 
-      viewTypes.forEach((viewType, index) => {
-          const originalData = new ViewData();
-          originalData.viewIndex = viewType;
-          originalData.viewName = viewNames[index];
-          originalData.dimension = dimensions[index];
-          originalData.changedPageIndex = Math.round(dimensions[index] / 2) + 1;
-
-          state[viewDatas[index]].copyFrom(originalData);
-      });
-  },
   UPDATE_NODULE_OPERATE(state,{updateList}){
     updateList.forEach(item=>{
       const {key,value} = item
@@ -337,17 +311,6 @@ export default {
     }
 
   },
-    SET_STATE(state,v_state){
-      console.log("保存下来1",v_state.allViewData)
-      state.allViewData.copyFrom(v_state.allViewData)
-      state.CoronalData.copyFrom(v_state.CoronalData)
-      state.SagittalData.copyFrom(v_state.SagittalData)
-      state.AxialData.copyFrom(v_state.AxialData)
-
-      state.CoronalData.changedPageIndex = state.CoronalData.pageIndex
-      state.SagittalData.changedPageIndex = state.SagittalData.pageIndex
-      state.AxialData.changedPageIndex = state.AxialData.pageIndex
-    },
 
   },
   actions: {
@@ -367,6 +330,8 @@ export default {
         commit("SET_OPERATE_INFO",operatequery.data.resultData)
       }
       const {lungViewStore} = rootState
+
+
       // const {ViewPortData,renderingEngineId,allViewData } =  lungViewStore
       // const renderingEngine = getRenderingEngine(renderingEngineId);
       // const viewport = renderingEngine.getViewport(
@@ -376,22 +341,6 @@ export default {
       commit("INIT_ALL_VIEW_DATA")
 
       console.log("initNodule ok ");
-
-    },
-    async InitModuleState({state,commit,rootState,dispatch},seriesInfo){
-      const operatequery = await xhr_queryOperate({ computeSeriesId:seriesInfo.computeSeriesId});
-      const nodulequery = await xhr_queryNodule({ computeSeriesId:seriesInfo.computeSeriesId});
-      console.log(operatequery)
-      if (nodulequery.serviceSuccess && operatequery) {
-        commit("SET_NODULE_INFO",nodulequery.data.resultData)
-        commit("SET_OPERATE_INFO",operatequery.data.resultData)
-      }
-      await dispatch("lungViewStore/clearAllAutoplay",null,{root:true} )
-
-      const {lungViewStore} = rootState
-      commit("INIT_NODULE_ALL_VIEW_DATA")
-      commit("INIT_NODULE_VIEW_DATA",seriesInfo)
-      commit("INIT_NODULE_RENDER_VIEW",lungViewStore)
 
     },
     async ActiveNodule({dispatch,state,rootState,commit}){
@@ -405,7 +354,6 @@ export default {
       const {lungViewStore} = rootState
 
 
-
       if(lungViewStore.activedModules.includes("noduleStore")){
         await dispatch("lungViewStore/ActiveModule","noduleStore",{root:true})
       }else{
@@ -417,7 +365,7 @@ export default {
     // UpdateSliceNodule
 
     async UpdateSlice({state,rootState,dispatch},{viewInfo,imageId}){
-      console.log("更新了nodule页面");
+      // console.log("更新了nodule页面");
 
       const {lungViewStore} = rootState
 
@@ -428,6 +376,7 @@ export default {
       const viewport = renderingEngine.getViewport(
          viewportId
       )
+
       const image = viewport?.getImageData()
       const {voxelManager,imageData} = image
 
@@ -470,11 +419,6 @@ export default {
       {viewportId,pointIjk},
     ) {
 
-
-      // const result = getImagePoint(points)
-      // const {pointsList,bounds} =  result
-      console.log("trueijk",viewportId,pointIjk);
-
       const nodule = state.noduleInfo.noduleLesionList.find((nodule) => {
         const points = nodule.points
         const [xmin, xmax, ymin, ymax, zmin, zmax] = points.split(",").map(Number);
@@ -491,10 +435,7 @@ export default {
             const {ViewPortData} = lungViewStore
 
             const viewInfo = ViewPortData[viewportId]
-            // dispatch("lungViewStore/updateSliceForView", {
-            //   viewInfo,
-            //   index: viewInfo.pageIndex,
-            // },{root:true});
+
             dispatch("UpdateSlice",{viewInfo:ViewPortData[viewportId],imageId:ViewPortData[viewportId].imageId})
             cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
                         viewportId
@@ -508,41 +449,6 @@ export default {
 
 
 
-      // const {lungViewStore} = rootState
-      // const pickedX = pickedPosition[0];
-      // const pickedY = pickedPosition[1];
-
-      // state.annotations.value.forEach((annotation) => {
-      //   if (annotation.viewIndex === view.viewIndex) {
-      //     if (
-      //       view.pageIndex >= annotation.boundsmin &&
-      //       view.pageIndex <= annotation.boundsmax &&
-      //       annotation.worldpoint1[0] <= pickedX &&
-      //       annotation.worldpoint2[0] >= pickedX &&
-      //       annotation.worldpoint1[1] <= pickedY &&
-      //       annotation.worldpoint2[1] >= pickedY
-      //     ) {
-      //       const selectedAnnotation = annotation.bboxIndex;
-      //       state.annotations.value.forEach((anno) => {
-      //         let color = BBOX_COLORS.DEFAULT
-      //         let lineWidth = BBOX_LINEWIDTH.DEFAULT
-      //         if (anno.bboxIndex == selectedAnnotation) {
-      //           commit("ACTIVATE_ANNOTATAION",selectedAnnotation)
-      //           color = BBOX_COLORS.SELECTED
-      //           lineWidth = BBOX_LINEWIDTH.SELECTED
-      //         }
-      //         anno.actor
-      //           .getProperty()
-      //           .setColor(
-      //             ...color
-      //           )
-      //         anno.actor.getProperty().setLineWidth(lineWidth);
-
-      //       });
-      //     }
-      //   }
-      // });
-      // dispatch("lungViewStore/freshView",view.viewIndex,{root:true})
 
     },
 
@@ -578,7 +484,6 @@ export default {
       if (nodule) {
         const { points, id } = nodule;
         console.log("id",id);
-
         commit("ACTIVATE_ANNOTATAION", id);
 
         const bbox = points.split(",").map(Number);

@@ -6,6 +6,13 @@
     { rightTop: fixHere === 'rightTop' },
     { leftBottom: fixHere === 'leftBottom' }
   ]" :style="{ ...sheetStyleTag }">
+
+    <template>
+      <div class="item_row flex">
+        <div class="label">Invert:</div>
+        <div class="val">{{ dicomTags.Invert }}</div>
+      </div>
+    </template>
     <template>
       <div class="item_row flex">
 

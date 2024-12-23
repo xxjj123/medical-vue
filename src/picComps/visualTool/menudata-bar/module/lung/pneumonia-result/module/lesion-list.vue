@@ -132,7 +132,7 @@ export default {
             {
               field: "lobeName",
               title: "全肺",
-              width: "120",
+              width: "110",
               customRender: {
                 default: "lobeName",
               },

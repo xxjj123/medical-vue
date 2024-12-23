@@ -79,6 +79,7 @@ import subScript from "@/picComps/home/subScript/subScript.vue";
 import crossHair from "@/picComps/home/subScript/crossHair.vue";
 import lungSubscript from "@/picComps/home/subScript/lungSubscript/index.vue";
 import view3D from "@/picComps/viewTemplate/view3D.vue";
+import debounce from 'lodash/debounce';
 
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
 
@@ -386,7 +387,7 @@ export default {
 
 
       }, 3000)
-      window.addEventListener("resize", this.resizeViews);
+      window.addEventListener("resize", debounce(this.resizeViews, 100));
     });
   },
   unmounted() {

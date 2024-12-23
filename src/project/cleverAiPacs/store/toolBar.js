@@ -126,6 +126,7 @@ export default {
         const button = ButtonNames[key];
         state[`${button}${suffix_show}`] = showButtons.includes(button);
       });
+
     }
   },
   actions: {
@@ -142,10 +143,33 @@ export default {
       }
     },
 
-    initButtonState({commit},{showButtons,activeButtons}){
-      commit("INIT_BUTTON_ACTIVE_STATE",activeButtons)
-      commit("INIT_BUTTON_SHOW_STATE",showButtons)
+    initButtonState({state,commit,dispatch},{showButtons,activeButtons}){
+      const newActiveButtons = activeButtons.join(",")
+      console.log("new",newActiveButtons);
 
+      const cornerstoneToolButtom = [ButtonNames.Zoom,ButtonNames.Pyms]
+
+
+      // cornerstoneToolButtom.forEach(button => {
+      //   const isOldActive = oldActiveButtons.includes(button);
+      //   const isNewActive = newActiveButtons.includes(button);
+
+      //   if (isOldActive !== isNewActive) {
+      //     dispatch("activeButtonState", button);
+      //   }
+      // });
+      commit("INIT_BUTTON_SHOW_STATE",showButtons)
+      commit("INIT_BUTTON_ACTIVE_STATE",[])
+
+      cornerstoneToolButtom.forEach(button => {
+        if(activeButtons.includes(button)){
+          dispatch("activeButtonState", button);
+        }
+      });
+
+      commit("INIT_BUTTON_ACTIVE_STATE",activeButtons)
+
+ 
     },
 
     activeButtonState({state,commit,dispatch,rootState},buttonName){
@@ -174,7 +198,6 @@ export default {
         case ButtonNames.Zoom:
           if(state[`${ButtonNames.Pyms}${suffix_active}`]){
             console.log("jinpyms");
-
             commit("TOGGLE_BUTTON_ACTIVE_STATE",ButtonNames.Pyms)
             dispatch(`${state.activeToolModule}/ChangePan`, null, { root: true });
           }
@@ -206,6 +229,10 @@ export default {
           // 如果没有匹配的情况，可以在这里处理默认操作
           break;
       }
+    },
+
+    changeToolBar(){
+
     },
     AutoPlay({state,dispatch},{viewIndex}){
       console.log("viewIndex",viewIndex);
