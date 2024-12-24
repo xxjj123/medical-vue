@@ -380,6 +380,7 @@ export default {
           const ijk = transformWorldToIndex(imageData,point1);
           console.log("ijk",ijk);
 
+
           const pageIndices = [view.pageIndex, view.pageIndex - 1];
           const [positionz1, positionz2] = pageIndices.map(pageIndex =>
             parseFloat(lungViewStore.seriesInfo.instanceMetadataList.find(item => item.viewIndex === pageIndex).slicePosition)

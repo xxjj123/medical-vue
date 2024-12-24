@@ -16,8 +16,8 @@ const { transformWorldToIndex,imageToWorldCoords,transformIndexToWorld } = utili
 
 import debounce from 'lodash/debounce';
 
-console.log("utilities",utilities);
-console.log("Events",Events);
+// console.log("utilities",utilities);
+// console.log("Events",Events);
 
 // cornerstone.Events
 
@@ -248,7 +248,7 @@ export default {
       }
       state.activeModule  = moduleName
       const {ViewPortData,allViewData ,activeIJK} =  activeModule
-      console.log("activeIJK",activeIJK);
+      // console.log("activeIJK",activeIJK);
 
       // console.log("allViewData",allViewData);
       // console.log("ViewPortData",ViewPortData);
@@ -293,7 +293,7 @@ export default {
         const renderingEngine = getRenderingEngine(renderingEngineId);
 
         const {ijkToImage} = VIEW_METHOD[viewportId]
-        console.log("UPDATE_CROSS_HAIR",state.activeIJK);
+        // console.log("UPDATE_CROSS_HAIR",state.activeIJK);
 
         const imageIJ = ijkToImage(state.activeIJK)
 
@@ -316,7 +316,7 @@ export default {
         state.seriesInfo = seriesInfo
     },
     SET_NODULE_INFO(state, noduleInfo) {
-      console.log("noduleInfo=======",noduleInfo)
+      // console.log("noduleInfo=======",noduleInfo)
       state.noduleInfo = noduleInfo;
     },
     RESET_STATE(state){
@@ -470,7 +470,7 @@ export default {
         const trueKeys = Object.keys(preActivedTools).filter(key => preActivedTools[key] === true).map(key => key.replace('_on', ''));
         commit("SET_ALL_VIEW_STATE",{ key:"activeButtons",value:trueKeys})
 
-        console.log("rootGetters",trueKeys);
+        // console.log("rootGetters",trueKeys);
 
       }
 
@@ -508,7 +508,13 @@ export default {
         const viewport = renderingEngine.getViewport(
            viewportId
         )
+
+        if(camera){
+          viewport.setCamera(camera)
+          viewport.setProperties(prop)
+        }
         commit("SET_VIEW_DATA", {viewportId, key: "changedPageIndex", value: changedPageIndex});
+        // const camera = viewInfo.camera
         if(changedPageIndex != pageIndex ){
           console.log("在线下载",viewInfo.imageId);
 
@@ -521,14 +527,14 @@ export default {
 
           if(cachedImage){
             console.log("加载缓存",viewInfo.imageId);
-            const camera = viewInfo.camera
+            // const camera = viewInfo.camera
             // console.log("camera",camera);
             viewport.imageIds = [viewInfo.imageId]
             viewport.renderImageObject(cachedImage)
-            if(camera){
-              viewport.setCamera(camera)
-              viewport.setProperties(prop)
-            }
+            // if(camera){
+            //   viewport.setCamera(camera)
+            //   viewport.setProperties(prop)
+            // }
 
           }else{
             console.log("在线下载",viewInfo.imageId);
@@ -669,10 +675,22 @@ export default {
               // console.log("toolGroup",toolGroup);
               // console.log("cornerstoneTools",cornerstoneTools.state.isInteractingWithTool);
 
-              const {voxelManager,imageData} = image
+              const {voxelManager,imageData,dimensions} = image
 
               const worldPos = event.detail.currentPoints.world
               let ijk = transformWorldToIndex(imageData,worldPos);
+              console.log("ijk",ijk,dimensions);
+
+              ijk = ijk.map((item,index)=>{
+                if(item >dimensions[index] ){
+                  return dimensions[index]
+                }else if(item < 1){
+                  return 1
+                }
+                return item
+              })
+              console.log("ijk",ijk,dimensions);
+
 
                const viewData = state.ViewPortData[viewportId]
                const trueijk = getTrueIjk(ijk);
@@ -1095,7 +1113,7 @@ export default {
       const {flipHorizontal,flipVertical} = viewport.getCamera();
 
       viewport.renderImageObject(image)
-      console.log("flipHorizontal,flipVertical,rotation",flipHorizontal,flipVertical,rotation);
+      // console.log("flipHorizontal,flipVertical,rotation",flipHorizontal,flipVertical,rotation);
 
       viewport.setCamera({flipHorizontal,flipVertical})
       viewport.setViewPresentation({rotation})
