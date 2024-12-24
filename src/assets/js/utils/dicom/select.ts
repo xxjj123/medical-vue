@@ -460,32 +460,32 @@ export function pneumoniaDiagnoseTemplate(objList,currentNum) {
 
 
 const spineFindingEnum = {
-  // TEMP0: 'Cobbe角( {{start}}椎体上缘-{{end}}椎体下缘 )约 {{cobb}} ° '
-  TEMP0: '正位片Cobbe角约 {{cobb}} ° '
-
+  TEMP0: 'Cobbe角 ( {{start}}椎体上缘-{{end}}椎体下缘 ) 约 {{cobb}} ° '
+  // TEMP0: '正位片Cobbe角约 {{cobb}} ° '
 };
 
 const spineDiagnoseEnum = {
   TEMP0: "未发现明显侧弯，脊柱形态正常。",
-  TEMP1: "轻微的脊柱侧弯,建议 6 个月至 1 年复查。",
+  TEMP1: "轻微脊柱侧弯,建议 6 个月至 1 年复查。",
   TEMP2: "脊柱出现中度侧弯，建议佩戴矫形支具并结合康复训练，定期复查。",
   TEMP3: "脊柱重度侧弯，可能影响身体对称性，建议多学科评估，必要时手术治疗。",
   TEMP4: "脊柱极重度侧弯，可能严重影响心肺功能，建议尽早手术矫正并结合康复治疗。",
-
 }
 function spineObjectToTemplate(obj:Object, template:string ) {
   return template
-    .replace('{{cobb}}', obj.angle)
-    .replace('{{spinePart}}', obj.label)
-    .replace('{{start}}', obj.idxs[0])
-    .replace('{{end}}', obj.idxs[1])
+    .replace('{{cobb}}', obj.cobb)
+
+    // .replace('{{spinePart}}', obj.label)
+    .replace('{{start}}', obj.boneList[0].boneCode)
+    .replace('{{end}}', obj.boneList[2].boneCode)
 
 }
 
 
 export function spineFindingTemplate(objList) {
+
   let resultBookItems = [];
-  objList.sort((a, b) => a.order - b.order);
+  // objList.sort((a, b) => a.boneList[0].id - b.boneList[0].id);
 
   objList.forEach(item=>{
     const resultBookItem = spineObjectToTemplate(item, spineFindingEnum.TEMP0)
@@ -498,33 +498,58 @@ export function spineFindingTemplate(objList) {
 
 export function spineDiagnoseTemplate(objList) {
   let resultBookItems = [];
-  objList.sort((a, b) => a.order - b.order);
+  const maxCobb = objList.sort((a, b) => b.cobb - a.cobb) ;
 
-  objList.forEach(item=>{
-    const angle = item.angle;
-  let diagnoseTemplate;
+  if(maxCobb && maxCobb.length > 0 ){
+    const item = maxCobb[0]
+    let diagnoseTemplate;
 
-  if (angle <= 10) {
-    diagnoseTemplate = spineDiagnoseEnum.TEMP0;
-  } else if (angle <= 20) {
-    diagnoseTemplate = spineDiagnoseEnum.TEMP1;
-  } else if (angle <= 40) {
-    diagnoseTemplate = spineDiagnoseEnum.TEMP2;
-  } else if (angle <= 60) {
-    diagnoseTemplate = spineDiagnoseEnum.TEMP3;
-  } else {
-    diagnoseTemplate = spineDiagnoseEnum.TEMP4;
+    const cobb = item.cobb
+    if ( cobb <= 10) {
+      diagnoseTemplate = spineDiagnoseEnum.TEMP0;
+    } else if ( cobb <= 20) {
+      diagnoseTemplate = spineDiagnoseEnum.TEMP1;
+    } else if ( cobb <= 40) {
+      diagnoseTemplate = spineDiagnoseEnum.TEMP2;
+    } else if ( cobb <= 60) {
+      diagnoseTemplate = spineDiagnoseEnum.TEMP3;
+    } else {
+      diagnoseTemplate = spineDiagnoseEnum.TEMP4;
+    }
+
+    const resultBookItem = spineObjectToTemplate(item, diagnoseTemplate);
+    resultBookItems.push({
+      id: item.id,
+      isActive: false,
+      desc: resultBookItem,
+    });
   }
 
-  const resultBookItem = spineObjectToTemplate(item, diagnoseTemplate);
-  resultBookItems.push({
-    id: item.id,
-    isActive: false,
-    desc: resultBookItem,
-  });
+  // objList.forEach(item=>{
+  //   const angle = item.cobb;
+  //   let diagnoseTemplate;
+
+  //   if (angle <= 10) {
+  //     diagnoseTemplate = spineDiagnoseEnum.TEMP0;
+  //   } else if (angle <= 20) {
+  //     diagnoseTemplate = spineDiagnoseEnum.TEMP1;
+  //   } else if (angle <= 40) {
+  //     diagnoseTemplate = spineDiagnoseEnum.TEMP2;
+  //   } else if (angle <= 60) {
+  //     diagnoseTemplate = spineDiagnoseEnum.TEMP3;
+  //   } else {
+  //     diagnoseTemplate = spineDiagnoseEnum.TEMP4;
+  //   }
+
+  //   const resultBookItem = spineObjectToTemplate(item, diagnoseTemplate);
+  //   resultBookItems.push({
+  //     id: item.id,
+  //     isActive: false,
+  //     desc: resultBookItem,
+  //   });
 
 
-  })
+  // })
 
   return resultBookItems;
 }

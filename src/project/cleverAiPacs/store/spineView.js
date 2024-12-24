@@ -11,7 +11,8 @@ const { ViewportType,MetadataModules } = Enums;
 const {Events} = cornerstoneTools.Enums
 const { MouseBindings } = cornerstoneTools.Enums;
 import cornerstoneDICOMImageLoader from '@cornerstonejs/dicom-image-loader';
-const {annotation,ToolGroupManager,   LengthTool,PanTool,ZoomTool,ProbeTool,DragProbeTool,SplineROITool, RectangleROITool ,AngleTool,CobbAngleTool} = cornerstoneTools;
+const {annotation,ToolGroupManager,LengthTool,PanTool,ZoomTool,ProbeTool,DragProbeTool,SplineROITool, RectangleROITool ,AngleTool,CobbAngleTool} = cornerstoneTools;
+import { PointInfoTool,TextLabelTool,CircularMagnifyTool, } from "@/picComps/picDiagnose/menudata/spine/toolClass"
 
 const {drawTextBox} = cornerstoneTools.drawing
 const { transformWorldToIndex } = utilities;
@@ -21,8 +22,6 @@ cornerstoneTools.init();
 cornerstoneDICOMImageLoader.init();
 cornerstone.imageLoader.registerImageLoader('wadouri', cornerstoneDICOMImageLoader.wadouri.loadImage);
 
-
-import { PointInfoTool,CircularMagnifyTool,} from "@/picComps/picDiagnose/menudata/spine/toolClass"
 
 console.log(cornerstoneTools);
 console.log(cornerstone);
@@ -39,6 +38,7 @@ cornerstoneTools.addTool(ZoomTool)
 cornerstoneTools.addTool(DragProbeTool)
 cornerstoneTools.addTool(ProbeTool)
 cornerstoneTools.addTool(PointInfoTool)
+cornerstoneTools.addTool(TextLabelTool)
 cornerstoneTools.addTool(CircularMagnifyTool)
 
 import {AllViewData} from './data';
@@ -46,7 +46,6 @@ import {xhr_getSpineInfo,xhr_getDicomImage} from "@/api";
 import {
   ButtonNames
 } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
-
 
 const VIEW_COLORS = {
   BACKGROUND: [0, 0, 0]
@@ -68,7 +67,6 @@ const sortPoints = (pointsArray) => {
 };
 
 const pointsCenter = (pointsArray) => {
-
   const center = pointsArray.reduce(
     (acc, [x, y]) => [acc[0] + x, acc[1] + y],
     [0, 0]
@@ -76,6 +74,33 @@ const pointsCenter = (pointsArray) => {
 
   return center;
 };
+
+const getAngleDirection = (points)=>{
+  if (points.length !== 3) {
+    throw new Error("需要传入三个点的数组！");
+  }
+
+  const [A, B, C] = points;
+  let angleDir = [0,0]
+
+  // 计算向量 AB 和 BC 的叉积
+  const parallel  = (A[0] - B[0]) * (C[1] - B[1]) - (A[1] - B[1]) * (C[0] - B[0]);
+  if (parallel > 0) {
+    angleDir[0] = 1
+  } else if (parallel < 0) {
+    angleDir[0] = -1.1
+  }
+
+  const vertical  = (B[0] - A[0]) * (C[1] - B[1]) - (B[1] - A[1]) * (C[0] - B[0]);
+  if (vertical > 0) {
+    angleDir[1] = 0.5
+  } else if (vertical < 0) {
+    angleDir[1] = -1
+  }
+
+
+  return angleDir
+}
 
 const calculateLength = (imageId,pos1, pos2) => {
  const worldpos1 =  utilities.imageToWorldCoords(imageId,pos1)
@@ -91,6 +116,7 @@ const calculateLength = (imageId,pos1, pos2) => {
 export default {
   namespaced: true,
   state: {
+    selectedCobbId:null,
     caseInfo: {
     },
     spineInfo:{
@@ -110,18 +136,25 @@ export default {
 
     },
 
-
   },
 
   mutations: {
     SET_CASE_INFO(state, info) {
       state.caseInfo = info;
     },
+    SET_CASE_INFO_ITEM(state, {key,value}) {
+      state.caseInfo[key] = value;
+    },
     SET_SPINE_INFO(state, info) {
       state.spineInfo = info;
     },
     SET_SPINE_INFO_ITEM(state, {key,value}) {
       state.spineInfo[key] = value;
+    },
+    SET_SELECTED_COBB(state,id){
+      const cobb = state.spineInfo.angleList.find(item=>item.id==id)
+      cobb.checked = !cobb.checked
+      // state.selectedCobbId = id
     },
 
     SET_VIEW(state,view){
@@ -137,9 +170,6 @@ export default {
     },
     INIT_ALL_VIEW_DATA(state){
       const originalData = new AllViewData();
-      // originalData.windowWidth = 500;
-      // originalData.windowCenter = 300;
-      // originalData.isPan = true;
       originalData.layOut = null;
       originalData.buttons = [ButtonNames.Ckcw, ButtonNames.Jbinfo,ButtonNames.Pyms,ButtonNames.Zoom,ButtonNames.Reset,ButtonNames.Invert,ButtonNames.EditBbox,ButtonNames.EditCobb ];
 
@@ -160,7 +190,6 @@ export default {
       // const renderingEngine = new RenderingEngine(renderingEngineId);
       const renderingEngine = new RenderingEngine(renderingEngineId);
       const toolGroup = await dispatch("initializeToolGroup",toolGroupId)
-      console.log(toolGroup);
 
       const viewportInput = {
         viewportId ,
@@ -210,6 +239,9 @@ export default {
       // commit('SET_VIEW_ITEM', {key:"renderer",value:renderingEngine});
 
     },
+    async addMyFavorite({commit},myFavorite){
+      commit("SET_CASE_INFO_ITEM",{key:'myFavorite',value:myFavorite})
+    },
    async  InitCaseInfo({state,commit,dispatch},info){
       commit("SET_CASE_INFO",info)
       const {instanceMetadataList,computeSeriesId} = info
@@ -228,8 +260,8 @@ export default {
 
             const  resinfo = await  xhr_getSpineInfo({computeSeriesId})
             if(resinfo){
+
               const spineInfo = resinfo.data.resultData.data
-              console.log(spineInfo);
               const {pixelSpacing} = metaData.get(MetadataModules.IMAGE_PLANE, imageId);
 
               // 这一块后续要改，太奇怪了
@@ -242,16 +274,15 @@ export default {
               dispatch("spineToolsStore/UpdateWindowWidth",WW,{root:true})
               dispatch("spineToolsStore/UpdateWindowCenter",WC,{root:true})
 
+              const { angle,beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts,dist,horangle,maxind,cobbID,closepnt,SeccobbID,SecAngle,SecDist,Secclosepnt } = spineInfo
 
-              const { beginpnt1, beginpnt2, endpnt1, endpnt2, keypoints, boxes, keypnts,dist,horangle,maxind,cobbID,closepnt,SeccobbID,SecAngle,SecDist,Secclosepnt } = spineInfo
-
-              console.log(pixelSpacing);
-              console.log(dist);
 
               const pixelSpacingX = pixelSpacing[0] || 1
               // const vertebralOffset = pixelSpacingX *dist
               spineInfo.trueDist = pixelSpacingX *dist.toFixed(2)
               spineInfo.clavicleHorangle = horangle.toFixed(2)
+              const cobbAngle1 = angle.mt.angle.toFixed(2)
+
 
               const boneCodes =   ['C7','T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12','L1','L2','L3','L4','L5','L6']
 
@@ -266,49 +297,101 @@ export default {
               await dispatch("addLine",{linePoints:midLine })
 
               const midLine2 = sortedContours.map(bone=>pointsCenter(bone.bbox))
-              await dispatch("addLine",{linePoints:midLine2,options:{color:'yellow'}})
+              await dispatch("addLine",{linePoints:midLine2,options:{color:'grey'}})
+              // await dispatch("addLine",{linePoints:midLine2,options:{color:'yellow'}})
 
 
               const maxindBone = sortedContours[cobbID[1]]
               const maxindBoneCenter = pointsCenter(maxindBone.bbox)
 
               const fastLine = [maxindBoneCenter,closepnt]
-              await dispatch("addLength",{linePoints:fastLine,options:{color:'red'}})
+              // await dispatch("addLength",{linePoints:fastLine,options:{color:'red'}})
+
+              let boneList1 = []
 
               cobbID.forEach(async eachId=>{
                 const bone = sortedContours[eachId]
-                await dispatch("addPointInfo",{point:pointsCenter(bone.bbox),pointLabel:bone.boneCode })
+                boneList1.push(bone)
+                // await dispatch("addPointInfo",{point:pointsCenter(bone.bbox),pointLabel:bone.boneCode })
               })
+              let  vertebralOffset1 = calculateLength(imageId,maxindBoneCenter,closepnt)
+              vertebralOffset1 = vertebralOffset1.toFixed(2)
+              const boneLine1 = sortedContours.slice(boneList1[0].id,boneList1[2].id+1).map(bone=>pointsCenter(bone.bbox))
 
+
+              spineInfo.angleList = [
+                {
+                  checked:false,
+                  cobb:cobbAngle1,
+                  boneList:boneList1.sort((a, b) => a.id - b.id),
+                  boneLine:boneLine1,
+                  firstBone:boneList1[0].id,
+                  fastLine:fastLine,
+                  vertebralOffset:vertebralOffset1,
+                  pointColor :'yellow',
+                  lineColor:'red',
+                  lengthColor:'red'
+                },
+              ]
               if(SeccobbID && SeccobbID[0] != -1){
                 spineInfo.sShape = true;
-                console.log("SeccobbID",SeccobbID);
+
+                const cobbAngle2 = SecAngle.toFixed(2)
+                let boneList2 = []
+
                 SeccobbID.forEach(async eachId=>{
                   const bone = sortedContours[eachId]
-                  await dispatch("addPointInfo",{point:pointsCenter(bone.bbox),pointLabel:bone.boneCode,options:{color:'green'} })
+                  boneList2.push(bone)
+                  // await dispatch("addPointInfo",{point:pointsCenter(bone.bbox),pointLabel:bone.boneCode,options:{color:'green'} })
                 })
                 const maxindBone2 = sortedContours[SeccobbID[1]]
                 const maxindBoneCenter2 = pointsCenter(maxindBone2.bbox)
 
                 const fastLine2 = [maxindBoneCenter2,Secclosepnt]
-                await dispatch("addLength",{linePoints:fastLine2,options:{color:'green'}})
 
-                const vertebralOffset2 = calculateLength(imageId,maxindBoneCenter2,Secclosepnt)
-              spineInfo.vertebralOffset2 = vertebralOffset2.toFixed(2)
+                let vertebralOffset2 = calculateLength(imageId,maxindBoneCenter2,Secclosepnt)
+                vertebralOffset2 = vertebralOffset2.toFixed(2)
+                const boneLine2 = sortedContours.slice(boneList2[0].id,boneList2[2].id+1).map(bone=>pointsCenter(bone.bbox))
 
+              const anglePoint2 = getAngleDirection(boneList2.map(bone=>pointsCenter(bone.bbox)))
+                spineInfo.angleList.push({
+                  checked:false,
+                  cobb:cobbAngle2,
+                  fastLine:fastLine2,
+                  boneLine:boneLine2,
+                  boneList:boneList2.sort((a, b) => a.id - b.id),
+                  firstBone:boneList2[0].id,
+                  vertebralOffset:vertebralOffset2,
+                  pointColor :'yellow',
+                  lineColor:'blue',
+                  lengthColor:'blue'
+                })
               }
 
-              const vertebralOffset = calculateLength(imageId,maxindBoneCenter,closepnt)
-              spineInfo.vertebralOffset = vertebralOffset.toFixed(2)
+                spineInfo.angleList.forEach(item=>{
+                  const boneList =  item.boneList.map(bone=>pointsCenter(bone.bbox))
+                  const angleMidBone = boneList[1]
+                  const direction1 = getAngleDirection(boneList)
+                  let  anglePoint  =  [angleMidBone[0]+500*direction1[0],angleMidBone[1]+100*direction1[1]]
 
+                  item.anglePoint = anglePoint
+
+
+                })
+
+              spineInfo.sShapeLabel = spineInfo.sShape? 'S形':'C形'
+              spineInfo.angleList = spineInfo.angleList.sort((a, b) => a.firstBone - b.firstBone).map((item, index) => {
+                return { ...item, id: index }; // 根据排序后的索引赋值 id
+              });
 
               commit("SET_SPINE_INFO",spineInfo)
+              spineInfo.angleList.forEach(cobb=>{
+                dispatch("setSelectedCobb",cobb.id)
+              })
+               dispatch("UpdateCobb")
 
-              // dispatch("addCobb",{cobbPoints: [beginpnt1, endpnt1, beginpnt2, endpnt2] })
-
-              // this.addCobb({ cobbPoints: [beginpnt1, endpnt1, beginpnt2, endpnt2] })
-
-              // console.log(resinfo.data.resultData.data);
+              // dispatch("selectCobb",{cobbId:spineInfo.angleList[0].id,pointColor:'red',lineColor:'pink',lengthColor:'pink'})
+              // dispatch("selectCobb",{cobbId:spineInfo.angleList[1].id,pointColor:'green',lineColor:'blue',lengthColor:'blue'})
 
             }
           } else {
@@ -323,6 +406,64 @@ export default {
 
 
     },
+    async  removeCobb({state,commit,dispatch},cobbId){
+      let annotations = annotation.state.getAllAnnotations();
+
+      const filterAnno = annotations.filter(anno=>{
+        return anno.metadata.type == 'selectedCobb'&& anno.metadata.cobbId == cobbId
+      })
+      const annos = filterAnno.map(anno=>anno.annotationUID)
+      annos.forEach(anno=>{
+        annotation.state.removeAnnotation(anno)
+
+      })
+
+    },
+    async selectCobb({state,commit,dispatch},{cobbId,pointColor,lineColor,lengthColor}){
+      const cobb = state.spineInfo.angleList.find(item=>item.id==cobbId)
+
+      await dispatch("addLength",{linePoints:cobb.fastLine,options:{color:lengthColor||'yellow',type:'selectedCobb' ,cobbId}})
+      await dispatch("addLine",{linePoints:cobb.boneLine,options:{color:lineColor||'yellow',type:'selectedCobb',cobbId,lineWidth:3}})
+
+      cobb.boneList.forEach(async keyBone=>{
+        const bone = state.spineInfo.sortedContours[keyBone.id]
+        await dispatch("addPointInfo",{point:pointsCenter(bone.bbox),pointLabel:bone.boneCode,options:{color:pointColor||'red',type:'selectedCobb',cobbId} })
+      })
+
+      await dispatch("addTextLabel",{point:cobb.anglePoint,pointLabel:cobb.cobb+'°',options:{color: 'white', cobbId} })
+
+
+    },
+    async setSelectedCobb({state,commit,dispatch},cobbId){
+      commit("SET_SELECTED_COBB",cobbId)
+
+    },
+    async UpdateCobb({state,commit,dispatch}){
+
+      // const cobb = state.spineInfo.angleList.find(item=>item.id==id)
+
+      state.spineInfo.angleList.map(cobb=>{
+        if(cobb.checked){
+          dispatch("selectCobb",{cobbId:cobb.id,pointColor:cobb.pointColor,lineColor:cobb.lineColor,lengthColor:cobb.lengthColor})
+        }else{
+
+          dispatch("removeCobb",cobb.id)
+        }
+      })
+
+      const {viewportId,renderingEngineId} = state.view
+
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
+
+      cornerstoneTools.utilities.triggerAnnotationRenderForViewportIds([
+        viewportId
+      ]);
+      viewport.render()
+    },
+
     InitViewData({state,dispatch,commit}){
       // commit("INIT_ALL_VIEW_DATA")
 
@@ -423,7 +564,6 @@ export default {
 
     },
     async resizeView({state,dispatch}){
-      console.log("resize");
       const {viewportId,renderingEngineId} =state.view
       const renderingEngine = getRenderingEngine(renderingEngineId);
       const viewport = renderingEngine.getViewport(
@@ -432,8 +572,6 @@ export default {
 
       if (renderingEngine) {
         const presentation = viewport.getViewPresentation()
-        console.log("presentation");
-
         renderingEngine.resize(true, false);  //重置canvas
         viewport.setViewPresentation(presentation);
       }
@@ -525,7 +663,6 @@ export default {
     initializeToolGroup({state},toolGroupId){
 
       const preToolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(toolGroupId);
-      console.log("preToolGroup",preToolGroup);
 
       if (preToolGroup) {
         return preToolGroup;
@@ -556,11 +693,21 @@ export default {
           return textLines;
         }
       })
+      toolGroup.addTool(TextLabelTool.toolName,{
+        getTextLines:(data, targetId)=>{
+          const {pointLabel} = data
+          const textLines = [];
+          textLines.push(pointLabel)
+          return textLines;
+        }
+      })
+
       toolGroup.addTool(CircularMagnifyTool.toolName)
 
       toolGroup.setToolEnabled(SplineROITool.toolName);
       toolGroup.setToolEnabled(CobbAngleTool.toolName);
       toolGroup.setToolEnabled(PointInfoTool.toolName);
+      toolGroup.setToolEnabled(TextLabelTool.toolName);
       toolGroup.setToolEnabled(LengthTool.toolName);
 
       // toolGroup.setToolEnabled(AngleTool.toolName)
@@ -611,7 +758,6 @@ export default {
 
       bones.forEach((bone) => {
         const worldPoints = bone.bbox.map(point=>utilities.imageToWorldCoords(imageId,point))
-
         dispatch("customDrawSpline",{points:[...worldPoints,worldPoints[0]]})
       })
 
@@ -621,18 +767,17 @@ export default {
 
     },
     async addLine({state,dispatch},{linePoints,options}){
-      console.log("linePoints",linePoints);
 
       const {imageId,viewportId} = state.view
       const worldPoints = linePoints.map(point=>utilities.imageToWorldCoords(imageId,point))
       // LengthTool.hydrate(viewportId,worldPoints);
       const annotationUID = utilities.uuidv4()
       const styles = {
-        color: options?.color||'rgb(0, 0, 255)',
-
+        color: options?.color||'rgb(255,255,255)',
+        // lineWidth:(options?.lineWidth || 1 )+ 'px',
 
       };
-      dispatch("customDrawSpline",{points:worldPoints,options:{annotationUID}})
+      dispatch("customDrawSpline",{points:worldPoints,options:{annotationUID,...options}})
       annotation.config.style.setAnnotationStyles( annotationUID, styles);
 
     // viewport.render()
@@ -650,11 +795,11 @@ export default {
         // color: 'pink',
         // textBoxColor:'pink',
         shadow :false,
-        lineWidth:'2px',
+        lineWidth:(options?.lineWidth || 2) + 'px',
         textBoxShadow:false
         // lineDash:[5,5],//虚线
       };
-      dispatch("customDrawLength",{points:worldPoints,options:{annotationUID}})
+      dispatch("customDrawLength",{points:worldPoints,options:{annotationUID,...options}})
 
 
       annotation.config.style.setAnnotationStyles( annotationUID, styles);
@@ -676,12 +821,28 @@ export default {
         color: options?.color||'rgb(255, 0, 0)',
         textBoxColor: options?.color||'rgb(255, 0, 0)'
       };
-      dispatch("customDrawPoint",{point:worldPoint,options:{annotationUID,pointLabel }})
+      dispatch("customDrawPoint",{point:worldPoint,options:{annotationUID,pointLabel,...options }})
 
 
       annotation.config.style.setAnnotationStyles( annotationUID, styles);
 
     },
+
+    async addTextLabel({state,dispatch},{point,pointLabel,options}){
+      const {imageId,viewportId} = state.view
+      const worldPoint  =  utilities.imageToWorldCoords(imageId,point)
+      const annotationUID = utilities.uuidv4()
+      const styles = {
+        color: options?.color||'rgb(255, 0, 0)',
+        textBoxFontSize:'80px',
+        textBoxColor: options?.color||'rgb(255, 0, 0)',
+       };
+      dispatch("customDrawTextLabel",{point:worldPoint,options:{annotationUID,pointLabel,...options }})
+
+
+      annotation.config.style.setAnnotationStyles( annotationUID, styles);
+    },
+
 
     async addCobb({ state, rootState, dispatch, commit },{cobbPoints}){
       const {imageId,viewportId} = state.view
@@ -729,6 +890,7 @@ export default {
               viewPlaneNormal,
               FrameOfReferenceUID,
               referencedImageId,
+              ...options
           },
       };
 
@@ -740,7 +902,43 @@ export default {
         canvasCoordinates[1] - 2,
       ];
 
-      console.log(cornerstoneTools.Types);
+
+    },
+
+    customDrawTextLabel({state},{point,options}){
+      const {imageId,viewportId,renderingEngineId} = state.view
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
+
+      const FrameOfReferenceUID = viewport.getFrameOfReferenceUID();
+      const { viewPlaneNormal, viewUp } = viewport.getCamera();
+      const referencedImageId = state.view.imageId
+      const annotationUID=options?.annotationUID || utilities.uuidv4()
+      const newannotation = {
+          annotationUID ,
+          data: {
+            pointLabel:options?.pointLabel || '',
+            handles: {
+                points:[point],
+            },
+          },
+          highlighted: false,
+          autoGenerated: false,
+          invalidated: true,
+          isLocked: false,
+          isVisible: true,
+          metadata: {
+              toolName: TextLabelTool.toolName,
+              viewPlaneNormal,
+              FrameOfReferenceUID,
+              referencedImageId,
+              ...options
+          },
+      };
+
+      annotation.state.addAnnotation(newannotation,viewport.element)
 
 
     },
@@ -795,6 +993,7 @@ export default {
               viewPlaneNormal,
               FrameOfReferenceUID,
               referencedImageId,
+              ...options
           },
       };
       annotation.state.addAnnotation(newannotation,viewport.element)
@@ -831,6 +1030,7 @@ export default {
               viewPlaneNormal,
               FrameOfReferenceUID,
               referencedImageId,
+              ...options
           },
       };
 

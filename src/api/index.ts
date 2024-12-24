@@ -122,7 +122,7 @@ export const xhr_deleteSeries = (formData) => {
  */
 export const xhr_addFavorite = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: Case + urlJson["addFavorite"],
     data: {
       ...formData,
@@ -428,7 +428,7 @@ export const xhr_getSpineInitInfo = (formData) => {
       data: formData,
     })
   };
- 
+
 /**
  * seriesComputeId
  *
@@ -749,7 +749,7 @@ export const isExit = (studyInstanceUID) =>
  */
 export const xhr_queryNodule = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: nodule + urlJson["queryNodule"],
     data: {
       ...formData,
@@ -765,7 +765,7 @@ export const xhr_queryNodule = (formData) => {
  */
 export const xhr_queryFrac = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: frac + urlJson["queryFrac"],
     data: {
       ...formData,
@@ -781,7 +781,7 @@ export const xhr_queryFrac = (formData) => {
  */
 export const xhr_queryPneumonia = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: pneumonia + urlJson["queryPneumonia"],
     data: {
       ...formData,
@@ -795,7 +795,7 @@ export const xhr_queryPneumonia = (formData) => {
  */
 export const xhr_queryOperate = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: nodule + urlJson["queryOperate"],
     data: {
       ...formData,
@@ -810,7 +810,7 @@ export const xhr_queryOperate = (formData) => {
  */
 export const xhr_queryNoduleTextReport = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: nodule + urlJson["queryTextReport"],
     data: {
       ...formData,
@@ -825,7 +825,7 @@ export const xhr_queryNoduleTextReport = (formData) => {
  */
 export const xhr_queryPneumoniaTextReport = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: pneumonia + urlJson["queryTextReport"],
     data: {
       ...formData,
@@ -840,8 +840,23 @@ export const xhr_queryPneumoniaTextReport = (formData) => {
  */
 export const xhr_queryFracTextReport = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: frac + urlJson["queryTextReport"],
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/**
+ * 查询文本报告
+ * @param formData
+ * @returns
+ */
+export const xhr_querySpineTextReport = (formData) => {
+  return Base.submit(null, {
+
+    url: spine + urlJson["queryTextReport"],
     data: {
       ...formData,
     },
@@ -857,7 +872,7 @@ export const xhr_queryFracTextReport = (formData) => {
  */
 export const xhr_saveNoduleManualDiagnosis = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: nodule + urlJson["saveManualDiagnosis"],
     autoQs: false,
 
@@ -874,7 +889,7 @@ export const xhr_saveNoduleManualDiagnosis = (formData) => {
  */
 export const xhr_savePneumoniaManualDiagnosis = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: pneumonia + urlJson["saveManualDiagnosis"],
     autoQs: false,
 
@@ -891,8 +906,25 @@ export const xhr_savePneumoniaManualDiagnosis = (formData) => {
  */
 export const xhr_saveFracManualDiagnosis = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: frac + urlJson["saveManualDiagnosis"],
+    autoQs: false,
+
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/**
+ * 保存人工诊断结果
+ * @param formData
+ * @returns
+ */
+export const xhr_saveSpineManualDiagnosis = (formData) => {
+  return Base.submit(null, {
+
+    url: spine + urlJson["saveManualDiagnosis"],
     autoQs: false,
 
     data: {
@@ -909,7 +941,7 @@ export const xhr_saveFracManualDiagnosis = (formData) => {
  */
 export const xhr_saveOperate = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: nodule + urlJson["saveOperate"],
     autoQs: false,
 
@@ -927,7 +959,7 @@ export const xhr_saveOperate = (formData) => {
  */
 export const xhr_updateNoduleLesion = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: nodule + urlJson["updateNoduleLesion"],
     autoQs: false,
     // isFormData: true,
@@ -947,7 +979,7 @@ export const xhr_updateNoduleLesion = (formData) => {
  */
 export const xhr_updateFracLesion = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: frac + urlJson["updateFracLesion"],
     autoQs: false,
     // isFormData: true,
@@ -965,7 +997,7 @@ export const xhr_updateFracLesion = (formData) => {
 export const xhr_updatePneuCheckStatus = (formData) => {
   console.log(formData)
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: pneumonia + urlJson["updateCheckStatus"],
     // isFormData: true,
     data: {
@@ -982,7 +1014,7 @@ export const xhr_updatePneuCheckStatus = (formData) => {
  */
 export const xhr_updateTextReport = (formData) => {
   return Base.submit(null, {
-    // url: api5 + Topbase + study + urlJson['addFavorite'],
+
     url: nodule + urlJson["updateTextReport"],
     data: {
       ...formData,

@@ -18,12 +18,12 @@
       </div>
 
     </template>
-    <template>
+    <!-- <template>
       <div class="item_row flex">
         <div class="label">PageIndex:</div>
         <div class="val">{{ dicomTags.pageIndex }}</div>
       </div>
-    </template>
+    </template> -->
     <template>
       <div class="item_row flex">
         <div class="label">Image:</div>

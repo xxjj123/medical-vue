@@ -124,7 +124,6 @@ class CircularMagnifyTool extends  MagnifyTool {
 import {
   VolumeViewport,
 } from '@cornerstonejs/core';
-
 const {drawHandles ,drawHandle,drawTextBox ,drawLinkedTextBox} = cornerstoneTools.drawing;
 
 class PointInfoTool extends  ProbeTool {
@@ -147,15 +146,11 @@ class PointInfoTool extends  ProbeTool {
     if (!annotations?.length) {
       return renderStatus;
     }
-    console.log("before",annotations);
-    console.log("annotations");
-
 
     annotations = this.filterInteractableAnnotationsForElement(
       element,
       annotations
     );
-    console.log("after",annotations);
 
     if (!annotations?.length) {
       return renderStatus;
@@ -203,30 +198,6 @@ class PointInfoTool extends  ProbeTool {
         );
       } else if (annotation.invalidated) {
         this._calculateCachedStats(annotation, renderingEngine, enabledElement);
-
-        if (viewport instanceof VolumeViewport) {
-          const { referencedImageId } = annotation.metadata;
-
-          for (const targetId in data.cachedStats) {
-            if (targetId.startsWith('imageId')) {
-              const viewports = renderingEngine.getStackViewports();
-
-              const invalidatedStack = viewports.find((vp) => {
-                const referencedImageURI =
-                  csUtils.imageIdToURI(referencedImageId);
-                const hasImageURI = vp.hasImageURI(referencedImageURI);
-                const currentImageURI = csUtils.imageIdToURI(
-                  vp.getCurrentImageId()
-                );
-                return hasImageURI && currentImageURI !== referencedImageURI;
-              });
-
-              if (invalidatedStack) {
-                delete data.cachedStats[targetId];
-              }
-            }
-          }
-        }
       }
 
       if (!viewport.getRenderingEngine()) {
@@ -241,7 +212,7 @@ class PointInfoTool extends  ProbeTool {
         annotationUID,
         handleGroupUID,
         canvasCoordinates,
-        { color ,handleRadius:'2',fill:'red',opacity:1},
+        { color ,handleRadius:'2',fill:color,opacity:1},
         '0'
       );
 
@@ -262,19 +233,130 @@ class PointInfoTool extends  ProbeTool {
           annotationUID,
           textUID,
           textLines,
-          [textcanvasCoordinates[0]+12,textcanvasCoordinates[1]-12],
+          [textcanvasCoordinates[0]+24,textcanvasCoordinates[1]-12],
           {padding:0,color},
         );
 
       }
     }
-
     return renderStatus;
 
   }
 
+}
+
+
+class TextLabelTool extends  ProbeTool {
+  static toolName ;
+
+  constructor(props) {
+    super(props)
+
+  }
+  renderAnnotation = (
+    enabledElement: Types.IEnabledElement,
+    svgDrawingHelper
+  ): boolean =>{
+    let renderStatus = false;
+    const { viewport } = enabledElement;
+    const { element } = viewport;
+
+    let annotations = annotation.state.getAnnotations(this.getToolName(), element);
+
+    if (!annotations?.length) {
+      return renderStatus;
+    }
+
+    annotations = this.filterInteractableAnnotationsForElement(
+      element,
+      annotations
+    );
+
+    if (!annotations?.length) {
+      return renderStatus;
+    }
+
+    const targetId = this.getTargetId(viewport);
+    const renderingEngine = viewport.getRenderingEngine();
+
+    const styleSpecifier  = {
+      toolGroupId: this.toolGroupId,
+      toolName: this.getToolName(),
+      viewportId: enabledElement.viewport.id,
+    };
+
+    for (let i = 0; i < annotations.length; i++) {
+      const annotation = annotations[i]  ;
+      const annotationUID = annotation.annotationUID;
+      const data = annotation.data;
+      const point = data.handles.points[0];
+      const canvasCoordinates = viewport.worldToCanvas(point);
+
+      styleSpecifier.annotationUID = annotationUID;
+
+      const { color } = this.getAnnotationStyle({ annotation, styleSpecifier });
+
+      if (!data.cachedStats) {
+        data.cachedStats = {};
+      }
+
+      if (
+        !data.cachedStats[targetId] ||
+        data.cachedStats[targetId].value === null
+      ) {
+        data.cachedStats[targetId] = {
+          Modality: null,
+          index: null,
+          value: null,
+        };
+
+        this._calculateCachedStats(
+          annotation,
+          renderingEngine,
+          enabledElement,
+          ChangeTypes.StatsUpdated
+        );
+      } else if (annotation.invalidated) {
+        this._calculateCachedStats(annotation, renderingEngine, enabledElement);
+      }
+
+      if (!viewport.getRenderingEngine()) {
+        console.warn('Rendering Engine has been destroyed');
+        return renderStatus;
+      }
+
+
+      renderStatus = true;
+
+      const options = this.getLinkedTextBoxStyle(styleSpecifier, annotation);
+      if (!options.visibility) {
+        continue;
+      }
+
+      const textLines = this.configuration.getTextLines(data, targetId);
+      const textcanvasCoordinates = viewport.worldToCanvas([point[0],point[1] ,point[2]]);
+
+      if (textLines) {
+        const textUID = '0';
+        drawTextBox(
+          svgDrawingHelper,
+          annotationUID,
+          textUID,
+          textLines,
+          [textcanvasCoordinates[0],textcanvasCoordinates[1]],
+          {padding:0,color,fontSize:'18px'},
+        );
+
+      }
+    }
+    return renderStatus;
+
+  }
 
 }
+
+
 CircularMagnifyTool.toolName = 'CircularMagnify';
 PointInfoTool.toolName = 'PointInfo'
-export  {CircularMagnifyTool,PointInfoTool};
+TextLabelTool.toolName = "TextLabel"
+export  {CircularMagnifyTool,PointInfoTool,TextLabelTool};

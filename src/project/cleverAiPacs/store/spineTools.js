@@ -64,8 +64,6 @@ export default {
 
 
     UpdateWindowCenter({state, commit,rootState,dispatch}, value) {
-      console.log("UpdateWindowCenter",value);
-
       const {spineViewStore} = rootState
       const {viewportId,renderingEngineId,renderer,imageId} =  spineViewStore.view
       const {windowCenter,windowWidth} = spineViewStore.allViewData
@@ -91,8 +89,6 @@ export default {
     },
 
     UpdateWindowWidth({state, commit,rootState,dispatch}, value) {
-      console.log("UpdateWindowWidth",value);
-
       const {spineViewStore} = rootState
       const {viewportId,renderingEngineId,imageId} =  spineViewStore.view
       const {windowCenter,windowWidth} = spineViewStore.allViewData
