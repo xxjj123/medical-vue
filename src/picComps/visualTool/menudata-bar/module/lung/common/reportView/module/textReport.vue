@@ -3,7 +3,7 @@
     <div id="reportContent" class="report-container p-20">
       <!-- <button class="bg-blue-500 text-white px-4 py-2 rounded" @click="changeEditable">编辑</button> -->
       <div class="header ">
-        <h2 class="text-[26px] font-bold ">CT影像诊断报告单</h2>
+        <h2 class="text-[26px] font-bold ">影像诊断报告单</h2>
       </div>
       <div class="w-full     text-5 border-b pb-[10px] mb-[20px]">
         <div class="w-full flex justify-between  items-center space-x-4 py-2">
@@ -185,8 +185,22 @@ export default {
           unit: true,
           language: "zh",
         }).replaceAll('岁', '');
-        this.formData.finding = finding ? finding.replace(/&sup3;/g, "³").replace(/&#xff0c;/g, "，").replace(/&#x5c;n/g, "\n") : ''
-        this.formData.diagnosis = diagnosis ? diagnosis.replace(/&sup3;/g, "³").replace(/&#xff0c;/g, "，").replace(/&#x5c;n/g, "\n") : ''
+        this.formData.finding = finding ? finding
+          .replace(/&sup3;/g, "³")  // 替换 &sup3; 为 ³
+          .replace(/&#xff0c;/g, "，") // 替换 &#xff0c; 为 ，
+          .replace(/&#x5c;n/g, "\n") // 替换 &#x5c;n 为 换行符
+          .replace(/&#x28;/g, "(")  // 替换 &#x28; 为 (
+          .replace(/&#x29;/g, ")")  // 替换 &#x29; 为 )
+          .replace(/&deg;/g, "°")  // 替换 &deg; 为 °
+          : ''
+        this.formData.diagnosis = diagnosis ? diagnosis
+          .replace(/&sup3;/g, "³")  // 替换 &sup3; 为 ³
+          .replace(/&#xff0c;/g, "，") // 替换 &#xff0c; 为 ，
+          .replace(/&#x5c;n/g, "\n") // 替换 &#x5c;n 为 换行符
+          .replace(/&#x28;/g, "(")  // 替换 &#x28; 为 (
+          .replace(/&#x29;/g, ")")  // 替换 &#x29; 为 )
+          .replace(/&deg;/g, "°")  // 替换 &deg; 为 °
+          : ''
       }
     },
     deep: true
