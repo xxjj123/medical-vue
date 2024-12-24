@@ -16,8 +16,8 @@
             { 'rotate-180': rotated && current === '1' },
           ]"></div>
         </div>
-        <ta-popover ref="mypop1" @after-leave="afterLeaveEvents" :visible-arrow="true" :offset="2" :appendToBody="true"
-          :placement="`top`" class="cus_poper sctz_pop">
+        <ta-popover v-model="filterForm.show" ref="mypop1" @after-leave="afterLeaveEvents" :visible-arrow="true"
+          :offset="2" :appendToBody="true" :placement="`top`" class="cus_poper sctz_pop">
           <div slot="content" class="boxBtn_extSelect">
             <div class="group_tools flex flex-col">
               <div v-for="(it, idx) in view_window.list" :key="idx" :class="[
@@ -370,6 +370,9 @@ export default {
 
   data() {
     return {
+      filterForm: {
+        show: false
+      },
       mjtyms_conf: {
         onChange: (ev) => {
           console.log("onChange___mjtyms_conf", ev, this.mjtyms_conf);
@@ -449,10 +452,10 @@ export default {
         },
         current: 0,
         list: [
-          {
-            name: "肋骨高级视图",
-            icon: LayoutIcons.LGGJST,
-          },
+          // {
+          //   name: "肋骨高级视图",
+          //   icon: LayoutIcons.LGGJST,
+          // },
           {
             name: "MPR",
             icon: LayoutIcons.MPR,
@@ -547,6 +550,8 @@ export default {
       const row = this.view_window.list[current];
       this.view_window.curInput = row.icon;
       this.activeLayout(row.icon);
+      this.filterForm.show = false
+
 
 
     },

@@ -321,8 +321,13 @@ export default {
       console.log("INIT_ALL_VIEW_DATA",state.allViewData);
       state.allViewData.windowCenter = 300
       state.allViewData.windowWidth = 1500
+      state.allViewData.rotate = 0
+
       state.allViewData.isPan = false
       state.allViewData.invert = false
+      state.allViewData.flipHorizontal = false
+      state.allViewData.flipVertical = false
+      state.allViewData.zoomView = false
 
       state.allViewData.layOut = LayoutIcons.MPR;
       state.allViewData.buttons = [ButtonNames.Layout, ButtonNames.Ckcw, ButtonNames.Jbinfo, ButtonNames.Szckx, ButtonNames.Pyms, ButtonNames.Bcj];

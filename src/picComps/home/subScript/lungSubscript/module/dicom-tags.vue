@@ -7,12 +7,7 @@
     { leftBottom: fixHere === 'leftBottom' }
   ]" :style="{ ...sheetStyleTag }">
 
-    <template>
-      <div class="item_row flex">
-        <div class="label">Invert:</div>
-        <div class="val">{{ dicomTags.Invert }}</div>
-      </div>
-    </template>
+
     <template>
       <div class="item_row flex">
 
@@ -35,21 +30,6 @@
         <div class="val">{{ dicomTags.image }}</div>
       </div>
     </template>
-    <template>
-      <div class="item_row flex">
-        <div class="label">display:</div>
-        <div class="val">{{ dicomTags.display }}</div>
-      </div>
-    </template>
-
-    <template>
-      <div class="item_row flex">
-        <div class="label">activeIJK:</div>
-        <div class="val">{{ activeIJK }}</div>
-      </div>
-    </template>
-
-
 
 
 
@@ -166,9 +146,7 @@ export default {
           KvpVal: kvp,
           ThicknessVal: parseFloat(sliceThickness).toFixed(2),
           Invert: invert
-
         }
-
       }
     },
 

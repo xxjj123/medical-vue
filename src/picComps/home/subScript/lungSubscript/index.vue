@@ -2,7 +2,7 @@
   <div class="threeViewSecTool ">
     <slot></slot>
     <dicomTags v-show="jbinfoButtonState" :data="viewInfo"></dicomTags>
-    <!-- <orientationTags v-show="jbinfoButtonState" :datav="orientationTags_msg"></orientationTags> -->
+    <orientationTags v-show="jbinfoButtonState" :data="viewInfo" :datav="orientationTags_msg"></orientationTags>
     <crossHair v-show="crossHairButtonState" :data="viewInfo"></crossHair>
 
     <subTools :data="viewInfo" :viewType="viewType" :TracheaName="TracheaName !== '' ? TracheaName : 'lung'"></subTools>

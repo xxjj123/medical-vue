@@ -1,17 +1,18 @@
 <template>
   <div class="orientaion-tags">
+
     <div class="overlay1">
-      <div>R</div>
+      <div>{{ data.dirTag[3] }}</div>
     </div>
     <div class="overlay2">
       <div class="si_block h-full flex flex-col justify-between items-stretch">
-        <div class="top_btn">S</div>
-        <div class="bottom_btn">I</div>
+        <div class="top_btn">{{ data.dirTag[0] }}</div>
+        <div class="bottom_btn">{{ data.dirTag[2] }}</div>
       </div>
     </div>
 
     <div class="overlay3">
-      <div>L</div>
+      <div>{{ data.dirTag[1] }}</div>
     </div>
 
 
@@ -22,7 +23,7 @@
 export default {
   name: 'orientaion-tags',
   props: {
-    datav: {
+    data: {
       type: Object,
       required: true
     }

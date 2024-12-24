@@ -11,7 +11,6 @@
 <script lang="javascript">
 
 import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
-
 import subScript from "@/picComps/picDiagnose/subScript/index.vue";
 import { xhr_getSpineInfo } from "@/api"
 

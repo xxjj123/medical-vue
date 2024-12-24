@@ -237,6 +237,67 @@ export default {
       //   value: !viewData.autoPlay,
       // },{root:true});
     },
+
+    rotateView ({commit, state,rootState,rootGetters,dispatch}, viewportId){
+      const {lungViewStore} = rootState
+      const { ViewPortData,renderingEngineId} =lungViewStore
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
+      const viewData = ViewPortData[viewportId]
+      const rotate = (viewData.rotate+90) % 360
+      console.log("rotate",rotate);
+
+      viewport.setViewPresentation({ rotation:rotate });
+      commit("lungViewStore/SET_VIEW_DATA", {
+        viewportId,
+        key: "rotate",
+        value: rotate,
+      },{root:true});
+
+      requestAnimationFrame(()=>{
+        viewport.render()
+      })
+    },
+    flipVertical ({commit, state,rootState,rootGetters,dispatch}, viewportId){
+      const {lungViewStore} = rootState
+      const { ViewPortData,renderingEngineId} =lungViewStore
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
+      const viewData = ViewPortData[viewportId]
+      viewport.setCamera({ flipVertical: !viewData.flipVertical });
+      commit("lungViewStore/SET_VIEW_DATA", {
+        viewportId,
+        key: "flipVertical",
+        value: !viewData.flipVertical,
+      },{root:true});
+
+      requestAnimationFrame(()=>{
+        viewport.render()
+      })
+    },
+    flipHorizontal({commit, state,rootState,rootGetters,dispatch}, viewportId){
+      const {lungViewStore} = rootState
+      const { ViewPortData,renderingEngineId} =lungViewStore
+      const renderingEngine = getRenderingEngine(renderingEngineId);
+      const viewport = renderingEngine.getViewport(
+        viewportId
+      )
+      const viewData = ViewPortData[viewportId]
+      viewport.setCamera({ flipHorizontal: !viewData.flipHorizontal });
+      commit("lungViewStore/SET_VIEW_DATA", {
+        viewportId,
+        key: "flipHorizontal",
+        value: !viewData.flipHorizontal,
+      },{root:true});
+
+      requestAnimationFrame(()=>{
+        viewport.render()
+      })
+    },
     invertView({commit, state,rootState,rootGetters,dispatch}, viewportId) {
       const {lungViewStore} = rootState
       const { ViewPortData,renderingEngineId} =lungViewStore

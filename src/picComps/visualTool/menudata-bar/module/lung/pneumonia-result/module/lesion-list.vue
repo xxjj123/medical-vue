@@ -263,7 +263,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions("pneumoniaInfoStore", ["updatePneumoniaLession"]),
+    ...mapActions("pneumoniaStore", ["updatePneumoniaLession"]),
     setPopupContainer(trigger) {
       return trigger.parentElement;
     },
@@ -426,6 +426,7 @@ body {
   }
 
   .btn_cxt {
+
     width: 100%;
     height: 60px;
     padding: 23px 0px 0px 0px;

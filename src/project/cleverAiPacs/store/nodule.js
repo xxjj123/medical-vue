@@ -231,8 +231,7 @@ export default {
       state.allViewData = JSON.parse(JSON.stringify(allViewData));
       state.ViewPortData = JSON.parse(JSON.stringify(ViewPortData));
 
-      console.log("保存nodule allViewData",allViewData);
-
+      console.log("保存nodule allViewData",allViewData.activeButtons.join(","));
 
 
       console.log("save",ViewPortData);
@@ -285,6 +284,13 @@ export default {
       state.allViewData.windowCenter = -500
       state.allViewData.windowWidth = 1500
       state.allViewData.invert = false
+ 
+      state.allViewData.flipHorizontal = false
+      state.allViewData.flipVertical = false
+
+
+      state.allViewData.zoomView = false
+
       state.allViewData.isPan = false
 
       state.allViewData.layOut = LayoutIcons.AXIAL;

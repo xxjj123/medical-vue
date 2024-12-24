@@ -6,13 +6,14 @@
               <div class="text-red-500"> {{ data.invert }}</div>
 
  -->
-      <div class="text-red-500"> {{ data.zoomView }}</div>
+      <!-- <div class="text-red-500"> {{ data }}</div> -->
+
       <template v-if="btnInfoItem && Object.keys(btnInfoItem).length > 0">
         <template v-for="(btn, key) in btnInfoItem">
           <div
-            :class="[`btn flex`, { selected: isSelected(btn) }, { ripple: btn.mode === 'more' || btn.mode === 'other' }]"
+            :class="[`btn flex`, { selected: btn.code == 'autoplay' ? data.autoPlay.state : btn.on && btn.mode !== 'more' && btn.mode !== 'other' }, { ripple: btn.mode === 'more' || btn.mode === 'other' }]"
             :key="`${key}_a`" @click.stop="handle_click(btn, key)">
-            <div :class="['ifontyhpacs', { [`${btnIcon(btn)}`]: true }]">
+            <div :class="['ifontyhpacs', { [`${btn.icon}`]: btn.icon && btn.icon !== '' }]">
             </div>
 
           </div>
@@ -72,7 +73,6 @@ export default {
   },
 
   computed: {
-
     btnInfoItem: {
       get() {
         const { TracheaName, btnInfoItemLocal } = this
@@ -85,7 +85,7 @@ export default {
         console.log("this.btnInfoItemLocal;____", this.btnInfoItemLocal)
       },
     },
-    ...mapState("lungViewStore", ["allViewData"]),
+    ...mapState("mprViewStore", ["allViewData"]),
     ...mapState("toolBarStore", ["slice_CT_pic_layout"]),
 
     ...mapState("viewInitStore", ["autoPlayStates"]),
@@ -181,36 +181,16 @@ export default {
   methods: {
     ...mapActions("mprToolsStore", ["ReverseWindow", "RotateCamera", "FlipHorizontal", "FlipVertical"]),
     // ...mapActions("toolBarStore", ["AutoPlay"]),
-    ...mapActions("lungToolsStore", ["AutoPlay", "rotateView", "flipVertical", "flipHorizontal", "invertView"]),
+    ...mapActions("lungToolsStore", ["AutoPlay", "invertView"]),
 
 
     ...mapMutations("toolBarStore", ["SET_SLICE_CT_PIC_LAYOUT"]),
     ...mapActions("toolBarStore", ["activeZoom", "activeButtonState"]),
 
+
     // ...mapMutations("viewInitStore", ["CLEAR_AUTO_PLAY_TIMER"]),
 
     // ...mapActions("viewInitStore", ["ReverseWindow", "RotateCamera", "AutoPlay", "FlipHorizontal", "FlipVertical"]),
-
-    isSelected(btn) {
-      switch (btn.code) {
-        case 'reback': // 如果有其他逻辑，可以继续添加
-          return this.data.invert;
-        default:
-          return btn.on && !['more', 'other'].includes(btn.mode); // 默认逻辑
-      }
-
-    }
-    , btnIcon(btn) {
-      switch (btn.code) {
-        case 'autoplay': // 如果有其他逻辑，可以继续添加
-          return this.data.autoPlay.state ? "ico_pacszanting-" : "ico_pacsbofang";
-        case 'screen': // 如果有其他逻辑，可以继续添加
-          return this.data.layoutIcon == this.allViewData.zoomView ? "ico_pacstuichuquanping" : "ico_pacsquanping";
-        default:
-          return btn.icon; // 默认逻辑
-      }
-
-    },
     handle_click_more(btn, index) {
       console.log("this.btnInfoItem==start", btn, index);
 
@@ -264,18 +244,12 @@ export default {
         case btnLungCodes.XZFZ: {
           console.log("btn.icon==", btn.icon);
 
-          const { viewportId } = this.data
           if (btn.icon === rotateChildBtnCodes.ICO_PACSSHUPING) {
-            // this.RotateCamera(this.viewType)
-            this.rotateView(viewportId)
+            this.RotateCamera(this.viewType)
           } else if (btn.icon === rotateChildBtnCodes.ICO_PACSSHUIPINGFANZHUAN) {
-
-            // this.FlipHorizontal(this.viewType)
-            this.flipHorizontal(viewportId)
-
+            this.FlipHorizontal(this.viewType)
           } else if (btn.icon === rotateChildBtnCodes.ICO_PACSCHUIZHIFANZHUAN) {
-            // this.FlipVertical(this.viewType)
-            this.flipVertical(viewportId)
+            this.FlipVertical(this.viewType)
           }
         }
           break;

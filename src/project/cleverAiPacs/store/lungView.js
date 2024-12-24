@@ -44,6 +44,8 @@ const VIEW_INFO = {
   AXIAL: {
     viewportId: 'STACK_AXIAL',
     viewName: 'axial',
+    originDirTag:['A','L','P','R'],
+    dirTag :['A','L','P','R'],
     layoutIcon:LayoutIcons.AXIAL,
     ijkId:2,
     autoPlay:{
@@ -55,6 +57,9 @@ const VIEW_INFO = {
   CORONAL: {
     viewportId: 'STACK_CORONAL',
     viewName: 'coronal',
+    originDirTag :['S','L','I','R'],
+    dirTag :['S','L','I','R'],
+
     layoutIcon:LayoutIcons.CORONAL,
 
     ijkId:1,
@@ -67,6 +72,8 @@ const VIEW_INFO = {
   SAGITTAL: {
     viewportId: 'STACK_SAGITTAL',
     viewName: 'sagittal',
+    originDirTag :['S','P','I','A'],
+    dirTag :['S','P','I','A'],
     layoutIcon:LayoutIcons.SAGITTAL,
 
     ijkId:0,
@@ -178,6 +185,7 @@ const getDefaultState = () => ({
   },
   allViewData: new AllViewData(),
   activeModule: null,
+  allModules:[],
   activeIJK:new Array(3),
   actualIJK:new Array(3),
 
@@ -233,6 +241,11 @@ export default {
 
   mutations: {
     SET_MODULE(state,{activeModule,moduleName}){
+
+       if(!state.activedModules.includes(moduleName)){
+        state.activedModules.push(moduleName);
+
+      }
       state.activeModule  = moduleName
       const {ViewPortData,allViewData ,activeIJK} =  activeModule
       console.log("activeIJK",activeIJK);
@@ -367,9 +380,33 @@ export default {
     SET_VIEW_DATA(state, {viewportId, key, value}) {
       const view = state.ViewPortData[viewportId];
       view[key] = value;
+      if(key == 'rotate' || key == 'flipVertical' ||key == 'flipHorizontal' ){
+        const {originDirTag,rotate,flipVertica,flipHorizontal} = state.ViewPortData[viewportId]
+
+        const dirTag = [...originDirTag]
+        if(flipHorizontal){
+          dirTag[1] = originDirTag[3]
+          dirTag[3] = originDirTag[1]
+
+        }
+        if(flipVertica){
+          dirTag[0] = originDirTag[2]
+          dirTag[2] = originDirTag[0]
+        }
+        if (rotate % 90 === 0) {
+          let steps = (rotate / 90) % originDirTag.length;
+          for (let i = 0; i < steps; i++) {
+            let lastElement = dirTag.pop();
+            dirTag.unshift(lastElement);
+          }
+        }
+
+        state.ViewPortData[viewportId].dirTag = dirTag
+      }
       if(key=='pageIndex'){
         state.actualIJK[view.ijkId] = value
       }
+
 
       if(key=='changedPageIndex'){
         state.activeIJK[view.ijkId] = value
@@ -405,6 +442,13 @@ export default {
       }else{
         state.allViewData[key] = value;
       }
+      // const viewportEntries = Object.values(state.ViewPortData);
+      // viewportEntries.map((viewInfo)=>{
+      //   state.ViewPortData[viewInfo.viewportId].zoomView = viewInfo.layoutIcon == value
+
+      // })
+
+
     },
 
   },
@@ -413,13 +457,32 @@ export default {
       commit("SET_ALL_VIEW_STATE",{ key,value })
     },
     async ActiveModule({dispatch, state, getters, commit,rootState,rootGetters},currentModuleState){
-      await dispatch("clearAllAutoplay" )
+       await dispatch("clearAllAutoplay" )
+
+      //  if(state.viewData.autoPlay.state)
+
       // await imageLoader.loadAndCacheImage(viewInfo.imageId)
+
+      // const {toolBarStore} = rootGetters
+
+      if(state.activedModules.includes(currentModuleState)){
+        const preActivedTools = rootGetters["toolBarStore/getAllButtonActiveStates"]
+        const trueKeys = Object.keys(preActivedTools).filter(key => preActivedTools[key] === true).map(key => key.replace('_on', ''));
+        commit("SET_ALL_VIEW_STATE",{ key:"activeButtons",value:trueKeys})
+
+        console.log("rootGetters",trueKeys);
+
+      }
+
+      // console.log("toolBarStore",toolBarStore.activeButtons.join(","));
+      console.log("stateall",state.allViewData.activeButtons.join(","));
 
       if(state.activeModule){
         dispatch(state.activeModule+"/saveModule",null,{root:true})
       }
-      console.log("stateall",state.allViewData.activeButtons.join(","));
+
+
+
 
 
       const activeModule = rootState[currentModuleState]
@@ -441,36 +504,41 @@ export default {
       // await dispatch("UpdateIJK",ijk)
 
       viewportEntries.map(async (viewInfo) =>{
-        const {viewportId,camera,prop,changedPageIndex } = viewInfo
+        const {viewportId,camera,prop,changedPageIndex,pageIndex } = viewInfo
         const viewport = renderingEngine.getViewport(
            viewportId
         )
-
         commit("SET_VIEW_DATA", {viewportId, key: "changedPageIndex", value: changedPageIndex});
-        const cachedImage = await  cornerstone.cache.getImageLoadObject(viewInfo.imageId).promise;
-
-
-        if(cachedImage){
-          // console.log("加载缓存",viewInfo.imageId);
-          const camera = viewInfo.camera
-          // console.log("camera",camera);
-
-
-          viewport.imageIds = [viewInfo.imageId]
-          viewport.renderImageObject(cachedImage)
-          if(camera){
-            viewport.setCamera(camera)
-            viewport.setProperties(prop)
-          }
-
-        }else{
-          // console.log("在线下载",viewInfo.imageId);
+        if(changedPageIndex != pageIndex ){
+          console.log("在线下载",viewInfo.imageId);
 
           dispatch("updateSliceForView", {
             viewInfo,
-            index: viewInfo.pageIndex,
+            index: changedPageIndex,
           });
+        }else{
+          const cachedImage = await  cornerstone.cache.getImageLoadObject(viewInfo.imageId).promise;
+
+          if(cachedImage){
+            console.log("加载缓存",viewInfo.imageId);
+            const camera = viewInfo.camera
+            // console.log("camera",camera);
+            viewport.imageIds = [viewInfo.imageId]
+            viewport.renderImageObject(cachedImage)
+            if(camera){
+              viewport.setCamera(camera)
+              viewport.setProperties(prop)
+            }
+
+          }else{
+            console.log("在线下载",viewInfo.imageId);
+            dispatch("updateSliceForView", {
+              viewInfo,
+              index: changedPageIndex,
+            });
+          }
         }
+
 
         // console.log("state.activeModule",state.activeModule);
         commit("UPDATE_CROSS_HAIR" )
@@ -497,7 +565,7 @@ export default {
       const toolGroup =  ToolGroupManager.getToolGroup(toolGroupId);
       const cornerstoneToolButtom = [ZoomTool,PanTool]
       cornerstoneToolButtom.forEach(tool=>{
-        console.log("禁止了",tool.toolName);
+        // console.log("禁止了",tool.toolName);
 
         toolGroup.setToolPassive(tool.toolName);
       })
@@ -506,8 +574,8 @@ export default {
        const viewport = renderingEngine.getViewport( viewinfo.viewportId)
          viewport.element.style.cursor = 'default'
       })
- 
-      console.log("allViewData.activeButtons",allViewData.activeButtons.join(","));
+
+      // console.log("allViewData.activeButtons",allViewData.activeButtons.join(","));
 
       // dispatch("lungToolsStore/UpdateWindowCenter",allViewData.windowCenter,{root:true})
       // dispatch("lungToolsStore/UpdateWindowWidth",allViewData.windowWidth,{root:true})
@@ -620,7 +688,7 @@ export default {
         })
 
         const onMouseDragStop = debounce(() => {
-          console.log('Mouse Drag has stopped!');
+          // console.log('Mouse Drag has stopped!');
           const {actualIJK,activeIJK} = state
           let equal = true
           for (let i = 0; i < actualIJK.length; i++) {
@@ -656,7 +724,7 @@ export default {
 
 
          if(isAllowed){
-          console.log(" PanToolInstance?.mode",PanToolInstance?.mode);
+          // console.log(" PanToolInstance?.mode",PanToolInstance?.mode);
 
             if(image){
               const {voxelManager,imageData} = image
@@ -864,6 +932,11 @@ export default {
             key: "invert",
             value: false,
           });
+          commit("SET_VIEW_DATA", {
+            viewportId,
+            key: "rotate",
+            value: 0,
+          });
 
 
         })
@@ -879,6 +952,7 @@ export default {
       const modules = ["noduleStore", "fracStore", "pneumoniaStore"];
       const {noduleStore,fracStore,pneumoniaStore} = rootState
       // console.log("noduleStore,fracStore,pneumoniaStore",noduleStore,fracStore,pneumoniaStore);
+
 
        await Promise.all(modules.map(module => dispatch(module + "/InitModule", seriesInfo, { root: true })))
       console.log("准备就绪");
@@ -923,14 +997,24 @@ export default {
     async updateSliceForView({dispatch,commit,state}, { viewInfo , index }) {
       if(index == ''  ) return;
       const {viewportId,ijkId} = viewInfo
-
+      const oldModule = state.activeModule
 
       const viewInstance =  state.ViewPortInstanceData[viewportId]
       if(viewInstance.pageIndex != index) {
         commit("UPDATE_LOAD_STATUS",true)
 
         const file = await dispatch("GetDicomFile", {viewInfo, index});
-        if (file) {
+
+        const isChangedModule = oldModule == state.activeModule
+        console.log("module",oldModule,state.activeModule);
+
+        if(!isChangedModule){
+          console.log("前后不一致！！",oldModule,state.activeModule);
+
+        }
+        console.log("isChangedModule",isChangedModule);
+
+        if (file && isChangedModule) {
           commit("UPDATE_LOAD_STATUS", false);
           const imageId = await dispatch("UpdateSlice", {viewInfo, file});
           commit("SET_VIEW_DATA", {viewportId, key: "pageIndex", value: index});
@@ -950,6 +1034,10 @@ export default {
       // console.log("viewport",viewport);
 
       // dispatch("UpdateSliceNodule",{viewInfo,imageId})
+
+      const { rotation } = viewport.getViewPresentation();
+      console.log("rotation",rotation);
+
       if(state.activeModule){
         dispatch(state.activeModule+"/UpdateSlice",{viewInfo,imageId:viewInfo.imageId},{root:true})
 
@@ -989,7 +1077,7 @@ export default {
       {viewInfo,file},
     ) {
       const imageId = cornerstoneDICOMImageLoader.wadouri.fileManager.add(file);
-      const {viewportId} =viewInfo
+      const {viewportId,} =viewInfo
       const imageIds = [imageId];
       const {renderingEngineId} = state;
       const renderingEngine = getRenderingEngine(renderingEngineId);
@@ -1001,15 +1089,32 @@ export default {
       const preImageIds = viewport.getImageIds()
       // console.log("preImageIds",preImageIds);
 
-
       viewport.imageIds = imageIds
       const image =await  cornerstone.imageLoader.loadImage(imageId)
-      // const image =await  cornerstone.imageLoader.loadAndCacheImage(imageId)
-
-
-
+      const {rotation} = viewport.getViewPresentation();
+      const {flipHorizontal,flipVertical} = viewport.getCamera();
 
       viewport.renderImageObject(image)
+      console.log("flipHorizontal,flipVertical,rotation",flipHorizontal,flipVertical,rotation);
+
+      viewport.setCamera({flipHorizontal,flipVertical})
+      viewport.setViewPresentation({rotation})
+      // commit("SET_VIEW_DATA", {
+      //   viewportId,
+      //   key: "flipVertical",
+      //   value: flipVertical,
+      // });
+      // commit("SET_VIEW_DATA", {
+      //   viewportId,
+      //   key: "flipVertical",
+      //   value: flipVertical,
+      // });
+
+
+      // viewport.setCamera(camera);
+      // viewport.setCamera(camera);
+
+
       if( preImageIds?.length == 0) {
         const WW = 1500
         const WC = -500

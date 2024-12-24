@@ -8,9 +8,9 @@
         {{ data.displayY }} -->
         <!-- {{ height - data.displayY }} -->
         <svg ref="svg" class=" select-none pointer-events-none w-full h-full">
-          <line :x1="0" :y1="data.displayY" :x2="width" :y2="data.displayY" stroke="#2cf66c" :stroke-width="1.5"
+          <line :x1="0" :y1="data.displayY" :x2="width" :y2="data.displayY" stroke="#2cf66c" :stroke-width="0.8"
             :stroke-dasharray="dashArray" vector-effect="non-scaling-stroke" />
-          <line :x1="data.displayX" :y1="0" :x2="data.displayX" :y2="height" stroke="#2cf66c" :stroke-width="1.5"
+          <line :x1="data.displayX" :y1="0" :x2="data.displayX" :y2="height" stroke="#2cf66c" :stroke-width="0.8"
             :stroke-dasharray="dashArray" vector-effect="non-scaling-stroke" />
 
 
@@ -51,7 +51,7 @@ export default {
     return {
       height: 0,
       width: 0,
-      dashArray: 5,
+      dashArray: 2,
       screenRatio: 1,
     }
   },
