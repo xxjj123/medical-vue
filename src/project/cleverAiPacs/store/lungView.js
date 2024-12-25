@@ -529,8 +529,14 @@ export default {
             console.log("加载缓存",viewInfo.imageId);
             // const camera = viewInfo.camera
             // console.log("camera",camera);
+            const {rotation} = viewport.getViewPresentation();
+            const {flipHorizontal,flipVertical} = viewport.getCamera();
+
             viewport.imageIds = [viewInfo.imageId]
             viewport.renderImageObject(cachedImage)
+
+            viewport.setCamera({flipHorizontal,flipVertical})
+            viewport.setViewPresentation({rotation})
             // if(camera){
             //   viewport.setCamera(camera)
             //   viewport.setProperties(prop)
@@ -745,10 +751,18 @@ export default {
           // console.log(" PanToolInstance?.mode",PanToolInstance?.mode);
 
             if(image){
-              const {voxelManager,imageData} = image
+              const {voxelManager,imageData,dimensions} = image
 
               const worldPos = event.detail.currentPoints.world
               let ijk = transformWorldToIndex(imageData,worldPos);
+              ijk = ijk.map((item,index)=>{
+                if(item >dimensions[index] ){
+                  return dimensions[index]
+                }else if(item < 1){
+                  return 1
+                }
+                return item
+              })
               const trueijk = getTrueIjk(ijk);
 
               dispatch("UpdateIJK",trueijk)

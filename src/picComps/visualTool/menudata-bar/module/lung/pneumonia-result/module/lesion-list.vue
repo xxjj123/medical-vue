@@ -87,7 +87,7 @@ export default {
     menuResult: Object,
   },
   computed: {
-    ...mapState("mprViewStore", ["seriesInfo"]),
+    ...mapState("lungViewStore", ["seriesInfo"]),
     allHealth: {
       get() {
         return this.lessionList.every(item => item.diseaseClass == null);
