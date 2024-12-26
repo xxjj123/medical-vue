@@ -327,7 +327,6 @@ export default {
         return this.tableData.filter(item => item.checked);
       }
     },
-
     lesionOrderType: {
       get() {
         const { lesionOrderType } = this.operate_dict

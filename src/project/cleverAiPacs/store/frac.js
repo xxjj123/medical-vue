@@ -79,7 +79,7 @@ import {
 
 const coordinate = vtkCoordinate.newInstance();
 
-import {xhr_queryFrac,xhr_updateFracLesion} from "@/api";
+import {xhr_queryFrac,xhr_updateFracLesion,xhr_resetFracLesion} from "@/api";
 const VIEW_INFO = {
   AXIAL: {
     viewportId: 'STACK_AXIAL',
@@ -190,24 +190,7 @@ const BBOX_LINEWIDTH = {
 export default {
   namespaced: true,
   state: {
-    // ViewPortData:{
-    //   [VIEW_INFO.AXIAL.viewportId]:{
-    //     ...VIEW_INFO.AXIAL,
-    //     prePresentation:null,
-    //     preImage:null,
-    //     ...new ViewData()},
-    //   [VIEW_INFO.SAGITTAL.viewportId]:{
-    //     ...VIEW_INFO.SAGITTAL,
-    //     prePresentation:null,
-    //     preImage:null,
-    //     ...new ViewData()},
-    //   [VIEW_INFO.CORONAL.viewportId]:{
-    //     ...VIEW_INFO.CORONAL,
-    //     prePresentation:null,
-    //     preImage:null,
-    //     ...new ViewData()}
-    // },
-    // allViewData: new AllViewData(),
+
     ViewPortData:{
 
     },
@@ -428,6 +411,16 @@ export default {
         console.log(res)
        })
     }
+    },
+    async ResetFrac({dispatch,state,rootState,commit}){
+      const {lungViewStore} = rootState
+      const {seriesInfo} = lungViewStore
+      const computeSeriesId = seriesInfo.computeSeriesId
+      await xhr_resetFracLesion({computeSeriesId})
+      const result = await xhr_queryFrac({ computeSeriesId:seriesInfo.computeSeriesId});
+      if (result.serviceSuccess) {
+        commit("SET_FRAC_INFO",result.data.resultData)
+      }
     },
 
     async handleMousePress(

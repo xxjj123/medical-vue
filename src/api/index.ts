@@ -1008,6 +1008,58 @@ export const xhr_updatePneuCheckStatus = (formData) => {
 
 
 /**
+ * 更新结节病变信息
+ * @param formData
+ * @returns
+ */
+export const xhr_resetNoduleLesion = (formData) => {
+  return Base.submit(null, {
+    url: nodule + urlJson["resetOperate"],
+    // autoQs: false,
+    // isFormData: true,
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/**
+ * 更新结节病变信息
+ * @param formData
+ * @returns
+ */
+export const xhr_resetPneumoniaLesion = (formData) => {
+  return Base.submit(null, {
+
+    url: pneumonia + urlJson["resetOperate"],
+    // autoQs: false,
+    // isFormData: true,
+    data: {
+      ...formData,
+    },
+  });
+};
+
+/**
+ * 更新结节病变信息
+ * @param formData
+ * @returns
+ */
+export const xhr_resetFracLesion = (formData) => {
+  return Base.submit(null, {
+
+    url: frac + urlJson["resetOperate"],
+    // autoQs: false,
+    // isFormData: true,
+    data: {
+      ...formData,
+    },
+  });
+};
+
+
+
+/**
  * 更新文本报告
  * @param formData
  * @returns

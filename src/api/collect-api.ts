@@ -52,6 +52,8 @@ export default {
   updateCheckStatus:"/updateCheckStatus",
   updateTextReport: "/updateTextReport",
 
+  resetOperate:"/resetOperate",
+
 
 
   uploadCaseFile:"/uploadCaseFile",

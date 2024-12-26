@@ -4,17 +4,23 @@
     <div class="menuTopBox flex justify-between">
       <div class="sub_title">--</div>
       <div class="sub_tool flex items-center">
-        <div @click="handle_collect" class="flex hover:cursor-pointer justify-start items-center">
+        <div v-if="seriesInfo.myFavorite" @click="handle_star"
+          class="flex hover:cursor-pointer justify-start items-center">
           <div class="icon ico_shouchang flex items-center">
-            <ta-icon v-if="menuTopTool.collect === true" :style="starOn_style" type="star" theme="filled" />
-            <ta-icon v-else type="star" />
+            <ta-icon :style="starOn_style" type="star" theme="filled" />
           </div>
-          <div class="txt">收藏数据</div>
+          <div class="txt ml-2">取消收藏</div>
+        </div>
+        <div v-else @click="handle_star" class="flex hover:cursor-pointer justify-start items-center">
+          <div class="icon ico_shouchang flex items-center">
+            <ta-icon type="star" />
+          </div>
+          <div class="txt ml-2">收藏数据</div>
         </div>
         <div>
           <ta-divider type="vertical" class="cus_fgx" />
         </div>
-        <div class="flex hover:cursor-pointer">
+        <div class="flex hover:cursor-pointer" @click="ResetOperate">
           <div class="icon ico_reset flex items-center">
             <ta-icon type="undo" />
           </div>
@@ -43,6 +49,12 @@ import fractureResult from "@/picComps/visualTool/menudata-bar/module/lung/fract
 import calciumScoreResult from "@/picComps/visualTool/menudata-bar/module/lung/calcium-score-result/index.vue";
 import { mapActions, mapState } from "vuex";
 
+import {
+  xhr_addFavorite,
+  xhr_removeFavorite
+} from "@/api";
+
+
 export default {
   name: "menudata-bar",
   components: {
@@ -65,9 +77,10 @@ export default {
     };
   },
   computed: {
-    ...mapState("noduleInfoStore", ["noduleInfo"]),
-    ...mapState("pneumoniaInfoStore", ["pneumoniaInfo"]),
-    ...mapState("fracInfoStore", ["fracInfo"]),
+    ...mapState("lungViewStore", ["seriesInfo"]),
+    ...mapState("noduleStore", ["noduleInfo"]),
+    ...mapState("pneumoniaStore", ["pneumoniaInfo"]),
+    ...mapState("fracStore", ["fracInfo"]),
 
     tabItems: {
       get() {
@@ -104,10 +117,10 @@ export default {
     // ...mapActions("noduleInfoStore", ["ActiveNoduleState"]),
     // ...mapActions("pneumoniaInfoStore", ["ActivePneumoniaState"]),
     // ...mapActions("fracInfoStore", ["ActiveFracState"]),
-
-    ...mapActions("noduleStore", ["ActiveNodule"]),
-    ...mapActions("pneumoniaStore", ["ActivePneumonia"]),
-    ...mapActions("fracStore", ["ActiveFrac"]),
+    ...mapActions("lungViewStore", ["addMyFavorite"]),
+    ...mapActions("noduleStore", ["ActiveNodule", "ResetNodule"]),
+    ...mapActions("pneumoniaStore", ["ActivePneumonia", "ResetPneumonia"]),
+    ...mapActions("fracStore", ["ActiveFrac", "ResetFrac"]),
 
     tab_callback(key) {
       console.log(key);
@@ -130,9 +143,52 @@ export default {
       this.activeKey = key;
 
     },
-    handle_collect() {
-      this.menuTopTool.collect = !this.menuTopTool.collect;
-      this.$emit("cb-sc", this.menuTopTool.collect);
+    async ResetOperate() {
+      const { activeKey } = this
+      if (activeKey == "nodule") {
+        this.ResetNodule().then(() => {
+          this.$message.success('重置成功');
+
+        })
+      }
+      else if (activeKey == "pneumonia") {
+        this.ResetPneumonia().then(() => {
+          this.$message.success('重置成功');
+
+        })
+      }
+      else if (activeKey == "calcium") {
+        this.ResetFrac().then(() => {
+          this.$message.success('重置成功');
+
+        })
+
+      }
+      console.log("   this.activeKey", this.activeKey);
+
+      // xhr_resetNoduleLesion, xhr_resetPneumoniaLesion,xhr_resetFracLesion
+
+    },
+    handle_star() {
+      // this.menuTopTool.collect = !this.menuTopTool.collect;
+      // this.$emit("cb-sc", this.menuTopTool.collect);
+
+      console.log(this.seriesInfo);
+      const { studyId, myFavorite } = this.seriesInfo
+      if (myFavorite) {
+        xhr_removeFavorite({
+          studyId
+        }).then((item) => {
+          this.$message.success("取消收藏成功");
+        });
+      } else {
+        xhr_addFavorite({
+          studyId
+        }).then((item) => {
+          this.$message.success("收藏成功");
+        });
+      }
+      this.addMyFavorite(!myFavorite)
     },
   },
 

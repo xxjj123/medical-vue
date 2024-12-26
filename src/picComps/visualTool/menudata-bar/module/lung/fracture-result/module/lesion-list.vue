@@ -30,7 +30,7 @@
               </div>
             </template>
 
-            <template #delete="{ row }">
+            <!-- <template #delete="{ row }">
               <div class="h1 cj_block">
                 <ta-popconfirm placement="bottom" okText="确定" cancelText="取消" @confirm="deleteRow">
                   <template slot="title">
@@ -39,7 +39,7 @@
                   <ta-icon type="delete" />
                 </ta-popconfirm>
               </div>
-            </template>
+            </template> -->
 
             <template #RIB_NUMBER_EDIT="{ row, column }">
               <div class="h1 cj_block">
@@ -262,6 +262,18 @@ export default {
 
     }
   },
+  watch: {
+    tableData: {
+      handler(newVal, oldVal) {
+        this.$nextTick(() => {
+          const checkedData = newVal.filter(item => item.checked);
+          this.$refs.tableLungFrac.setCheckboxRow(checkedData, true)
+        })
+      },
+      deep: true
+    }
+
+  },
   data() {
     return {
       frac_dict,
@@ -311,7 +323,7 @@ export default {
             field: "ribNumber",
             title: "",
             editRender: {},
-            width: "75",
+            width: "80",
             customRender: {
               default: "ribNumber",
               edit: "RIB_NUMBER_EDIT"
@@ -319,7 +331,7 @@ export default {
           }, {
             field: "ribType",
             title: "",
-            width: "80",
+            width: "100",
             editRender: {},
             customRender: {
               default: "ribType",
@@ -328,19 +340,20 @@ export default {
           }, {
             field: "fracClass",
             title: "",
-            width: "120",
+            // width: "120",
             editRender: {},
             customRender: {
               default: "fracClass",
               edit: "FRAC_CLASS_EDIT",
             },
-          }, {
-            field: "delete", //危险级别
-            title: "",
-            customRender: {
-              default: "delete",
-            },
           },
+          // {
+          //   field: "delete", //危险级别
+          //   title: "",
+          //   customRender: {
+          //     default: "delete",
+          //   },
+          // },
 
         ],
       },

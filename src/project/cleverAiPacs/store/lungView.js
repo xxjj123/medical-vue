@@ -240,6 +240,7 @@ export default {
   },
 
   mutations: {
+
     SET_MODULE(state,{activeModule,moduleName}){
 
        if(!state.activedModules.includes(moduleName)){
@@ -314,6 +315,9 @@ export default {
 
     SET_SERIES_INFO(state,seriesInfo){
         state.seriesInfo = seriesInfo
+    },
+    SET_SERIES_INFO_ITEM(state,{key,value}){
+      state.seriesInfo[key] = value;
     },
     SET_NODULE_INFO(state, noduleInfo) {
       // console.log("noduleInfo=======",noduleInfo)
@@ -453,6 +457,9 @@ export default {
 
   },
   actions: {
+    async addMyFavorite({commit},myFavorite){
+      commit("SET_SERIES_INFO_ITEM",{key:'myFavorite',value:myFavorite})
+    },
     SetAllViewData({commit},{ key,value }){
       commit("SET_ALL_VIEW_STATE",{ key,value })
     },

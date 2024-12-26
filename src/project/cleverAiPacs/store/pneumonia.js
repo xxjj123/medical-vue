@@ -72,7 +72,7 @@ import {
   LayoutIcons
 } from "@/picComps/visualTool/tool-bar/assets/js/buttonNameType";
 
-import {xhr_queryPneumonia,xhr_updatePneuCheckStatus} from "@/api";
+import {xhr_queryPneumonia,xhr_updatePneuCheckStatus,xhr_resetPneumoniaLesion} from "@/api";
 const coordinate = vtkCoordinate.newInstance();
 
 import { gdcmReadImage} from "@itk-wasm/image-io"
@@ -344,6 +344,7 @@ export default {
    },
 
 
+
     async updatePneumoniaLession({state,commit},{pneuid,key,value}){
       // console.log({pneuid,key,value})
       const lesion = state.pneumoniaInfo.pneumoniaLesionList.find(item => item.id === pneuid);
@@ -353,11 +354,24 @@ export default {
           "pneumoniaLesionId":pneuid,
           "checked":value
         }
-
        await xhr_updatePneuCheckStatus(data).then(res=>{
         console.log(res)
        })
     }
+    },
+
+    async ResetPneumonia({dispatch,state,rootState,commit}){
+      const {lungViewStore} = rootState
+      const {seriesInfo} = lungViewStore
+      const computeSeriesId = seriesInfo.computeSeriesId
+      await xhr_resetPneumoniaLesion({computeSeriesId})
+      const result = await xhr_queryPneumonia({ computeSeriesId:seriesInfo.computeSeriesId});
+
+      if (result.serviceSuccess) {
+        // console.log(result.data.resultData)
+        commit("SET_PNEUMONIA_INFO",result.data.resultData)
+      }
+
     },
 
     async handleMousePress(

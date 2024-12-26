@@ -99,14 +99,13 @@ import { TextReport } from "./assets/reports"
 
 
 import {
-  xhr_saveSpineManualDiagnosis, xhr_querySpineTextReport
-} from "@/api";
-
-
-import {
+  xhr_saveSpineManualDiagnosis,
+  xhr_querySpineTextReport,
   xhr_addFavorite,
   xhr_removeFavorite
 } from "@/api";
+
+
 export default {
   name: "menudata-bar",
   components: { textBoard, reportView },

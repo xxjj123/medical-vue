@@ -6,10 +6,10 @@
         <div class="table_container">
           <ta-big-table class="lung_table_custom" ref="tableLungPneu" :size="tableConfig.size" row-id="id"
             @header-cell-click="clickHeader"
-            :checkbox-config="{ trigger: 'row', reserve: true, checkRowKeys: defaultSelecteRows }"
-            :keyboard-config="{ isArrow: true }" height="200" :columns="tableConfig.tableColumns" :data="tableData"
-            @checkbox-all="selectAllEvent" @checkbox-change="selectChangeEvent" @cell-click="handleCellClick"
-            :sort-config="tableConfig.sortConfig">
+            :checkbox-config="{ trigger: 'row', reserve: true, checkRowKeys: defaultSelecteRows }" height="200"
+            :columns="tableConfig.tableColumns" :data="tableData" @checkbox-all="selectAllEvent"
+            @checkbox-change="selectChangeEvent" @cell-click="handleCellClick" :sort-config="tableConfig.sortConfig">
+
 
             <template #lobeName="{ row }">
               <span>{{ row.lobeName.label }}</span>
@@ -236,6 +236,18 @@ export default {
         }
       }
     }
+  },
+  watch: {
+    tableData: {
+      handler(newVal, oldVal) {
+        this.$nextTick(() => {
+          const checkedData = newVal.filter(item => item.checked);
+          this.$refs.tableLungPneu.setCheckboxRow(checkedData, true)
+        })
+      },
+      deep: true
+    }
+
   },
   data() {
     return {

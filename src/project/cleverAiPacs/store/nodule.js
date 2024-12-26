@@ -76,7 +76,7 @@ import {
 
 const coordinate = vtkCoordinate.newInstance();
 import {
-  xhr_queryNodule,xhr_queryOperate,xhr_updateNoduleLesion,xhr_saveOperate
+  xhr_queryNodule,xhr_queryOperate,xhr_updateNoduleLesion,xhr_saveOperate,xhr_resetNoduleLesion
 } from "@/api";
 
 const VIEW_INFO = {
@@ -284,7 +284,7 @@ export default {
       state.allViewData.windowCenter = -500
       state.allViewData.windowWidth = 1500
       state.allViewData.invert = false
- 
+
       state.allViewData.flipHorizontal = false
       state.allViewData.flipVertical = false
 
@@ -354,6 +354,20 @@ export default {
 
        await dispatch("lungViewStore/ActiveModule","noduleStore",{root:true})
 
+    },
+
+    async ResetNodule({dispatch,state,rootState,commit}){
+      const {lungViewStore} = rootState
+      const {seriesInfo} = lungViewStore
+      const computeSeriesId = seriesInfo.computeSeriesId
+      await xhr_resetNoduleLesion({computeSeriesId})
+      const operatequery = await xhr_queryOperate({ computeSeriesId});
+      const nodulequery = await xhr_queryNodule({ computeSeriesId});
+      console.log(operatequery)
+      if (nodulequery.serviceSuccess && operatequery) {
+        commit("SET_NODULE_INFO",nodulequery.data.resultData)
+        commit("SET_OPERATE_INFO",operatequery.data.resultData)
+      }
     },
     async ActiveNoduleState({dispatch,state,rootState,commit}){
       await dispatch("lungViewStore/clearAllAutoplay",null,{root:true} )
