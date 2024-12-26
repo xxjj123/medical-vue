@@ -232,12 +232,26 @@ export default {
       let dropCode = dropValues[0];
 
       console.log("btn", btn);
-      const { child } = btn;
+      const { child, icon } = btn;
+      const { viewportId } = this.data
 
       if (child) {
         const selectIcon = child[dropCode]?.icon;
         console.log("selectIcon_", selectIcon);
         this.$set(this.btnInfoItem[index], "icon", selectIcon)
+
+        if (selectIcon === rotateChildBtnCodes.ICO_PACSSHUPING) {
+          // this.RotateCamera(this.viewType)
+          this.rotateView(viewportId)
+        } else if (selectIcon === rotateChildBtnCodes.ICO_PACSSHUIPINGFANZHUAN) {
+
+          // this.FlipHorizontal(this.viewType)
+          this.flipHorizontal(viewportId)
+
+        } else if (selectIcon === rotateChildBtnCodes.ICO_PACSCHUIZHIFANZHUAN) {
+          // this.FlipVertical(this.viewType)
+          this.flipVertical(viewportId)
+        }
       }
 
     },
